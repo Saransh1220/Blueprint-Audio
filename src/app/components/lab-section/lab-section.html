@@ -1,0 +1,108 @@
+<section class="lab-section container">
+  <div class="section-head">
+    Specimen<br /><span style="color: transparent; -webkit-text-stroke: 2px var(--ink)"
+      >Catalog</span
+    >
+  </div>
+
+  <!-- SEARCH & TOOLBAR -->
+  <div class="toolbar">
+    <div class="search-bar">
+      <i class="fas fa-search"></i>
+      <input
+        type="text"
+        placeholder="SEARCH_DATABASE..."
+        [ngModel]="searchTerm()"
+        (ngModelChange)="searchTerm.set($event)"
+      />
+    </div>
+    <button class="btn-filter" [class.active]="showFilters()" (click)="toggleFilterPanel()">
+      <i class="fas fa-sliders-h"></i> FILTERS
+    </button>
+  </div>
+
+  <!-- FILTER PANEL -->
+  <div class="filter-panel" *ngIf="showFilters()">
+    <div class="filter-grid">
+      <!-- GENRE -->
+      <div class="filter-group">
+        <label>GENRE / STYLE</label>
+        <div class="tags">
+          <div
+            class="tag"
+            *ngFor="let g of genres"
+            [class.active]="filters.genre().includes(g)"
+            (click)="toggleGenre(g)"
+          >
+            {{ g }}
+          </div>
+        </div>
+      </div>
+
+      <!-- BPM -->
+      <div class="filter-group">
+        <label>BPM RANGE: {{ filters.bpmRange()[0] }} - {{ filters.bpmRange()[1] }}</label>
+        <div class="range-slider">
+          <input
+            type="range"
+            min="60"
+            max="200"
+            [value]="filters.bpmRange()[0]"
+            (input)="updateBpm($event, 0)"
+          />
+          <input
+            type="range"
+            min="60"
+            max="200"
+            [value]="filters.bpmRange()[1]"
+            (input)="updateBpm($event, 1)"
+          />
+        </div>
+      </div>
+
+      <!-- PRICE -->
+      <div class="filter-group">
+        <label>PRICE: ${{ filters.priceRange()[0] }} - ${{ filters.priceRange()[1] }}</label>
+        <div class="range-slider">
+          <input
+            type="range"
+            min="0"
+            max="100"
+            [value]="filters.priceRange()[0]"
+            (input)="updatePrice($event, 0)"
+          />
+          <input
+            type="range"
+            min="0"
+            max="100"
+            [value]="filters.priceRange()[1]"
+            (input)="updatePrice($event, 1)"
+          />
+        </div>
+      </div>
+
+      <!-- KEY -->
+      <div class="filter-group">
+        <label>KEY</label>
+        <select [ngModel]="filters.key()" (ngModelChange)="filters.key.set($event)">
+          <option *ngFor="let k of keys" [value]="k">{{ k }}</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <div class="spec-grid">
+    <app-spec-card *ngFor="let spec of filteredSpecs()" [spec]="spec"></app-spec-card>
+  </div>
+
+  <div
+    *ngIf="filteredSpecs().length === 0"
+    style="text-align: center; padding: 60px; color: var(--line-color)"
+  >
+    NO SPECIMENS FOUND MATCHING CRITERIA.
+  </div>
+
+  <div style="text-align: center; margin-top: 60px">
+    <a href="#" class="btn btn-outline"><span>Load Full Database</span></a>
+  </div>
+</section>

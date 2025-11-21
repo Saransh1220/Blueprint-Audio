@@ -1,0 +1,45 @@
+@use '../../styles/variables' as *;
+
+footer {
+  background: #050505;
+  color: #f0f0f0;
+  border-top: 1px solid var(--line-color);
+  padding: 80px 40px;
+  font-family: $font-tech;
+}
+
+:host-context(.dark-theme) footer {
+  background: #0a0a0a;
+  border-top: 1px solid #222;
+}
+
+.footer-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 60px;
+}
+
+.f-large {
+  font-family: $font-head;
+  font-size: 3rem;
+  line-height: 1.1;
+  text-transform: uppercase;
+  color: #f0f0f0;
+}
+
+.f-links a {
+  display: block;
+  margin-bottom: 10px;
+  color: var(--line-color);
+}
+
+.f-links a:hover {
+  color: var(--red-color);
+  text-decoration: underline;
+}
+
+@media (max-width: 900px) {
+  .footer-grid {
+    grid-template-columns: 1fr;
+  }
+}

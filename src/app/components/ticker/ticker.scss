@@ -1,0 +1,28 @@
+@use '../../styles/variables' as *;
+
+.ticker-bar {
+  background: var(--red-color);
+  color: white;
+  overflow: hidden;
+  border-bottom: 1px solid var(--text-color);
+  padding: 10px 0;
+  white-space: nowrap;
+}
+.ticker-track {
+  display: inline-block;
+  animation: scroll 15s linear infinite;
+}
+.ticker-item {
+  margin-right: 40px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+@keyframes scroll {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}

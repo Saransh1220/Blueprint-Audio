@@ -1,0 +1,23 @@
+:root {
+  // Light Theme (Default)
+  --bg-color: #f0f0f0;
+  --bg-color-rgb: 240, 240, 240; // Added
+  --card-bg-color: #ffffff;
+  --text-color: #050505;
+  --text-color-rgb: 5, 5, 5; // Added
+  --red-color: #ff3300;
+  --line-color: #d1d1d1;
+  --faded-ink: rgba(5, 5, 5, 0.05);
+}
+
+body.dark-theme {
+  // Dark Theme
+  --bg-color: #050505;
+  --bg-color-rgb: 5, 5, 5; // Added
+  --card-bg-color: #1a1a1a;
+  --text-color: #f0f0f0;
+  --text-color-rgb: 240, 240, 240; // Added
+  --red-color: #ff6600; // Slightly different red for contrast in dark mode
+  --line-color: #333333;
+  --faded-ink: rgba(240, 240, 240, 0.05);
+}

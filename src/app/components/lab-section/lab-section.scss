@@ -1,0 +1,218 @@
+@use '../../styles/variables' as *;
+
+.lab-section {
+  padding: 120px 20px;
+}
+
+.section-head {
+  font-family: $font-head;
+  font-size: 4rem;
+  line-height: 0.9;
+  margin-bottom: 60px;
+  text-transform: uppercase;
+  color: var(--text-color);
+}
+
+/* Toolbar */
+.toolbar {
+  display: flex;
+  gap: 20px;
+  margin-bottom: 40px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.search-bar {
+  flex: 1;
+  min-width: 300px;
+  position: relative;
+
+  i {
+    position: absolute;
+    left: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--line-color);
+  }
+
+  input {
+    width: 100%;
+    padding: 15px 15px 15px 45px;
+    background: transparent;
+    border: 1px solid var(--line-color);
+    color: var(--text-color);
+    font-family: $font-tech;
+    font-size: 1rem;
+    outline: none;
+    transition: 0.3s;
+
+    &:focus {
+      border-color: var(--red-color);
+    }
+  }
+}
+
+.btn-filter {
+  padding: 15px 30px;
+  background: transparent;
+  border: 1px solid var(--line-color);
+  color: var(--text-color);
+  font-family: $font-tech;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  transition: 0.3s;
+
+  &:hover,
+  &.active {
+    background: var(--text-color);
+    color: var(--bg-color);
+  }
+}
+
+/* Filter Panel */
+.filter-panel {
+  background: rgba(var(--bg-color-rgb), 0.5);
+  border: 1px solid var(--line-color);
+  padding: 30px;
+  margin-bottom: 40px;
+  animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.filter-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 30px;
+}
+
+.filter-group {
+  label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 15px;
+    color: var(--line-color);
+    font-size: 0.8rem;
+  }
+}
+
+/* Tags */
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.tag {
+  padding: 8px 16px;
+  border: 1px solid var(--line-color);
+  cursor: pointer;
+  font-size: 0.8rem;
+  transition: 0.2s;
+
+  &:hover,
+  &.active {
+    border-color: var(--red-color);
+    color: var(--red-color);
+  }
+
+  &.active {
+    background: rgba(
+      var(--red-color-rgb),
+      0.1
+    ); // Assuming red-color-rgb exists or just use opacity
+  }
+}
+
+/* Range Slider */
+.range-slider {
+  position: relative;
+  height: 40px;
+  display: flex;
+  align-items: center;
+
+  &::before {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 4px;
+    background: var(--line-color);
+    border-radius: 2px;
+    top: 50%;
+    transform: translateY(-50%);
+  }
+}
+
+input[type='range'] {
+  position: absolute;
+  width: 100%;
+  pointer-events: none;
+  appearance: none;
+  background: transparent;
+  z-index: 2;
+
+  &::-webkit-slider-thumb {
+    pointer-events: auto;
+    appearance: none;
+    width: 16px;
+    height: 16px;
+    background: var(--red-color);
+    border-radius: 50%;
+    cursor: pointer;
+    margin-top: -6px;
+    position: relative;
+    z-index: 3;
+  }
+
+  &::-webkit-slider-runnable-track {
+    width: 100%;
+    height: 4px;
+    background: transparent;
+    border-radius: 2px;
+  }
+}
+
+/* Select */
+select {
+  width: 100%;
+  padding: 12px;
+  background: transparent;
+  border: 1px solid var(--line-color);
+  color: var(--text-color);
+  font-family: $font-tech;
+  outline: none;
+  cursor: pointer;
+
+  option {
+    background: var(--bg-color);
+    color: var(--text-color);
+  }
+}
+
+.spec-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
+}
+
+@media (max-width: 768px) {
+  .section-head {
+    font-size: 3rem;
+  }
+
+  .filter-grid {
+    grid-template-columns: 1fr;
+  }
+}
