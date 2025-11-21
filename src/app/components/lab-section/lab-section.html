@@ -1,20 +1,14 @@
 <section class="lab-section container">
   <div class="section-head">
-    Specimen<br /><span style="color: transparent; -webkit-text-stroke: 2px var(--ink)"
-      >Catalog</span
-    >
+    Specimen<br /><span style="color: transparent; -webkit-text-stroke: 2px var(--ink)">Catalog</span>
   </div>
 
   <!-- SEARCH & TOOLBAR -->
   <div class="toolbar">
     <div class="search-bar">
       <i class="fas fa-search"></i>
-      <input
-        type="text"
-        placeholder="SEARCH_DATABASE..."
-        [ngModel]="searchTerm()"
-        (ngModelChange)="searchTerm.set($event)"
-      />
+      <input type="text" placeholder="SEARCH_DATABASE..." [ngModel]="searchTerm()"
+        (ngModelChange)="searchTerm.set($event)" />
     </div>
     <button class="btn-filter" [class.active]="showFilters()" (click)="toggleFilterPanel()">
       <i class="fas fa-sliders-h"></i> FILTERS
@@ -28,12 +22,8 @@
       <div class="filter-group">
         <label>GENRE / STYLE</label>
         <div class="tags">
-          <div
-            class="tag"
-            *ngFor="let g of genres"
-            [class.active]="filters.genre().includes(g)"
-            (click)="toggleGenre(g)"
-          >
+          <div class="tag" *ngFor="let g of genres" [class.active]="filters.genre().includes(g)"
+            (click)="toggleGenre(g)">
             {{ g }}
           </div>
         </div>
@@ -43,20 +33,8 @@
       <div class="filter-group">
         <label>BPM RANGE: {{ filters.bpmRange()[0] }} - {{ filters.bpmRange()[1] }}</label>
         <div class="range-slider">
-          <input
-            type="range"
-            min="60"
-            max="200"
-            [value]="filters.bpmRange()[0]"
-            (input)="updateBpm($event, 0)"
-          />
-          <input
-            type="range"
-            min="60"
-            max="200"
-            [value]="filters.bpmRange()[1]"
-            (input)="updateBpm($event, 1)"
-          />
+          <input type="range" min="60" max="200" [value]="filters.bpmRange()[0]" (input)="updateBpm($event, 0)" />
+          <input type="range" min="60" max="200" [value]="filters.bpmRange()[1]" (input)="updateBpm($event, 1)" />
         </div>
       </div>
 
@@ -64,20 +42,8 @@
       <div class="filter-group">
         <label>PRICE: ${{ filters.priceRange()[0] }} - ${{ filters.priceRange()[1] }}</label>
         <div class="range-slider">
-          <input
-            type="range"
-            min="0"
-            max="100"
-            [value]="filters.priceRange()[0]"
-            (input)="updatePrice($event, 0)"
-          />
-          <input
-            type="range"
-            min="0"
-            max="100"
-            [value]="filters.priceRange()[1]"
-            (input)="updatePrice($event, 1)"
-          />
+          <input type="range" min="0" max="100" [value]="filters.priceRange()[0]" (input)="updatePrice($event, 0)" />
+          <input type="range" min="0" max="100" [value]="filters.priceRange()[1]" (input)="updatePrice($event, 1)" />
         </div>
       </div>
 
@@ -89,16 +55,20 @@
         </select>
       </div>
     </div>
+
+    <div style="margin-top: 30px; display: flex; justify-content: flex-end;">
+      <button (click)="clearFilters()"
+        style="background: transparent; border: 1px solid var(--red-color); color: var(--red-color); padding: 10px 20px; cursor: pointer; font-family: 'Space Mono', monospace;">
+        <i class="fas fa-times"></i> CLEAR ALL
+      </button>
+    </div>
   </div>
 
   <div class="spec-grid">
     <app-spec-card *ngFor="let spec of filteredSpecs()" [spec]="spec"></app-spec-card>
   </div>
 
-  <div
-    *ngIf="filteredSpecs().length === 0"
-    style="text-align: center; padding: 60px; color: var(--line-color)"
-  >
+  <div *ngIf="filteredSpecs().length === 0" style="text-align: center; padding: 60px; color: var(--line-color)">
     NO SPECIMENS FOUND MATCHING CRITERIA.
   </div>
 

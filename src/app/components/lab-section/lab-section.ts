@@ -2,6 +2,7 @@ import { Component, OnInit, AfterViewInit, computed, signal } from '@angular/cor
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Spec } from '../../models/spec';
+import { MusicalKey, Genre } from '../../models/enums';
 import { LabService } from '../../services/lab';
 import { SpecCardComponent } from '../spec-card/spec-card';
 import { gsap } from 'gsap';
@@ -31,8 +32,8 @@ export class LabSectionComponent implements OnInit, AfterViewInit {
   };
 
   // Options for Dropdowns/Tags
-  genres = ['Trap_v2', 'Drill_Core', 'R&B_Soul', 'Exp_Audio', 'House', 'Lo-Fi'];
-  keys = ['All', 'C# MINOR', 'A MAJOR', 'D MINOR', 'F# MAJOR', 'G MINOR'];
+  genres = Object.values(Genre);
+  keys = ['All', ...Object.values(MusicalKey)];
 
   filteredSpecs = computed(() => {
     const term = this.searchTerm().toLowerCase();
@@ -49,11 +50,9 @@ export class LabSectionComponent implements OnInit, AfterViewInit {
         spec.tags.some((tag) => tag.toLowerCase().includes(term));
 
       // Genre (Tags)
-      const matchesGenre =
-        genreFilters.length === 0 ||
-        genreFilters.some((g) =>
-          spec.tags.some((t) => t.toUpperCase() === g.toUpperCase().split('_')[0]),
-        ); // Simple matching logic
+      // Check if any of the selected genres match any of the spec's tags
+      const matchesGenre = genreFilters.length === 0 ||
+        genreFilters.some(g => spec.tags.includes(g));
 
       // BPM
       const matchesBpm = spec.bpm >= minBpm && spec.bpm <= maxBpm;
@@ -68,7 +67,7 @@ export class LabSectionComponent implements OnInit, AfterViewInit {
     });
   });
 
-  constructor(private labService: LabService) {}
+  constructor(private labService: LabService) { }
 
   ngOnInit(): void {
     this.labService.getSpecs().subscribe((specs) => {
@@ -131,5 +130,13 @@ export class LabSectionComponent implements OnInit, AfterViewInit {
       newRange[index] = val;
       return newRange;
     });
+  }
+
+  clearFilters() {
+    this.filters.genre.set([]);
+    this.filters.bpmRange.set([60, 200]);
+    this.filters.priceRange.set([0, 100]);
+    this.filters.key.set('All');
+    this.searchTerm.set('');
   }
 }

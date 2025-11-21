@@ -29,6 +29,7 @@
   line-height: 0.9;
   margin-bottom: 40px;
 }
+
 .section-head span {
   // Added this for consistency with hero.html
   -webkit-text-stroke: 2px var(--text-color);
@@ -47,7 +48,7 @@
   left: 0;
   width: 100%;
   height: 100%;
-  background: var(--text-color);
+  background: var(--bg-color);
   color: var(--red-color);
   z-index: 9999;
   display: flex;
@@ -56,6 +57,7 @@
   justify-content: center;
   font-family: $font-tech;
 }
+
 .loader-bar {
   width: 300px;
   height: 2px;
@@ -63,6 +65,7 @@
   margin-top: 20px;
   position: relative;
 }
+
 .loader-progress {
   position: absolute;
   top: 0;
