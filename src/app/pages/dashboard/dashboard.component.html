@@ -1,24 +1,28 @@
 <app-header></app-header>
 
 <div class="dashboard-container">
-    <div class="dashboard-header container">
-        <div class="welcome-text">
-            <h1>Welcome back, <span class="highlight">{{ currentUser()?.name }}</span></h1>
-            <p>Role: <span class="role-badge">{{ currentUser()?.role | uppercase }}</span></p>
-        </div>
+  <div class="dashboard-header container">
+    <div class="welcome-text">
+      <h1>
+        Welcome back, <span class="highlight">{{ currentUser()?.name }}</span>
+      </h1>
+      <p>
+        Role: <span class="role-badge">{{ currentUser()?.role | uppercase }}</span>
+      </p>
     </div>
+  </div>
 
-    <!-- Artist View -->
-    <div *ngIf="currentUser()?.role === 'artist'" class="container">
-        <app-spec-row title="Trending Beats" type="beat" filterTag="TRAP"></app-spec-row>
-        <app-spec-row title="New Arrivals" type="beat" filterTag="DRILL"></app-spec-row>
-        <app-spec-row title="Curated for You" type="beat" filterTag="RNB"></app-spec-row>
-    </div>
+  <!-- Artist View -->
+  <div *ngIf="currentUser()?.role === 'artist'" class="container">
+    <app-spec-row title="Trending Beats" type="beat" filterTag="TRAP"></app-spec-row>
+    <app-spec-row title="New Arrivals" type="beat" filterTag="DRILL"></app-spec-row>
+    <app-spec-row title="Curated for You" type="beat" filterTag="RNB"></app-spec-row>
+  </div>
 
-    <!-- Producer View -->
-    <div *ngIf="currentUser()?.role === 'producer'" class="container">
-        <app-spec-row title="Trending Samples" type="sample" filterTag="DRUMS"></app-spec-row>
-        <app-spec-row title="Fresh Loops" type="sample" filterTag="LOOPS"></app-spec-row>
-        <app-spec-row title="Sound Kits" type="sample" filterTag="PACK"></app-spec-row>
-    </div>
+  <!-- Producer View -->
+  <div *ngIf="currentUser()?.role === 'producer'" class="container">
+    <app-spec-row title="Trending Samples" type="sample" filterTag="DRUMS"></app-spec-row>
+    <app-spec-row title="Fresh Loops" type="sample" filterTag="LOOPS"></app-spec-row>
+    <app-spec-row title="Sound Kits" type="sample" filterTag="PACK"></app-spec-row>
+  </div>
 </div>

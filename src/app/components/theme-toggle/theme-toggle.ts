@@ -8,11 +8,11 @@ import { ThemeService } from '../../services/theme.service';
   imports: [CommonModule],
   template: `
     <label class="theme-switch">
-      <input 
-        type="checkbox" 
+      <input
+        type="checkbox"
         [checked]="themeService.currentTheme() === 'dark'"
         (change)="themeService.toggleTheme()"
-      >
+      />
       <span class="slider round">
         <i class="fa-solid fa-sun sun-icon"></i>
         <i class="fa-solid fa-moon moon-icon"></i>

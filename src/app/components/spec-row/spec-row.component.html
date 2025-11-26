@@ -1,14 +1,12 @@
 <div class="spec-row">
-    <div class="row-header">
-        <h2>{{ title }}</h2>
-        <a href="#" class="view-all">View All <i class="fas fa-arrow-right"></i></a>
-    </div>
+  <div class="row-header">
+    <h2>{{ title }}</h2>
+    <a href="#" class="view-all">View All <i class="fas fa-arrow-right"></i></a>
+  </div>
 
-    <div class="scroll-container">
-        <app-spec-card *ngFor="let spec of specs()" [spec]="spec" class="row-item"></app-spec-card>
+  <div class="scroll-container">
+    <app-spec-card *ngFor="let spec of specs()" [spec]="spec" class="row-item"></app-spec-card>
 
-        <div *ngIf="specs().length === 0" class="empty-state">
-            No items found in this category.
-        </div>
-    </div>
+    <div *ngIf="specs().length === 0" class="empty-state">No items found in this category.</div>
+  </div>
 </div>

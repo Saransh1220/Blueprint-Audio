@@ -36,8 +36,8 @@ export class AuthComponent implements OnInit, AfterViewInit, OnDestroy {
     private router: Router,
     private route: ActivatedRoute,
     private location: Location,
-    private authService: AuthService
-  ) { }
+    private authService: AuthService,
+  ) {}
 
   ngOnInit() {
     // Check URL to determine initial state

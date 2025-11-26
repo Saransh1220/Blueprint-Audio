@@ -1,20 +1,20 @@
 <div class="control-deck" #controlDeck>
   @if (playerService.currentTrack(); as track) {
-  <div class="deck-art">
-    <img [src]="track.imageUrl" />
-  </div>
-  <div class="deck-info">
-    <div>{{ track.title }}</div>
-    <div>{{ track.bpm }} BPM • {{ track.key }}</div>
-  </div>
+    <div class="deck-art">
+      <img [src]="track.imageUrl" />
+    </div>
+    <div class="deck-info">
+      <div>{{ track.title }}</div>
+      <div>{{ track.bpm }} BPM • {{ track.key }}</div>
+    </div>
   } @else {
-  <div class="deck-art" style="display: flex; align-items: center; justify-content: center;">
-    <i class="fa-solid fa-music" style="color: var(--text-color); opacity: 0.5;"></i>
-  </div>
-  <div class="deck-info">
-    <div>Ready to Play</div>
-    <div>Select a track</div>
-  </div>
+    <div class="deck-art" style="display: flex; align-items: center; justify-content: center">
+      <i class="fa-solid fa-music" style="color: var(--text-color); opacity: 0.5"></i>
+    </div>
+    <div class="deck-info">
+      <div>Ready to Play</div>
+      <div>Select a track</div>
+    </div>
   }
 
   <div class="waveform">
@@ -24,7 +24,7 @@
     <div class="wave-bar" style="animation-delay: 0.5s"></div>
     <div class="wave-bar" style="animation-delay: 0.2s"></div>
     <div class="wave-bar" style="animation-delay: 0.4s"></div>
-    <div class="wave-bar" style="animation-delay: 0.0s"></div>
+    <div class="wave-bar" style="animation-delay: 0s"></div>
     <div class="wave-bar" style="animation-delay: 0.3s"></div>
     <div class="wave-bar" style="animation-delay: 0.1s"></div>
     <div class="wave-bar" style="animation-delay: 0.5s"></div>

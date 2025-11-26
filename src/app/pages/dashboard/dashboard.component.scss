@@ -1,65 +1,65 @@
 .dashboard-container {
-    padding-top: 100px; // Account for fixed header
-    min-height: 100vh;
-    background-color: var(--paper);
+  padding-top: 100px; // Account for fixed header
+  min-height: 100vh;
+  background-color: var(--paper);
 }
 
 .dashboard-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 40px;
-    padding: 20px;
-    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 40px;
+  padding: 20px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
 
-    @media (max-width: 768px) {
-        flex-direction: column;
-        gap: 20px;
-        text-align: center;
-    }
+  @media (max-width: 768px) {
+    flex-direction: column;
+    gap: 20px;
+    text-align: center;
+  }
 }
 
 .welcome-text {
-    h1 {
-        font-size: 2.5rem;
-        margin-bottom: 10px;
-        font-weight: 700;
-    }
+  h1 {
+    font-size: 2.5rem;
+    margin-bottom: 10px;
+    font-weight: 700;
+  }
 
-    p {
-        font-size: 1rem;
-        color: var(--ink);
-        opacity: 0.7;
-    }
+  p {
+    font-size: 1rem;
+    color: var(--ink);
+    opacity: 0.7;
+  }
 }
 
 .highlight {
-    color: var(--red-color);
+  color: var(--red-color);
 }
 
 .role-badge {
-    background: var(--ink);
-    color: var(--paper);
-    padding: 4px 8px;
-    border-radius: 4px;
-    font-size: 0.8rem;
-    font-weight: bold;
-    margin-left: 8px;
+  background: var(--ink);
+  color: var(--paper);
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  font-weight: bold;
+  margin-left: 8px;
 }
 
 .btn-toggle {
-    background: transparent;
-    border: 1px solid var(--ink);
-    color: var(--ink);
-    padding: 12px 24px;
-    font-family: 'Space Mono', monospace;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    text-transform: uppercase;
-    font-weight: bold;
+  background: transparent;
+  border: 1px solid var(--ink);
+  color: var(--ink);
+  padding: 12px 24px;
+  font-family: 'Space Mono', monospace;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  font-weight: bold;
 
-    &:hover {
-        background: var(--ink);
-        color: var(--paper);
-    }
+  &:hover {
+    background: var(--ink);
+    color: var(--paper);
+  }
 }

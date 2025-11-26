@@ -107,7 +107,7 @@ export class LabService {
     },
   ];
 
-  constructor() { }
+  constructor() {}
 
   getSpecs(category?: 'beat' | 'sample'): Observable<Spec[]> {
     if (category) {
