@@ -12,12 +12,19 @@
         <span>or use your email for registration</span>
         <input type="text" placeholder="Name" [(ngModel)]="registerUsername" name="username" />
         <input type="email" placeholder="Email" [(ngModel)]="registerEmail" name="email" />
-        <input
-          type="password"
-          placeholder="Password"
-          [(ngModel)]="registerPassword"
-          name="password"
-        />
+        <input type="password" placeholder="Password" [(ngModel)]="registerPassword" name="password" />
+        <div class="role-switch-container">
+          <span class="label">I am a:</span>
+          <div class="switch-wrapper">
+            <input type="radio" id="artist" name="role" [(ngModel)]="registerRole" value="artist" hidden />
+            <label for="artist" class="switch-option">Artist</label>
+
+            <input type="radio" id="producer" name="role" [(ngModel)]="registerRole" value="producer" hidden />
+            <label for="producer" class="switch-option">Producer</label>
+
+            <div class="switch-selection"></div>
+          </div>
+        </div>
         <button type="submit">Sign Up</button>
       </form>
     </div>

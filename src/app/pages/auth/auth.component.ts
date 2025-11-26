@@ -1,12 +1,13 @@
 import { Component, OnInit, AfterViewInit, ViewChild, ElementRef, OnDestroy } from '@angular/core';
 import { CommonModule, Location } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router, ActivatedRoute, RouterLink } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-auth',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink],
+  imports: [CommonModule, FormsModule],
   templateUrl: './auth.component.html',
   styleUrls: ['./auth.component.scss'],
 })
@@ -22,6 +23,7 @@ export class AuthComponent implements OnInit, AfterViewInit, OnDestroy {
   registerEmail = '';
   registerPassword = '';
   registerConfirmPassword = '';
+  registerRole: 'artist' | 'producer' = 'artist';
 
   @ViewChild('fluidCanvas') canvasRef!: ElementRef<HTMLCanvasElement>;
   private ctx!: CanvasRenderingContext2D;
@@ -34,7 +36,8 @@ export class AuthComponent implements OnInit, AfterViewInit, OnDestroy {
     private router: Router,
     private route: ActivatedRoute,
     private location: Location,
-  ) {}
+    private authService: AuthService
+  ) { }
 
   ngOnInit() {
     // Check URL to determine initial state
@@ -66,12 +69,16 @@ export class AuthComponent implements OnInit, AfterViewInit, OnDestroy {
 
   onLoginSubmit() {
     console.log('Login:', this.loginEmail);
-    // TODO: Implement login logic
+    this.authService.login(this.loginEmail);
   }
 
   onRegisterSubmit() {
-    console.log('Register:', this.registerUsername);
-    // TODO: Implement register logic
+    console.log('Register:', this.registerUsername, this.registerRole);
+    this.authService.register({
+      username: this.registerUsername,
+      email: this.registerEmail,
+      role: this.registerRole,
+    });
   }
 
   // --- Fluid Animation Logic ---

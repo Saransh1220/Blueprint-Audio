@@ -1,24 +1,28 @@
-<div class="spec-card gs-item">
-  <div class="spec-header">
-    <div>ID: {{ spec.id }}</div>
-    <div>TYPE: {{ spec.type }}</div>
-  </div>
+<div class="spec-card">
   <div class="spec-img-box">
-    <div class="scan-line"></div>
     <img [src]="spec.imageUrl" class="card-img" />
-    <div class="play-btn-tech" (click)="playSong()"><i class="fa-solid fa-play"></i></div>
+    <div class="overlay-gradient"></div>
+    <div class="play-btn-neon" (click)="playSong()">
+      <i class="fa-solid fa-play"></i>
+    </div>
   </div>
-  <div class="spec-title">{{ spec.title }}</div>
-  <div class="card-meta">
-    <span class="tag-outline">{{ spec.bpm }} BPM</span>
-    <span class="tag-outline">{{ spec.key }}</span>
-    <span class="tag-outline" *ngFor="let tag of spec.tags">{{ tag }}</span>
-  </div>
-  <div class="spec-footer">
-    <div class="spec-price">${{ spec.price }}</div>
-    <i
-      class="fa-solid fa-cart-plus"
-      style="font-size: 1.2rem; cursor: pointer; color: var(--ink)"
-    ></i>
+
+  <div class="card-content">
+    <div class="spec-header-mini">
+      <span>{{ spec.type }}</span>
+    </div>
+
+    <div class="spec-title">{{ spec.title }}</div>
+
+    <div class="card-meta">
+      <span class="tag-glass">{{ spec.bpm }} BPM</span>
+      <span class="tag-glass">{{ spec.key }}</span>
+      <span class="tag-glass" *ngFor="let tag of spec.tags">{{ tag }}</span>
+    </div>
+
+    <div class="spec-footer">
+      <div class="spec-price">${{ spec.price }}</div>
+      <i class="fa-solid fa-cart-plus cart-btn"></i>
+    </div>
   </div>
 </div>

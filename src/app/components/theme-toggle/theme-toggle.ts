@@ -7,13 +7,17 @@ import { ThemeService } from '../../services/theme.service';
   standalone: true,
   imports: [CommonModule],
   template: `
-    <button (click)="themeService.toggleTheme()" class="theme-toggle-btn">
-      @if (themeService.currentTheme() === 'light') {
-        <i class="fa-solid fa-moon"></i>
-      } @else {
-        <i class="fa-solid fa-sun"></i>
-      }
-    </button>
+    <label class="theme-switch">
+      <input 
+        type="checkbox" 
+        [checked]="themeService.currentTheme() === 'dark'"
+        (change)="themeService.toggleTheme()"
+      >
+      <span class="slider round">
+        <i class="fa-solid fa-sun sun-icon"></i>
+        <i class="fa-solid fa-moon moon-icon"></i>
+      </span>
+    </label>
   `,
   styleUrls: ['./theme-toggle.scss'],
 })

@@ -74,6 +74,24 @@ nav {
   gap: 20px;
   align-items: center;
 
+  .login-btn {
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    text-decoration: none;
+    color: var(--text-color);
+    border: 1px solid var(--line-color);
+    padding: 8px 16px;
+    border-radius: 4px;
+    transition: all 0.3s ease;
+
+    &:hover {
+      background: var(--text-color);
+      color: var(--bg-color);
+      border-color: var(--text-color);
+    }
+  }
+
   .icon-btn {
     background: transparent;
     border: none;

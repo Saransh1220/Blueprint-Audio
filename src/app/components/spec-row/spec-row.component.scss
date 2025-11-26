@@ -1,0 +1,66 @@
+.spec-row {
+    margin-bottom: 40px;
+}
+
+.row-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding: 0 20px;
+
+    h2 {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--ink);
+        margin: 0;
+    }
+
+    .view-all {
+        color: var(--red-color);
+        text-decoration: none;
+        font-family: 'Space Mono', monospace;
+        font-size: 0.9rem;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        transition: opacity 0.3s ease;
+
+        &:hover {
+            opacity: 0.8;
+        }
+    }
+}
+
+.scroll-container {
+    display: flex;
+    gap: 20px;
+    overflow-x: auto;
+    padding: 10px 20px 30px 20px;
+    scroll-behavior: smooth;
+
+    // Hide scrollbar but keep functionality
+    &::-webkit-scrollbar {
+        height: 6px;
+    }
+
+    &::-webkit-scrollbar-track {
+        background: rgba(0, 0, 0, 0.05);
+    }
+
+    &::-webkit-scrollbar-thumb {
+        background: var(--red-color);
+        border-radius: 3px;
+    }
+
+    .row-item {
+        flex: 0 0 280px; // Fixed width for cards in row
+    }
+}
+
+.empty-state {
+    color: var(--ink);
+    opacity: 0.6;
+    font-family: 'Space Mono', monospace;
+    padding: 20px;
+}

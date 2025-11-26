@@ -38,4 +38,5 @@ export enum Genre {
   HIPHOP = 'HIP-HOP',
   POP = 'POP',
   TECH = 'TECH',
+  AMBIENT = 'AMBIENT',
 }

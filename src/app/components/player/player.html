@@ -1,36 +1,50 @@
-<div class="control-deck">
+<div class="control-deck" #controlDeck>
   @if (playerService.currentTrack(); as track) {
-    <div class="deck-art">
-      <img [src]="track.imageUrl" style="width: 100%; height: 100%; object-fit: cover" />
-    </div>
-    <div class="deck-info">
-      <div>{{ track.title }}</div>
-      <div>{{ track.bpm }} BPM - {{ track.key }}</div>
-    </div>
-  } @else {
-    <div class="deck-art"></div>
-    <div class="deck-info">
-      <div>AWAITING_INPUT</div>
-      <div>SELECT A TRACK TO BEGIN</div>
-    </div>
-  }
-  <div class="waveform">
-    <!-- Generating fake bars -->
-    <div class="wave-bar" style="animation-delay: 0.1s"></div>
-    <div class="wave-bar" style="animation-delay: 0.2s"></div>
-    <div class="wave-bar" style="animation-delay: 0.3s"></div>
-    <div class="wave-bar" style="animation-delay: 0.1s"></div>
-    <div class="wave-bar" style="animation-delay: 0.4s"></div>
-    <div class="wave-bar" style="animation-delay: 0.5s"></div>
-    <div class="wave-bar" style="animation-delay: 0.2s"></div>
-    <div class="wave-bar" style="animation-delay: 0.3s"></div>
-    <div class="wave-bar" style="animation-delay: 0.1s"></div>
-    <div class="wave-bar" style="animation-delay: 0.5s"></div>
+  <div class="deck-art">
+    <img [src]="track.imageUrl" />
   </div>
+  <div class="deck-info">
+    <div>{{ track.title }}</div>
+    <div>{{ track.bpm }} BPM • {{ track.key }}</div>
+  </div>
+  } @else {
+  <div class="deck-art" style="display: flex; align-items: center; justify-content: center;">
+    <i class="fa-solid fa-music" style="color: var(--text-color); opacity: 0.5;"></i>
+  </div>
+  <div class="deck-info">
+    <div>Ready to Play</div>
+    <div>Select a track</div>
+  </div>
+  }
+
+  <div class="waveform">
+    <!-- Simple bars -->
+    <div class="wave-bar" style="animation-delay: 0.1s"></div>
+    <div class="wave-bar" style="animation-delay: 0.3s"></div>
+    <div class="wave-bar" style="animation-delay: 0.5s"></div>
+    <div class="wave-bar" style="animation-delay: 0.2s"></div>
+    <div class="wave-bar" style="animation-delay: 0.4s"></div>
+    <div class="wave-bar" style="animation-delay: 0.0s"></div>
+    <div class="wave-bar" style="animation-delay: 0.3s"></div>
+    <div class="wave-bar" style="animation-delay: 0.1s"></div>
+    <div class="wave-bar" style="animation-delay: 0.5s"></div>
+    <div class="wave-bar" style="animation-delay: 0.2s"></div>
+    <div class="wave-bar" style="animation-delay: 0.4s"></div>
+    <div class="wave-bar" style="animation-delay: 0.1s"></div>
+  </div>
+
   <div class="deck-controls">
-    <i class="fa-solid fa-backward-step ctrl-btn"></i>
-    <i class="fa-solid fa-play ctrl-btn" style="color: var(--ink)"></i>
-    <i class="fa-solid fa-forward-step ctrl-btn"></i>
-    <i class="fa-solid fa-xmark ctrl-btn" (click)="playerService.hidePlayer()"></i>
+    <div class="ctrl-btn">
+      <i class="fa-solid fa-backward-step"></i>
+    </div>
+    <div class="ctrl-btn play-pause">
+      <i class="fa-solid fa-play"></i>
+    </div>
+    <div class="ctrl-btn">
+      <i class="fa-solid fa-forward-step"></i>
+    </div>
+    <div class="ctrl-btn" (click)="playerService.hidePlayer()">
+      <i class="fa-solid fa-xmark"></i>
+    </div>
   </div>
 </div>

@@ -1,4 +1,4 @@
-import { Component, OnInit, AfterViewInit, computed, signal } from '@angular/core';
+import { Component, OnInit, AfterViewInit, computed, signal, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Spec } from '../../models/spec';
@@ -18,6 +18,7 @@ gsap.registerPlugin(ScrollTrigger);
   styleUrls: ['./lab-section.scss'],
 })
 export class LabSectionComponent implements OnInit, AfterViewInit {
+  @Input() type: 'beat' | 'sample' = 'beat';
   specs = signal<Spec[]>([]);
 
   // Search & Filter State
@@ -67,10 +68,10 @@ export class LabSectionComponent implements OnInit, AfterViewInit {
     });
   });
 
-  constructor(private labService: LabService) {}
+  constructor(private labService: LabService) { }
 
   ngOnInit(): void {
-    this.labService.getSpecs().subscribe((specs) => {
+    this.labService.getSpecs(this.type).subscribe((specs) => {
       this.specs.set(specs);
     });
   }

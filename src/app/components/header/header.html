@@ -2,14 +2,12 @@
   <div class="nav-inner">
     <div class="nav-brand">BLUEPRINT<span>AUDIO</span>_LABS</div>
     <div class="nav-links">
-      <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }"
-        >HOME</a
-      >
+      <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">HOME</a>
       <a routerLink="/battles" routerLinkActive="active">BATTLES</a>
-      <a routerLink="/login" routerLinkActive="active">LOGIN</a>
     </div>
 
     <div class="header-actions">
+      <a routerLink="/login" class="login-btn">LOGIN</a>
       <button class="icon-btn" (click)="cartClick.emit()">
         <i class="fas fa-shopping-cart"></i>
       </button>
