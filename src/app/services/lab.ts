@@ -54,7 +54,7 @@ export class LabService {
     },
   ];
 
-  constructor() { }
+  constructor() {}
 
   getSpecs(): Observable<Spec[]> {
     return of(this.specs);

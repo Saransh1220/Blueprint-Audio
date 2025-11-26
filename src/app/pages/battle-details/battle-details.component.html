@@ -1,0 +1,60 @@
+<div class="battle-details-container">
+  <div class="container">
+    <!-- Header Section -->
+    <div class="battle-header">
+      <div class="status-badge" [class.voting]="battle().status === 'VOTING'">
+        {{ battle().status }}
+      </div>
+      <h1>{{ battle().title }}</h1>
+      <div class="meta-info">
+        <div class="meta-item">
+          <i class="fas fa-trophy"></i>
+          <span>{{ battle().prize }}</span>
+        </div>
+        <div class="meta-item">
+          <i class="fas fa-clock"></i>
+          <span>{{ battle().deadline }}</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="content-grid">
+      <!-- Left Column: Info -->
+      <div class="info-col">
+        <div class="card">
+          <h3>Overview</h3>
+          <p>{{ battle().description }}</p>
+        </div>
+
+        <div class="card">
+          <h3>Rules</h3>
+          <ul>
+            <li *ngFor="let rule of battle().rules">{{ rule }}</li>
+          </ul>
+        </div>
+
+        <button class="btn-submit" *ngIf="battle().status === 'OPEN'">Submit Track</button>
+      </div>
+
+      <!-- Right Column: Submissions -->
+      <div class="submissions-col">
+        <h3>Submissions</h3>
+        <div class="submission-list">
+          <div class="submission-card" *ngFor="let sub of submissions(); let i = index">
+            <div class="rank">#{{ i + 1 }}</div>
+            <div class="track-info">
+              <h4>{{ sub.title }}</h4>
+              <span>{{ sub.artist }}</span>
+            </div>
+            <div class="vote-section">
+              <span class="score">{{ sub.score }}</span>
+              <button class="btn-vote" (click)="vote(sub.id)">
+                <i class="fas fa-arrow-up"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

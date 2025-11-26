@@ -1,16 +1,19 @@
 <nav>
   <div class="nav-inner">
     <div class="nav-brand">BLUEPRINT<span>AUDIO</span>_LABS</div>
-    <div class="nav-center">
-      <a routerLink="/" class="nav-link">Home</a>
-      <a routerLink="/battles" class="nav-link">Battles</a>
-      <a href="#" class="nav-link">Producers</a>
-      <a href="#" class="nav-link">Services</a>
+    <div class="nav-links">
+      <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }"
+        >HOME</a
+      >
+      <a routerLink="/battles" routerLinkActive="active">BATTLES</a>
+      <a routerLink="/login" routerLinkActive="active">LOGIN</a>
     </div>
-    <div class="nav-right">
+
+    <div class="header-actions">
+      <button class="icon-btn" (click)="cartClick.emit()">
+        <i class="fas fa-shopping-cart"></i>
+      </button>
       <app-theme-toggle></app-theme-toggle>
-      <span class="tag-outline">CART [0]</span>
-      <a href="#" class="nav-link" style="font-weight: 700">Log_In</a>
     </div>
   </div>
 </nav>

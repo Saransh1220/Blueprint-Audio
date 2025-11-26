@@ -1,16 +1,16 @@
+<!-- BACKGROUND GRID -->
+<div class="grid-overlay"></div>
+
 <!-- PRELOADER -->
 <div class="loader">
-  <div style="font-size: 2rem; font-weight: 700; margin-bottom: 10px">INITIALIZING...</div>
   <div class="loader-bar">
     <div class="loader-progress"></div>
   </div>
-  <div style="margin-top: 10px; font-size: 0.8rem; opacity: 0.7">LOADING ASSETS // V2.0</div>
+  <div style="margin-top: 10px; font-family: 'Space Mono'; font-size: 0.8rem; letter-spacing: 2px">
+    Loading...
+  </div>
 </div>
 
-<div class="grid-overlay"></div>
-<app-header></app-header>
-<main>
-  <router-outlet></router-outlet>
-</main>
-<app-player></app-player>
+<app-header (cartClick)="toggleCart()"></app-header>
+<router-outlet></router-outlet>
 <app-footer></app-footer>

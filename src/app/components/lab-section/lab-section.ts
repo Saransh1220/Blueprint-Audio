@@ -51,8 +51,8 @@ export class LabSectionComponent implements OnInit, AfterViewInit {
 
       // Genre (Tags)
       // Check if any of the selected genres match any of the spec's tags
-      const matchesGenre = genreFilters.length === 0 ||
-        genreFilters.some(g => spec.tags.includes(g));
+      const matchesGenre =
+        genreFilters.length === 0 || genreFilters.some((g) => spec.tags.includes(g));
 
       // BPM
       const matchesBpm = spec.bpm >= minBpm && spec.bpm <= maxBpm;
@@ -67,7 +67,7 @@ export class LabSectionComponent implements OnInit, AfterViewInit {
     });
   });
 
-  constructor(private labService: LabService) { }
+  constructor(private labService: LabService) {}
 
   ngOnInit(): void {
     this.labService.getSpecs().subscribe((specs) => {

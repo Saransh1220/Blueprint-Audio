@@ -14,4 +14,4 @@ import { LabSectionComponent } from '../../components/lab-section/lab-section';
     <app-lab-section></app-lab-section>
   `,
 })
-export class HomeComponent { }
+export class HomeComponent {}

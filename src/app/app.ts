@@ -1,19 +1,29 @@
-import { Component, AfterViewInit, ElementRef } from '@angular/core';
+import { Component, AfterViewInit, ElementRef, ViewChild } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { HeaderComponent } from './components/header/header';
 import { FooterComponent } from './components/footer/footer';
 import { PlayerComponent } from './components/player/player';
+import { CartComponent } from './components/cart/cart.component';
 import { gsap } from 'gsap';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [CommonModule, HeaderComponent, FooterComponent, PlayerComponent, RouterOutlet],
+  imports: [
+    CommonModule,
+    HeaderComponent,
+    FooterComponent,
+    PlayerComponent,
+    CartComponent,
+    RouterOutlet,
+  ],
   templateUrl: './app.html',
   styleUrls: ['./app.scss'],
 })
 export class AppComponent implements AfterViewInit {
+  @ViewChild(CartComponent) cart!: CartComponent;
+
   constructor(private el: ElementRef) {}
 
   ngAfterViewInit(): void {
@@ -48,5 +58,8 @@ export class AppComponent implements AfterViewInit {
         { scale: 0.9, opacity: 0, duration: 1, ease: 'expo.out' },
         'loaderOut+=0.4',
       );
+  }
+  toggleCart() {
+    this.cart.toggle();
   }
 }

@@ -1,12 +1,15 @@
-import { Component } from '@angular/core';
+import { Component, output } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { RouterLink, RouterLinkActive } from '@angular/router';
 import { ThemeToggleComponent } from '../theme-toggle/theme-toggle';
-import { RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-header',
   standalone: true,
-  imports: [ThemeToggleComponent, RouterLink],
+  imports: [CommonModule, RouterLink, RouterLinkActive, ThemeToggleComponent],
   templateUrl: './header.html',
   styleUrls: ['./header.scss'],
 })
-export class HeaderComponent {}
+export class HeaderComponent {
+  cartClick = output<void>();
+}
