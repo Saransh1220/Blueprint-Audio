@@ -4,7 +4,9 @@ import { FormsModule } from '@angular/forms';
 import { Spec } from '../../models/spec';
 import { MusicalKey, Genre } from '../../models/enums';
 import { LabService } from '../../services/lab';
+import { PlayerService } from '../../services/player.service';
 import { SpecCardComponent } from '../spec-card/spec-card';
+import { SpecListItemComponent } from '../spec-list-item/spec-list-item.component';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
@@ -13,13 +15,18 @@ gsap.registerPlugin(ScrollTrigger);
 @Component({
   selector: 'app-lab-section',
   standalone: true,
-  imports: [CommonModule, SpecCardComponent, FormsModule],
+  imports: [CommonModule, SpecCardComponent, SpecListItemComponent, FormsModule],
   templateUrl: './lab-section.html',
   styleUrls: ['./lab-section.scss'],
 })
 export class LabSectionComponent implements OnInit, AfterViewInit {
   @Input() type: 'beat' | 'sample' = 'beat';
   specs = signal<Spec[]>([]);
+  viewMode = signal<'grid' | 'list'>('grid');
+
+  setViewMode(mode: 'grid' | 'list') {
+    this.viewMode.set(mode);
+  }
 
   // Search & Filter State
   searchTerm = signal('');
@@ -68,12 +75,16 @@ export class LabSectionComponent implements OnInit, AfterViewInit {
     });
   });
 
-  constructor(private labService: LabService) {}
+  constructor(private labService: LabService, private playerService: PlayerService) { }
 
   ngOnInit(): void {
     this.labService.getSpecs(this.type).subscribe((specs) => {
       this.specs.set(specs);
     });
+  }
+
+  playSong(spec: Spec) {
+    this.playerService.showPlayer(spec);
   }
 
   ngAfterViewInit(): void {

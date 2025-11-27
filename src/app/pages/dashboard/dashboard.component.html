@@ -1,28 +1,92 @@
 <app-header></app-header>
 
+<app-header></app-header>
+
 <div class="dashboard-container">
-  <div class="dashboard-header container">
-    <div class="welcome-text">
-      <h1>
-        Welcome back, <span class="highlight">{{ currentUser()?.name }}</span>
-      </h1>
-      <p>
-        Role: <span class="role-badge">{{ currentUser()?.role | uppercase }}</span>
-      </p>
+    <div class="dashboard-grid container">
+        <!-- Command Center Header -->
+        <div class="command-center-panel">
+            <div class="panel-header">
+                <span class="panel-title">COMMAND CENTER</span>
+                <span class="panel-status">STATUS: ONLINE</span>
+            </div>
+            <div class="welcome-content">
+                <div class="user-info">
+                    <h1>
+                        WELCOME BACK, <span class="highlight">{{ currentUser()?.name | uppercase }}</span>
+                    </h1>
+                    <div class="meta-data">
+                        <span class="data-point">ROLE: <span class="value">{{ currentUser()?.role | uppercase
+                                }}</span></span>
+                        <span class="separator">//</span>
+                        <span class="data-point">DATE: <span class="value">{{ currentDate() | date:'yyyy.MM.dd'
+                                }}</span></span>
+                    </div>
+                </div>
+                <div class="decorative-lines">
+                    <div class="line"></div>
+                    <div class="line"></div>
+                    <div class="line"></div>
+                </div>
+            </div>
+            <div class="corner-marker top-left"></div>
+            <div class="corner-marker top-right"></div>
+            <div class="corner-marker bottom-left"></div>
+            <div class="corner-marker bottom-right"></div>
+        </div>
+
+        <!-- Artist View -->
+        <ng-container *ngIf="currentUser()?.role === 'artist'">
+            <div class="data-module">
+                <div class="module-header">
+                    <span class="module-title">TRENDING_BEATS</span>
+                    <div class="scan-line"></div>
+                </div>
+                <app-spec-row title="Trending Beats" type="beat" filterTag="TRAP"></app-spec-row>
+            </div>
+
+            <div class="data-module">
+                <div class="module-header">
+                    <span class="module-title">NEW_ARRIVALS</span>
+                    <div class="scan-line"></div>
+                </div>
+                <app-spec-row title="New Arrivals" type="beat" filterTag="DRILL"></app-spec-row>
+            </div>
+
+            <div class="data-module full-width">
+                <div class="module-header">
+                    <span class="module-title">CURATED_SELECTION</span>
+                    <div class="scan-line"></div>
+                </div>
+                <app-spec-row title="Curated for You" type="beat" filterTag="RNB"></app-spec-row>
+            </div>
+        </ng-container>
+
+        <!-- Producer View -->
+        <ng-container *ngIf="currentUser()?.role === 'producer'">
+            <div class="data-module">
+                <div class="module-header">
+                    <span class="module-title">TRENDING_SAMPLES</span>
+                    <div class="scan-line"></div>
+                </div>
+                <app-spec-row title="Trending Samples" type="sample" filterTag="DRUMS"></app-spec-row>
+            </div>
+
+            <div class="data-module">
+                <div class="module-header">
+                    <span class="module-title">FRESH_LOOPS</span>
+                    <div class="scan-line"></div>
+                </div>
+                <app-spec-row title="Fresh Loops" type="sample" filterTag="LOOPS"></app-spec-row>
+            </div>
+
+            <div class="data-module full-width">
+                <div class="module-header">
+                    <span class="module-title">SOUND_KITS</span>
+                    <div class="scan-line"></div>
+                </div>
+                <app-spec-row title="Sound Kits" type="sample" filterTag="PACK"></app-spec-row>
+            </div>
+        </ng-container>
     </div>
-  </div>
-
-  <!-- Artist View -->
-  <div *ngIf="currentUser()?.role === 'artist'" class="container">
-    <app-spec-row title="Trending Beats" type="beat" filterTag="TRAP"></app-spec-row>
-    <app-spec-row title="New Arrivals" type="beat" filterTag="DRILL"></app-spec-row>
-    <app-spec-row title="Curated for You" type="beat" filterTag="RNB"></app-spec-row>
-  </div>
-
-  <!-- Producer View -->
-  <div *ngIf="currentUser()?.role === 'producer'" class="container">
-    <app-spec-row title="Trending Samples" type="sample" filterTag="DRUMS"></app-spec-row>
-    <app-spec-row title="Fresh Loops" type="sample" filterTag="LOOPS"></app-spec-row>
-    <app-spec-row title="Sound Kits" type="sample" filterTag="PACK"></app-spec-row>
-  </div>
 </div>
