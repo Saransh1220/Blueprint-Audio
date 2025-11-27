@@ -1,0 +1,46 @@
+<div class="spec-item">
+  <!-- Left Section: Image & Play -->
+  <div class="item-visual" (click)="playSong($event)">
+    <img [src]="spec.imageUrl" [alt]="spec.title" loading="lazy" />
+    <div class="play-overlay">
+      <i class="fas fa-play"></i>
+    </div>
+    <div class="equalizer-bars"><span></span><span></span><span></span><span></span></div>
+  </div>
+
+  <!-- Middle Section: Info -->
+  <div class="item-content">
+    <div class="content-header">
+      <h3 class="item-title">{{ spec.title }}</h3>
+      <span class="item-type">{{ spec.type }}</span>
+    </div>
+
+    <div class="content-meta">
+      <div class="meta-pill">
+        <i class="fas fa-heartbeat"></i>
+        <span>{{ spec.bpm }} BPM</span>
+      </div>
+      <div class="meta-pill">
+        <i class="fas fa-music"></i>
+        <span>{{ spec.key }}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tags Section (Hidden on mobile) -->
+  <div class="item-tags">
+    <span class="tag" *ngFor="let tag of spec.tags.slice(0, 3)">#{{ tag }}</span>
+  </div>
+
+  <!-- Right Section: Price & Actions -->
+  <div class="item-actions">
+    <span class="price">${{ spec.price }}</span>
+    <button class="btn-cart" (click)="addToCart($event)">
+      <i class="fas fa-cart-plus"></i>
+      <div class="btn-glow"></div>
+    </button>
+  </div>
+
+  <!-- Background Glow -->
+  <div class="item-glow"></div>
+</div>

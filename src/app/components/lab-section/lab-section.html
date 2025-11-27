@@ -17,9 +17,31 @@
         (ngModelChange)="searchTerm.set($event)"
       />
     </div>
-    <button class="btn-filter" [class.active]="showFilters()" (click)="toggleFilterPanel()">
-      <i class="fas fa-sliders-h"></i> FILTERS
-    </button>
+
+    <div class="toolbar-actions">
+      <div class="view-controls">
+        <button
+          class="btn-view"
+          [class.active]="viewMode() === 'grid'"
+          (click)="setViewMode('grid')"
+          title="Grid View"
+        >
+          <i class="fas fa-th-large"></i>
+        </button>
+        <button
+          class="btn-view"
+          [class.active]="viewMode() === 'list'"
+          (click)="setViewMode('list')"
+          title="List View"
+        >
+          <i class="fas fa-list"></i>
+        </button>
+      </div>
+
+      <button class="btn-filter" [class.active]="showFilters()" (click)="toggleFilterPanel()">
+        <i class="fas fa-sliders-h"></i> FILTERS
+      </button>
+    </div>
   </div>
 
   <!-- FILTER PANEL -->
@@ -108,8 +130,14 @@
     </div>
   </div>
 
-  <div class="spec-grid">
+  <!-- GRID VIEW -->
+  <div class="spec-grid" *ngIf="viewMode() === 'grid'">
     <app-spec-card *ngFor="let spec of filteredSpecs()" [spec]="spec"></app-spec-card>
+  </div>
+
+  <!-- LIST VIEW -->
+  <div class="list-container" *ngIf="viewMode() === 'list'">
+    <app-spec-list-item *ngFor="let spec of filteredSpecs()" [spec]="spec"></app-spec-list-item>
   </div>
 
   <div

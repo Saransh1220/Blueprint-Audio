@@ -1,12 +1,38 @@
 <div class="spec-row">
   <div class="row-header">
-    <h2>{{ title }}</h2>
+    <div class="header-left">
+      <h2>{{ title }}</h2>
+      <div class="view-controls">
+        <button
+          class="btn-view"
+          [class.active]="viewMode() === 'grid'"
+          (click)="setViewMode('grid')"
+          title="Grid View"
+        >
+          <i class="fas fa-th-large"></i>
+        </button>
+        <button
+          class="btn-view"
+          [class.active]="viewMode() === 'list'"
+          (click)="setViewMode('list')"
+          title="List View"
+        >
+          <i class="fas fa-list"></i>
+        </button>
+      </div>
+    </div>
     <a href="#" class="view-all">View All <i class="fas fa-arrow-right"></i></a>
   </div>
 
-  <div class="scroll-container">
+  <!-- Grid View -->
+  <div class="scroll-container" *ngIf="viewMode() === 'grid'">
     <app-spec-card *ngFor="let spec of specs()" [spec]="spec" class="row-item"></app-spec-card>
+    <div *ngIf="specs().length === 0" class="empty-state">No items found in this category.</div>
+  </div>
 
+  <!-- List View -->
+  <div class="list-container" *ngIf="viewMode() === 'list'">
+    <app-spec-list-item *ngFor="let spec of specs()" [spec]="spec"></app-spec-list-item>
     <div *ngIf="specs().length === 0" class="empty-state">No items found in this category.</div>
   </div>
 </div>

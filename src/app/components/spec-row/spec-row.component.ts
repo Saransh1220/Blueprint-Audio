@@ -1,13 +1,15 @@
 import { Component, Input, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { SpecCardComponent } from '../spec-card/spec-card';
+import { SpecListItemComponent } from '../spec-list-item/spec-list-item.component';
 import { Spec } from '../../models/spec';
 import { LabService } from '../../services/lab';
+import { PlayerService } from '../../services/player.service';
 
 @Component({
   selector: 'app-spec-row',
   standalone: true,
-  imports: [CommonModule, SpecCardComponent],
+  imports: [CommonModule, SpecCardComponent, SpecListItemComponent],
   templateUrl: './spec-row.component.html',
   styleUrls: ['./spec-row.component.scss'],
 })
@@ -17,8 +19,20 @@ export class SpecRowComponent implements OnInit {
   @Input() type: 'beat' | 'sample' = 'beat';
 
   specs = signal<Spec[]>([]);
+  viewMode = signal<'grid' | 'list'>('grid');
 
-  constructor(private labService: LabService) {}
+  constructor(
+    private labService: LabService,
+    private playerService: PlayerService,
+  ) {}
+
+  setViewMode(mode: 'grid' | 'list') {
+    this.viewMode.set(mode);
+  }
+
+  playSong(spec: Spec) {
+    this.playerService.showPlayer(spec);
+  }
 
   ngOnInit() {
     // In a real app, we'd have a more specific API call.

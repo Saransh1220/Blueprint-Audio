@@ -1,3 +1,5 @@
+@import '../../styles/variables';
+
 .spec-row {
   margin-bottom: 40px;
 }
@@ -9,17 +11,55 @@
   margin-bottom: 20px;
   padding: 0 20px;
 
-  h2 {
-    font-size: 1.5rem;
-    font-weight: 700;
-    color: var(--ink);
-    margin: 0;
+  .header-left {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+
+    h2 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--ink);
+      margin: 0;
+    }
+  }
+
+  .view-controls {
+    display: flex;
+    gap: 8px;
+    background: rgba(var(--text-color-rgb), 0.05);
+    padding: 4px;
+    border-radius: 6px;
+
+    .btn-view {
+      background: transparent;
+      border: none;
+      color: var(--ink);
+      opacity: 0.5;
+      padding: 6px 10px;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      font-size: 0.9rem;
+
+      &:hover {
+        opacity: 0.8;
+        background: rgba(var(--text-color-rgb), 0.05);
+      }
+
+      &.active {
+        opacity: 1;
+        background: var(--card-bg-color);
+        color: var(--red-color);
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+      }
+    }
   }
 
   .view-all {
     color: var(--red-color);
     text-decoration: none;
-    font-family: 'Space Mono', monospace;
+    font-family: $font-tech;
     font-size: 0.9rem;
     display: flex;
     align-items: center;
@@ -58,9 +98,10 @@
   }
 }
 
-.empty-state {
-  color: var(--ink);
-  opacity: 0.6;
-  font-family: 'Space Mono', monospace;
-  padding: 20px;
+// List View Styles
+.list-container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 0 20px;
 }

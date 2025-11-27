@@ -13,6 +13,7 @@ import { AuthService, User } from '../../services/auth.service';
 })
 export class DashboardComponent implements OnInit {
   currentUser = signal<User | null>(null);
+  currentDate = signal<Date>(new Date());
 
   constructor(private authService: AuthService) {}
 
