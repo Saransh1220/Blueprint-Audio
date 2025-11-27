@@ -75,7 +75,10 @@ export class LabSectionComponent implements OnInit, AfterViewInit {
     });
   });
 
-  constructor(private labService: LabService, private playerService: PlayerService) { }
+  constructor(
+    private labService: LabService,
+    private playerService: PlayerService,
+  ) {}
 
   ngOnInit(): void {
     this.labService.getSpecs(this.type).subscribe((specs) => {

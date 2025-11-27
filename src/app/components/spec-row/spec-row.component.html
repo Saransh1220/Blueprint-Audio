@@ -3,10 +3,20 @@
     <div class="header-left">
       <h2>{{ title }}</h2>
       <div class="view-controls">
-        <button class="btn-view" [class.active]="viewMode() === 'grid'" (click)="setViewMode('grid')" title="Grid View">
+        <button
+          class="btn-view"
+          [class.active]="viewMode() === 'grid'"
+          (click)="setViewMode('grid')"
+          title="Grid View"
+        >
           <i class="fas fa-th-large"></i>
         </button>
-        <button class="btn-view" [class.active]="viewMode() === 'list'" (click)="setViewMode('list')" title="List View">
+        <button
+          class="btn-view"
+          [class.active]="viewMode() === 'list'"
+          (click)="setViewMode('list')"
+          title="List View"
+        >
           <i class="fas fa-list"></i>
         </button>
       </div>

@@ -21,7 +21,10 @@ export class SpecRowComponent implements OnInit {
   specs = signal<Spec[]>([]);
   viewMode = signal<'grid' | 'list'>('grid');
 
-  constructor(private labService: LabService, private playerService: PlayerService) { }
+  constructor(
+    private labService: LabService,
+    private playerService: PlayerService,
+  ) {}
 
   setViewMode(mode: 'grid' | 'list') {
     this.viewMode.set(mode);
