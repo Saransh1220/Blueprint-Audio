@@ -1,6 +1,6 @@
 import { Component, AfterViewInit, ElementRef, ViewChild } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { CommonModule } from '@angular/common';
+
 import { HeaderComponent } from './components/header/header';
 import { FooterComponent } from './components/footer/footer';
 import { PlayerComponent } from './components/player/player';
@@ -11,13 +11,12 @@ import { gsap } from 'gsap';
   selector: 'app-root',
   standalone: true,
   imports: [
-    CommonModule,
     HeaderComponent,
     FooterComponent,
     PlayerComponent,
     CartComponent,
-    RouterOutlet,
-  ],
+    RouterOutlet
+],
   templateUrl: './app.html',
   styleUrls: ['./app.scss'],
 })

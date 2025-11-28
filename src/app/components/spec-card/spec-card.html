@@ -17,7 +17,9 @@
     <div class="card-meta">
       <span class="tag-glass">{{ spec.bpm }} BPM</span>
       <span class="tag-glass">{{ spec.key }}</span>
-      <span class="tag-glass" *ngFor="let tag of spec.tags">{{ tag }}</span>
+      @for (tag of spec.tags; track tag) {
+        <span class="tag-glass">{{ tag }}</span>
+      }
     </div>
 
     <div class="spec-footer">

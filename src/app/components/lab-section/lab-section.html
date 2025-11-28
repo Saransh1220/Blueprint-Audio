@@ -13,7 +13,7 @@
         placeholder="SEARCH_DATABASE..."
         [ngModel]="searchTerm()"
         (ngModelChange)="searchTerm.set($event)"
-      />
+        />
     </div>
 
     <div class="toolbar-actions">
@@ -23,7 +23,7 @@
           [class.active]="viewMode() === 'grid'"
           (click)="setViewMode('grid')"
           title="Grid View"
-        >
+          >
           <i class="fas fa-th-large"></i>
         </button>
         <button
@@ -31,7 +31,7 @@
           [class.active]="viewMode() === 'list'"
           (click)="setViewMode('list')"
           title="List View"
-        >
+          >
           <i class="fas fa-list"></i>
         </button>
       </div>
@@ -43,97 +43,107 @@
   </div>
 
   <!-- FILTER PANEL -->
-  <div class="filter-panel" *ngIf="showFilters()">
-    <div class="filter-grid">
-      <!-- GENRE -->
-      <div class="filter-group">
-        <label>GENRE / STYLE</label>
-        <div class="tags">
-          <div
-            class="tag"
-            *ngFor="let g of genres"
-            [class.active]="filters.genre().includes(g)"
-            (click)="toggleGenre(g)"
-          >
-            {{ g }}
+  @if (showFilters()) {
+    <div class="filter-panel">
+      <div class="filter-grid">
+        <!-- GENRE -->
+        <div class="filter-group">
+          <label>GENRE / STYLE</label>
+          <div class="tags">
+            @for (g of genres; track g) {
+              <div
+                class="tag"
+                [class.active]="filters.genre().includes(g)"
+                (click)="toggleGenre(g)"
+                >
+                {{ g }}
+              </div>
+            }
           </div>
         </div>
-      </div>
-
-      <!-- BPM -->
-      <div class="filter-group">
-        <label>BPM RANGE: {{ filters.bpmRange()[0] }} - {{ filters.bpmRange()[1] }}</label>
-        <div class="range-slider">
-          <input
-            type="range"
-            min="60"
-            max="200"
-            [value]="filters.bpmRange()[0]"
-            (input)="updateBpm($event, 0)"
-          />
-          <input
-            type="range"
-            min="60"
-            max="200"
-            [value]="filters.bpmRange()[1]"
-            (input)="updateBpm($event, 1)"
-          />
+        <!-- BPM -->
+        <div class="filter-group">
+          <label>BPM RANGE: {{ filters.bpmRange()[0] }} - {{ filters.bpmRange()[1] }}</label>
+          <div class="range-slider">
+            <input
+              type="range"
+              min="60"
+              max="200"
+              [value]="filters.bpmRange()[0]"
+              (input)="updateBpm($event, 0)"
+              />
+            <input
+              type="range"
+              min="60"
+              max="200"
+              [value]="filters.bpmRange()[1]"
+              (input)="updateBpm($event, 1)"
+              />
+          </div>
+        </div>
+        <!-- PRICE -->
+        <div class="filter-group">
+          <label>PRICE: ${{ filters.priceRange()[0] }} - ${{ filters.priceRange()[1] }}</label>
+          <div class="range-slider">
+            <input
+              type="range"
+              min="0"
+              max="100"
+              [value]="filters.priceRange()[0]"
+              (input)="updatePrice($event, 0)"
+              />
+            <input
+              type="range"
+              min="0"
+              max="100"
+              [value]="filters.priceRange()[1]"
+              (input)="updatePrice($event, 1)"
+              />
+          </div>
+        </div>
+        <!-- KEY -->
+        <div class="filter-group">
+          <label>KEY</label>
+          <select [ngModel]="filters.key()" (ngModelChange)="filters.key.set($event)">
+            @for (k of keys; track k) {
+              <option [value]="k">{{ k }}</option>
+            }
+          </select>
         </div>
       </div>
-
-      <!-- PRICE -->
-      <div class="filter-group">
-        <label>PRICE: ${{ filters.priceRange()[0] }} - ${{ filters.priceRange()[1] }}</label>
-        <div class="range-slider">
-          <input
-            type="range"
-            min="0"
-            max="100"
-            [value]="filters.priceRange()[0]"
-            (input)="updatePrice($event, 0)"
-          />
-          <input
-            type="range"
-            min="0"
-            max="100"
-            [value]="filters.priceRange()[1]"
-            (input)="updatePrice($event, 1)"
-          />
-        </div>
-      </div>
-
-      <!-- KEY -->
-      <div class="filter-group">
-        <label>KEY</label>
-        <select [ngModel]="filters.key()" (ngModelChange)="filters.key.set($event)">
-          <option *ngFor="let k of keys" [value]="k">{{ k }}</option>
-        </select>
+      <div style="margin-top: 30px; display: flex; justify-content: flex-end">
+        <button class="btn-clear" (click)="clearFilters()">
+          <i class="fas fa-times"></i> CLEAR ALL
+        </button>
       </div>
     </div>
-
-    <div style="margin-top: 30px; display: flex; justify-content: flex-end">
-      <button class="btn-clear" (click)="clearFilters()">
-        <i class="fas fa-times"></i> CLEAR ALL
-      </button>
-    </div>
-  </div>
+  }
 
   <!-- GRID VIEW -->
-  <div class="spec-grid" *ngIf="viewMode() === 'grid'">
-    <app-spec-card *ngFor="let spec of filteredSpecs()" [spec]="spec"></app-spec-card>
-  </div>
+  @if (viewMode() === 'grid') {
+    <div class="spec-grid">
+      @for (spec of filteredSpecs(); track spec) {
+        <app-spec-card [spec]="spec"></app-spec-card>
+      }
+    </div>
+  }
 
   <!-- LIST VIEW -->
-  <div class="list-container" *ngIf="viewMode() === 'list'">
-    <app-spec-list-item *ngFor="let spec of filteredSpecs()" [spec]="spec"></app-spec-list-item>
-  </div>
+  @if (viewMode() === 'list') {
+    <div class="list-container">
+      @for (spec of filteredSpecs(); track spec) {
+        <app-spec-list-item [spec]="spec"></app-spec-list-item>
+      }
+    </div>
+  }
 
-  <div
-    *ngIf="filteredSpecs().length === 0"
-    style="text-align: center; padding: 60px; color: var(--line-color)"
-  >
-    NO SPECIMENS FOUND MATCHING CRITERIA.
-  </div>
+  @if (filteredSpecs().length === 0) {
+    <div
+      style="text-align: center; padding: 60px; color: var(--line-color)"
+      >
+      NO SPECIMENS FOUND MATCHING CRITERIA.
+    </div>
+  }
 
   <div style="text-align: center; margin-top: 60px">
     <a href="#" class="btn btn-outline"><span>Load Full Database</span></a>

@@ -1,5 +1,5 @@
 import { Component, OnInit, AfterViewInit, computed, signal, Input } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { FormsModule } from '@angular/forms';
 import { Spec } from '../../models/spec';
 import { MusicalKey, Genre } from '../../models/enums';
@@ -15,7 +15,7 @@ gsap.registerPlugin(ScrollTrigger);
 @Component({
   selector: 'app-lab-section',
   standalone: true,
-  imports: [CommonModule, SpecCardComponent, SpecListItemComponent, FormsModule],
+  imports: [SpecCardComponent, SpecListItemComponent, FormsModule],
   templateUrl: './lab-section.html',
   styleUrls: ['./lab-section.scss'],
 })

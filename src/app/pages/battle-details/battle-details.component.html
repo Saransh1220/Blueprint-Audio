@@ -29,30 +29,36 @@
         <div class="card">
           <h3>Rules</h3>
           <ul>
-            <li *ngFor="let rule of battle().rules">{{ rule }}</li>
+            @for (rule of battle().rules; track rule) {
+              <li>{{ rule }}</li>
+            }
           </ul>
         </div>
 
-        <button class="btn-submit" *ngIf="battle().status === 'OPEN'">Submit Track</button>
+        @if (battle().status === 'OPEN') {
+          <button class="btn-submit">Submit Track</button>
+        }
       </div>
 
       <!-- Right Column: Submissions -->
       <div class="submissions-col">
         <h3>Submissions</h3>
         <div class="submission-list">
-          <div class="submission-card" *ngFor="let sub of submissions(); let i = index">
-            <div class="rank">#{{ i + 1 }}</div>
-            <div class="track-info">
-              <h4>{{ sub.title }}</h4>
-              <span>{{ sub.artist }}</span>
+          @for (sub of submissions(); track sub; let i = $index) {
+            <div class="submission-card">
+              <div class="rank">#{{ i + 1 }}</div>
+              <div class="track-info">
+                <h4>{{ sub.title }}</h4>
+                <span>{{ sub.artist }}</span>
+              </div>
+              <div class="vote-section">
+                <span class="score">{{ sub.score }}</span>
+                <button class="btn-vote" (click)="vote(sub.id)">
+                  <i class="fas fa-arrow-up"></i>
+                </button>
+              </div>
             </div>
-            <div class="vote-section">
-              <span class="score">{{ sub.score }}</span>
-              <button class="btn-vote" (click)="vote(sub.id)">
-                <i class="fas fa-arrow-up"></i>
-              </button>
-            </div>
-          </div>
+          }
         </div>
       </div>
     </div>

@@ -1,12 +1,12 @@
 import { Component, Input, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { Spec } from '../../models/spec';
 import { PlayerService } from '../../services/player.service';
 
 @Component({
   selector: 'app-spec-list-item',
   standalone: true,
-  imports: [CommonModule],
+  imports: [],
   templateUrl: './spec-list-item.component.html',
   styleUrls: ['./spec-list-item.component.scss'],
 })

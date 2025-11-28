@@ -1,12 +1,12 @@
 import { Component, Input, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { Spec } from '../../models/spec';
 import { PlayerService } from '../../services/player.service';
 
 @Component({
   selector: 'app-spec-card',
   standalone: true,
-  imports: [CommonModule],
+  imports: [],
   templateUrl: './spec-card.html',
   styleUrls: ['./spec-card.scss'],
 })
