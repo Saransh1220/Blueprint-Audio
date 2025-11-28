@@ -233,7 +233,7 @@
     margin-bottom: 80px;
 
     .spotlight-card {
-      background: var(--bg-color);
+      background: rgba(var(--text-color-rgb), 0.03);
       border: 1px solid rgba(var(--line-color-rgb), 0.1);
       padding: 0;
       position: relative;
@@ -333,10 +333,6 @@
           opacity: 0.8;
           transition: transform 0.5s ease;
         }
-      }
-
-      &:hover .spotlight-visual img {
-        transform: scale(1.05);
       }
     }
   }
