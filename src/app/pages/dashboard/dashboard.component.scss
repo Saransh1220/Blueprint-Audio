@@ -4,17 +4,34 @@
   padding-top: 100px;
   min-height: 100vh;
   background-color: var(--bg-color);
-  background-image:
-    linear-gradient(var(--faded-ink) 1px, transparent 1px),
-    linear-gradient(90deg, var(--faded-ink) 1px, transparent 1px);
-  background-size: 40px 40px;
   padding-bottom: 60px;
+  position: relative;
+  overflow: hidden;
+
+  // Ambient background effect
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(
+      circle at 50% 30%,
+      rgba(var(--red-color-rgb), 0.05) 0%,
+      transparent 60%
+    );
+    pointer-events: none;
+    z-index: 0;
+  }
 }
 
 .dashboard-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 24px;
+  position: relative;
+  z-index: 1;
 
   @media (max-width: 900px) {
     grid-template-columns: 1fr;
@@ -23,12 +40,23 @@
 
 // Shared Panel Styles
 %panel-base {
-  background: rgba(var(--card-bg-color-rgb), 0.7);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid var(--line-color);
+  background: rgba(var(--card-bg-color-rgb), 0.6);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(var(--line-color-rgb), 0.3);
+  border-radius: 12px;
   position: relative;
   overflow: hidden;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+  transition:
+    transform 0.3s ease,
+    box-shadow 0.3s ease;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+    border-color: rgba(var(--line-color-rgb), 0.5);
+  }
 }
 
 // Command Center Panel
@@ -47,8 +75,8 @@
     color: var(--ink);
     opacity: 0.6;
     letter-spacing: 1px;
-    border-bottom: 1px solid var(--faded-ink);
-    padding-bottom: 8px;
+    border-bottom: 1px solid rgba(var(--line-color-rgb), 0.1);
+    padding-bottom: 12px;
   }
 
   .welcome-content {
@@ -70,6 +98,7 @@
       font-weight: 700;
       margin-bottom: 16px;
       line-height: 1.1;
+      color: var(--text-color);
 
       .highlight {
         color: var(--red-color);
@@ -86,85 +115,26 @@
 
       .data-point {
         opacity: 0.8;
+        background: rgba(var(--text-color-rgb), 0.05);
+        padding: 6px 12px;
+        border-radius: 6px;
 
         .value {
           font-weight: 700;
-          color: var(--ink);
+          color: var(--text-color);
+          margin-left: 4px;
         }
       }
 
       .separator {
-        color: var(--red-color);
-        opacity: 0.5;
+        color: var(--line-color);
+        opacity: 0.3;
       }
     }
   }
 
   .decorative-lines {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-    width: 100px;
-
-    .line {
-      height: 2px;
-      background: var(--ink);
-      opacity: 0.1;
-
-      &:nth-child(1) {
-        width: 100%;
-      }
-
-      &:nth-child(2) {
-        width: 70%;
-      }
-
-      &:nth-child(3) {
-        width: 40%;
-      }
-    }
-  }
-
-  // Corner Markers
-  .corner-marker {
-    position: absolute;
-    width: 8px;
-    height: 8px;
-    border: 2px solid var(--red-color);
-    transition: all 0.3s ease;
-
-    &.top-left {
-      top: 0;
-      left: 0;
-      border-right: 0;
-      border-bottom: 0;
-    }
-
-    &.top-right {
-      top: 0;
-      right: 0;
-      border-left: 0;
-      border-bottom: 0;
-    }
-
-    &.bottom-left {
-      bottom: 0;
-      left: 0;
-      border-right: 0;
-      border-top: 0;
-    }
-
-    &.bottom-right {
-      bottom: 0;
-      right: 0;
-      border-left: 0;
-      border-top: 0;
-    }
-  }
-
-  &:hover .corner-marker {
-    width: 12px;
-    height: 12px;
+    display: none; // Removing sharp decorative lines
   }
 }
 
@@ -189,15 +159,15 @@
       font-family: $font-tech;
       font-weight: 700;
       font-size: 0.9rem;
-      color: var(--ink);
+      color: var(--text-color);
       letter-spacing: 0.5px;
+      text-transform: uppercase;
     }
 
     .scan-line {
       flex: 1;
       height: 1px;
-      background: linear-gradient(90deg, var(--red-color), transparent);
-      opacity: 0.3;
+      background: linear-gradient(90deg, rgba(var(--line-color-rgb), 0.2), transparent);
     }
   }
 }

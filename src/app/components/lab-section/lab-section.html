@@ -1,9 +1,7 @@
 <section class="lab-section container">
   <div class="section-head">
-    {{ type === 'beat' ? 'Beats' : 'Samples' }}<br /><span
-      style="color: transparent; -webkit-text-stroke: 2px var(--ink)"
-      >Catalog</span
-    >
+    {{ type === 'beat' ? 'Beats' : 'Samples' }}<br />
+    <span class="catalog-subtitle">CATALOG</span>
   </div>
 
   <!-- SEARCH & TOOLBAR -->
@@ -114,17 +112,7 @@
     </div>
 
     <div style="margin-top: 30px; display: flex; justify-content: flex-end">
-      <button
-        (click)="clearFilters()"
-        style="
-          background: transparent;
-          border: 1px solid var(--red-color);
-          color: var(--red-color);
-          padding: 10px 20px;
-          cursor: pointer;
-          font-family: 'Space Mono', monospace;
-        "
-      >
+      <button class="btn-clear" (click)="clearFilters()">
         <i class="fas fa-times"></i> CLEAR ALL
       </button>
     </div>

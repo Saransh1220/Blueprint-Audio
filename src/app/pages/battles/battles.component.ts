@@ -64,18 +64,20 @@ import { CommonModule } from '@angular/common';
       }
 
       h1 {
-        font-family: 'Unbounded', sans-serif;
+        font-family: var(--font-head);
         font-size: 3rem;
         margin-bottom: 10px;
-        background: linear-gradient(to right, var(--text-color), var(--line-color));
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
+        color: var(--text-color);
+        text-transform: uppercase;
+        letter-spacing: -0.02em;
       }
 
       .subtitle {
-        font-family: 'Space Mono', monospace;
+        font-family: var(--font-tech);
         color: var(--red-color);
         letter-spacing: 2px;
+        font-size: 0.9rem;
+        font-weight: 700;
       }
 
       .battles-grid {
@@ -91,64 +93,76 @@ import { CommonModule } from '@angular/common';
       }
 
       .panel {
-        border: 1px solid var(--line-color);
+        border: 1px solid rgba(var(--line-color-rgb), 0.5);
         background: rgba(var(--card-bg-color-rgb), 0.8);
-        backdrop-filter: blur(10px);
-        padding: 20px;
+        backdrop-filter: blur(12px);
+        padding: 30px;
+        border-radius: 24px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
       }
 
       .panel-header {
-        font-family: 'Unbounded', sans-serif;
+        font-family: var(--font-head);
         font-size: 1.2rem;
-        margin-bottom: 20px;
-        padding-bottom: 10px;
-        border-bottom: 1px solid var(--red-color);
-        color: var(--red-color);
+        margin-bottom: 25px;
+        padding-bottom: 15px;
+        border-bottom: 1px solid rgba(var(--line-color-rgb), 0.3);
+        color: var(--text-color);
         display: flex;
         align-items: center;
-        gap: 10px;
+        gap: 12px;
+
+        i {
+          color: var(--red-color);
+        }
       }
 
       /* Tournament Card */
       .tournament-card {
-        background: var(--faded-ink);
-        padding: 20px;
+        background: rgba(var(--text-color-rgb), 0.05);
+        padding: 25px;
         margin-bottom: 20px;
-        border: 1px solid var(--line-color);
+        border: 1px solid rgba(var(--line-color-rgb), 0.3);
         position: relative;
         transition: all 0.3s ease;
+        border-radius: 24px;
       }
 
       .tournament-card:hover {
         border-color: var(--red-color);
-        transform: translateY(-2px);
+        background: rgba(var(--text-color-rgb), 0.08);
+        transform: translateY(-4px);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
       }
 
       .tourney-status {
         position: absolute;
-        top: 10px;
-        right: 10px;
-        background: var(--red-color);
-        color: white;
+        top: 15px;
+        right: 15px;
+        background: rgba(var(--red-color-rgb), 0.1);
+        color: var(--red-color);
         font-size: 0.7rem;
-        padding: 2px 6px;
-        font-weight: bold;
-        border-radius: 2px;
+        padding: 4px 10px;
+        font-weight: 800;
+        border-radius: 999px;
+        border: 1px solid rgba(var(--red-color-rgb), 0.2);
         animation: pulse 2s infinite;
+        font-family: var(--font-tech);
       }
 
       h3 {
-        font-family: 'Unbounded', sans-serif;
+        font-family: var(--font-head);
         margin: 10px 0;
-        font-size: 1.5rem;
+        font-size: 1.4rem;
         color: var(--text-color);
       }
 
       .prize {
         color: #4caf50;
-        font-weight: bold;
-        font-family: 'Space Mono', monospace;
+        font-weight: 700;
+        font-family: var(--font-tech);
         margin-bottom: 15px;
+        font-size: 0.9rem;
       }
 
       .meta {
@@ -156,63 +170,87 @@ import { CommonModule } from '@angular/common';
         justify-content: space-between;
         font-size: 0.8rem;
         color: var(--line-color);
-        margin-bottom: 20px;
+        margin-bottom: 25px;
+        font-family: var(--font-tech);
       }
 
       .btn-join {
         width: 100%;
-        padding: 12px;
-        background: transparent;
-        border: 1px solid var(--red-color);
-        color: var(--red-color);
-        font-family: 'Space Mono', monospace;
+        padding: 14px;
+        background: rgba(var(--red-color-rgb), 0.8);
+        border: 1px solid rgba(var(--red-color-rgb), 0.3);
+        color: white;
+        font-family: var(--font-tech);
         cursor: pointer;
         transition: all 0.3s ease;
         text-transform: uppercase;
-        font-weight: bold;
+        font-weight: 700;
+        border-radius: 999px;
+        font-size: 0.9rem;
+        backdrop-filter: blur(4px);
       }
 
       .btn-join:hover {
         background: var(--red-color);
-        color: var(--bg-color);
+        box-shadow: 0 0 20px rgba(var(--red-color-rgb), 0.4);
+        transform: translateY(-2px);
       }
 
       /* Leaderboard */
       .leaderboard-row {
         display: grid;
-        grid-template-columns: 50px 1fr 80px;
-        padding: 15px;
-        border-bottom: 1px solid var(--line-color);
+        grid-template-columns: 60px 1fr 100px;
+        padding: 18px;
+        border-bottom: 1px solid rgba(var(--line-color-rgb), 0.2);
         align-items: center;
+        transition: 0.2s;
+      }
+
+      .leaderboard-row:not(.header-row):hover {
+        background: rgba(var(--text-color-rgb), 0.05);
       }
 
       .header-row {
-        font-weight: bold;
+        font-weight: 700;
         color: var(--line-color);
-        font-size: 0.8rem;
-        border-bottom: 1px solid var(--line-color);
+        font-size: 0.75rem;
+        border-bottom: 1px solid rgba(var(--line-color-rgb), 0.2);
+        font-family: var(--font-tech);
+        text-transform: uppercase;
       }
 
       .rank {
-        font-family: 'Unbounded', sans-serif;
+        font-family: var(--font-head);
         color: var(--red-color);
+        font-weight: 700;
+        font-size: 1.1rem;
+      }
+
+      .artist {
+        font-family: var(--font-tech);
+        font-weight: 600;
+        color: var(--text-color);
       }
 
       .points {
         text-align: right;
-        font-family: 'Space Mono', monospace;
+        font-family: var(--font-tech);
         color: var(--line-color);
+        font-weight: 700;
       }
 
       @keyframes pulse {
         0% {
           opacity: 1;
+          box-shadow: 0 0 0 0 rgba(var(--red-color-rgb), 0.4);
         }
         50% {
-          opacity: 0.5;
+          opacity: 0.8;
+          box-shadow: 0 0 0 4px rgba(var(--red-color-rgb), 0);
         }
         100% {
           opacity: 1;
+          box-shadow: 0 0 0 0 rgba(var(--red-color-rgb), 0);
         }
       }
     `,
