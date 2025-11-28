@@ -321,7 +321,8 @@
         height: 100%;
         overflow: hidden;
         background: rgba(var(--text-color-rgb), 0.02);
-        z-index: 1;
+        z-index: 3;
+        box-shadow: -20px 0 60px rgba(0, 0, 0, 0.5), -5px 0 20px rgba(var(--red-color-rgb), 0.2);
 
         img {
           width: 100%;
@@ -457,12 +458,10 @@
   width: 100%;
   max-width: 800px;
   margin: 60px auto;
-  background: linear-gradient(
-    90deg,
-    transparent 0%,
-    rgba(var(--red-color-rgb), 0.5) 50%,
-    transparent 100%
-  );
+  background: linear-gradient(90deg,
+      transparent 0%,
+      rgba(var(--red-color-rgb), 0.5) 50%,
+      transparent 100%);
   position: relative;
   opacity: 0.6;
 
@@ -496,12 +495,10 @@
     left: 0;
     right: 0;
     height: 1px;
-    background: linear-gradient(
-      90deg,
-      transparent 0%,
-      rgba(var(--line-color-rgb), 0.2) 50%,
-      transparent 100%
-    );
+    background: linear-gradient(90deg,
+        transparent 0%,
+        rgba(var(--line-color-rgb), 0.2) 50%,
+        transparent 100%);
   }
 }
 
