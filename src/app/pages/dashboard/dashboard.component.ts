@@ -14,6 +14,29 @@ import { AuthService, User } from '../../services/auth.service';
 export class DashboardComponent implements OnInit {
   currentUser = signal<User | null>(null);
   currentDate = signal<Date>(new Date());
+  genres = signal<string[]>([
+    'Trap',
+    'Drill',
+    'RnB',
+    'Lo-Fi',
+    'Hip Hop',
+    'Pop',
+    'Afrobeat',
+    'House',
+  ]);
+
+  stats = signal([
+    { label: 'Total Plays', value: '12.5K', icon: 'fas fa-play', trend: '+12%' },
+    { label: 'Revenue', value: '$2,450', icon: 'fas fa-dollar-sign', trend: '+8%' },
+    { label: 'Followers', value: '850', icon: 'fas fa-user-friends', trend: '+24%' },
+  ]);
+
+  spotlight = signal({
+    title: 'FEATURED DROP',
+    artist: 'METRO BOOMIN',
+    image: 'assets/images/metro.jpg', // Placeholder
+    description: 'Explore the latest sound kit from the legendary producer.',
+  });
 
   constructor(private authService: AuthService) {}
 

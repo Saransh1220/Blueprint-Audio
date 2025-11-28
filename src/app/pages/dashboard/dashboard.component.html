@@ -1,84 +1,108 @@
 <app-header></app-header>
 
-<app-header></app-header>
-
 <div class="dashboard-container">
-  <div class="dashboard-grid container">
-    <!-- Command Center Header -->
-    <div class="command-center-panel">
-      <div class="panel-header">
-        <span class="panel-title">COMMAND CENTER</span>
-        <span class="panel-status">STATUS: ONLINE</span>
+  <!-- HERO SEARCH SECTION -->
+  <section class="hero-search">
+    <div class="hero-content container">
+      <div class="hero-label">Welcome back, User</div>
+      <h1 class="hero-title">Find Your <span class="highlight">Perfect Sound</span></h1>
+      <div class="search-wrapper">
+        <div class="search-prefix"><i class="fas fa-search"></i></div>
+        <input type="text" placeholder="Search for beats, kits, and more..." />
+        <button class="btn-search">Search</button>
       </div>
-      <div class="welcome-content">
-        <div class="user-info">
-          <h1>
-            WELCOME BACK, <span class="highlight">{{ currentUser()?.name | uppercase }}</span>
-          </h1>
-          <div class="meta-data">
-            <span class="data-point"
-              >ROLE: <span class="value">{{ currentUser()?.role | uppercase }}</span></span
-            >
-            <span class="data-point"
-              >DATE: <span class="value">{{ currentDate() | date: 'yyyy.MM.dd' }}</span></span
-            >
-          </div>
-        </div>
+      <div class="hero-tags">
+        <span>Trending:</span>
+        <a href="#" class="hero-tag">Drill</a>
+        <a href="#" class="hero-tag">Lo-Fi</a>
+        <a href="#" class="hero-tag">Afrobeat</a>
       </div>
     </div>
+  </section>
 
-    <!-- Artist View -->
-    <ng-container *ngIf="currentUser()?.role === 'artist'">
-      <div class="data-module">
-        <div class="module-header">
-          <span class="module-title">TRENDING_BEATS</span>
-          <div class="scan-line"></div>
-        </div>
-        <app-spec-row title="Trending Beats" type="beat" filterTag="TRAP"></app-spec-row>
-      </div>
+  <div class="dashboard-content container">
+    <!-- QUICK STATS -->
+    @if (currentUser()?.role === 'producer') {
+      <section class="stats-section">
+        @for (stat of stats(); track stat.label) {
+          <div class="stat-card">
+            <div class="stat-header">
+              <span class="stat-label">{{ stat.label }}</span>
+              <i [class]="stat.icon"></i>
+            </div>
+            <div class="stat-body">
+              <span class="stat-value">{{ stat.value }}</span>
+              <span class="stat-trend">{{ stat.trend }}</span>
+            </div>
+          </div>
+        }
+      </section>
+    }
 
-      <div class="data-module">
-        <div class="module-header">
-          <span class="module-title">NEW_ARRIVALS</span>
-          <div class="scan-line"></div>
-        </div>
-        <app-spec-row title="New Arrivals" type="beat" filterTag="DRILL"></app-spec-row>
-      </div>
+    <div class="modern-divider"></div>
 
-      <div class="data-module full-width">
-        <div class="module-header">
-          <span class="module-title">CURATED_SELECTION</span>
-          <div class="scan-line"></div>
+    <!-- SPOTLIGHT SECTION -->
+    <section class="spotlight-section">
+      <div class="spotlight-card">
+        <div class="spotlight-content">
+          <div class="spotlight-meta">
+            <span class="spotlight-tag">Featured Drop</span>
+            <span class="spotlight-date">{{ currentDate() | date: 'mediumDate' }}</span>
+          </div>
+          <h2>{{ spotlight().artist }}</h2>
+          <h3>{{ spotlight().title }}</h3>
+          <p>{{ spotlight().description }}</p>
+          <button class="btn-spotlight">
+            <span>View Details</span>
+            <i class="fas fa-arrow-right"></i>
+          </button>
         </div>
-        <app-spec-row title="Curated for You" type="beat" filterTag="RNB"></app-spec-row>
+        <div class="spotlight-visual">
+          <img src="metro_boomin_spotlight_1764326397840.png" alt="Metro Boomin Studio Session" />
+        </div>
       </div>
-    </ng-container>
+    </section>
 
-    <!-- Producer View -->
-    <ng-container *ngIf="currentUser()?.role === 'producer'">
-      <div class="data-module">
-        <div class="module-header">
-          <span class="module-title">TRENDING_SAMPLES</span>
-          <div class="scan-line"></div>
-        </div>
-        <app-spec-row title="Trending Samples" type="sample" filterTag="DRUMS"></app-spec-row>
-      </div>
+    <div class="modern-divider"></div>
 
-      <div class="data-module">
-        <div class="module-header">
-          <span class="module-title">FRESH_LOOPS</span>
-          <div class="scan-line"></div>
+    <!-- RECOMMENDED SECTION -->
+    <section class="content-section">
+      <div class="section-header">
+        <h2>Recommended for You</h2>
+        <div class="section-controls">
+          <button class="btn-icon"><i class="fas fa-chevron-left"></i></button>
+          <button class="btn-icon"><i class="fas fa-chevron-right"></i></button>
         </div>
-        <app-spec-row title="Fresh Loops" type="sample" filterTag="LOOPS"></app-spec-row>
       </div>
+      <app-spec-row title="" type="beat" filterTag="TRAP"></app-spec-row>
+    </section>
 
-      <div class="data-module full-width">
-        <div class="module-header">
-          <span class="module-title">SOUND_KITS</span>
-          <div class="scan-line"></div>
-        </div>
-        <app-spec-row title="Sound Kits" type="sample" filterTag="PACK"></app-spec-row>
+    <!-- BROWSE BY GENRE (UNIFORM GRID) -->
+    <section class="content-section section-variant">
+      <div class="section-header">
+        <h2>Browse Genres</h2>
       </div>
-    </ng-container>
+      <div class="uniform-grid">
+        @for (genre of genres(); track genre) {
+          <div class="grid-item">
+            <div class="item-content">
+              <h3>{{ genre }}</h3>
+              <div class="item-meta">
+                <span>124 Files</span>
+                <i class="fas fa-arrow-right"></i>
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+    </section>
+
+    <!-- NEW ARRIVALS SECTION -->
+    <section class="content-section">
+      <div class="section-header">
+        <h2>New Arrivals</h2>
+      </div>
+      <app-spec-row title="" type="beat" filterTag="DRILL"></app-spec-row>
+    </section>
   </div>
 </div>

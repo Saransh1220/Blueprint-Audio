@@ -2,6 +2,46 @@
 
 .lab-section {
   padding: 40px 20px;
+  position: relative;
+  min-height: 100vh;
+  background-color: var(--bg-color);
+  overflow: hidden;
+
+  // Ambient Background Blobs
+  &::before {
+    content: '';
+    position: absolute;
+    top: -10%;
+    left: -10%;
+    width: 70%;
+    height: 70%;
+    background: radial-gradient(circle, rgba(var(--red-color-rgb), 0.08), transparent 70%);
+    filter: blur(120px);
+    z-index: 0;
+    pointer-events: none;
+  }
+
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: 0%;
+    right: -10%;
+    width: 60%;
+    height: 60%;
+    background: radial-gradient(circle, rgba(var(--red-color-rgb), 0.05), transparent 70%);
+    filter: blur(100px);
+    z-index: 0;
+    pointer-events: none;
+  }
+}
+
+.section-head,
+.toolbar,
+.filter-panel,
+.spec-grid,
+.list-container {
+  position: relative;
+  z-index: 1;
 }
 
 .section-head {
@@ -270,6 +310,7 @@ select {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
   gap: 20px;
+  padding: 20px; // Added padding to prevent hover shadow clipping
 }
 
 .btn-clear {

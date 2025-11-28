@@ -76,7 +76,7 @@
   display: flex;
   gap: 20px;
   overflow-x: auto;
-  padding: 10px 20px 30px 20px;
+  padding: 40px 20px 50px 20px; // Increased padding to prevent shadow clipping
   scroll-behavior: smooth;
 
   // Hide scrollbar but keep functionality
