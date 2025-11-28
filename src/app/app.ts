@@ -10,13 +10,7 @@ import { gsap } from 'gsap';
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [
-    HeaderComponent,
-    FooterComponent,
-    PlayerComponent,
-    CartComponent,
-    RouterOutlet
-],
+  imports: [HeaderComponent, FooterComponent, PlayerComponent, CartComponent, RouterOutlet],
   templateUrl: './app.html',
   styleUrls: ['./app.scss'],
 })

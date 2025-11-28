@@ -66,17 +66,14 @@
         </div>
         <div class="leaderboard-list">
           @for (user of leaderboard; track user; let i = $index) {
-            <div
-              class="leaderboard-item"
-              [style.animation-delay]="i * 0.1 + 's'"
-              >
+            <div class="leaderboard-item" [style.animation-delay]="i * 0.1 + 's'">
               <div
                 class="rank"
                 [class.top-3]="i < 3"
                 [class.rank-1]="i === 0"
                 [class.rank-2]="i === 1"
                 [class.rank-3]="i === 2"
-                >
+              >
                 @if (i < 3) {
                   <span><i class="fas fa-crown"></i></span>
                 }

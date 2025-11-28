@@ -13,7 +13,7 @@
         placeholder="SEARCH_DATABASE..."
         [ngModel]="searchTerm()"
         (ngModelChange)="searchTerm.set($event)"
-        />
+      />
     </div>
 
     <div class="toolbar-actions">
@@ -23,7 +23,7 @@
           [class.active]="viewMode() === 'grid'"
           (click)="setViewMode('grid')"
           title="Grid View"
-          >
+        >
           <i class="fas fa-th-large"></i>
         </button>
         <button
@@ -31,7 +31,7 @@
           [class.active]="viewMode() === 'list'"
           (click)="setViewMode('list')"
           title="List View"
-          >
+        >
           <i class="fas fa-list"></i>
         </button>
       </div>
@@ -55,7 +55,7 @@
                 class="tag"
                 [class.active]="filters.genre().includes(g)"
                 (click)="toggleGenre(g)"
-                >
+              >
                 {{ g }}
               </div>
             }
@@ -71,14 +71,14 @@
               max="200"
               [value]="filters.bpmRange()[0]"
               (input)="updateBpm($event, 0)"
-              />
+            />
             <input
               type="range"
               min="60"
               max="200"
               [value]="filters.bpmRange()[1]"
               (input)="updateBpm($event, 1)"
-              />
+            />
           </div>
         </div>
         <!-- PRICE -->
@@ -91,14 +91,14 @@
               max="100"
               [value]="filters.priceRange()[0]"
               (input)="updatePrice($event, 0)"
-              />
+            />
             <input
               type="range"
               min="0"
               max="100"
               [value]="filters.priceRange()[1]"
               (input)="updatePrice($event, 1)"
-              />
+            />
           </div>
         </div>
         <!-- KEY -->
@@ -138,9 +138,7 @@
   }
 
   @if (filteredSpecs().length === 0) {
-    <div
-      style="text-align: center; padding: 60px; color: var(--line-color)"
-      >
+    <div style="text-align: center; padding: 60px; color: var(--line-color)">
       NO SPECIMENS FOUND MATCHING CRITERIA.
     </div>
   }
