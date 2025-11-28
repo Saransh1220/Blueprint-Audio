@@ -381,3 +381,123 @@ input {
 #producer:checked + .switch-option {
   color: #ffffff;
 }
+
+@media (max-width: 768px) {
+  .auth-wrapper {
+    padding-top: 80px;
+    height: auto;
+    min-height: 100vh;
+    padding-bottom: 40px;
+  }
+
+  .container {
+    width: 90%;
+    min-height: 600px;
+    height: auto;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    overflow: hidden;
+    padding: 0 !important; // Ensure no padding
+    align-items: stretch; // Ensure children stretch to full width
+  }
+
+  .form-container {
+    position: relative;
+    width: 100%;
+    height: auto;
+    top: auto;
+    left: auto;
+    opacity: 1;
+    transition: opacity 0.3s ease-in-out;
+    padding: 40px 20px;
+  }
+
+  .sign-in-container,
+  .sign-up-container {
+    width: 100%;
+    position: relative;
+    opacity: 1;
+    z-index: 1;
+    transform: none !important;
+  }
+
+  // Use opacity/visibility for smooth toggle instead of display:none
+  .container:not(.right-panel-active) .sign-up-container {
+    display: none;
+  }
+
+  .container.right-panel-active .sign-in-container {
+    display: none;
+  }
+
+  .overlay-container {
+    position: relative;
+    width: 100% !important;
+    height: auto;
+    top: auto;
+    left: 0 !important;
+    transform: none;
+    order: -1;
+    min-height: 200px;
+    margin: 0;
+    padding: 0; // Ensure no padding
+    border-radius: 0; // Let container clip it
+  }
+
+  .overlay {
+    width: 100% !important; // Force full width
+    left: 0 !important;
+    transform: none;
+    background: linear-gradient(to bottom, var(--red-color), #000000);
+  }
+
+  .overlay-panel {
+    width: 100%;
+    position: relative;
+    transform: none !important;
+    padding: 30px 20px;
+    height: auto;
+  }
+
+  // Show relevant overlay panel based on state
+  .container:not(.right-panel-active) .overlay-right {
+    display: flex;
+  }
+
+  .container:not(.right-panel-active) .overlay-left {
+    display: none;
+  }
+
+  .container.right-panel-active .overlay-left {
+    display: flex;
+    transform: none !important;
+  }
+
+  .container.right-panel-active .overlay-right {
+    display: none;
+  }
+
+  // CRITICAL: Reset desktop transforms for active state
+  .container.right-panel-active .overlay-container {
+    transform: none !important;
+  }
+
+  .container.right-panel-active .overlay {
+    transform: none !important;
+  }
+
+  .container.right-panel-active .sign-up-container {
+    transform: none !important;
+    animation: none;
+  }
+
+  .container.right-panel-active .sign-in-container {
+    transform: none !important;
+  }
+
+  form {
+    padding: 0 20px;
+    background: transparent; // Remove background duplication
+  }
+}

@@ -12,4 +12,13 @@ import { ThemeToggleComponent } from '../theme-toggle/theme-toggle';
 })
 export class HeaderComponent {
   cartClick = output<void>();
+  isMobileMenuOpen = false;
+
+  toggleMobileMenu() {
+    this.isMobileMenuOpen = !this.isMobileMenuOpen;
+  }
+
+  closeMobileMenu() {
+    this.isMobileMenuOpen = false;
+  }
 }

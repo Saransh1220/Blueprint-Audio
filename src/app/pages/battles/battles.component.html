@@ -1,0 +1,91 @@
+<div class="battles-container">
+  <!-- HERO SECTION -->
+  <div class="battles-hero">
+    <div class="hero-content">
+      <div class="hero-label">Competitive Zone</div>
+      <h1 class="hero-title">Battle <span class="highlight">Arena</span></h1>
+      <p class="hero-subtitle">Prove your worth. Dominate the leaderboard. Win exclusive prizes.</p>
+    </div>
+  </div>
+
+  <div class="battles-grid">
+    <!-- ACTIVE TOURNAMENTS -->
+    <div class="section-column">
+      <div class="section-header">
+        <h2>Active Tournaments</h2>
+        <div class="live-indicator"><span class="dot"></span> LIVE</div>
+      </div>
+
+      <div class="tournament-list">
+        <div class="tournament-card" *ngFor="let tourney of tournaments">
+          <div class="card-glow"></div>
+          <div class="card-content">
+            <div class="tourney-header">
+              <span class="badge">Weekly Challenge</span>
+              <span class="time-left"><i class="far fa-clock"></i> {{ tourney.endsIn }}</span>
+            </div>
+            <h3>{{ tourney.name }}</h3>
+            <div class="prize-pool">
+              <span class="label">Prize Pool</span>
+              <span class="value">{{ tourney.prize }}</span>
+            </div>
+            <div class="tourney-footer">
+              <div class="participants">
+                <div class="avatars">
+                  <span><i class="fas fa-user"></i></span>
+                  <span><i class="fas fa-user"></i></span>
+                  <span><i class="fas fa-user"></i></span>
+                </div>
+                <span>{{ tourney.participants }} Producers Joined</span>
+              </div>
+              <button class="btn-join">Enter Arena <i class="fas fa-arrow-right"></i></button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- LEADERBOARD -->
+    <div class="section-column">
+      <div class="section-header">
+        <h2>Leaderboard</h2>
+        <div class="tabs-header">
+          <button class="tab-btn active">Weekly</button>
+          <button class="tab-btn">Monthly</button>
+          <button class="tab-btn">All Time</button>
+        </div>
+      </div>
+
+      <div class="leaderboard-panel">
+        <div class="leaderboard-header">
+          <span>Rank</span>
+          <span>Artist</span>
+          <span class="text-right">Points</span>
+        </div>
+        <div class="leaderboard-list">
+          <div
+            class="leaderboard-item"
+            *ngFor="let user of leaderboard; let i = index"
+            [style.animation-delay]="i * 0.1 + 's'"
+          >
+            <div
+              class="rank"
+              [class.top-3]="i < 3"
+              [class.rank-1]="i === 0"
+              [class.rank-2]="i === 1"
+              [class.rank-3]="i === 2"
+            >
+              <span *ngIf="i < 3"><i class="fas fa-crown"></i></span>
+              <span *ngIf="i >= 3">#{{ i + 1 }}</span>
+            </div>
+            <div class="artist-info">
+              <div class="avatar-placeholder">{{ user.name.charAt(0) }}</div>
+              <span class="name">{{ user.name }}</span>
+            </div>
+            <div class="points">{{ user.points | number }}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

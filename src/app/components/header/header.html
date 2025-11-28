@@ -1,6 +1,29 @@
 <nav>
   <div class="nav-inner">
-    <div class="nav-brand">BLUEPRINT<span>AUDIO</span>_LABS</div>
+    <div class="nav-brand" routerLink="/">
+      <div class="brand-logo">
+        <svg viewBox="0 0 100 100">
+          <path
+            d="M50 5 L90 25 L90 75 L50 95 L10 75 L10 25 Z"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="4"
+          />
+          <path
+            d="M20 50 L35 50 L45 25 L55 75 L65 50 L80 50"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="4"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          />
+        </svg>
+      </div>
+      <span class="desktop-logo">BLUEPRINT<span>AUDIO</span></span>
+      <span class="mobile-logo">
+        <span class="initial">B</span><span class="initial">P</span>
+      </span>
+    </div>
     <div class="nav-links">
       <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }"
         >HOME</a
@@ -13,7 +36,53 @@
       <button class="icon-btn" (click)="cartClick.emit()">
         <i class="fas fa-shopping-cart"></i>
       </button>
-      <app-theme-toggle></app-theme-toggle>
+      <app-theme-toggle class="desktop-theme-toggle"></app-theme-toggle>
+
+      <button class="hamburger-btn" (click)="toggleMobileMenu()" [class.active]="isMobileMenuOpen">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
     </div>
   </div>
 </nav>
+
+<!-- Mobile Menu Overlay -->
+<div class="mobile-menu" [class.open]="isMobileMenuOpen">
+  <div class="mobile-logo-large">
+    <svg viewBox="0 0 100 100">
+      <path
+        d="M50 5 L90 25 L90 75 L50 95 L10 75 L10 25 Z"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+      />
+      <path
+        d="M20 50 L35 50 L45 25 L55 75 L65 50 L80 50"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="3"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      />
+    </svg>
+  </div>
+  <div class="mobile-links">
+    <a
+      routerLink="/"
+      routerLinkActive="active"
+      [routerLinkActiveOptions]="{ exact: true }"
+      (click)="closeMobileMenu()"
+      >HOME</a
+    >
+    <a routerLink="/battles" routerLinkActive="active" (click)="closeMobileMenu()">BATTLES</a>
+    <a routerLink="/login" (click)="closeMobileMenu()">LOGIN</a>
+  </div>
+
+  <div class="mobile-menu-footer">
+    <div class="theme-toggle-wrapper">
+      <span>SWITCH THEME</span>
+      <app-theme-toggle></app-theme-toggle>
+    </div>
+  </div>
+</div>
