@@ -1,0 +1,18 @@
+<div class="modal-overlay" [class.open]="modalService.isOpen()" (click)="close()">
+  <div class="modal-container" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3>{{ modalService.state()?.title }}</h3>
+      <button class="btn-close" (click)="close()">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    <div class="modal-content">
+      <ng-container
+        *ngComponentOutlet="
+          modalService.state()?.component ?? null;
+          inputs: modalService.state()?.data
+        "
+      ></ng-container>
+    </div>
+  </div>
+</div>

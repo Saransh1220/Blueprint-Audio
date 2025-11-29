@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { Producer } from '../../models/producer';
 import { DirectoryService } from '../../services/directory';
 import { ProducerRowComponent } from '../producer-row/producer-row';
@@ -7,7 +7,7 @@ import { ProducerRowComponent } from '../producer-row/producer-row';
 @Component({
   selector: 'app-directory',
   standalone: true,
-  imports: [CommonModule, ProducerRowComponent],
+  imports: [ProducerRowComponent],
   templateUrl: './directory.html',
   styleUrls: ['./directory.scss'],
 })

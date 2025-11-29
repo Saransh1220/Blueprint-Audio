@@ -1,5 +1,5 @@
 import { Component, Input, OnInit, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { SpecCardComponent } from '../spec-card/spec-card';
 import { SpecListItemComponent } from '../spec-list-item/spec-list-item.component';
 import { Spec } from '../../models/spec';
@@ -9,7 +9,7 @@ import { PlayerService } from '../../services/player.service';
 @Component({
   selector: 'app-spec-row',
   standalone: true,
-  imports: [CommonModule, SpecCardComponent, SpecListItemComponent],
+  imports: [SpecCardComponent, SpecListItemComponent],
   templateUrl: './spec-row.component.html',
   styleUrls: ['./spec-row.component.scss'],
 })

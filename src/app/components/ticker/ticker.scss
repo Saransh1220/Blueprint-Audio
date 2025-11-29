@@ -1,17 +1,22 @@
 @use '../../styles/variables' as *;
 
 .ticker-bar {
-  background: var(--red-color);
-  color: white;
+  background: rgba(var(--red-color-rgb), 0.15);
+  backdrop-filter: blur(8px);
+  color: var(--text-color);
   overflow: hidden;
-  border-bottom: 1px solid var(--text-color);
+  border-top: 1px solid rgba(var(--red-color-rgb), 0.3);
+  border-bottom: 1px solid rgba(var(--red-color-rgb), 0.3);
   padding: 10px 0;
   white-space: nowrap;
+  width: 100%;
 }
+
 .ticker-track {
   display: inline-block;
   animation: scroll 15s linear infinite;
 }
+
 .ticker-item {
   margin-right: 40px;
   font-weight: 700;
@@ -22,6 +27,7 @@
   from {
     transform: translateX(0);
   }
+
   to {
     transform: translateX(-50%);
   }

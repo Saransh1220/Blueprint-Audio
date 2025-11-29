@@ -25,14 +25,26 @@
   </div>
 
   <!-- Grid View -->
-  <div class="scroll-container" *ngIf="viewMode() === 'grid'">
-    <app-spec-card *ngFor="let spec of specs()" [spec]="spec" class="row-item"></app-spec-card>
-    <div *ngIf="specs().length === 0" class="empty-state">No items found in this category.</div>
-  </div>
+  @if (viewMode() === 'grid') {
+    <div class="scroll-container">
+      @for (spec of specs(); track spec) {
+        <app-spec-card [spec]="spec" class="row-item"></app-spec-card>
+      }
+      @if (specs().length === 0) {
+        <div class="empty-state">No items found in this category.</div>
+      }
+    </div>
+  }
 
   <!-- List View -->
-  <div class="list-container" *ngIf="viewMode() === 'list'">
-    <app-spec-list-item *ngFor="let spec of specs()" [spec]="spec"></app-spec-list-item>
-    <div *ngIf="specs().length === 0" class="empty-state">No items found in this category.</div>
-  </div>
+  @if (viewMode() === 'list') {
+    <div class="list-container">
+      @for (spec of specs(); track spec) {
+        <app-spec-list-item [spec]="spec"></app-spec-list-item>
+      }
+      @if (specs().length === 0) {
+        <div class="empty-state">No items found in this category.</div>
+      }
+    </div>
+  }
 </div>

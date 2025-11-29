@@ -1,6 +1,6 @@
 import { Component, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Spec } from '../../models/spec';
+import { CartService } from '../../services/cart.service';
 
 @Component({
   selector: 'app-cart',
@@ -11,22 +11,26 @@ import { Spec } from '../../models/spec';
 })
 export class CartComponent {
   isOpen = signal(false);
-  items = signal<Spec[]>([]);
+  items;
+
+  constructor(public cartService: CartService) {
+    this.items = this.cartService.items;
+  }
+
+  get total() {
+    return this.cartService.total();
+  }
 
   toggle() {
     this.isOpen.update((v) => !v);
   }
 
   removeItem(id: string) {
-    this.items.update((current) => current.filter((item) => item.id !== id));
-  }
-
-  get total() {
-    return this.items().reduce((sum, item) => sum + item.price, 0);
+    this.cartService.removeItem(id);
   }
 
   checkout() {
-    console.log('Proceeding to checkout with items:', this.items());
+    console.log('Proceeding to checkout with items:', this.cartService.items());
     // TODO: Implement Stripe/Payment logic
   }
 }

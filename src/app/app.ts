@@ -1,22 +1,27 @@
 import { Component, AfterViewInit, ElementRef, ViewChild } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
 import { CommonModule } from '@angular/common';
+import { RouterOutlet } from '@angular/router';
+import { gsap } from 'gsap';
+
 import { HeaderComponent } from './components/header/header';
 import { FooterComponent } from './components/footer/footer';
 import { PlayerComponent } from './components/player/player';
 import { CartComponent } from './components/cart/cart.component';
-import { gsap } from 'gsap';
+import { ModalComponent } from './components/modal/modal.component';
+import { ToastComponent } from './components/toast/toast.component';
 
 @Component({
   selector: 'app-root',
   standalone: true,
   imports: [
     CommonModule,
+    RouterOutlet,
     HeaderComponent,
     FooterComponent,
     PlayerComponent,
     CartComponent,
-    RouterOutlet,
+    ModalComponent,
+    ToastComponent,
   ],
   templateUrl: './app.html',
   styleUrls: ['./app.scss'],
@@ -28,16 +33,18 @@ export class AppComponent implements AfterViewInit {
 
   ngAfterViewInit(): void {
     const grid = this.el.nativeElement.querySelector('.grid-overlay');
-    document.addEventListener('mousemove', (e) => {
-      const x = (e.clientX / window.innerWidth - 0.5) * 30;
-      const y = (e.clientY / window.innerHeight - 0.5) * 30;
-      gsap.to(grid, {
-        x: x,
-        y: y,
-        duration: 1,
-        ease: 'power2.out',
+    if (grid) {
+      document.addEventListener('mousemove', (e) => {
+        const x = (e.clientX / window.innerWidth - 0.5) * 30;
+        const y = (e.clientY / window.innerHeight - 0.5) * 30;
+        gsap.to(grid, {
+          x: x,
+          y: y,
+          duration: 1,
+          ease: 'power2.out',
+        });
       });
-    });
+    }
 
     const tl = gsap.timeline();
     tl.to('.loader-progress', { width: '100%', duration: 1.5, ease: 'power2.inOut' })
@@ -59,7 +66,10 @@ export class AppComponent implements AfterViewInit {
         'loaderOut+=0.4',
       );
   }
+
   toggleCart() {
-    this.cart.toggle();
+    if (this.cart) {
+      this.cart.toggle();
+    }
   }
 }

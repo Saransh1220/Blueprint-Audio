@@ -1,12 +1,12 @@
 import { Component, inject, AfterViewInit, effect, ViewChild, ElementRef } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { PlayerService } from '../../services/player.service';
 import { gsap } from 'gsap';
 
 @Component({
   selector: 'app-player',
   standalone: true,
-  imports: [CommonModule],
+  imports: [],
   templateUrl: './player.html',
   styleUrls: ['./player.scss'],
 })
