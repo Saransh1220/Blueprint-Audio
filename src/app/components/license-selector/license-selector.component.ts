@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, Input } from '@angular/core';
+import { Component, Input, inject } from '@angular/core';
 import type { LicenseOption, Spec } from '../../models/spec';
 import { CartService } from '../../services/cart.service';
 import { ModalService } from '../../services/modal.service';
@@ -13,13 +13,11 @@ import { ToastService } from '../../services/toast.service';
   styleUrls: ['./license-selector.component.scss'],
 })
 export class LicenseSelectorComponent {
-  @Input() spec!: Spec;
+  private cartService = inject(CartService);
+  private modalService = inject(ModalService);
+  private toastService = inject(ToastService);
 
-  constructor(
-    private cartService: CartService,
-    private modalService: ModalService,
-    private toastService: ToastService,
-  ) {}
+  @Input() spec!: Spec;
 
   selectLicense(license: LicenseOption) {
     this.cartService.addItem(this.spec, license);

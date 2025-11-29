@@ -1,4 +1,4 @@
-import { Injectable, signal } from '@angular/core';
+import { Injectable, signal, inject } from '@angular/core';
 import { Router } from '@angular/router';
 
 export interface User {
@@ -12,9 +12,9 @@ export interface User {
   providedIn: 'root',
 })
 export class AuthService {
-  currentUser = signal<User | null>(null);
+  private router = inject(Router);
 
-  constructor(private router: Router) {}
+  currentUser = signal<User | null>(null);
 
   login(email: string, role: 'artist' | 'producer' = 'artist') {
     // Mock login

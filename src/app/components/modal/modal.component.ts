@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { ModalService } from '../../services/modal.service';
 
 @Component({
@@ -10,7 +10,8 @@ import { ModalService } from '../../services/modal.service';
   styleUrls: ['./modal.component.scss'],
 })
 export class ModalComponent {
-  constructor(public modalService: ModalService) {}
+  modalService = inject(ModalService);
+
 
   get modalInputs(): Record<string, unknown> | undefined {
     return this.modalService.state()?.data;

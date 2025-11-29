@@ -1,4 +1,4 @@
-import { type AfterViewInit, Component, computed, Input, type OnInit, signal } from '@angular/core';
+import { type AfterViewInit, Component, computed, Input, type OnInit, signal, inject } from '@angular/core';
 
 import { FormsModule } from '@angular/forms';
 import { gsap } from 'gsap';
@@ -20,6 +20,9 @@ gsap.registerPlugin(ScrollTrigger);
   styleUrls: ['./lab-section.scss'],
 })
 export class LabSectionComponent implements OnInit, AfterViewInit {
+  private labService = inject(LabService);
+  private playerService = inject(PlayerService);
+
   @Input() type: 'beat' | 'sample' = 'beat';
   specs = signal<Spec[]>([]);
   viewMode = signal<'grid' | 'list'>('grid');
@@ -74,11 +77,6 @@ export class LabSectionComponent implements OnInit, AfterViewInit {
       return matchesSearch && matchesGenre && matchesBpm && matchesPrice && matchesKey;
     });
   });
-
-  constructor(
-    private labService: LabService,
-    private playerService: PlayerService,
-  ) {}
 
   ngOnInit(): void {
     this.labService.getSpecs(this.type).subscribe((specs) => {

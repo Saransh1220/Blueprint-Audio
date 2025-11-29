@@ -1,4 +1,4 @@
-import { Component, Input, type OnInit, signal } from '@angular/core';
+import { Component, Input, type OnInit, signal, inject } from '@angular/core';
 import type { Spec } from '../../models/spec';
 import { LabService } from '../../services/lab';
 import { PlayerService } from '../../services/player.service';
@@ -13,17 +13,15 @@ import { SpecListItemComponent } from '../spec-list-item/spec-list-item.componen
   styleUrls: ['./spec-row.component.scss'],
 })
 export class SpecRowComponent implements OnInit {
+  private labService = inject(LabService);
+  private playerService = inject(PlayerService);
+
   @Input() title = '';
   @Input() filterTag = ''; // Genre or Tag to filter by
   @Input() type: 'beat' | 'sample' = 'beat';
 
   specs = signal<Spec[]>([]);
   viewMode = signal<'grid' | 'list'>('grid');
-
-  constructor(
-    private labService: LabService,
-    private playerService: PlayerService,
-  ) {}
 
   setViewMode(mode: 'grid' | 'list') {
     this.viewMode.set(mode);

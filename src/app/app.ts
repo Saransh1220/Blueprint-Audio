@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { type AfterViewInit, Component, ElementRef, ViewChild } from '@angular/core';
+import { type AfterViewInit, Component, ElementRef, ViewChild, inject } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { gsap } from 'gsap';
 import { CartComponent } from './components/cart/cart.component';
@@ -26,9 +26,9 @@ import { ToastComponent } from './components/toast/toast.component';
   styleUrls: ['./app.scss'],
 })
 export class AppComponent implements AfterViewInit {
-  @ViewChild(CartComponent) cart!: CartComponent;
+  private el = inject(ElementRef);
 
-  constructor(private el: ElementRef) {}
+  @ViewChild(CartComponent) cart!: CartComponent;
 
   ngAfterViewInit(): void {
     const grid = this.el.nativeElement.querySelector('.grid-overlay');

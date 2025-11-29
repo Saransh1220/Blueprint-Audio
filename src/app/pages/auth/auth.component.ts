@@ -1,12 +1,5 @@
 import { Location } from '@angular/common';
-import {
-  type AfterViewInit,
-  Component,
-  type ElementRef,
-  type OnDestroy,
-  type OnInit,
-  ViewChild,
-} from '@angular/core';
+import { type AfterViewInit, Component, type ElementRef, type OnDestroy, type OnInit, ViewChild, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import type { Particle } from '../../models/particle';
@@ -20,6 +13,10 @@ import { AuthService } from '../../services/auth.service';
   styleUrls: ['./auth.component.scss'],
 })
 export class AuthComponent implements OnInit, AfterViewInit, OnDestroy {
+  private route = inject(ActivatedRoute);
+  private location = inject(Location);
+  private authService = inject(AuthService);
+
   isRightPanelActive = false;
 
   // Login Form Data
@@ -39,13 +36,6 @@ export class AuthComponent implements OnInit, AfterViewInit, OnDestroy {
   private particles: Particle[] = [];
   private width = 0;
   private height = 0;
-
-  constructor(
-    _router: Router,
-    private route: ActivatedRoute,
-    private location: Location,
-    private authService: AuthService,
-  ) {}
 
   ngOnInit() {
     // Check URL to determine initial state

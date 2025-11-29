@@ -1,4 +1,4 @@
-import { Component, type OnInit } from '@angular/core';
+import { Component, type OnInit, inject } from '@angular/core';
 
 import type { Producer } from '../../models/producer';
 import { DirectoryService } from '../../services/directory';
@@ -12,9 +12,9 @@ import { ProducerRowComponent } from '../producer-row/producer-row';
   styleUrls: ['./directory.scss'],
 })
 export class DirectoryComponent implements OnInit {
-  producers: Producer[] = [];
+  private directoryService = inject(DirectoryService);
 
-  constructor(private directoryService: DirectoryService) {}
+  producers: Producer[] = [];
 
   ngOnInit(): void {
     this.directoryService.getProducers().subscribe((producers) => {

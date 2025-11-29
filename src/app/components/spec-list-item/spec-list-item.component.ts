@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, inject } from '@angular/core';
 
 import type { Spec } from '../../models/spec';
 import { ModalService } from '../../services/modal.service';
@@ -13,12 +13,10 @@ import { LicenseSelectorComponent } from '../license-selector/license-selector.c
   styleUrls: ['./spec-list-item.component.scss'],
 })
 export class SpecListItemComponent {
-  @Input({ required: true }) spec!: Spec;
+  private playerService = inject(PlayerService);
+  private modalService = inject(ModalService);
 
-  constructor(
-    private playerService: PlayerService,
-    private modalService: ModalService,
-  ) {}
+  @Input({ required: true }) spec!: Spec;
 
   playSong(event: MouseEvent) {
     event.stopPropagation();

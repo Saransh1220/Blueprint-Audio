@@ -1,4 +1,4 @@
-import { Component, type OnInit, signal } from '@angular/core';
+import { Component, type OnInit, signal, inject } from '@angular/core';
 
 import { ActivatedRoute } from '@angular/router';
 
@@ -10,6 +10,8 @@ import { ActivatedRoute } from '@angular/router';
   styleUrls: ['./battle-details.component.scss'],
 })
 export class BattleDetailsComponent implements OnInit {
+  private route = inject(ActivatedRoute);
+
   battleId = signal<string>('');
 
   // Mock Data
@@ -32,8 +34,6 @@ export class BattleDetailsComponent implements OnInit {
     { id: 2, artist: 'GlitchMaster', title: 'System Failure', score: 132 },
     { id: 3, artist: 'NeonWave', title: 'Retro Future', score: 128 },
   ]);
-
-  constructor(private route: ActivatedRoute) {}
 
   ngOnInit() {
     this.route.params.subscribe((params) => {
