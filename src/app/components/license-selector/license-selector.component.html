@@ -1,0 +1,70 @@
+<div class="license-selector">
+  <!-- Left Panel: Track Overview -->
+  <div class="track-overview-panel">
+    <div class="art-section">
+      <img [src]="spec.imageUrl || 'assets/images/placeholder.jpg'" alt="{{ spec.title }}" />
+    </div>
+
+    <div class="info-section">
+      <h4>{{ spec.title }}</h4>
+      <span class="producer-tag">Produced by Red Wave</span>
+    </div>
+
+    <div class="specs-grid">
+      <div class="spec-item">
+        <span class="label">BPM</span>
+        <span class="value">{{ spec.bpm }}</span>
+      </div>
+      <div class="spec-item">
+        <span class="label">Key</span>
+        <span class="value">{{ spec.key }}</span>
+      </div>
+      <div class="spec-item">
+        <span class="label">Duration</span>
+        <span class="value">3:45</span>
+      </div>
+      <div class="spec-item">
+        <span class="label">Size</span>
+        <span class="value">48 MB</span>
+      </div>
+    </div>
+
+    <div class="tags-section">
+      <span class="tag">Trap</span>
+      <span class="tag">Dark</span>
+      <span class="tag">Hard</span>
+    </div>
+  </div>
+
+  <!-- Right Panel: License Cards -->
+  <div class="licenses-panel">
+    <div class="panel-header">
+      <h5>Select a License</h5>
+      <span class="help-link">Compare Licenses</span>
+    </div>
+
+    <div class="licenses-grid">
+      @for (license of spec.licenses; track license.type; let i = $index) {
+        <div class="license-card" [class.recommended]="i === 1" (click)="selectLicense(license)">
+          @if (i === 1) {
+            <span class="badge-rec">Most Popular</span>
+          }
+
+          <div class="card-left">
+            <span class="license-title">{{ license.name }}</span>
+            <div class="license-features">
+              <span><i class="fas fa-check"></i> MP3 & WAV</span>
+              <span><i class="fas fa-check"></i> Unlimited Streams</span>
+              <span><i class="fas fa-check"></i> Track Stems</span>
+            </div>
+          </div>
+
+          <div class="card-right">
+            <span class="price">\${{ license.price }}</span>
+            <button class="btn-select">Add to Cart</button>
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+</div>

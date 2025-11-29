@@ -1,3 +1,5 @@
+@use '../../styles/variables' as *;
+
 .cart-overlay {
   position: fixed;
   top: 0;
@@ -5,7 +7,7 @@
   width: 100%;
   height: 100%;
   background: rgba(0, 0, 0, 0.5);
-  backdrop-filter: blur(2px);
+  backdrop-filter: blur(4px);
   z-index: 9998;
   opacity: 0;
   pointer-events: none;
@@ -20,14 +22,20 @@
 .cart-sidebar {
   position: fixed;
   top: 0;
-  right: -400px;
+  right: -450px; // Increased width slightly for better spacing
   width: 100%;
-  max-width: 400px;
+  max-width: 450px;
   height: 100%;
-  background: var(--bg-color);
-  border-left: 1px solid var(--line-color);
+
+  // Glassmorphism Container
+  background: rgba(var(--bg-color-rgb), 0.85);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border-left: 1px solid rgba(var(--line-color-rgb), 0.3);
+  box-shadow: -12px 0 48px rgba(0, 0, 0, 0.5);
+
   z-index: 9999;
-  transition: right 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: right 0.4s cubic-bezier(0.16, 1, 0.3, 1); // Smooth spring-like
   display: flex;
   flex-direction: column;
 
@@ -37,16 +45,19 @@
 }
 
 .cart-header {
-  padding: 20px;
-  border-bottom: 1px solid var(--line-color);
+  padding: 24px 32px;
+  border-bottom: 1px solid rgba(var(--line-color-rgb), 0.3);
   display: flex;
   justify-content: space-between;
   align-items: center;
+  background: rgba(var(--bg-color-rgb), 0.4); // Subtle header tint
 
   h3 {
-    font-family: var(--font-head);
+    font-family: $font-head;
     font-size: 1.5rem;
     margin: 0;
+    color: var(--text-color);
+    letter-spacing: -0.5px;
   }
 
   .close-btn {
@@ -55,9 +66,19 @@
     color: var(--text-color);
     font-size: 1.2rem;
     cursor: pointer;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+    transition: all 0.2s;
+    opacity: 0.6;
 
     &:hover {
+      background: var(--faded-ink);
       color: var(--red-color);
+      opacity: 1;
     }
   }
 }
@@ -65,7 +86,10 @@
 .cart-items {
   flex: 1;
   overflow-y: auto;
-  padding: 20px;
+  padding: 24px 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
 }
 
 .empty-cart {
@@ -74,90 +98,164 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  opacity: 0.5;
+  opacity: 0.4;
+  color: var(--text-color);
 
   i {
     font-size: 3rem;
-    margin-bottom: 15px;
+    margin-bottom: 16px;
   }
 
   p {
-    font-family: var(--font-mono);
+    font-family: $font-tech;
+    font-size: 1rem;
+    letter-spacing: 1px;
+    text-transform: uppercase;
   }
 }
 
 .cart-item {
   display: flex;
   align-items: center;
-  gap: 15px;
-  padding: 15px;
-  border: 1px solid var(--line-color);
-  margin-bottom: 10px;
-  background: rgba(255, 255, 255, 0.02);
+  gap: 20px;
+  padding: 20px;
+
+  // Glass Item Card
+  background: rgba(var(--card-bg-color-rgb), 0.4);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(var(--line-color-rgb), 0.3);
+  border-radius: 8px;
+
+  transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+
+  &:hover {
+    background: rgba(var(--card-bg-color-rgb), 0.6);
+    border-color: var(--text-color);
+    transform: translateY(-2px);
+    box-shadow:
+      0 8px 24px rgba(0, 0, 0, 0.1),
+      0 0 0 1px rgba(var(--text-color-rgb), 0.1);
+  }
 
   img {
-    width: 60px;
-    height: 60px;
+    width: 64px;
+    height: 64px;
     object-fit: cover;
+    border-radius: 4px;
+    border: 1px solid rgba(var(--line-color-rgb), 0.5);
   }
 
   .item-details {
     flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
 
     h4 {
-      margin: 0 0 5px 0;
-      font-family: var(--font-head);
-      font-size: 1rem;
+      margin: 0;
+      font-family: $font-head;
+      font-size: 1.1rem;
+      color: var(--text-color);
+      font-weight: 600;
+    }
+
+    .license-type {
+      font-family: $font-tech;
+      font-size: 0.75rem;
+      color: var(--text-color);
+      opacity: 0.7;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
     }
 
     .price {
-      font-family: var(--font-mono);
+      font-family: $font-tech;
       color: var(--red-color);
+      font-weight: 600;
+      font-size: 1rem;
+      margin-top: 4px;
     }
   }
 
   .remove-btn {
     background: transparent;
-    border: none;
+    border: 1px solid rgba(var(--line-color-rgb), 0.3);
     color: var(--text-color);
-    opacity: 0.5;
+    width: 32px;
+    height: 32px;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     cursor: pointer;
     transition: all 0.2s;
+    opacity: 0.6;
 
     &:hover {
       opacity: 1;
-      color: var(--red-color);
+      background: var(--red-color);
+      border-color: var(--red-color);
+      color: #fff;
     }
   }
 }
 
 .cart-footer {
-  padding: 20px;
-  border-top: 1px solid var(--line-color);
-  background: var(--bg-color);
+  padding: 32px;
+  border-top: 1px solid rgba(var(--line-color-rgb), 0.3);
+  background: rgba(var(--bg-color-rgb), 0.6); // Slightly more opaque footer
+  backdrop-filter: blur(24px);
 
   .total-row {
     display: flex;
     justify-content: space-between;
-    margin-bottom: 20px;
-    font-family: var(--font-head);
-    font-size: 1.2rem;
+    align-items: center;
+    margin-bottom: 24px;
+
+    span:first-child {
+      font-family: $font-tech;
+      font-size: 1rem;
+      color: var(--text-color);
+      opacity: 0.8;
+      text-transform: uppercase;
+    }
+
+    span:last-child {
+      font-family: $font-head;
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: var(--text-color);
+    }
   }
 
   .checkout-btn {
     width: 100%;
-    padding: 15px;
+    padding: 16px;
     background: var(--red-color);
-    color: white;
+    color: #fff;
     border: none;
-    font-family: var(--font-head);
-    font-size: 1.1rem;
+    border-radius: 4px;
+    font-family: $font-tech;
+    font-size: 1rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
     cursor: pointer;
     transition: all 0.3s;
+    position: relative;
+    overflow: hidden;
 
     &:hover {
-      background: white;
-      color: black;
+      background: var(--text-color);
+      color: var(--bg-color);
+      box-shadow: 0 0 20px rgba(var(--red-color-rgb), 0.4);
+    }
+
+    &:active {
+      transform: scale(0.98);
     }
   }
 }

@@ -16,12 +16,13 @@
       </div>
     }
 
-    @for (item of items(); track item) {
+    @for (item of cartService.items(); track item.id) {
       <div class="cart-item">
-        <img [src]="item.imageUrl" [alt]="item.title" />
+        <img [src]="item.spec.imageUrl" [alt]="item.spec.title" />
         <div class="item-details">
-          <h4>{{ item.title }}</h4>
-          <span class="price">\${{ item.price }}</span>
+          <h4>{{ item.spec.title }}</h4>
+          <span class="license-type">{{ item.license.name }}</span>
+          <span class="price">\${{ item.license.price }}</span>
         </div>
         <button class="remove-btn" (click)="removeItem(item.id)">
           <i class="fas fa-trash"></i>

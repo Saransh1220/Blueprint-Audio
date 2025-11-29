@@ -19,6 +19,29 @@ export class LabService {
       key: MusicalKey.C_SHARP_MINOR,
       tags: [Genre.TECH, 'DARK'],
       price: 29.99,
+      licenses: [
+        {
+          type: 'Basic',
+          name: 'MP3 Lease',
+          price: 29.99,
+          features: ['MP3 File', '2,000 Streams', 'Non-Exclusive'],
+          fileTypes: ['MP3'],
+        },
+        {
+          type: 'Premium',
+          name: 'WAV Lease',
+          price: 49.99,
+          features: ['WAV + MP3', '10,000 Streams', 'Non-Exclusive'],
+          fileTypes: ['WAV', 'MP3'],
+        },
+        {
+          type: 'Unlimited',
+          name: 'Unlimited Lease',
+          price: 99.99,
+          features: ['Trackout Stems', 'Unlimited Streams', 'Non-Exclusive'],
+          fileTypes: ['WAV', 'MP3', 'STEMS'],
+        },
+      ],
     },
     {
       id: '#102BB',
@@ -31,6 +54,29 @@ export class LabService {
       key: MusicalKey.A_MAJOR,
       tags: [Genre.HOUSE, 'SPACE'],
       price: 29.99,
+      licenses: [
+        {
+          type: 'Basic',
+          name: 'MP3 Lease',
+          price: 29.99,
+          features: ['MP3 File', '2,000 Streams', 'Non-Exclusive'],
+          fileTypes: ['MP3'],
+        },
+        {
+          type: 'Premium',
+          name: 'WAV Lease',
+          price: 49.99,
+          features: ['WAV + MP3', '10,000 Streams', 'Non-Exclusive'],
+          fileTypes: ['WAV', 'MP3'],
+        },
+        {
+          type: 'Unlimited',
+          name: 'Unlimited Lease',
+          price: 99.99,
+          features: ['Trackout Stems', 'Unlimited Streams', 'Non-Exclusive'],
+          fileTypes: ['WAV', 'MP3', 'STEMS'],
+        },
+      ],
     },
     {
       id: '#8821X',
@@ -43,6 +89,29 @@ export class LabService {
       key: MusicalKey.D_MINOR,
       tags: [Genre.DRILL, 'HARD'],
       price: 49.99,
+      licenses: [
+        {
+          type: 'Basic',
+          name: 'MP3 Lease',
+          price: 29.99,
+          features: ['MP3 File', '2,000 Streams', 'Non-Exclusive'],
+          fileTypes: ['MP3'],
+        },
+        {
+          type: 'Premium',
+          name: 'WAV Lease',
+          price: 49.99,
+          features: ['WAV + MP3', '10,000 Streams', 'Non-Exclusive'],
+          fileTypes: ['WAV', 'MP3'],
+        },
+        {
+          type: 'Unlimited',
+          name: 'Unlimited Lease',
+          price: 99.99,
+          features: ['Trackout Stems', 'Unlimited Streams', 'Non-Exclusive'],
+          fileTypes: ['WAV', 'MP3', 'STEMS'],
+        },
+      ],
     },
     {
       id: '#003AA',
@@ -55,6 +124,29 @@ export class LabService {
       key: MusicalKey.F_SHARP_MAJOR,
       tags: [Genre.RNB, 'VINTAGE'],
       price: 29.99,
+      licenses: [
+        {
+          type: 'Basic',
+          name: 'MP3 Lease',
+          price: 29.99,
+          features: ['MP3 File', '2,000 Streams', 'Non-Exclusive'],
+          fileTypes: ['MP3'],
+        },
+        {
+          type: 'Premium',
+          name: 'WAV Lease',
+          price: 49.99,
+          features: ['WAV + MP3', '10,000 Streams', 'Non-Exclusive'],
+          fileTypes: ['WAV', 'MP3'],
+        },
+        {
+          type: 'Unlimited',
+          name: 'Unlimited Lease',
+          price: 99.99,
+          features: ['Trackout Stems', 'Unlimited Streams', 'Non-Exclusive'],
+          fileTypes: ['WAV', 'MP3', 'STEMS'],
+        },
+      ],
     },
     // SAMPLES
     {
@@ -68,6 +160,7 @@ export class LabService {
       key: MusicalKey.C_MINOR,
       tags: [Genre.TECH, 'DRUMS'],
       price: 19.99,
+      licenses: [],
     },
     {
       id: '#SMPL2',
@@ -80,6 +173,7 @@ export class LabService {
       key: MusicalKey.G_MINOR,
       tags: [Genre.AMBIENT, 'SYNTH', 'LOOPS'],
       price: 24.99,
+      licenses: [],
     },
     {
       id: '#BT005',
@@ -92,6 +186,29 @@ export class LabService {
       key: MusicalKey.C_MINOR,
       tags: [Genre.TRAP, 'DARK'],
       price: 34.99,
+      licenses: [
+        {
+          type: 'Basic',
+          name: 'MP3 Lease',
+          price: 34.99,
+          features: ['MP3 File', '2,000 Streams', 'Non-Exclusive'],
+          fileTypes: ['MP3'],
+        },
+        {
+          type: 'Premium',
+          name: 'WAV Lease',
+          price: 59.99,
+          features: ['WAV + MP3', '10,000 Streams', 'Non-Exclusive'],
+          fileTypes: ['WAV', 'MP3'],
+        },
+        {
+          type: 'Unlimited',
+          name: 'Unlimited Lease',
+          price: 119.99,
+          features: ['Trackout Stems', 'Unlimited Streams', 'Non-Exclusive'],
+          fileTypes: ['WAV', 'MP3', 'STEMS'],
+        },
+      ],
     },
     {
       id: '#SMPL3',
@@ -104,6 +221,7 @@ export class LabService {
       key: MusicalKey.A_MINOR,
       tags: [Genre.HIPHOP, 'LOOPS', 'VINTAGE'],
       price: 14.99,
+      licenses: [],
     },
   ];
 
