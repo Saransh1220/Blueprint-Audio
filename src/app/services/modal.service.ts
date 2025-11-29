@@ -1,10 +1,6 @@
-import { Injectable, signal, Type } from '@angular/core';
+import { Injectable, signal, type Type } from '@angular/core';
 
-export interface ModalData {
-  component: Type<any>;
-  title?: string;
-  data?: any;
-}
+import type { ModalData } from '../models/modal';
 
 @Injectable({
   providedIn: 'root',
@@ -15,7 +11,7 @@ export class ModalService {
   readonly state = this.modalState.asReadonly();
   readonly isOpen = signal(false);
 
-  open(component: Type<any>, title?: string, data?: any) {
+  open(component: Type<unknown>, title?: string, data?: Record<string, unknown>) {
     this.modalState.set({ component, title, data });
     this.isOpen.set(true);
     document.body.style.overflow = 'hidden'; // Prevent background scrolling

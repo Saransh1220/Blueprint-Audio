@@ -1,6 +1,6 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, type OnInit } from '@angular/core';
 
-import { Producer } from '../../models/producer';
+import type { Producer } from '../../models/producer';
 import { DirectoryService } from '../../services/directory';
 import { ProducerRowComponent } from '../producer-row/producer-row';
 

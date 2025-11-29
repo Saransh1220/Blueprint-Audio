@@ -1,6 +1,6 @@
 import { Component, Input } from '@angular/core';
 
-import { Producer } from '../../models/producer';
+import type { Producer } from '../../models/producer';
 
 @Component({
   selector: 'app-producer-row',

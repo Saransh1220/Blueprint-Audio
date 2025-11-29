@@ -1,7 +1,13 @@
-import { Component, inject, AfterViewInit, effect, ViewChild, ElementRef } from '@angular/core';
-
-import { PlayerService } from '../../services/player.service';
+import {
+  type AfterViewInit,
+  Component,
+  type ElementRef,
+  effect,
+  inject,
+  ViewChild,
+} from '@angular/core';
 import { gsap } from 'gsap';
+import { PlayerService } from '../../services/player.service';
 
 @Component({
   selector: 'app-player',

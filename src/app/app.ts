@@ -1,13 +1,12 @@
-import { Component, AfterViewInit, ElementRef, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { type AfterViewInit, Component, ElementRef, ViewChild } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { gsap } from 'gsap';
-
-import { HeaderComponent } from './components/header/header';
-import { FooterComponent } from './components/footer/footer';
-import { PlayerComponent } from './components/player/player';
 import { CartComponent } from './components/cart/cart.component';
+import { FooterComponent } from './components/footer/footer';
+import { HeaderComponent } from './components/header/header';
 import { ModalComponent } from './components/modal/modal.component';
+import { PlayerComponent } from './components/player/player';
 import { ToastComponent } from './components/toast/toast.component';
 
 @Component({
@@ -47,7 +46,11 @@ export class AppComponent implements AfterViewInit {
     }
 
     const tl = gsap.timeline();
-    tl.to('.loader-progress', { width: '100%', duration: 1.5, ease: 'power2.inOut' })
+    tl.to('.loader-progress', {
+      width: '100%',
+      duration: 1.5,
+      ease: 'power2.inOut',
+    })
       .to('.loader', { y: '-100%', duration: 0.8, ease: 'power4.inOut', delay: 0.2 }, 'loaderOut') // Loader finishes at "loaderOut"
 
       // Animate H1 explicitly

@@ -1,4 +1,4 @@
-import { MusicalKey } from './enums';
+import type { MusicalKey } from './enums';
 
 export type LicenseType = 'Basic' | 'Premium' | 'Trackout' | 'Unlimited';
 

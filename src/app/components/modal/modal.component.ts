@@ -1,5 +1,5 @@
-import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Component } from '@angular/core';
 import { ModalService } from '../../services/modal.service';
 
 @Component({
@@ -11,6 +11,10 @@ import { ModalService } from '../../services/modal.service';
 })
 export class ModalComponent {
   constructor(public modalService: ModalService) {}
+
+  get modalInputs(): Record<string, unknown> | undefined {
+    return this.modalService.state()?.data;
+  }
 
   close() {
     this.modalService.close();

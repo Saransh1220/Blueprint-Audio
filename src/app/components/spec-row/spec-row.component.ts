@@ -1,10 +1,9 @@
-import { Component, Input, OnInit, signal } from '@angular/core';
-
-import { SpecCardComponent } from '../spec-card/spec-card';
-import { SpecListItemComponent } from '../spec-list-item/spec-list-item.component';
-import { Spec } from '../../models/spec';
+import { Component, Input, type OnInit, signal } from '@angular/core';
+import type { Spec } from '../../models/spec';
 import { LabService } from '../../services/lab';
 import { PlayerService } from '../../services/player.service';
+import { SpecCardComponent } from '../spec-card/spec-card';
+import { SpecListItemComponent } from '../spec-list-item/spec-list-item.component';
 
 @Component({
   selector: 'app-spec-row',

@@ -1,7 +1,15 @@
-import { Component, OnInit, AfterViewInit, ViewChild, ElementRef, OnDestroy } from '@angular/core';
 import { Location } from '@angular/common';
+import {
+  type AfterViewInit,
+  Component,
+  type ElementRef,
+  type OnDestroy,
+  type OnInit,
+  ViewChild,
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { Router, ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
+import type { Particle } from '../../models/particle';
 import { AuthService } from '../../services/auth.service';
 
 @Component({
@@ -28,12 +36,12 @@ export class AuthComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('fluidCanvas') canvasRef!: ElementRef<HTMLCanvasElement>;
   private ctx!: CanvasRenderingContext2D;
   private animationFrameId!: number;
-  private particles: any[] = [];
+  private particles: Particle[] = [];
   private width = 0;
   private height = 0;
 
   constructor(
-    private router: Router,
+    _router: Router,
     private route: ActivatedRoute,
     private location: Location,
     private authService: AuthService,
@@ -85,7 +93,9 @@ export class AuthComponent implements OnInit, AfterViewInit, OnDestroy {
 
   private initFluidAnimation() {
     const canvas = this.canvasRef.nativeElement;
-    this.ctx = canvas.getContext('2d')!;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) throw new Error('Could not get 2D context');
+    this.ctx = ctx;
     this.resizeCanvas();
     this.createParticles();
     this.animate();

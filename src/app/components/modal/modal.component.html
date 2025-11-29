@@ -8,10 +8,7 @@
     </div>
     <div class="modal-content">
       <ng-container
-        *ngComponentOutlet="
-          modalService.state()?.component ?? null;
-          inputs: modalService.state()?.data
-        "
+        *ngComponentOutlet="modalService.state()?.component ?? null; inputs: modalInputs"
       ></ng-container>
     </div>
   </div>

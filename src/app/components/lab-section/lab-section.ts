@@ -1,14 +1,14 @@
-import { Component, OnInit, AfterViewInit, computed, signal, Input } from '@angular/core';
+import { type AfterViewInit, Component, computed, Input, type OnInit, signal } from '@angular/core';
 
 import { FormsModule } from '@angular/forms';
-import { Spec } from '../../models/spec';
-import { MusicalKey, Genre } from '../../models/enums';
+import { gsap } from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { Genre, MusicalKey } from '../../models/enums';
+import type { Spec } from '../../models/spec';
 import { LabService } from '../../services/lab';
 import { PlayerService } from '../../services/player.service';
 import { SpecCardComponent } from '../spec-card/spec-card';
 import { SpecListItemComponent } from '../spec-list-item/spec-list-item.component';
-import { gsap } from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -98,7 +98,7 @@ export class LabSectionComponent implements OnInit, AfterViewInit {
     // Wait for DOM update
     setTimeout(() => {
       ScrollTrigger.refresh();
-      gsap.utils.toArray('.gs-item').forEach((item: any, i: number) => {
+      (gsap.utils.toArray('.gs-item') as Element[]).forEach((item: Element, i: number) => {
         gsap.fromTo(
           item,
           { y: 50, opacity: 0 },
@@ -129,8 +129,8 @@ export class LabSectionComponent implements OnInit, AfterViewInit {
     });
   }
 
-  updateBpm(event: any, index: 0 | 1) {
-    const val = Number(event.target.value);
+  updateBpm(event: Event, index: 0 | 1) {
+    const val = Number((event.target as HTMLInputElement).value);
     this.filters.bpmRange.update((current) => {
       const newRange = [...current] as [number, number];
       newRange[index] = val;
@@ -138,8 +138,8 @@ export class LabSectionComponent implements OnInit, AfterViewInit {
     });
   }
 
-  updatePrice(event: any, index: 0 | 1) {
-    const val = Number(event.target.value);
+  updatePrice(event: Event, index: 0 | 1) {
+    const val = Number((event.target as HTMLInputElement).value);
     this.filters.priceRange.update((current) => {
       const newRange = [...current] as [number, number];
       newRange[index] = val;

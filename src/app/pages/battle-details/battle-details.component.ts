@@ -1,4 +1,4 @@
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, type OnInit, signal } from '@angular/core';
 
 import { ActivatedRoute } from '@angular/router';
 
@@ -37,6 +37,7 @@ export class BattleDetailsComponent implements OnInit {
 
   ngOnInit() {
     this.route.params.subscribe((params) => {
+      // biome-ignore lint/complexity/useLiteralKeys: Angular Params uses index signature
       this.battleId.set(params['id']);
       // TODO: Fetch actual battle details using ID
     });

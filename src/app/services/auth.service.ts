@@ -27,7 +27,7 @@ export class AuthService {
     this.router.navigate(['/dashboard']);
   }
 
-  register(data: any) {
+  register(data: { email: string; username: string; role: 'artist' | 'producer' }) {
     // Mock register
     this.currentUser.set({
       id: '123',
