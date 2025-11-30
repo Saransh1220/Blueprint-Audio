@@ -1,4 +1,12 @@
-import { type AfterViewInit, Component, computed, Input, type OnInit, signal, inject } from '@angular/core';
+import {
+  type AfterViewInit,
+  Component,
+  computed,
+  Input,
+  type OnInit,
+  signal,
+  inject,
+} from '@angular/core';
 
 import { FormsModule } from '@angular/forms';
 import { gsap } from 'gsap';

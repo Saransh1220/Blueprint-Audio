@@ -12,7 +12,6 @@ import { ModalService } from '../../services/modal.service';
 export class ModalComponent {
   modalService = inject(ModalService);
 
-
   get modalInputs(): Record<string, unknown> | undefined {
     return this.modalService.state()?.data;
   }
