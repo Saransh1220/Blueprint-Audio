@@ -1,5 +1,5 @@
 import { Injectable, signal } from '@angular/core';
-import { Spec } from '../models/spec';
+import type { Spec } from '../models/spec';
 
 @Injectable({
   providedIn: 'root',
@@ -7,8 +7,6 @@ import { Spec } from '../models/spec';
 export class PlayerService {
   public isVisible = signal(false);
   public currentTrack = signal<Spec | null>(null);
-
-  constructor() {}
 
   showPlayer(track: Spec) {
     this.currentTrack.set(track);

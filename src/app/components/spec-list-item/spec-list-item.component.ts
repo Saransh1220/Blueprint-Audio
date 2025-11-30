@@ -1,8 +1,8 @@
-import { Component, Input, signal } from '@angular/core';
+import { Component, Input, inject } from '@angular/core';
 
-import { Spec } from '../../models/spec';
-import { PlayerService } from '../../services/player.service';
+import type { Spec } from '../../models/spec';
 import { ModalService } from '../../services/modal.service';
+import { PlayerService } from '../../services/player.service';
 import { LicenseSelectorComponent } from '../license-selector/license-selector.component';
 
 @Component({
@@ -13,12 +13,10 @@ import { LicenseSelectorComponent } from '../license-selector/license-selector.c
   styleUrls: ['./spec-list-item.component.scss'],
 })
 export class SpecListItemComponent {
-  @Input({ required: true }) spec!: Spec;
+  private playerService = inject(PlayerService);
+  private modalService = inject(ModalService);
 
-  constructor(
-    private playerService: PlayerService,
-    private modalService: ModalService,
-  ) {}
+  @Input({ required: true }) spec!: Spec;
 
   playSong(event: MouseEvent) {
     event.stopPropagation();
@@ -27,6 +25,8 @@ export class SpecListItemComponent {
 
   addToCart(event: MouseEvent) {
     event.stopPropagation();
-    this.modalService.open(LicenseSelectorComponent, 'Select License', { spec: this.spec });
+    this.modalService.open(LicenseSelectorComponent, 'Select License', {
+      spec: this.spec,
+    });
   }
 }

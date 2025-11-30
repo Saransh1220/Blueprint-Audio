@@ -1,10 +1,9 @@
-import { Routes } from '@angular/router';
-import { HomeComponent } from './pages/home/home.component';
-import { BattlesComponent } from './pages/battles/battles.component';
-import { BattleDetailsComponent } from './pages/battle-details/battle-details.component';
+import type { Routes } from '@angular/router';
 import { AuthComponent } from './pages/auth/auth.component';
-
+import { BattleDetailsComponent } from './pages/battle-details/battle-details.component';
+import { BattlesComponent } from './pages/battles/battles.component';
 import { DashboardComponent } from './pages/dashboard/dashboard.component';
+import { HomeComponent } from './pages/home/home.component';
 
 export const routes: Routes = [
   { path: '', component: HomeComponent },

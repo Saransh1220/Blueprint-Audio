@@ -1,5 +1,5 @@
-import { Component, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Component, signal, inject } from '@angular/core';
 import { CartService } from '../../services/cart.service';
 
 @Component({
@@ -10,10 +10,12 @@ import { CartService } from '../../services/cart.service';
   styleUrls: ['./cart.component.scss'],
 })
 export class CartComponent {
+  cartService = inject(CartService);
+
   isOpen = signal(false);
   items;
 
-  constructor(public cartService: CartService) {
+  constructor() {
     this.items = this.cartService.items;
   }
 

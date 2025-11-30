@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
-import { Observable, of } from 'rxjs';
-import { Spec } from '../models/spec';
-import { MusicalKey, Genre } from '../models/enums';
+import { type Observable, of } from 'rxjs';
+import { Genre, MusicalKey } from '../models/enums';
+import type { Spec } from '../models/spec';
 
 @Injectable({
   providedIn: 'root',
@@ -224,8 +224,6 @@ export class LabService {
       licenses: [],
     },
   ];
-
-  constructor() {}
 
   getSpecs(category?: 'beat' | 'sample'): Observable<Spec[]> {
     if (category) {

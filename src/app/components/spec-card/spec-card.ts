@@ -1,8 +1,8 @@
 import { Component, Input, inject } from '@angular/core';
 
-import { Spec } from '../../models/spec';
-import { PlayerService } from '../../services/player.service';
+import type { Spec } from '../../models/spec';
 import { ModalService } from '../../services/modal.service';
+import { PlayerService } from '../../services/player.service';
 import { LicenseSelectorComponent } from '../license-selector/license-selector.component';
 
 @Component({
@@ -23,6 +23,8 @@ export class SpecCardComponent {
 
   addToCart(event: MouseEvent) {
     event.stopPropagation();
-    this.modalService.open(LicenseSelectorComponent, 'Select License', { spec: this.spec });
+    this.modalService.open(LicenseSelectorComponent, 'Select License', {
+      spec: this.spec,
+    });
   }
 }

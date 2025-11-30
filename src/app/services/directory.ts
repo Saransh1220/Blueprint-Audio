@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
-import { Observable, of } from 'rxjs';
-import { Producer } from '../models/producer';
+import { type Observable, of } from 'rxjs';
+import type { Producer } from '../models/producer';
 
 @Injectable({
   providedIn: 'root',
@@ -20,8 +20,6 @@ export class DirectoryService {
         'https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=1000&auto=format&fit=crop',
     },
   ];
-
-  constructor() {}
 
   getProducers(): Observable<Producer[]> {
     return of(this.producers);

@@ -1,4 +1,4 @@
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, type OnInit, signal, inject } from '@angular/core';
 
 import { ActivatedRoute } from '@angular/router';
 
@@ -10,6 +10,8 @@ import { ActivatedRoute } from '@angular/router';
   styleUrls: ['./battle-details.component.scss'],
 })
 export class BattleDetailsComponent implements OnInit {
+  private route = inject(ActivatedRoute);
+
   battleId = signal<string>('');
 
   // Mock Data
@@ -33,10 +35,9 @@ export class BattleDetailsComponent implements OnInit {
     { id: 3, artist: 'NeonWave', title: 'Retro Future', score: 128 },
   ]);
 
-  constructor(private route: ActivatedRoute) {}
-
   ngOnInit() {
     this.route.params.subscribe((params) => {
+      // biome-ignore lint/complexity/useLiteralKeys: Angular Params uses index signature
       this.battleId.set(params['id']);
       // TODO: Fetch actual battle details using ID
     });

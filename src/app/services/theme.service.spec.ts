@@ -1,6 +1,6 @@
+import { DOCUMENT } from '@angular/common';
 import { TestBed } from '@angular/core/testing';
 import { ThemeService } from './theme.service';
-import { DOCUMENT } from '@angular/common';
 
 describe('ThemeService', () => {
   let service: ThemeService;
@@ -11,7 +11,9 @@ describe('ThemeService', () => {
       providers: [
         {
           provide: DOCUMENT,
-          useValue: { body: { classList: { add: () => {}, remove: () => {} } } },
+          useValue: {
+            body: { classList: { add: () => {}, remove: () => {} } },
+          },
         },
       ],
     });
@@ -19,7 +21,9 @@ describe('ThemeService', () => {
     document = TestBed.inject(DOCUMENT);
     spyOn(localStorage, 'getItem').and.returnValue(null);
     spyOn(localStorage, 'setItem');
-    spyOn(window, 'matchMedia').and.returnValue({ matches: false } as MediaQueryList); // Mock matchMedia
+    spyOn(window, 'matchMedia').and.returnValue({
+      matches: false,
+    } as MediaQueryList); // Mock matchMedia
     spyOn(document.body.classList, 'add');
     spyOn(document.body.classList, 'remove');
   });
@@ -57,7 +61,9 @@ describe('ThemeService', () => {
       providers: [
         {
           provide: DOCUMENT,
-          useValue: { body: { classList: { add: () => {}, remove: () => {} } } },
+          useValue: {
+            body: { classList: { add: () => {}, remove: () => {} } },
+          },
         },
       ],
     });
@@ -68,14 +74,18 @@ describe('ThemeService', () => {
 
   it('should use system preference if no localStorage theme', () => {
     (localStorage.getItem as jasmine.Spy).and.returnValue(null);
-    (window.matchMedia as jasmine.Spy).and.returnValue({ matches: true } as MediaQueryList); // Prefers dark
+    (window.matchMedia as jasmine.Spy).and.returnValue({
+      matches: true,
+    } as MediaQueryList); // Prefers dark
     // Re-initialize service
     TestBed.resetTestingModule();
     TestBed.configureTestingModule({
       providers: [
         {
           provide: DOCUMENT,
-          useValue: { body: { classList: { add: () => {}, remove: () => {} } } },
+          useValue: {
+            body: { classList: { add: () => {}, remove: () => {} } },
+          },
         },
       ],
     });

@@ -1,6 +1,5 @@
-import { Injectable, signal, effect } from '@angular/core';
 import { DOCUMENT } from '@angular/common';
-import { inject } from '@angular/core';
+import { effect, Injectable, inject, signal } from '@angular/core';
 
 @Injectable({
   providedIn: 'root',

@@ -1,8 +1,8 @@
-import { Component, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Component, type OnInit, signal, inject } from '@angular/core';
 import { HeaderComponent } from '../../components/header/header';
 import { SpecRowComponent } from '../../components/spec-row/spec-row.component';
-import { AuthService, User } from '../../services/auth.service';
+import { AuthService, type User } from '../../services/auth.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -12,6 +12,8 @@ import { AuthService, User } from '../../services/auth.service';
   styleUrls: ['./dashboard.component.scss'],
 })
 export class DashboardComponent implements OnInit {
+  private authService = inject(AuthService);
+
   currentUser = signal<User | null>(null);
   currentDate = signal<Date>(new Date());
   genres = signal<string[]>([
@@ -26,9 +28,24 @@ export class DashboardComponent implements OnInit {
   ]);
 
   stats = signal([
-    { label: 'Total Plays', value: '12.5K', icon: 'fas fa-play', trend: '+12%' },
-    { label: 'Revenue', value: '$2,450', icon: 'fas fa-dollar-sign', trend: '+8%' },
-    { label: 'Followers', value: '850', icon: 'fas fa-user-friends', trend: '+24%' },
+    {
+      label: 'Total Plays',
+      value: '12.5K',
+      icon: 'fas fa-play',
+      trend: '+12%',
+    },
+    {
+      label: 'Revenue',
+      value: '$2,450',
+      icon: 'fas fa-dollar-sign',
+      trend: '+8%',
+    },
+    {
+      label: 'Followers',
+      value: '850',
+      icon: 'fas fa-user-friends',
+      trend: '+24%',
+    },
   ]);
 
   spotlight = signal({
@@ -37,8 +54,6 @@ export class DashboardComponent implements OnInit {
     image: 'assets/images/metro.jpg', // Placeholder
     description: 'Explore the latest sound kit from the legendary producer.',
   });
-
-  constructor(private authService: AuthService) {}
 
   ngOnInit() {
     // In a real app, we'd subscribe to the signal or observable.
