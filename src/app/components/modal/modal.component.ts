@@ -1,22 +1,22 @@
-import { CommonModule } from '@angular/common';
-import { Component, inject } from '@angular/core';
-import { ModalService } from '../../services/modal.service';
+import { CommonModule } from "@angular/common";
+import { Component, inject } from "@angular/core";
+import { ModalService } from "../../services/modal.service";
 
 @Component({
-  selector: 'app-modal',
-  standalone: true,
-  imports: [CommonModule],
-  templateUrl: './modal.component.html',
-  styleUrls: ['./modal.component.scss'],
+	selector: "app-modal",
+	standalone: true,
+	imports: [CommonModule],
+	templateUrl: "./modal.component.html",
+	styleUrls: ["./modal.component.scss"],
 })
 export class ModalComponent {
-  modalService = inject(ModalService);
+	modalService = inject(ModalService);
 
-  get modalInputs(): Record<string, unknown> | undefined {
-    return this.modalService.state()?.data;
-  }
+	get modalInputs(): Record<string, unknown> | undefined {
+		return this.modalService.state()?.data;
+	}
 
-  close() {
-    this.modalService.close();
-  }
+	close() {
+		this.modalService.close();
+	}
 }

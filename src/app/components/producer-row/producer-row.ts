@@ -1,14 +1,14 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input } from "@angular/core";
 
-import type { Producer } from '../../models/producer';
+import type { Producer } from "../../models/producer";
 
 @Component({
-  selector: 'app-producer-row',
-  standalone: true,
-  imports: [],
-  templateUrl: './producer-row.html',
-  styleUrls: ['./producer-row.scss'],
+	selector: "app-producer-row",
+	standalone: true,
+	imports: [],
+	templateUrl: "./producer-row.html",
+	styleUrls: ["./producer-row.scss"],
 })
 export class ProducerRowComponent {
-  @Input() producer!: Producer;
+	@Input() producer!: Producer;
 }
