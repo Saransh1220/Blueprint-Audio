@@ -1,18 +1,23 @@
 import { type ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { ProducerRow } from './producer-row';
+import { ProducerRowComponent } from './producer-row';
 
-describe('ProducerRow', () => {
-  let component: ProducerRow;
-  let fixture: ComponentFixture<ProducerRow>;
+describe('ProducerRowComponent', () => {
+  let component: ProducerRowComponent;
+  let fixture: ComponentFixture<ProducerRowComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [ProducerRow],
+      imports: [ProducerRowComponent],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(ProducerRow);
+    fixture = TestBed.createComponent(ProducerRowComponent);
     component = fixture.componentInstance;
+    component.producer = {
+      name: 'Test Producer',
+      specialty: 'Test Genre',
+      avatarUrl: 'test-avatar.jpg',
+    };
     fixture.detectChanges();
   });
 

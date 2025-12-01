@@ -12,6 +12,7 @@ export class ThemeService {
   constructor() {
     // Initialize theme from localStorage or system preference
     const storedTheme = localStorage.getItem(this.localStorageKey);
+    console.log('ThemeService constructor storedTheme:', storedTheme);
     if (storedTheme) {
       this.currentTheme.set(storedTheme);
     } else {
@@ -23,6 +24,7 @@ export class ThemeService {
     // Effect to update body class and localStorage whenever currentTheme changes
     effect(() => {
       const theme = this.currentTheme();
+      console.log('ThemeService effect running:', theme);
       if (theme === 'dark') {
         this.document.body.classList.add('dark-theme');
       } else {
@@ -33,10 +35,13 @@ export class ThemeService {
   }
 
   toggleTheme() {
+    console.log('toggleTheme called, current:', this.currentTheme());
     this.currentTheme.update((current) => (current === 'light' ? 'dark' : 'light'));
+    console.log('toggleTheme new value:', this.currentTheme());
   }
 
   setTheme(theme: string) {
+    console.log('setTheme called with:', theme);
     if (theme === 'light' || theme === 'dark') {
       this.currentTheme.set(theme);
     }

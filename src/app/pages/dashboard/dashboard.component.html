@@ -82,16 +82,11 @@
       <div class="section-header">
         <h2>Browse Genres</h2>
       </div>
-      <div class="uniform-grid">
+      <div class="genre-grid">
         @for (genre of genres(); track genre) {
-          <div class="grid-item">
-            <div class="item-content">
-              <h3>{{ genre }}</h3>
-              <div class="item-meta">
-                <span>124 Files</span>
-                <i class="fas fa-arrow-right"></i>
-              </div>
-            </div>
+          <div class="genre-tile" [style.background-image]="'url(' + getGenreImage(genre) + ')'">
+            <div class="overlay"></div>
+            <span class="genre-name">{{ genre }}</span>
           </div>
         }
       </div>

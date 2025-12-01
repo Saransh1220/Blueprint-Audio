@@ -3,10 +3,10 @@ import {
   type AfterViewInit,
   Component,
   type ElementRef,
+  inject,
   type OnDestroy,
   type OnInit,
   ViewChild,
-  inject,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';

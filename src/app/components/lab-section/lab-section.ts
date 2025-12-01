@@ -3,9 +3,9 @@ import {
   Component,
   computed,
   Input,
+  inject,
   type OnInit,
   signal,
-  inject,
 } from '@angular/core';
 
 import { FormsModule } from '@angular/forms';
@@ -53,6 +53,22 @@ export class LabSectionComponent implements OnInit, AfterViewInit {
   // Options for Dropdowns/Tags
   genres = Object.values(Genre);
   keys = ['All', ...Object.values(MusicalKey)];
+
+  getGenreImage(genre: string): string {
+    const map: Record<string, string> = {
+      [Genre.TRAP]: 'assets/images/genres/trap.png',
+      [Genre.DRILL]: 'assets/images/genres/drill.png',
+      [Genre.RNB]: 'assets/images/genres/rnb.png',
+      [Genre.EXPERIMENTAL]: 'assets/images/genres/experimental.png',
+      [Genre.HOUSE]: 'assets/images/genres/house.png',
+      [Genre.LOFI]: 'assets/images/genres/lofi.png',
+      [Genre.HIPHOP]: 'assets/images/genres/hiphop.png',
+      [Genre.POP]: 'assets/images/genres/pop.png',
+      [Genre.TECH]: 'assets/images/genres/tech.png',
+      [Genre.AMBIENT]: 'assets/images/genres/ambient.png',
+    };
+    return map[genre] || 'assets/images/placeholder.jpg';
+  }
 
   filteredSpecs = computed(() => {
     const term = this.searchTerm().toLowerCase();

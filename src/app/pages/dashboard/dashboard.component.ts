@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, type OnInit, signal, inject } from '@angular/core';
+import { Component, inject, type OnInit, signal } from '@angular/core';
 import { HeaderComponent } from '../../components/header/header';
 import { SpecRowComponent } from '../../components/spec-row/spec-row.component';
 import { AuthService, type User } from '../../services/auth.service';
@@ -23,9 +23,27 @@ export class DashboardComponent implements OnInit {
     'Lo-Fi',
     'Hip Hop',
     'Pop',
-    'Afrobeat',
+    'Tech',
     'House',
+    'Experimental',
+    'Ambient',
   ]);
+
+  getGenreImage(genre: string): string {
+    const map: Record<string, string> = {
+      Trap: 'assets/images/genres/trap.png',
+      Drill: 'assets/images/genres/drill.png',
+      RnB: 'assets/images/genres/rnb.png',
+      Experimental: 'assets/images/genres/experimental.png',
+      House: 'assets/images/genres/house.png',
+      'Lo-Fi': 'assets/images/genres/lofi.png',
+      'Hip Hop': 'assets/images/genres/hiphop.png',
+      Pop: 'assets/images/genres/pop.png',
+      Tech: 'assets/images/genres/tech.png',
+      Ambient: 'assets/images/genres/ambient.png',
+    };
+    return map[genre] || 'assets/images/placeholder.jpg';
+  }
 
   stats = signal([
     {

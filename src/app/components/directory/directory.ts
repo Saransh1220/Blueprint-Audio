@@ -1,4 +1,4 @@
-import { Component, type OnInit, inject } from '@angular/core';
+import { Component, inject, type OnInit } from '@angular/core';
 
 import type { Producer } from '../../models/producer';
 import { DirectoryService } from '../../services/directory';

@@ -1,4 +1,4 @@
-import { Component, Input, type OnInit, signal, inject } from '@angular/core';
+import { Component, Input, inject, type OnInit, signal } from '@angular/core';
 import type { Spec } from '../../models/spec';
 import { LabService } from '../../services/lab';
 import { PlayerService } from '../../services/player.service';

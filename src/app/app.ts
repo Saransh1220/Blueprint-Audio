@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { type AfterViewInit, Component, ElementRef, ViewChild, inject } from '@angular/core';
+import { type AfterViewInit, Component, ElementRef, inject, ViewChild } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { gsap } from 'gsap';
 import { CartComponent } from './components/cart/cart.component';
