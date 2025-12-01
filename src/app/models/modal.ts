@@ -1,7 +1,7 @@
-import type { Type } from "@angular/core";
+import type { Type } from '@angular/core';
 
 export interface ModalData {
-	component: Type<unknown>;
-	title?: string;
-	data?: Record<string, unknown>;
+  component: Type<unknown>;
+  title?: string;
+  data?: Record<string, unknown>;
 }

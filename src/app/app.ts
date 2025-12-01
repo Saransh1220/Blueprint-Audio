@@ -1,92 +1,78 @@
-import { CommonModule } from "@angular/common";
-import {
-	type AfterViewInit,
-	Component,
-	ElementRef,
-	inject,
-	ViewChild,
-} from "@angular/core";
-import { RouterOutlet } from "@angular/router";
-import { gsap } from "gsap";
-import { CartComponent } from "./components/cart/cart.component";
-import { FooterComponent } from "./components/footer/footer";
-import { HeaderComponent } from "./components/header/header";
-import { ModalComponent } from "./components/modal/modal.component";
-import { PlayerComponent } from "./components/player/player";
-import { ToastComponent } from "./components/toast/toast.component";
+import { CommonModule } from '@angular/common';
+import { type AfterViewInit, Component, ElementRef, inject, ViewChild } from '@angular/core';
+import { RouterOutlet } from '@angular/router';
+import { gsap } from 'gsap';
+import { CartComponent } from './components/cart/cart.component';
+import { FooterComponent } from './components/footer/footer';
+import { HeaderComponent } from './components/header/header';
+import { ModalComponent } from './components/modal/modal.component';
+import { PlayerComponent } from './components/player/player';
+import { ToastComponent } from './components/toast/toast.component';
 
 @Component({
-	selector: "app-root",
-	standalone: true,
-	imports: [
-		CommonModule,
-		RouterOutlet,
-		HeaderComponent,
-		FooterComponent,
-		PlayerComponent,
-		CartComponent,
-		ModalComponent,
-		ToastComponent,
-	],
-	templateUrl: "./app.html",
-	styleUrls: ["./app.scss"],
+  selector: 'app-root',
+  standalone: true,
+  imports: [
+    CommonModule,
+    RouterOutlet,
+    HeaderComponent,
+    FooterComponent,
+    PlayerComponent,
+    CartComponent,
+    ModalComponent,
+    ToastComponent,
+  ],
+  templateUrl: './app.html',
+  styleUrls: ['./app.scss'],
 })
 export class AppComponent implements AfterViewInit {
-	private el = inject(ElementRef);
+  private el = inject(ElementRef);
 
-	@ViewChild(CartComponent) cart!: CartComponent;
+  @ViewChild(CartComponent) cart!: CartComponent;
 
-	ngAfterViewInit(): void {
-		const grid = this.el.nativeElement.querySelector(".grid-overlay");
-		if (grid) {
-			document.addEventListener("mousemove", (e) => {
-				const x = (e.clientX / window.innerWidth - 0.5) * 30;
-				const y = (e.clientY / window.innerHeight - 0.5) * 30;
-				gsap.to(grid, {
-					x: x,
-					y: y,
-					duration: 1,
-					ease: "power2.out",
-				});
-			});
-		}
+  ngAfterViewInit(): void {
+    const grid = this.el.nativeElement.querySelector('.grid-overlay');
+    if (grid) {
+      document.addEventListener('mousemove', (e) => {
+        const x = (e.clientX / window.innerWidth - 0.5) * 30;
+        const y = (e.clientY / window.innerHeight - 0.5) * 30;
+        gsap.to(grid, {
+          x: x,
+          y: y,
+          duration: 1,
+          ease: 'power2.out',
+        });
+      });
+    }
 
-		const tl = gsap.timeline();
-		tl.to(".loader-progress", {
-			width: "100%",
-			duration: 1.5,
-			ease: "power2.inOut",
-		})
-			.to(
-				".loader",
-				{ y: "-100%", duration: 0.8, ease: "power4.inOut", delay: 0.2 },
-				"loaderOut",
-			) // Loader finishes at "loaderOut"
+    const tl = gsap.timeline();
+    tl.to('.loader-progress', {
+      width: '100%',
+      duration: 1.5,
+      ease: 'power2.inOut',
+    })
+      .to('.loader', { y: '-100%', duration: 0.8, ease: 'power4.inOut', delay: 0.2 }, 'loaderOut') // Loader finishes at "loaderOut"
 
-			// Animate H1 explicitly
-			.set("h1.hero-title", { y: 50, opacity: 0 }) // Set initial hidden state
-			.to(
-				"h1.hero-title",
-				{ y: 0, opacity: 1, duration: 1, ease: "power3.out" },
-				"loaderOut+=0.2",
-			) // Animate to visible
+      // Animate H1 explicitly
+      .set('h1.hero-title', { y: 50, opacity: 0 }) // Set initial hidden state
+      .to('h1.hero-title', { y: 0, opacity: 1, duration: 1, ease: 'power3.out' }, 'loaderOut+=0.2') // Animate to visible
 
-			// Animate other .gs-reveal elements
-			.from(
-				".gs-reveal",
-				{ y: 30, opacity: 0, duration: 0.8, stagger: 0.1, ease: "power3.out" },
-				"loaderOut+=0.3",
-			)
-			.from(
-				".hero-visual",
-				{ scale: 0.9, opacity: 0, duration: 1, ease: "expo.out" },
-				"loaderOut+=0.4",
-			);
-	}
+      // Animate other .gs-reveal elements
+      .from(
+        '.gs-reveal',
+        { y: 30, opacity: 0, duration: 0.8, stagger: 0.1, ease: 'power3.out' },
+        'loaderOut+=0.3',
+      )
+      .from(
+        '.hero-visual',
+        { scale: 0.9, opacity: 0, duration: 1, ease: 'expo.out' },
+        'loaderOut+=0.4',
+      );
+  }
 
-	toggleCart() {
-		if (this.cart) {
-			this.cart.toggle();
-		}
-	}
+  toggleCart() {
+    if (this.cart) {
+      this.cart.toggle();
+    }
+  }
 }

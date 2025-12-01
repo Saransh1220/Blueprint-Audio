@@ -1,5 +1,5 @@
 export interface Producer {
-	name: string;
-	specialty: string;
-	avatarUrl: string;
+  name: string;
+  specialty: string;
+  avatarUrl: string;
 }
