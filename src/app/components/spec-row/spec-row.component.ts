@@ -19,6 +19,7 @@ export class SpecRowComponent implements OnInit {
   @Input() title = '';
   @Input() filterTag = ''; // Genre or Tag to filter by
   @Input() type: 'beat' | 'sample' = 'beat';
+  @Input() specsInput: Spec[] | null = null; // Optional input to override internal fetching
 
   specs = signal<Spec[]>([]);
   viewMode = signal<'grid' | 'list'>('grid');
@@ -32,6 +33,11 @@ export class SpecRowComponent implements OnInit {
   }
 
   ngOnInit() {
+    if (this.specsInput) {
+      this.specs.set(this.specsInput);
+      return;
+    }
+
     // In a real app, we'd have a more specific API call.
     // Here we'll fetch all and filter client-side for the mock.
     this.labService.getSpecs(this.type).subscribe((allSpecs) => {

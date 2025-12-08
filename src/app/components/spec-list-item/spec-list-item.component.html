@@ -1,4 +1,4 @@
-<div class="spec-item">
+<div class="spec-item" (click)="openDetails()">
   <!-- Left Section: Image & Play -->
   <div class="item-visual" (click)="playSong($event)">
     <img [src]="spec.imageUrl" [alt]="spec.title" loading="lazy" />
@@ -30,7 +30,7 @@
   <!-- Tags Section (Hidden on mobile) -->
   <div class="item-tags">
     @for (tag of spec.tags.slice(0, 3); track tag) {
-      <span class="tag">#{{ tag }}</span>
+    <span class="tag">#{{ tag }}</span>
     }
   </div>
 

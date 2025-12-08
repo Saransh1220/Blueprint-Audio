@@ -1,4 +1,5 @@
 import { Component, Input, inject } from '@angular/core';
+import { Router } from '@angular/router';
 
 import type { Spec } from '../../models/spec';
 import { ModalService } from '../../services/modal.service';
@@ -16,8 +17,10 @@ export class SpecCardComponent {
   @Input() spec!: Spec;
   playerService = inject(PlayerService);
   modalService = inject(ModalService);
+  router = inject(Router);
 
-  playSong() {
+  playSong(event: MouseEvent) {
+    event.stopPropagation();
     this.playerService.showPlayer(this.spec);
   }
 
@@ -26,5 +29,12 @@ export class SpecCardComponent {
     this.modalService.open(LicenseSelectorComponent, 'Select License', {
       spec: this.spec,
     });
+  }
+
+  openDetails() {
+    // Navigate to details page
+    // Remove the '#' if present to make URL cleaner, though our service handles both
+    const id = this.spec.id.replace('#', '');
+    this.router.navigate(['/beats', id]);
   }
 }
