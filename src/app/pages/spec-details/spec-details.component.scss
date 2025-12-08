@@ -293,7 +293,7 @@
             box-shadow: 0 5px 20px rgba(var(--red-color-rgb), 0.3);
 
             &:hover {
-                background: darken($red, 5%);
+                background: #e62e00; // darken($red, 5%)
                 transform: translateY(-2px);
             }
         }
