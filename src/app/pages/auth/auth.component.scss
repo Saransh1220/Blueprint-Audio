@@ -197,7 +197,6 @@ input {
 }
 
 @keyframes show {
-
   0%,
   49.99% {
     opacity: 0;
@@ -372,14 +371,14 @@ input {
 }
 
 // Logic to move the selection background
-#producer:checked~.switch-selection {
+#producer:checked ~ .switch-selection {
   transform: translateX(100%);
   transform: translateX(calc(100% + 0px));
 }
 
 // Change text color when selected for better contrast
-#artist:checked+.switch-option,
-#producer:checked+.switch-option {
+#artist:checked + .switch-option,
+#producer:checked + .switch-option {
   color: #ffffff;
 }
 

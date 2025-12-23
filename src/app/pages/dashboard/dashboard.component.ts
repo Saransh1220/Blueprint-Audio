@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, type OnInit, signal, ChangeDetectionStrategy } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, type OnInit, signal } from '@angular/core';
 import { HeaderComponent } from '../../components/header/header';
 import { SpecRowComponent } from '../../components/spec-row/spec-row.component';
 import { AuthService, type User } from '../../services/auth.service';

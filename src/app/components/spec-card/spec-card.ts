@@ -1,5 +1,5 @@
-import { Component, Input, inject, ChangeDetectionStrategy } from '@angular/core';
 import { NgOptimizedImage } from '@angular/common';
+import { ChangeDetectionStrategy, Component, Input, inject } from '@angular/core';
 import { Router } from '@angular/router';
 
 import type { Spec } from '../../models/spec';

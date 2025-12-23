@@ -1,0 +1,154 @@
+@use '../../styles/variables' as *;
+
+:host {
+  display: block;
+  min-height: 100vh;
+  padding-top: 100px; // account for fixed header
+}
+
+.settings-page {
+  padding: 0 40px 80px;
+}
+
+.settings-container {
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.settings-header {
+  margin-bottom: 60px;
+
+  h1 {
+    font-family: $font-head;
+    font-size: 3.5rem;
+    color: var(--text-color);
+    margin-bottom: 24px; // Spacing was too tight
+    text-transform: uppercase;
+    letter-spacing: -2px;
+    background: linear-gradient(90deg, var(--text-color) 0%, transparent 100%);
+    -webkit-background-clip: text;
+    // -webkit-text-fill-color: transparent; // Optional: Makes it fade out, but let's keep it solid for now
+    opacity: 0.9;
+  }
+
+  p {
+    color: var(--text-color);
+    opacity: 0.6;
+    font-size: 1.2rem;
+    max-width: 600px;
+    line-height: 1.6;
+  }
+}
+
+.settings-layout {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  gap: 80px;
+  align-items: start;
+}
+
+.settings-sidebar {
+  position: sticky;
+  top: 120px;
+
+  nav {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 16px 20px;
+    border-radius: 12px;
+    border: 1px solid transparent;
+    background: transparent;
+    color: var(--text-color);
+    font-family: $font-tech;
+    font-size: 0.95rem;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    cursor: pointer;
+    text-align: left;
+    opacity: 0.6;
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+
+    &:hover:not(.disabled) {
+      background: rgba(var(--card-bg-color-rgb), 0.5);
+      opacity: 0.9;
+      transform: translateX(5px);
+    }
+
+    &.active {
+      background: rgba(var(--brand-color-rgb), 0.1);
+      border-color: rgba(var(--brand-color-rgb), 0.3);
+      color: var(--brand-color);
+      opacity: 1;
+      font-weight: 700;
+      box-shadow: 0 0 20px rgba(var(--brand-color-rgb), 0.1);
+
+      .icon {
+        color: var(--brand-color);
+        filter: drop-shadow(0 0 5px var(--brand-color));
+      }
+    }
+
+    &.disabled {
+      cursor: not-allowed;
+      opacity: 0.2;
+    }
+
+    .icon {
+      font-size: 1.2rem;
+      transition: all 0.3s ease;
+    }
+  }
+}
+
+.settings-content {
+  // Removed container box style for a cleaner, open look.
+  // The content itself (cards) should provide structure.
+  min-height: 500px;
+  animation: fadeIn 0.5s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 900px) {
+  .settings-layout {
+    grid-template-columns: 1fr;
+    gap: 40px;
+  }
+
+  .settings-sidebar {
+    position: static;
+
+    nav {
+      flex-direction: row;
+      overflow-x: auto;
+      padding-bottom: 20px;
+      scrollbar-width: none; // Firefox
+
+      &::-webkit-scrollbar {
+        display: none; // Chrome/Safari
+      }
+    }
+
+    .nav-item {
+      white-space: nowrap;
+      padding: 12px 16px;
+    }
+  }
+}

@@ -1,0 +1,333 @@
+@use '../../../styles/variables' as *;
+
+:host {
+  display: block;
+}
+
+.appearance-container {
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  gap: 32px;
+  align-items: start;
+  height: calc(100vh - 140px); // Adjust based on header/settings overlap
+  min-height: 600px;
+
+  @media (max-width: 1024px) {
+    grid-template-columns: 1fr;
+    height: auto;
+  }
+}
+
+// --- Left Panel: Theme List ---
+.theme-list {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+
+  h3 {
+    font-family: $font-head;
+    font-size: 1.25rem;
+    color: var(--text-color);
+    margin-bottom: 16px;
+    padding-left: 4px;
+  }
+
+  .list-content {
+    flex: 1;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding-right: 8px; // Space for scrollbar
+
+    &::-webkit-scrollbar {
+      width: 4px;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background: var(--line-color);
+      border-radius: 4px;
+    }
+  }
+}
+
+.theme-item {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px;
+  border-radius: 12px;
+  background: rgba(var(--card-bg-color-rgb), 0.3);
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+
+  &:hover {
+    background: rgba(var(--card-bg-color-rgb), 0.6);
+    transform: translateX(4px);
+  }
+
+  &.active {
+    background: rgba(var(--card-bg-color-rgb), 0.9);
+    border-color: var(--brand-color);
+    box-shadow: 0 4px 20px -5px rgba(var(--brand-color-rgb), 0.2);
+
+    .theme-name {
+      color: var(--brand-color);
+      font-weight: 700;
+    }
+  }
+
+  .theme-swatch {
+    width: 48px;
+    height: 48px;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    flex-shrink: 0;
+  }
+
+  .theme-info {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    flex: 1;
+
+    .theme-name {
+      font-family: $font-head;
+      color: var(--text-color);
+      font-size: 1rem;
+      transition: color 0.2s;
+    }
+
+    .theme-desc {
+      font-size: 0.85rem;
+      color: var(--text-color);
+      opacity: 0.6;
+      line-height: 1.2;
+    }
+  }
+
+  .active-indicator {
+    color: var(--brand-color);
+    width: 20px;
+    height: 20px;
+
+    svg {
+      width: 100%;
+      height: 100%;
+    }
+  }
+}
+
+// --- Right Panel: Live Preview ---
+.preview-panel {
+  background: rgba(var(--card-bg-color-rgb), 0.3);
+  border: 1px solid var(--line-color);
+  border-radius: 24px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  height: 100%;
+  backdrop-filter: blur(20px);
+}
+
+.preview-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  .header-info {
+    h2 {
+      font-family: $font-head;
+      font-size: 1.5rem;
+      margin-bottom: 4px;
+      color: var(--text-color);
+    }
+
+    p {
+      font-family: $font-tech;
+      font-size: 0.9rem;
+      color: var(--text-color);
+      opacity: 0.6;
+    }
+  }
+
+  .header-actions {
+    display: flex;
+    gap: 12px;
+  }
+}
+
+button.mode-toggle,
+button.apply-btn {
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-family: $font-tech;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+button.mode-toggle {
+  background: transparent;
+  border: 1px solid var(--line-color);
+  color: var(--text-color);
+
+  &:hover {
+    border-color: var(--text-color);
+    background: rgba(var(--text-color-rgb), 0.05);
+  }
+}
+
+button.apply-btn {
+  background: var(--brand-color);
+  border: 1px solid var(--brand-color);
+  color: var(--card-bg-color); // Contrast
+
+  &:hover:not(:disabled) {
+    box-shadow: 0 0 15px rgba(var(--brand-color-rgb), 0.4);
+    transform: translateY(-2px);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    background: var(--line-color);
+    border-color: var(--line-color);
+    color: var(--text-color);
+  }
+}
+
+// --- MOCK APP WINDOW ---
+.mini-app-window {
+  flex: 1;
+  border-radius: 16px;
+  overflow: hidden;
+  position: relative;
+  box-shadow: 0 20px 50px -10px rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+
+  // This is where the magic happens
+  // We expect the 'theme-preview-X' class to be applied here
+  // And it sets --bg-color, etc.
+  background-color: var(--bg-color);
+  transition:
+    background-color 0.4s ease,
+    color 0.4s ease;
+
+  display: flex;
+  font-family: 'Inter', sans-serif; // Force app font
+
+  .mini-sidebar {
+    width: 60px;
+    background-color: rgba(var(--card-bg-color-rgb), 0.5);
+    border-right: 1px solid var(--line-color);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-top: 20px;
+    gap: 16px;
+
+    .mini-logo {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      background: var(--brand-color);
+      margin-bottom: 20px;
+    }
+
+    .mini-nav-item {
+      width: 24px;
+      height: 24px;
+      border-radius: 6px;
+      background: var(--text-color);
+      opacity: 0.2;
+
+      &.active {
+        opacity: 1;
+        background: var(--brand-color);
+      }
+    }
+  }
+
+  .mini-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 24px;
+    gap: 24px;
+    overflow: hidden;
+  }
+
+  .mini-header {
+    display: flex;
+    justify-content: space-between;
+
+    .mini-search {
+      width: 200px;
+      height: 32px;
+      border-radius: 16px;
+      background: rgba(var(--text-color-rgb), 0.05);
+    }
+
+    .mini-profile {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: var(--line-color);
+    }
+  }
+
+  .mini-hero {
+    h1 {
+      font-size: 2rem;
+      font-weight: 800;
+      color: var(--text-color);
+      margin-bottom: 8px;
+      letter-spacing: -1px;
+    }
+
+    p {
+      color: var(--brand-color);
+      font-weight: 600;
+      font-size: 1rem;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+    }
+  }
+
+  .mini-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+
+    .mini-card {
+      height: 120px;
+      background: var(--card-bg-color);
+      border-radius: 12px;
+      border: 1px solid var(--line-color);
+      position: relative;
+
+      &::after {
+        content: '';
+        position: absolute;
+        bottom: 12px;
+        left: 12px;
+        width: 40%;
+        height: 8px;
+        border-radius: 4px;
+        background: var(--text-color);
+        opacity: 0.1;
+      }
+    }
+  }
+}

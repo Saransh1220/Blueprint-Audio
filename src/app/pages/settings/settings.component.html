@@ -1,0 +1,37 @@
+<div class="settings-page">
+  <div class="settings-container">
+    <header class="settings-header">
+      <h1>Configuration</h1>
+      <p>Manage your application preferences.</p>
+    </header>
+
+    <div class="settings-layout">
+      <aside class="settings-sidebar">
+        <nav>
+          <button class="nav-item active">
+            <span class="icon"><i class="fas fa-paint-brush"></i></span>
+            Appearance
+          </button>
+          <button class="nav-item disabled" title="Coming Soon">
+            <span class="icon"><i class="fas fa-user"></i></span>
+            Profile
+          </button>
+          <button class="nav-item disabled" title="Coming Soon">
+            <span class="icon"><i class="fas fa-bell"></i></span>
+            Notifications
+          </button>
+          <button class="nav-item disabled" title="Coming Soon">
+            <span class="icon"><i class="fas fa-lock"></i></span>
+            Security
+          </button>
+        </nav>
+      </aside>
+
+      <main class="settings-content">
+        @if (activeTab === 'appearance') {
+          <app-appearance-settings></app-appearance-settings>
+        }
+      </main>
+    </div>
+  </div>
+</div>

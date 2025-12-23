@@ -1,0 +1,92 @@
+<div class="appearance-container">
+  <!-- Master: Theme List -->
+  <div class="theme-list">
+    <h3>Select Theme</h3>
+    <div class="list-content">
+      @for (theme of themes; track theme.id) {
+        <div
+          class="theme-item"
+          [class.active]="previewTheme() === theme.id"
+          (click)="selectPreview(theme.id)"
+        >
+          <div
+            class="theme-swatch"
+            [style.background]="
+              'linear-gradient(135deg, ' + theme.colors[0] + ', ' + theme.colors[1] + ')'
+            "
+          ></div>
+          <div class="theme-info">
+            <span class="theme-name">{{ theme.name }}</span>
+            <span class="theme-desc">{{ theme.description }}</span>
+          </div>
+          @if (activeTheme() === theme.id) {
+            <span class="active-indicator">
+              <i class="fas fa-check"></i>
+            </span>
+          }
+        </div>
+      }
+    </div>
+  </div>
+
+  <!-- Detail: Live Preview -->
+  <div class="preview-panel">
+    <div class="preview-header">
+      <div class="header-info">
+        <h2>Preview</h2>
+        <p>Previewing {{ previewThemeDetails()?.name }} in {{ currentMode() }} mode</p>
+      </div>
+      <div class="header-actions">
+        <button class="mode-toggle" (click)="toggleMode()">
+          <span class="icon">
+            @if (currentMode() === 'light') {
+              <i class="fas fa-sun"></i>
+            } @else {
+              <i class="fas fa-moon"></i>
+            }
+          </span>
+          {{ currentMode() === 'light' ? 'Light' : 'Dark' }}
+        </button>
+        <button
+          class="apply-btn"
+          (click)="applyTheme()"
+          [disabled]="activeTheme() === previewTheme()"
+        >
+          {{ activeTheme() === previewTheme() ? 'Active' : 'Apply Theme' }}
+        </button>
+      </div>
+    </div>
+
+    <!-- Mini App Preview Container -->
+    <!-- We use the scope class to locally apply the theme variables -->
+    <div
+      class="mini-app-window"
+      [class]="'theme-preview-' + previewTheme()"
+      [class.light-theme-preview]="currentMode() === 'light'"
+      [class.dark-theme-preview]="currentMode() === 'dark'"
+    >
+      <div class="mini-sidebar">
+        <div class="mini-logo"></div>
+        <div class="mini-nav-item active"></div>
+        <div class="mini-nav-item"></div>
+        <div class="mini-nav-item"></div>
+      </div>
+
+      <div class="mini-content">
+        <div class="mini-header">
+          <div class="mini-search"></div>
+          <div class="mini-profile"></div>
+        </div>
+        <div class="mini-hero">
+          <h1>{{ previewThemeDetails()?.name }}</h1>
+          <p>Experience the vibe.</p>
+        </div>
+        <div class="mini-grid">
+          <div class="mini-card"></div>
+          <div class="mini-card"></div>
+          <div class="mini-card"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

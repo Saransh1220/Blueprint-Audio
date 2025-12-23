@@ -1,4 +1,11 @@
-import { Component, Input, inject, type OnInit, signal, ChangeDetectionStrategy } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  Input,
+  inject,
+  type OnInit,
+  signal,
+} from '@angular/core';
 import type { Spec } from '../../models/spec';
 import { LabService } from '../../services/lab';
 import { PlayerService } from '../../services/player.service';
