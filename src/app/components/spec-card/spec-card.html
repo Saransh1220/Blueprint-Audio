@@ -1,6 +1,6 @@
 <div class="spec-card" (click)="openDetails()">
   <div class="spec-img-box">
-    <img [src]="spec.imageUrl" class="card-img" />
+    <img [ngSrc]="spec.imageUrl" fill priority class="card-img" />
     <div class="overlay-gradient"></div>
     <div class="play-btn-neon" (click)="playSong($event)">
       <i class="fa-solid fa-play"></i>

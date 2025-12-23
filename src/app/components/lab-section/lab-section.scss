@@ -15,7 +15,7 @@
     left: -10%;
     width: 70%;
     height: 70%;
-    background: radial-gradient(circle, rgba(var(--red-color-rgb), 0.08), transparent 70%);
+    background: radial-gradient(circle, rgba(var(--brand-color-rgb), 0.08), transparent 70%);
     filter: blur(120px);
     z-index: 0;
     pointer-events: none;
@@ -28,7 +28,7 @@
     right: -10%;
     width: 60%;
     height: 60%;
-    background: radial-gradient(circle, rgba(var(--red-color-rgb), 0.05), transparent 70%);
+    background: radial-gradient(circle, rgba(var(--brand-color-rgb), 0.05), transparent 70%);
     filter: blur(100px);
     z-index: 0;
     pointer-events: none;
@@ -99,9 +99,9 @@
     backdrop-filter: blur(4px);
 
     &:focus {
-      border-color: var(--red-color);
+      border-color: var(--brand-color);
       background: rgba(var(--text-color-rgb), 0.1);
-      box-shadow: 0 0 15px rgba(var(--red-color-rgb), 0.2);
+      box-shadow: 0 0 15px rgba(var(--brand-color-rgb), 0.2);
     }
   }
 }
@@ -138,7 +138,7 @@
       &.active {
         opacity: 1;
         background: var(--card-bg-color);
-        color: var(--red-color);
+        color: var(--brand-color);
         box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
       }
     }
@@ -224,12 +224,12 @@
 
   &:hover,
   &.active {
-    border-color: var(--red-color);
-    color: var(--red-color);
+    border-color: var(--brand-color);
+    color: var(--brand-color);
   }
 
   &.active {
-    background: rgba(var(--red-color-rgb), 0.1);
+    background: rgba(var(--brand-color-rgb), 0.1);
   }
 }
 
@@ -265,7 +265,7 @@ input[type='range'] {
     appearance: none;
     width: 16px;
     height: 16px;
-    background: var(--red-color);
+    background: var(--brand-color);
     border-radius: 50%;
     cursor: pointer;
     margin-top: -6px;
@@ -281,7 +281,7 @@ input[type='range'] {
     transition: 0.3s;
 
     &:focus {
-      border-color: var(--red-color);
+      border-color: var(--brand-color);
     }
   }
 }
@@ -315,8 +315,8 @@ select {
 
 .btn-clear {
   background: transparent;
-  border: 1px solid rgba(var(--red-color-rgb), 0.3);
-  color: var(--red-color);
+  border: 1px solid rgba(var(--brand-color-rgb), 0.3);
+  color: var(--brand-color);
   padding: 8px 16px;
   cursor: pointer;
   font-family: $font-tech;
@@ -331,9 +331,9 @@ select {
   text-transform: uppercase;
 
   &:hover {
-    background: rgba(var(--red-color-rgb), 0.1);
-    border-color: var(--red-color);
-    color: var(--red-color);
+    background: rgba(var(--brand-color-rgb), 0.1);
+    border-color: var(--brand-color);
+    color: var(--brand-color);
     transform: translateY(-1px);
   }
 }

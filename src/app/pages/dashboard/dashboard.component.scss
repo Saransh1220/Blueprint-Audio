@@ -16,7 +16,7 @@
     transform: translateX(-50%);
     width: 120%;
     height: 800px;
-    background: radial-gradient(circle, rgba(var(--red-color-rgb), 0.12) 0%, transparent 70%);
+    background: radial-gradient(circle, rgba(var(--brand-color-rgb), 0.12) 0%, transparent 70%);
     filter: blur(100px);
     z-index: 0;
     pointer-events: none;
@@ -30,7 +30,7 @@
     right: -10%;
     width: 600px;
     height: 600px;
-    background: radial-gradient(circle, rgba(var(--red-color-rgb), 0.05) 0%, transparent 70%);
+    background: radial-gradient(circle, rgba(var(--brand-color-rgb), 0.05) 0%, transparent 70%);
     filter: blur(120px);
     z-index: 0;
     pointer-events: none;
@@ -58,7 +58,7 @@
 
     .hero-label {
       font-family: $font-head;
-      color: var(--red-color);
+      color: var(--brand-color);
       font-size: 1rem;
       margin-bottom: 16px;
       opacity: 0.9;
@@ -74,7 +74,7 @@
       font-weight: 700;
 
       .highlight {
-        color: var(--red-color);
+        color: var(--brand-color);
         position: relative;
         display: inline-block;
       }
@@ -120,7 +120,7 @@
 
       .btn-search {
         padding: 16px 32px;
-        background: var(--red-color);
+        background: var(--brand-color);
         color: white;
         border: none;
         font-family: $font-head;
@@ -157,7 +157,7 @@
         font-weight: 500;
 
         &:hover {
-          background: var(--red-color);
+          background: var(--brand-color);
           color: white;
         }
       }
@@ -181,7 +181,7 @@
       backdrop-filter: blur(10px);
 
       &:hover {
-        border-color: var(--red-color);
+        border-color: var(--brand-color);
         transform: translateY(-5px);
         box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
       }
@@ -200,7 +200,7 @@
         }
 
         i {
-          color: var(--red-color);
+          color: var(--brand-color);
           font-size: 1.2rem;
         }
       }
@@ -221,7 +221,7 @@
         .stat-trend {
           font-family: $font-head;
           font-size: 0.9rem;
-          color: var(--red-color);
+          color: var(--brand-color);
           font-weight: 500;
         }
       }
@@ -256,7 +256,7 @@
           margin-bottom: 24px;
           font-family: $font-head;
           font-size: 0.9rem;
-          color: var(--red-color);
+          color: var(--brand-color);
           font-weight: 600;
         }
 
@@ -304,11 +304,11 @@
           font-size: 1rem;
 
           &:hover {
-            background: var(--red-color);
+            background: var(--brand-color);
             color: white;
             padding-right: 40px;
             transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(var(--red-color-rgb), 0.3);
+            box-shadow: 0 5px 15px rgba(var(--brand-color-rgb), 0.3);
           }
         }
       }
@@ -324,7 +324,7 @@
         z-index: 3;
         box-shadow:
           -20px 0 60px rgba(0, 0, 0, 0.5),
-          -5px 0 20px rgba(var(--red-color-rgb), 0.2);
+          -5px 0 20px rgba(var(--brand-color-rgb), 0.2);
 
         img {
           width: 100%;
@@ -372,8 +372,8 @@
           border-radius: 50%;
 
           &:hover {
-            background: var(--red-color);
-            border-color: var(--red-color);
+            background: var(--brand-color);
+            border-color: var(--brand-color);
             color: white;
             transform: scale(1.05);
           }
@@ -431,7 +431,7 @@
       &:hover {
         transform: translateY(-5px) scale(1.02);
         box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
-        border-color: var(--red-color);
+        border-color: var(--brand-color);
 
         .overlay {
           background: rgba(0, 0, 0, 0.3);
@@ -453,12 +453,10 @@
   width: 100%;
   max-width: 800px;
   margin: 60px auto;
-  background: linear-gradient(
-    90deg,
-    transparent 0%,
-    rgba(var(--red-color-rgb), 0.5) 50%,
-    transparent 100%
-  );
+  background: linear-gradient(90deg,
+      transparent 0%,
+      rgba(var(--brand-color-rgb), 0.5) 50%,
+      transparent 100%);
   position: relative;
   opacity: 0.6;
 
@@ -470,8 +468,8 @@
     transform: translate(-50%, -50%);
     width: 100px;
     height: 2px;
-    background: var(--red-color);
-    box-shadow: 0 0 10px var(--red-color);
+    background: var(--brand-color);
+    box-shadow: 0 0 10px var(--brand-color);
     border-radius: 2px;
   }
 }
@@ -492,12 +490,10 @@
     left: 0;
     right: 0;
     height: 1px;
-    background: linear-gradient(
-      90deg,
-      transparent 0%,
-      rgba(var(--line-color-rgb), 0.2) 50%,
-      transparent 100%
-    );
+    background: linear-gradient(90deg,
+        transparent 0%,
+        rgba(var(--line-color-rgb), 0.2) 50%,
+        transparent 100%);
   }
 }
 

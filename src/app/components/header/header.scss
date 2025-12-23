@@ -43,7 +43,7 @@ nav {
     font-size: 1.1rem;
 
     span {
-      color: var(--red-color);
+      color: var(--brand-color);
       font-weight: 400;
       /* Thinner accent text */
     }
@@ -53,13 +53,13 @@ nav {
     width: 36px;
     /* Slightly smaller for elegance */
     height: 36px;
-    color: var(--red-color);
+    color: var(--brand-color);
     flex-shrink: 0;
 
     svg {
       width: 100%;
       height: 100%;
-      filter: drop-shadow(0 0 5px rgba(255, 62, 62, 0.5));
+      filter: drop-shadow(0 0 5px rgba(var(--brand-color-rgb), 0.5));
     }
   }
 
@@ -90,7 +90,7 @@ nav {
       position: absolute;
       left: -15px;
       opacity: 0;
-      color: var(--red-color);
+      color: var(--brand-color);
       transition: 0.2s;
     }
 
@@ -101,7 +101,7 @@ nav {
     }
 
     &.active {
-      color: var(--red-color);
+      color: var(--brand-color);
     }
   }
 }
@@ -140,7 +140,7 @@ nav {
     transition: color 0.3s ease;
 
     &:hover {
-      color: var(--red-color);
+      color: var(--brand-color);
     }
 
     &.cart-btn {
@@ -150,7 +150,7 @@ nav {
         position: absolute;
         top: -6px;
         right: -8px;
-        background: var(--red-color);
+        background: var(--brand-color);
         color: #ffffff;
         font-family: $font-tech;
         font-size: 0.7rem;
@@ -248,7 +248,7 @@ nav {
     left: -20%;
     width: 80%;
     height: 80%;
-    background: radial-gradient(circle, rgba(var(--red-color-rgb), 0.15), transparent 70%);
+    background: radial-gradient(circle, rgba(var(--brand-color-rgb), 0.15), transparent 70%);
     filter: blur(100px);
     z-index: -1;
   }
@@ -262,7 +262,7 @@ nav {
   .mobile-logo-large {
     width: 100px;
     height: 100px;
-    color: var(--red-color);
+    color: var(--brand-color);
     margin-bottom: 40px;
     opacity: 0;
     transform: scale(0.8);
@@ -306,7 +306,7 @@ nav {
       // Glitch/Hover Effect
       &:hover,
       &.active {
-        color: var(--red-color);
+        color: var(--brand-color);
         transform: scale(1.1) skewX(-10deg);
         text-shadow: 2px 2px 0px rgba(var(--blue-color-rgb), 0.5);
       }
@@ -434,7 +434,7 @@ nav {
         line-height: 1;
 
         &:last-child {
-          color: var(--red-color);
+          color: var(--brand-color);
         }
       }
     }

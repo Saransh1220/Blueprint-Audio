@@ -1,4 +1,4 @@
-import { Component, Input, inject } from '@angular/core';
+import { Component, Input, inject, ChangeDetectionStrategy } from '@angular/core';
 import { Router } from '@angular/router';
 
 import type { Spec } from '../../models/spec';
@@ -12,6 +12,7 @@ import { LicenseSelectorComponent } from '../license-selector/license-selector.c
   imports: [],
   templateUrl: './spec-list-item.component.html',
   styleUrls: ['./spec-list-item.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SpecListItemComponent {
   private playerService = inject(PlayerService);

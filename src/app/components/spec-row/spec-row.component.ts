@@ -1,4 +1,4 @@
-import { Component, Input, inject, type OnInit, signal } from '@angular/core';
+import { Component, Input, inject, type OnInit, signal, ChangeDetectionStrategy } from '@angular/core';
 import type { Spec } from '../../models/spec';
 import { LabService } from '../../services/lab';
 import { PlayerService } from '../../services/player.service';
@@ -11,6 +11,7 @@ import { SpecListItemComponent } from '../spec-list-item/spec-list-item.componen
   imports: [SpecCardComponent, SpecListItemComponent],
   templateUrl: './spec-row.component.html',
   styleUrls: ['./spec-row.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SpecRowComponent implements OnInit {
   private labService = inject(LabService);

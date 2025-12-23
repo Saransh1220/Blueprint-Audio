@@ -10,13 +10,18 @@ $font-tech: 'Manrope', sans-serif;
 
 $gap: 1px;
 
-// New Variables for Red Wave Theme
-$bg-dark: #121212;
-$text-primary: #ffffff;
-$text-secondary: #888888;
+// New Variables for Red Wave Theme (Ethereal / Neon)
+$bg-dark: #030712;
+$text-primary: #F8FAFC;
+$text-secondary: #94A3B8;
 $white: #ffffff;
 
-$neon-red: $red;
+$brand-primary-light: #DC2626;
+$brand-primary-dark: #EF4444;
+
+// DEPRECATED but kept for potential variable fallbacks until replaced
+$red: $brand-primary-light;
+$neon-red: $brand-primary-dark;
 $neon-blue: #00f3ff;
 $neon-purple: #bc13fe;
 $neon-green: #0aff00;

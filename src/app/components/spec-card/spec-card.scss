@@ -7,9 +7,9 @@
 }
 
 .spec-card {
-  background: rgba(20, 20, 20, 0.4); // Semi-transparent dark
-  backdrop-filter: blur(12px); // Glass effect
-  -webkit-backdrop-filter: blur(12px);
+  background: rgba(var(--card-bg-color-rgb), 0.85); // Theme aware background
+  // backdrop-filter: blur(12px); // Removed for performance
+  // -webkit-backdrop-filter: blur(12px);
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 12px;
   padding: 0;
@@ -19,11 +19,12 @@
   flex-direction: column;
   height: 100%;
   overflow: hidden;
-  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); // Reduced initial shadow complexity
+  will-change: transform; // Hint to browser
 
   &:hover {
-    transform: translateY(-5px) scale(1.02);
-    border-color: var(--red-color);
+    transform: translateY(-5px); // Removed scale(1.02) to avoid blurriness/expensive repaint
+    border-color: var(--brand-color);
     background: rgba(var(--card-bg-color-rgb), 0.5);
     box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
   }
@@ -84,12 +85,12 @@
   transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   cursor: pointer;
   z-index: 10;
-  box-shadow: 0 0 0 rgba(var(--red-color-rgb), 0);
+  box-shadow: 0 0 0 rgba(var(--brand-color-rgb), 0);
 
   &:hover {
-    background: var(--red-color);
-    border-color: var(--red-color);
-    box-shadow: 0 0 20px rgba(var(--red-color-rgb), 0.6);
+    background: var(--brand-color);
+    border-color: var(--brand-color);
+    box-shadow: 0 0 20px rgba(var(--brand-color-rgb), 0.6);
     transform: translate(-50%, -50%) scale(1.1);
   }
 }
@@ -148,8 +149,8 @@
   backdrop-filter: blur(4px);
 
   &:hover {
-    background: rgba(var(--red-color-rgb), 0.3);
-    border-color: var(--red-color);
+    background: rgba(var(--brand-color-rgb), 0.3);
+    border-color: var(--brand-color);
   }
 }
 
@@ -163,8 +164,8 @@
 .spec-price {
   font-size: 1.1rem;
   font-weight: 700;
-  color: var(--red-color);
-  text-shadow: 0 0 10px rgba(var(--red-color-rgb), 0.4);
+  color: var(--brand-color);
+  text-shadow: 0 0 10px rgba(var(--brand-color-rgb), 0.4);
 }
 
 .cart-btn {

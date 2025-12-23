@@ -95,11 +95,12 @@
 }
 
 .control-deck:hover .wave-bar {
-  background: var(--red-color);
+  background: var(--brand-color);
   opacity: 0.8;
 }
 
 @keyframes wave {
+
   0%,
   100% {
     height: 20%;
@@ -146,7 +147,7 @@
 
     &:hover {
       transform: scale(1.05);
-      background: var(--red-color);
+      background: var(--brand-color);
       color: white;
     }
   }

@@ -1,4 +1,5 @@
-import { Component, Input, inject } from '@angular/core';
+import { Component, Input, inject, ChangeDetectionStrategy } from '@angular/core';
+import { NgOptimizedImage } from '@angular/common';
 import { Router } from '@angular/router';
 
 import type { Spec } from '../../models/spec';
@@ -9,9 +10,10 @@ import { LicenseSelectorComponent } from '../license-selector/license-selector.c
 @Component({
   selector: 'app-spec-card',
   standalone: true,
-  imports: [],
+  imports: [NgOptimizedImage],
   templateUrl: './spec-card.html',
   styleUrls: ['./spec-card.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SpecCardComponent {
   @Input() spec!: Spec;

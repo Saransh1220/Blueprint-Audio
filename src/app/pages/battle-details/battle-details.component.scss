@@ -18,7 +18,7 @@
     margin-bottom: 20px;
 
     &.voting {
-      background: var(--red-color);
+      background: var(--brand-color);
       color: white;
     }
   }
@@ -40,7 +40,7 @@
       align-items: center;
       gap: 10px;
       font-family: var(--font-mono);
-      color: var(--red-color);
+      color: var(--brand-color);
       font-size: 1.1rem;
     }
   }
@@ -64,7 +64,7 @@
 
   h3 {
     font-family: var(--font-head);
-    color: var(--red-color);
+    color: var(--brand-color);
     margin: 0 0 20px 0;
   }
 
@@ -87,7 +87,7 @@
 .btn-submit {
   width: 100%;
   padding: 20px;
-  background: var(--red-color);
+  background: var(--brand-color);
   color: white;
   border: none;
   font-family: var(--font-head);
@@ -122,7 +122,7 @@
   transition: all 0.3s;
 
   &:hover {
-    border-color: var(--red-color);
+    border-color: var(--brand-color);
     transform: translateX(10px);
   }
 
@@ -146,7 +146,7 @@
     span {
       font-family: var(--font-mono);
       font-size: 0.9rem;
-      color: var(--red-color);
+      color: var(--brand-color);
     }
   }
 
@@ -172,8 +172,8 @@
       transition: all 0.2s;
 
       &:hover {
-        background: var(--red-color);
-        border-color: var(--red-color);
+        background: var(--brand-color);
+        border-color: var(--brand-color);
         color: white;
       }
     }
