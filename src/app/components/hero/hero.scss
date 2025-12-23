@@ -19,8 +19,8 @@
   width: 100%;
   height: 100%;
   background:
-    radial-gradient(circle at 30% 30%, rgba(var(--red-color-rgb), 0.15), transparent 60%),
-    radial-gradient(circle at 70% 70%, rgba(var(--blue-color-rgb), 0.1), transparent 60%);
+    radial-gradient(circle at 30% 30%, rgba(var(--brand-color-rgb), 0.15), transparent 60%),
+    radial-gradient(circle at 70% 70%, rgba(var(--brand-color-rgb), 0.05), transparent 60%);
   filter: blur(80px);
   z-index: -1;
   animation: pulseGlow 10s ease-in-out infinite alternate;
@@ -58,10 +58,10 @@
   align-items: center;
   gap: 8px;
   padding: 6px 12px;
-  background: rgba(var(--red-color-rgb), 0.1);
-  border: 1px solid rgba(var(--red-color-rgb), 0.2);
+  background: rgba(var(--brand-color-rgb), 0.1);
+  border: 1px solid rgba(var(--brand-color-rgb), 0.2);
   border-radius: 999px;
-  color: var(--red-color);
+  color: var(--brand-color);
   font-family: $font-tech;
   font-size: 0.75rem;
   font-weight: 700;
@@ -73,7 +73,7 @@
 .blink {
   width: 8px;
   height: 8px;
-  background: var(--red-color);
+  background: var(--brand-color);
   border-radius: 50%;
   animation: blink 1s infinite;
 }
@@ -89,7 +89,7 @@
 }
 
 .hero-title span {
-  color: var(--red-color);
+  color: var(--brand-color);
   -webkit-text-stroke: 0;
 }
 
@@ -135,9 +135,9 @@
   transition: all 0.2s ease;
 
   &:hover {
-    background: rgba(var(--red-color-rgb), 0.1);
-    border-color: var(--red-color);
-    color: var(--red-color);
+    background: rgba(var(--brand-color-rgb), 0.1);
+    border-color: var(--brand-color);
+    color: var(--brand-color);
     transform: translateY(-2px);
   }
 }
@@ -220,6 +220,7 @@
 }
 
 @keyframes blink {
+
   0%,
   100% {
     opacity: 1;
@@ -250,6 +251,7 @@
 }
 
 @keyframes floatCard {
+
   0%,
   100% {
     transform: translateY(0);
@@ -263,14 +265,14 @@
 .drop-visual {
   width: 60px;
   height: 60px;
-  background: linear-gradient(135deg, var(--red-color), #4a00e0);
+  background: linear-gradient(135deg, var(--brand-color), #4a00e0);
   border-radius: 10px;
   display: flex;
   align-items: center;
   justify-content: center;
   color: white;
   font-size: 1.5rem;
-  box-shadow: 0 4px 15px rgba(var(--red-color-rgb), 0.3);
+  box-shadow: 0 4px 15px rgba(var(--brand-color-rgb), 0.3);
 }
 
 .drop-info {
@@ -281,7 +283,7 @@
   .drop-tag {
     font-family: $font-tech;
     font-size: 0.6rem;
-    color: var(--red-color);
+    color: var(--brand-color);
     font-weight: 700;
     margin-bottom: 4px;
   }
@@ -316,8 +318,8 @@
   transition: all 0.2s;
 
   &:hover {
-    background: var(--red-color);
-    border-color: var(--red-color);
+    background: var(--brand-color);
+    border-color: var(--brand-color);
     transform: scale(1.1);
     color: white;
   }

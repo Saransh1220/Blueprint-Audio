@@ -50,14 +50,14 @@
       &.active {
         opacity: 1;
         background: var(--card-bg-color);
-        color: var(--red-color);
+        color: var(--brand-color);
         box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
       }
     }
   }
 
   .view-all {
-    color: var(--red-color);
+    color: var(--brand-color);
     text-decoration: none;
     font-family: $font-tech;
     font-size: 0.9rem;
@@ -89,7 +89,7 @@
   }
 
   &::-webkit-scrollbar-thumb {
-    background: var(--red-color);
+    background: var(--brand-color);
     border-radius: 3px;
   }
 

@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, type OnInit, signal } from '@angular/core';
+import { Component, inject, type OnInit, signal, ChangeDetectionStrategy } from '@angular/core';
 import { HeaderComponent } from '../../components/header/header';
 import { SpecRowComponent } from '../../components/spec-row/spec-row.component';
 import { AuthService, type User } from '../../services/auth.service';
@@ -10,6 +10,7 @@ import { AuthService, type User } from '../../services/auth.service';
   imports: [CommonModule, HeaderComponent, SpecRowComponent],
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DashboardComponent implements OnInit {
   private authService = inject(AuthService);

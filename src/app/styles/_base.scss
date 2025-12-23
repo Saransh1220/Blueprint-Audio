@@ -4,7 +4,6 @@
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  cursor: crosshair;
 }
 
 html {
@@ -24,10 +23,12 @@ a {
   color: inherit;
   transition: 0.3s;
 }
+
 img {
   width: 100%;
   display: block;
 }
+
 ul {
   list-style: none;
 }

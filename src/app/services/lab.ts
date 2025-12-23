@@ -231,4 +231,10 @@ export class LabService {
     }
     return of(this.specs);
   }
+
+  getSpecById(id: string): Observable<Spec | undefined> {
+    // The ID in the URL might not have the '#' prefix if passed cleanly,
+    // or it might be encoded. We'll try to find an exact match first.
+    return of(this.specs.find((s) => s.id === id || s.id === `#${id}`));
+  }
 }

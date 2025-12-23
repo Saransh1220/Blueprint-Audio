@@ -1,29 +1,29 @@
 :root {
-  // Light Theme (Default)
-  --bg-color: #f0f0f0;
-  --bg-color-rgb: 240, 240, 240;
-  --card-bg-color: #ffffff;
+  // Light Theme ("Daylight")
+  --bg-color: #FAF5F5; // Red 50
+  --bg-color-rgb: 250, 245, 245;
+  --card-bg-color: #FFFFFF; // White
   --card-bg-color-rgb: 255, 255, 255;
-  --text-color: #050505;
-  --text-color-rgb: 5, 5, 5;
-  --red-color: #ff3300;
-  --red-color-rgb: 255, 51, 0;
-  --line-color: #d1d1d1;
-  --line-color-rgb: 209, 209, 209;
-  --faded-ink: rgba(5, 5, 5, 0.05);
+  --text-color: #7F1D1D; // Red 900
+  --text-color-rgb: 127, 29, 29;
+  --brand-color: #DC2626; // Red 600
+  --brand-color-rgb: 220, 38, 38;
+  --line-color: #FECACA; // Red 200
+  --line-color-rgb: 254, 202, 202;
+  --faded-ink: rgba(127, 29, 29, 0.05);
 }
 
 body.dark-theme {
-  // Dark Theme
-  --bg-color: #050505;
-  --bg-color-rgb: 5, 5, 5;
-  --card-bg-color: #1a1a1a;
-  --card-bg-color-rgb: 26, 26, 26;
-  --text-color: #f0f0f0;
-  --text-color-rgb: 240, 240, 240;
-  --red-color: #ff6600;
-  --red-color-rgb: 255, 102, 0;
-  --line-color: #333333;
-  --line-color-rgb: 51, 51, 51;
-  --faded-ink: rgba(240, 240, 240, 0.05);
+  // Dark Theme ("Dracula")
+  --bg-color: #0F0A15; // Deep Violet Black
+  --bg-color-rgb: 15, 10, 21;
+  --card-bg-color: #1F1A28; // Violet Charcoal
+  --card-bg-color-rgb: 31, 26, 40;
+  --text-color: #E5E7EB; // Gray 200
+  --text-color-rgb: 229, 231, 235;
+  --brand-color: #EF4444; // Red 500
+  --brand-color-rgb: 239, 68, 68;
+  --line-color: #3D3447; // Violet Gray
+  --line-color-rgb: 61, 52, 71;
+  --faded-ink: rgba(229, 231, 235, 0.05);
 }

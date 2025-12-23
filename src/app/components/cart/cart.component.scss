@@ -77,7 +77,7 @@
 
     &:hover {
       background: var(--faded-ink);
-      color: var(--red-color);
+      color: var(--brand-color);
       opacity: 1;
     }
   }
@@ -173,7 +173,7 @@
 
     .price {
       font-family: $font-tech;
-      color: var(--red-color);
+      color: var(--brand-color);
       font-weight: 600;
       font-size: 1rem;
       margin-top: 4px;
@@ -196,8 +196,8 @@
 
     &:hover {
       opacity: 1;
-      background: var(--red-color);
-      border-color: var(--red-color);
+      background: var(--brand-color);
+      border-color: var(--brand-color);
       color: #fff;
     }
   }
@@ -234,7 +234,7 @@
   .checkout-btn {
     width: 100%;
     padding: 16px;
-    background: var(--red-color);
+    background: var(--brand-color);
     color: #fff;
     border: none;
     border-radius: 4px;
@@ -251,7 +251,7 @@
     &:hover {
       background: var(--text-color);
       color: var(--bg-color);
-      box-shadow: 0 0 20px rgba(var(--red-color-rgb), 0.4);
+      box-shadow: 0 0 20px rgba(var(--brand-color-rgb), 0.4);
     }
 
     &:active {

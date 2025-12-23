@@ -3,20 +3,10 @@
     <div class="header-left">
       <h2>{{ title }}</h2>
       <div class="view-controls">
-        <button
-          class="btn-view"
-          [class.active]="viewMode() === 'grid'"
-          (click)="setViewMode('grid')"
-          title="Grid View"
-        >
+        <button class="btn-view" [class.active]="viewMode() === 'grid'" (click)="setViewMode('grid')" title="Grid View">
           <i class="fas fa-th-large"></i>
         </button>
-        <button
-          class="btn-view"
-          [class.active]="viewMode() === 'list'"
-          (click)="setViewMode('list')"
-          title="List View"
-        >
+        <button class="btn-view" [class.active]="viewMode() === 'list'" (click)="setViewMode('list')" title="List View">
           <i class="fas fa-list"></i>
         </button>
       </div>
@@ -26,25 +16,25 @@
 
   <!-- Grid View -->
   @if (viewMode() === 'grid') {
-    <div class="scroll-container">
-      @for (spec of specs(); track spec) {
-        <app-spec-card [spec]="spec" class="row-item"></app-spec-card>
-      }
-      @if (specs().length === 0) {
-        <div class="empty-state">No items found in this category.</div>
-      }
-    </div>
+  <div class="scroll-container">
+    @for (spec of specs(); track spec.id) {
+    <app-spec-card [spec]="spec" class="row-item"></app-spec-card>
+    }
+    @if (specs().length === 0) {
+    <div class="empty-state">No items found in this category.</div>
+    }
+  </div>
   }
 
   <!-- List View -->
   @if (viewMode() === 'list') {
-    <div class="list-container">
-      @for (spec of specs(); track spec) {
-        <app-spec-list-item [spec]="spec"></app-spec-list-item>
-      }
-      @if (specs().length === 0) {
-        <div class="empty-state">No items found in this category.</div>
-      }
-    </div>
+  <div class="list-container">
+    @for (spec of specs(); track spec.id) {
+    <app-spec-list-item [spec]="spec"></app-spec-list-item>
+    }
+    @if (specs().length === 0) {
+    <div class="empty-state">No items found in this category.</div>
+    }
+  </div>
   }
 </div>

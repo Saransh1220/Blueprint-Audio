@@ -178,7 +178,7 @@
       transition: color 0.2s;
 
       &:hover {
-        color: var(--red-color);
+        color: var(--brand-color);
         opacity: 1;
       }
     }
@@ -229,14 +229,14 @@
   // Recommended State
   &.recommended {
     background: rgba(var(--card-bg-color-rgb), 0.5);
-    border-color: var(--red-color);
-    box-shadow: 0 0 0 1px rgba(var(--red-color-rgb), 0.3);
+    border-color: var(--brand-color);
+    box-shadow: 0 0 0 1px rgba(var(--brand-color-rgb), 0.3);
 
     .badge-rec {
       position: absolute;
       top: 0;
       right: 0;
-      background: var(--red-color);
+      background: var(--brand-color);
       color: #fff;
       font-family: $font-tech;
       font-size: 0.65rem;
@@ -275,7 +275,7 @@
         gap: 6px;
 
         i {
-          color: var(--red-color);
+          color: var(--brand-color);
           font-size: 0.7rem;
           opacity: 0.8;
         }

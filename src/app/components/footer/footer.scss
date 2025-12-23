@@ -1,16 +1,18 @@
 @use '../../styles/variables' as *;
 
 footer {
-  background: #050505;
-  color: #f0f0f0;
+  background: var(--bg-color);
+  color: var(--text-color);
   border-top: 1px solid var(--line-color);
   padding: 80px 40px;
   font-family: $font-tech;
+  position: relative;
+  z-index: 10;
 }
 
 :host-context(.dark-theme) footer {
-  background: #0a0a0a;
-  border-top: 1px solid #222;
+  background: var(--bg-color);
+  border-top: 1px solid var(--line-color);
 }
 
 .footer-grid {
@@ -24,17 +26,18 @@ footer {
   font-size: 3rem;
   line-height: 1.1;
   text-transform: uppercase;
-  color: #f0f0f0;
+  color: var(--text-color); // Uses theme text color for max contrast
 }
 
 .f-links a {
   display: block;
   margin-bottom: 10px;
-  color: var(--line-color);
+  color: var(--text-color);
+  opacity: 0.6; // Subtle but readable
 }
 
 .f-links a:hover {
-  color: var(--red-color);
+  color: var(--brand-color);
   text-decoration: underline;
 }
 

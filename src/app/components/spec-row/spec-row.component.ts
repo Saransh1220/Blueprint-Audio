@@ -1,4 +1,4 @@
-import { Component, Input, inject, type OnInit, signal } from '@angular/core';
+import { Component, Input, inject, type OnInit, signal, ChangeDetectionStrategy } from '@angular/core';
 import type { Spec } from '../../models/spec';
 import { LabService } from '../../services/lab';
 import { PlayerService } from '../../services/player.service';
@@ -11,6 +11,7 @@ import { SpecListItemComponent } from '../spec-list-item/spec-list-item.componen
   imports: [SpecCardComponent, SpecListItemComponent],
   templateUrl: './spec-row.component.html',
   styleUrls: ['./spec-row.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SpecRowComponent implements OnInit {
   private labService = inject(LabService);
@@ -19,6 +20,7 @@ export class SpecRowComponent implements OnInit {
   @Input() title = '';
   @Input() filterTag = ''; // Genre or Tag to filter by
   @Input() type: 'beat' | 'sample' = 'beat';
+  @Input() specsInput: Spec[] | null = null; // Optional input to override internal fetching
 
   specs = signal<Spec[]>([]);
   viewMode = signal<'grid' | 'list'>('grid');
@@ -32,6 +34,11 @@ export class SpecRowComponent implements OnInit {
   }
 
   ngOnInit() {
+    if (this.specsInput) {
+      this.specs.set(this.specsInput);
+      return;
+    }
+
     // In a real app, we'd have a more specific API call.
     // Here we'll fetch all and filter client-side for the mock.
     this.labService.getSpecs(this.type).subscribe((allSpecs) => {

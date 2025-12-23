@@ -1,4 +1,5 @@
-import { Component, Input, inject } from '@angular/core';
+import { Component, Input, inject, ChangeDetectionStrategy } from '@angular/core';
+import { Router } from '@angular/router';
 
 import type { Spec } from '../../models/spec';
 import { ModalService } from '../../services/modal.service';
@@ -11,10 +12,12 @@ import { LicenseSelectorComponent } from '../license-selector/license-selector.c
   imports: [],
   templateUrl: './spec-list-item.component.html',
   styleUrls: ['./spec-list-item.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SpecListItemComponent {
   private playerService = inject(PlayerService);
   private modalService = inject(ModalService);
+  private router = inject(Router);
 
   @Input({ required: true }) spec!: Spec;
 
@@ -28,5 +31,10 @@ export class SpecListItemComponent {
     this.modalService.open(LicenseSelectorComponent, 'Select License', {
       spec: this.spec,
     });
+  }
+
+  openDetails() {
+    const id = this.spec.id.replace('#', '');
+    this.router.navigate(['/beats', id]);
   }
 }

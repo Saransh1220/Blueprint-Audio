@@ -36,10 +36,10 @@
   &:hover {
     transform: translateY(-2px) scale(1.005);
     background: rgba(var(--card-bg-color-rgb), 0.8);
-    border-color: rgba(var(--red-color-rgb), 0.3);
+    border-color: rgba(var(--brand-color-rgb), 0.3);
     box-shadow:
       0 10px 30px -10px rgba(0, 0, 0, 0.1),
-      0 0 20px rgba(var(--red-color-rgb), 0.1);
+      0 0 20px rgba(var(--brand-color-rgb), 0.1);
 
     &::before {
       left: 100%;
@@ -61,8 +61,8 @@
     }
 
     .item-title {
-      color: var(--red-color);
-      text-shadow: 0 0 10px rgba(var(--red-color-rgb), 0.4);
+      color: var(--brand-color);
+      text-shadow: 0 0 10px rgba(var(--brand-color-rgb), 0.4);
     }
   }
 }
@@ -159,7 +159,7 @@
 
     i {
       font-size: 0.7rem;
-      color: var(--red-color);
+      color: var(--brand-color);
     }
   }
 }
@@ -187,9 +187,9 @@
     transition: all 0.2s ease;
 
     &:hover {
-      color: var(--red-color);
-      border-color: rgba(var(--red-color-rgb), 0.3);
-      background: rgba(var(--red-color-rgb), 0.05);
+      color: var(--brand-color);
+      border-color: rgba(var(--brand-color-rgb), 0.3);
+      background: rgba(var(--brand-color-rgb), 0.05);
       opacity: 1;
     }
   }
@@ -234,16 +234,16 @@
     .btn-glow {
       position: absolute;
       inset: 0;
-      background: radial-gradient(circle at center, var(--red-color), transparent 70%);
+      background: radial-gradient(circle at center, var(--brand-color), transparent 70%);
       opacity: 0;
       transition: opacity 0.3s ease;
       z-index: 1;
     }
 
     &:hover {
-      border-color: var(--red-color);
+      border-color: var(--brand-color);
       transform: scale(1.1);
-      box-shadow: 0 0 15px rgba(var(--red-color-rgb), 0.3);
+      box-shadow: 0 0 15px rgba(var(--brand-color-rgb), 0.3);
 
       i {
         color: #fff;
@@ -268,7 +268,7 @@
   transform: translate(-50%, -50%);
   width: 60%;
   height: 60%;
-  background: radial-gradient(circle, var(--red-color), transparent 70%);
+  background: radial-gradient(circle, var(--brand-color), transparent 70%);
   opacity: 0;
   filter: blur(40px);
   transition: opacity 0.4s ease;

@@ -1,0 +1,97 @@
+<main class="page-container" *ngIf="spec() as s">
+    <div class="layout-grid">
+
+        <!-- LEFT SIDEBAR: The "Product Card" -->
+        <aside class="left-sidebar">
+
+            <!-- Artwork & Waveform -->
+            <div class="artwork-section">
+                <div class="artwork-box">
+                    <img [src]="s.imageUrl" [alt]="s.title" class="artwork" />
+                    <div class="waveform-overlay">
+                        <div class="bar" *ngFor="let i of [].constructor(24)" [style.height.%]="20 + (i * 13 % 80)">
+                        </div>
+                    </div>
+                    <button class="play-fab" (click)="playSpec()">
+                        <i class="fas fa-play"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Track Info -->
+            <div class="info-section">
+                <h1 class="title">{{ s.title }}</h1>
+                <div class="producer">
+                    <span>Produced by</span>
+                    <span class="name">Red Wave</span>
+                </div>
+
+                <!-- Clean Meta Badges -->
+                <div class="meta-row">
+                    <span class="badge">{{ s.bpm }} BPM</span>
+                    <span class="badge">{{ s.key }}</span>
+                    <span class="badge">{{ s.type }}</span>
+                </div>
+
+                <!-- Tags -->
+                <div class="tags-row">
+                    <span class="tag" *ngFor="let tag of s.tags">#{{ tag }}</span>
+                </div>
+            </div>
+
+            <!-- Purchase Section -->
+            <div class="purchase-section">
+                <div class="license-selector">
+                    <div class="license-option" *ngFor="let license of s.licenses" (click)="openLicenseModal()">
+                        <div class="opt-left">
+                            <span class="opt-name">{{ license.name }}</span>
+                            <span class="opt-type">{{ license.type }}</span>
+                        </div>
+                        <span class="opt-price">${{ license.price }}</span>
+                    </div>
+                </div>
+
+                <button class="btn-add-cart" (click)="openLicenseModal()">
+                    <span class="label">Add to Cart</span>
+                    <span class="price-tag">${{ s.price }}+</span>
+                </button>
+            </div>
+
+        </aside>
+
+        <!-- RIGHT CONTENT: Discovery -->
+        <section class="discovery-area">
+
+            <div class="discovery-block">
+                <div class="block-header">
+                    <h2>You Might Also Like</h2>
+                    <button class="btn-view-all">View All</button>
+                </div>
+                <app-spec-row [title]="''" [specsInput]="relatedSpecs() || []"></app-spec-row>
+            </div>
+
+            <div class="discovery-block">
+                <div class="block-header">
+                    <h2>More from Red Wave</h2>
+                    <button class="btn-view-all">View All</button>
+                </div>
+                <app-spec-row [title]="''" [specsInput]="relatedSpecs() || []"></app-spec-row>
+            </div>
+
+            <div class="discovery-block">
+                <div class="block-header">
+                    <h2>Vibe Match: {{ s.tags[0] || 'Trap' }}</h2>
+                    <button class="btn-view-all">View All</button>
+                </div>
+                <app-spec-row [title]="''" [specsInput]="relatedSpecs() || []"></app-spec-row>
+            </div>
+
+        </section>
+
+    </div>
+</main>
+
+<div class="not-found" *ngIf="!spec()">
+    <h1>Track Not Found</h1>
+    <a routerLink="/" class="btn-home">Back to Lab</a>
+</div>

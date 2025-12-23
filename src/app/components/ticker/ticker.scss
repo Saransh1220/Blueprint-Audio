@@ -1,12 +1,12 @@
 @use '../../styles/variables' as *;
 
 .ticker-bar {
-  background: rgba(var(--red-color-rgb), 0.15);
+  background: rgba(var(--brand-color-rgb), 0.15);
   backdrop-filter: blur(8px);
   color: var(--text-color);
   overflow: hidden;
-  border-top: 1px solid rgba(var(--red-color-rgb), 0.3);
-  border-bottom: 1px solid rgba(var(--red-color-rgb), 0.3);
+  border-top: 1px solid rgba(var(--brand-color-rgb), 0.3);
+  border-bottom: 1px solid rgba(var(--brand-color-rgb), 0.3);
   padding: 10px 0;
   white-space: nowrap;
   width: 100%;
