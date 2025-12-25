@@ -4,7 +4,7 @@ import { RouterOutlet } from '@angular/router';
 import { gsap } from 'gsap';
 import { CartComponent } from './components/cart/cart.component';
 import { FooterComponent } from './components/footer/footer';
-import { HeaderComponent } from './components/header/header';
+import { HeaderComponent } from './components';
 import { ModalComponent } from './components/modal/modal.component';
 import { PlayerComponent } from './components/player/player';
 import { ToastComponent } from './components/toast/toast.component';

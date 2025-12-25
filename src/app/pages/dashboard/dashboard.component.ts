@@ -1,8 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component, inject, type OnInit, signal } from '@angular/core';
-import { HeaderComponent } from '../../components/header/header';
-import { SpecRowComponent } from '../../components/spec-row/spec-row.component';
-import { AuthService, type User } from '../../services/auth.service';
+import { HeaderComponent, SpecRowComponent } from '../../components';
+import { AuthService, type User } from '../../services';
 
 @Component({
   selector: 'app-dashboard',

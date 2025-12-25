@@ -1,37 +1,37 @@
 <div class="settings-page">
-  <div class="settings-container">
-    <header class="settings-header">
-      <h1>Configuration</h1>
-      <p>Manage your application preferences.</p>
+  <div class="command-deck-container">
+
+    <!-- Top Command Deck (Header & Nav) -->
+    <header class="command-header">
+      <div class="header-titles">
+        <h1>System Config</h1>
+        <p>Preferences & Personalization</p>
+      </div>
+
+      <!-- Top Tabs Navigation -->
+      <nav class="command-tabs">
+        <button class="tab-item active" (click)="activeTab = 'appearance'">
+          <i class="fas fa-eye"></i>
+          <span>Appearance</span>
+          <div class="active-indicator"></div>
+        </button>
+        <button class="tab-item disabled" title="Access Restricted">
+          <i class="fas fa-user-circle"></i>
+          <span>Profile</span>
+        </button>
+        <button class="tab-item disabled" title="Access Restricted">
+          <i class="fas fa-shield-alt"></i>
+          <span>Security</span>
+        </button>
+      </nav>
     </header>
 
-    <div class="settings-layout">
-      <aside class="settings-sidebar">
-        <nav>
-          <button class="nav-item active">
-            <span class="icon"><i class="fas fa-paint-brush"></i></span>
-            Appearance
-          </button>
-          <button class="nav-item disabled" title="Coming Soon">
-            <span class="icon"><i class="fas fa-user"></i></span>
-            Profile
-          </button>
-          <button class="nav-item disabled" title="Coming Soon">
-            <span class="icon"><i class="fas fa-bell"></i></span>
-            Notifications
-          </button>
-          <button class="nav-item disabled" title="Coming Soon">
-            <span class="icon"><i class="fas fa-lock"></i></span>
-            Security
-          </button>
-        </nav>
-      </aside>
+    <!-- Main Content Area -->
+    <main class="command-viewport">
+      @if (activeTab === 'appearance') {
+      <app-appearance-settings></app-appearance-settings>
+      }
+    </main>
 
-      <main class="settings-content">
-        @if (activeTab === 'appearance') {
-          <app-appearance-settings></app-appearance-settings>
-        }
-      </main>
-    </div>
   </div>
 </div>

@@ -1,7 +1,7 @@
 import { Component, inject, output } from '@angular/core';
 
 import { RouterLink, RouterLinkActive } from '@angular/router';
-import { CartService } from '../../services/cart.service';
+import { CartService } from '../../services';
 import { ThemeToggleComponent } from '../theme-toggle/theme-toggle';
 
 @Component({

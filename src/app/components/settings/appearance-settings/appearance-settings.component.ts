@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, computed, effect, inject, signal } from '@angular/core';
-import { ThemeService } from '../../../services/theme.service';
+import { ThemeService, ToastService } from '../../../services';
 
 @Component({
   selector: 'app-appearance-settings',
@@ -11,6 +11,7 @@ import { ThemeService } from '../../../services/theme.service';
 })
 export class AppearanceSettingsComponent {
   themeService = inject(ThemeService);
+  toastService = inject(ToastService);
 
   // Using the service's theme list
   themes = this.themeService.themes;
@@ -38,8 +39,15 @@ export class AppearanceSettingsComponent {
     this.previewTheme.set(themeId);
   }
 
+  getHeroGradient() {
+    const theme = this.previewThemeDetails();
+    if (!theme) return 'black';
+    return `linear-gradient(135deg, ${theme.colors[0]}, ${theme.colors[1]})`;
+  }
+
   applyTheme() {
     this.themeService.setTheme(this.previewTheme());
+    this.toastService.show('Theme applied successfully', 'success');
   }
 
   toggleMode() {

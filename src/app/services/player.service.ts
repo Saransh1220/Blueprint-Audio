@@ -1,5 +1,5 @@
 import { Injectable, signal } from '@angular/core';
-import type { Spec } from '../models/spec';
+import type { Spec } from '../models';
 
 @Injectable({
   providedIn: 'root',

@@ -2,8 +2,6 @@ import { type AfterViewInit, Component } from '@angular/core';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
-gsap.registerPlugin(ScrollTrigger);
-
 @Component({
   selector: 'app-hero',
   standalone: true,
@@ -12,5 +10,9 @@ gsap.registerPlugin(ScrollTrigger);
   styleUrls: ['./hero.scss'],
 })
 export class HeroComponent implements AfterViewInit {
+  constructor() {
+    gsap.registerPlugin(ScrollTrigger);
+  }
+
   ngAfterViewInit(): void {}
 }

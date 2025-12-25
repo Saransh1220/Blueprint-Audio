@@ -1,7 +1,7 @@
 import { Component, inject, type OnInit } from '@angular/core';
 
-import type { Producer } from '../../models/producer';
-import { DirectoryService } from '../../services/directory';
+import type { Producer } from '../../models';
+import { DirectoryService } from '../../services';
 import { ProducerRowComponent } from '../producer-row/producer-row';
 
 @Component({

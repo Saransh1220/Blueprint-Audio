@@ -6,9 +6,8 @@ import {
   type OnInit,
   signal,
 } from '@angular/core';
-import type { Spec } from '../../models/spec';
-import { LabService } from '../../services/lab';
-import { PlayerService } from '../../services/player.service';
+import type { Spec } from '../../models';
+import { LabService, PlayerService } from '../../services';
 import { SpecCardComponent } from '../spec-card/spec-card';
 import { SpecListItemComponent } from '../spec-list-item/spec-list-item.component';
 

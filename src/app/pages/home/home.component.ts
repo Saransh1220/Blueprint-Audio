@@ -1,8 +1,6 @@
 import { Component } from '@angular/core';
 
-import { HeroComponent } from '../../components/hero/hero';
-import { LabSectionComponent } from '../../components/lab-section/lab-section';
-import { TickerComponent } from '../../components/ticker/ticker';
+import { HeroComponent, LabSectionComponent, TickerComponent } from '../../components';
 
 @Component({
   selector: 'app-home',
@@ -14,4 +12,4 @@ import { TickerComponent } from '../../components/ticker/ticker';
     <app-lab-section></app-lab-section>
   `,
 })
-export class HomeComponent {}
+export class HomeComponent { }

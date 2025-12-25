@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, Input, inject } from '@angular/core';
-import type { LicenseOption, Spec } from '../../models/spec';
+import type { LicenseOption, Spec } from '../../models';
 import { CartService } from '../../services/cart.service';
 import { ModalService } from '../../services/modal.service';
 import { ToastService } from '../../services/toast.service';

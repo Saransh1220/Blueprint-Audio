@@ -3,14 +3,9 @@ import { Component, computed, inject, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { switchMap } from 'rxjs/operators';
-import { HeaderComponent } from '../../components/header/header';
-import { LicenseSelectorComponent } from '../../components/license-selector/license-selector.component';
-import { SpecRowComponent } from '../../components/spec-row/spec-row.component';
-import { Spec } from '../../models/spec';
-import { CartService } from '../../services/cart.service';
-import { LabService } from '../../services/lab';
-import { ModalService } from '../../services/modal.service';
-import { PlayerService } from '../../services/player.service';
+import { HeaderComponent, LicenseSelectorComponent, SpecRowComponent } from '../../components';
+import { Spec } from '../../models';
+import { CartService, LabService, ModalService, PlayerService } from '../../services';
 
 @Component({
   selector: 'app-spec-details',

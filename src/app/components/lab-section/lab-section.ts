@@ -11,14 +11,10 @@ import {
 import { FormsModule } from '@angular/forms';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { Genre, MusicalKey } from '../../models/enums';
-import type { Spec } from '../../models/spec';
-import { LabService } from '../../services/lab';
-import { PlayerService } from '../../services/player.service';
+import { Genre, MusicalKey, type Spec } from '../../models';
+import { LabService, PlayerService } from '../../services';
 import { SpecCardComponent } from '../spec-card/spec-card';
 import { SpecListItemComponent } from '../spec-list-item/spec-list-item.component';
-
-gsap.registerPlugin(ScrollTrigger);
 
 @Component({
   selector: 'app-lab-section',
@@ -30,6 +26,10 @@ gsap.registerPlugin(ScrollTrigger);
 export class LabSectionComponent implements OnInit, AfterViewInit {
   private labService = inject(LabService);
   private playerService = inject(PlayerService);
+
+  constructor() {
+    gsap.registerPlugin(ScrollTrigger);
+  }
 
   @Input() type: 'beat' | 'sample' = 'beat';
   specs = signal<Spec[]>([]);

@@ -1,3 +1,4 @@
+import '../../../test-setup';
 import { type ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { HeroComponent } from './hero';

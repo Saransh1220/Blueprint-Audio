@@ -1,6 +1,6 @@
 import { Injectable, signal, type Type } from '@angular/core';
 
-import type { ModalData } from '../models/modal';
+import type { ModalData } from '../models';
 
 @Injectable({
   providedIn: 'root',

@@ -1,5 +1,5 @@
 import { type ComponentFixture, TestBed } from '@angular/core/testing';
-import type { Spec } from '../../models/spec';
+import type { Spec } from '../../models';
 
 import { SpecCardComponent } from './spec-card';
 
