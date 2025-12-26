@@ -1,79 +1,107 @@
-<div class="showcase-container">
+<div class="appearance-page">
 
-  <!-- A. Cinematic Hero Section -->
-  <div class="theme-hero-banner" [style.background]="getHeroGradient()">
-    <div class="hero-overlay-texture"></div>
-    <div class="hero-overlay-darken"></div>
+  <header class="page-header">
+    <div class="header-content">
+      <h1>Appearance</h1>
+      <p>Customize your workspace theme.</p>
+    </div>
+  </header>
 
-    <div class="hero-content">
-      <div class="current-badge">System Identity</div>
-      <h2 class="hero-title">{{ previewThemeDetails()?.name || 'Unknown' }}</h2>
-      <p class="hero-desc">{{ previewThemeDetails()?.description }}</p>
+  <!-- LIVE PREVIEW STAGE -->
+  <div class="preview-stage-wrapper">
+    <div class="stage-header">
+      <h3>Interactive Preview</h3>
+      @if (activeTheme() !== previewTheme()) {
+      <button class="apply-btn" (click)="applyTheme()">
+        Apply {{ previewThemeDetails()?.name }}
+      </button>
+      }
+    </div>
 
-      <!-- Interactive Preview in Hero -->
-      <div class="hero-preview-ui">
-        <div class="ui-mockup">
-          <div class="ui-header">
-            <div class="dots"><span></span><span></span></div>
-            <div class="ui-search"></div>
+    <!-- The "Window" Mockup -->
+    <div class="mockup-window" [style.--p-brand]="previewThemeDetails()?.colors?.[0]"
+      [style.--p-bg]="previewThemeDetails()?.colors?.[1]"
+      [style.--p-accent]="previewThemeDetails()?.colors?.[2] || previewThemeDetails()?.colors?.[0]">
+
+      <!-- Mockup Background (Global Theme Bg) -->
+      <div class="mockup-bg"></div>
+
+      <!-- Mockup UI (Stylized Abstraction) -->
+      <div class="mockup-ui">
+
+        <!-- Mini Navigation -->
+        <div class="mini-nav">
+          <div class="mini-nav-left">
+            <div class="mini-logo-icon"></div>
+            <div class="skeleton-link active"></div>
+            <div class="skeleton-link"></div>
+            <div class="skeleton-link"></div>
           </div>
-          <div class="ui-body">
-            <div class="ui-sidebar"></div>
-            <div class="ui-main">
-              <div class="ui-card hero-card"></div>
-              <div class="ui-row"></div>
+          <div class="mini-avatar"></div>
+        </div>
+
+        <!-- Mini Dashboard Content -->
+        <div class="mini-dashboard-content">
+
+          <!-- Hero Section (Compacted) -->
+          <div class="mini-hero-section">
+            <div class="mini-welcome">Welcome back</div>
+            <h1 class="mini-title">Find Your <span class="highlight">Sound</span></h1>
+
+            <!-- Compact Search -->
+            <div class="mini-search-bar">
+              <div class="icon"></div>
+              <div class="placeholder">Search...</div>
             </div>
           </div>
+
+          <!-- Abstract Content Grid -->
+          <div class="mini-abstract-grid">
+            <!-- Card 1 -->
+            <div class="abstract-card">
+              <div class="card-image"></div>
+              <div class="card-lines">
+                <div class="line lg"></div>
+                <div class="line sm"></div>
+              </div>
+            </div>
+
+            <!-- Card 2 -->
+            <div class="abstract-card active">
+              <div class="card-image"></div>
+              <div class="card-lines">
+                <div class="line lg"></div>
+                <div class="line sm"></div>
+              </div>
+            </div>
+
+            <!-- Card 3 -->
+            <div class="abstract-card">
+              <div class="card-image"></div>
+              <div class="card-lines">
+                <div class="line lg"></div>
+                <div class="line sm"></div>
+              </div>
+            </div>
+          </div>
+
         </div>
-      </div>
 
-      <!-- Apply Action (Floating) -->
-      <div class="hero-actions">
-        @if (activeTheme() !== previewTheme()) {
-        <button class="action-btn apply" (click)="applyTheme()">
-          <i class="fas fa-check"></i> Activate Protocol
-        </button>
-        } @else {
-        <button class="action-btn current" disabled>
-          <i class="fas fa-lock"></i> System Active
-        </button>
-        }
       </div>
     </div>
   </div>
 
-  <!-- B. Mode Toggle Segment -->
-  <div class="control-segment">
-    <div class="segment-label">INTERFACE MODE</div>
-    <div class="mode-toggle-pill">
-      <button [class.active]="currentMode() === 'light'" (click)="toggleMode()">
-        <i class="fas fa-sun"></i> LIGHT
-      </button>
-      <button [class.active]="currentMode() === 'dark'" (click)="toggleMode()">
-        <i class="fas fa-moon"></i> DARK
-      </button>
-      <div class="glider" [class.right]="currentMode() === 'dark'"></div>
-    </div>
-  </div>
-
-  <!-- C. Inventory Grid -->
-  <div class="inventory-segment">
-    <div class="segment-label">AVAILABLE PRESETS</div>
-
-    <div class="inventory-grid">
+  <div class="themes-list">
+    <h3>Theme Library</h3>
+    <div class="grid">
       @for (theme of themes; track theme.id) {
-      <button class="inventory-card" [class.selected]="previewTheme() === theme.id"
-        [class.active-system]="activeTheme() === theme.id" (click)="selectPreview(theme.id)">
-        <div class="card-color-strip"
-          [style.background]="'linear-gradient(45deg, ' + theme.colors[0] + ', ' + theme.colors[1] + ')'">
+      <div class="theme-item glass-panel" [class.active]="activeTheme() === theme.id"
+        [class.previewing]="previewTheme() === theme.id" (click)="selectPreview(theme.id)">
+        <div class="swatch" [style.background]="theme.colors[0]"></div>
+        <div class="details">
+          <span class="name">{{ theme.name }}</span>
         </div>
-        <div class="card-info">
-          <span class="theme-name">{{ theme.name }}</span>
-          @if (activeTheme() === theme.id) {
-          <span class="status-marker">ACTIVE</span>
-          }
-        </div>
-      </button>
+      </div>
       }
     </div>
   </div>

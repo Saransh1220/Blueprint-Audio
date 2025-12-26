@@ -1,6 +1,7 @@
+import { Component, computed, effect, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Component, computed, effect, inject, signal } from '@angular/core';
-import { ThemeService, ToastService } from '../../../services';
+import { ThemeService } from '../../../services/theme.service';
+import { ToastService } from '../../../services/toast.service';
 
 @Component({
   selector: 'app-appearance-settings',
@@ -8,6 +9,7 @@ import { ThemeService, ToastService } from '../../../services';
   imports: [CommonModule],
   templateUrl: './appearance-settings.component.html',
   styleUrls: ['./appearance-settings.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AppearanceSettingsComponent {
   themeService = inject(ThemeService);

@@ -1,37 +1,44 @@
-<div class="settings-page">
-  <div class="command-deck-container">
+<app-header></app-header>
 
-    <!-- Top Command Deck (Header & Nav) -->
-    <header class="command-header">
-      <div class="header-titles">
-        <h1>System Config</h1>
-        <p>Preferences & Personalization</p>
-      </div>
+<div class="page-container">
 
-      <!-- Top Tabs Navigation -->
-      <nav class="command-tabs">
-        <button class="tab-item active" (click)="activeTab = 'appearance'">
-          <i class="fas fa-eye"></i>
-          <span>Appearance</span>
-          <div class="active-indicator"></div>
+  <!-- Main Glass Sheet -->
+  <div class="settings-glass">
+
+    <!-- Sidebar -->
+    <aside class="glass-sidebar">
+      <div class="sidebar-title">Settings</div>
+
+      <nav class="settings-nav">
+        <button class="nav-link" [class.active]="activeTab === 'appearance'" (click)="activeTab = 'appearance'">
+          Appearance
         </button>
-        <button class="tab-item disabled" title="Access Restricted">
-          <i class="fas fa-user-circle"></i>
-          <span>Profile</span>
+
+        <button class="nav-link disabled" title="Coming Soon">
+          Account
         </button>
-        <button class="tab-item disabled" title="Access Restricted">
-          <i class="fas fa-shield-alt"></i>
-          <span>Security</span>
+
+        <button class="nav-link disabled" title="Coming Soon">
+          Notifications
+        </button>
+
+        <button class="nav-link disabled" title="Coming Soon">
+          Privacy
         </button>
       </nav>
-    </header>
 
-    <!-- Main Content Area -->
-    <main class="command-viewport">
+      <div class="sidebar-footer">
+        <span class="version">Red Wave v1.0</span>
+      </div>
+    </aside>
+
+    <!-- Content -->
+    <main class="glass-content">
       @if (activeTab === 'appearance') {
       <app-appearance-settings></app-appearance-settings>
       }
     </main>
 
   </div>
+
 </div>
