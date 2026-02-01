@@ -4,5 +4,5 @@ export interface Particle {
   vx: number;
   vy: number;
   size: number;
-  color: string;
+  alpha: number;
 }

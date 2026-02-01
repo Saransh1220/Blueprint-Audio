@@ -1,10 +1,9 @@
-import { Component, Input, inject, ChangeDetectionStrategy } from '@angular/core';
 import { NgOptimizedImage } from '@angular/common';
+import { ChangeDetectionStrategy, Component, Input, inject } from '@angular/core';
 import { Router } from '@angular/router';
 
-import type { Spec } from '../../models/spec';
-import { ModalService } from '../../services/modal.service';
-import { PlayerService } from '../../services/player.service';
+import type { Spec } from '../../models';
+import { ModalService, PlayerService } from '../../services';
 import { LicenseSelectorComponent } from '../license-selector/license-selector.component';
 
 @Component({

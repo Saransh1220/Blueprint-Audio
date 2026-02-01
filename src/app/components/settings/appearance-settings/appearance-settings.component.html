@@ -1,0 +1,109 @@
+<div class="appearance-page">
+  <header class="page-header">
+    <div class="header-content">
+      <h1>Appearance</h1>
+      <p>Customize your workspace theme.</p>
+    </div>
+  </header>
+
+  <!-- LIVE PREVIEW STAGE -->
+  <div class="preview-stage-wrapper">
+    <div class="stage-header">
+      <h3>Interactive Preview</h3>
+      @if (activeTheme() !== previewTheme()) {
+        <button class="apply-btn" (click)="applyTheme()">
+          Apply {{ previewThemeDetails()?.name }}
+        </button>
+      }
+    </div>
+
+    <!-- The "Window" Mockup -->
+    <div
+      class="mockup-window"
+      [style.--p-brand]="previewThemeDetails()?.colors?.[0]"
+      [style.--p-bg]="previewThemeDetails()?.colors?.[1]"
+      [style.--p-accent]="previewThemeDetails()?.colors?.[2] || previewThemeDetails()?.colors?.[0]"
+    >
+      <!-- Mockup Background (Global Theme Bg) -->
+      <div class="mockup-bg"></div>
+
+      <!-- Mockup UI (Stylized Abstraction) -->
+      <div class="mockup-ui">
+        <!-- Mini Navigation -->
+        <div class="mini-nav">
+          <div class="mini-nav-left">
+            <div class="mini-logo-icon"></div>
+            <div class="skeleton-link active"></div>
+            <div class="skeleton-link"></div>
+            <div class="skeleton-link"></div>
+          </div>
+          <div class="mini-avatar"></div>
+        </div>
+
+        <!-- Mini Dashboard Content -->
+        <div class="mini-dashboard-content">
+          <!-- Hero Section (Compacted) -->
+          <div class="mini-hero-section">
+            <div class="mini-welcome">Welcome back</div>
+            <h1 class="mini-title">Find Your <span class="highlight">Sound</span></h1>
+
+            <!-- Compact Search -->
+            <div class="mini-search-bar">
+              <div class="icon"></div>
+              <div class="placeholder">Search...</div>
+            </div>
+          </div>
+
+          <!-- Abstract Content Grid -->
+          <div class="mini-abstract-grid">
+            <!-- Card 1 -->
+            <div class="abstract-card">
+              <div class="card-image"></div>
+              <div class="card-lines">
+                <div class="line lg"></div>
+                <div class="line sm"></div>
+              </div>
+            </div>
+
+            <!-- Card 2 -->
+            <div class="abstract-card active">
+              <div class="card-image"></div>
+              <div class="card-lines">
+                <div class="line lg"></div>
+                <div class="line sm"></div>
+              </div>
+            </div>
+
+            <!-- Card 3 -->
+            <div class="abstract-card">
+              <div class="card-image"></div>
+              <div class="card-lines">
+                <div class="line lg"></div>
+                <div class="line sm"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="themes-list">
+    <h3>Theme Library</h3>
+    <div class="grid">
+      @for (theme of themes; track theme.id) {
+        <div
+          class="theme-item glass-panel"
+          [class.active]="activeTheme() === theme.id"
+          [class.previewing]="previewTheme() === theme.id"
+          (click)="selectPreview(theme.id)"
+        >
+          <div class="swatch" [style.background]="theme.colors[0]"></div>
+          <div class="details">
+            <span class="name">{{ theme.name }}</span>
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+</div>

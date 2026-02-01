@@ -33,6 +33,9 @@
 
     <div class="header-actions">
       <a routerLink="/login" class="login-btn">LOGIN</a>
+      <a routerLink="/settings" class="icon-btn settings-btn" aria-label="Settings">
+        <i class="fas fa-cog"></i>
+      </a>
       <button class="icon-btn cart-btn" (click)="cartClick.emit()">
         <i class="fas fa-shopping-cart"></i>
         @if (cartService.count() > 0) {
@@ -79,6 +82,7 @@
       >HOME</a
     >
     <a routerLink="/battles" routerLinkActive="active" (click)="closeMobileMenu()">BATTLES</a>
+    <a routerLink="/settings" routerLinkActive="active" (click)="closeMobileMenu()">SETTINGS</a>
     <a routerLink="/login" (click)="closeMobileMenu()">LOGIN</a>
   </div>
 

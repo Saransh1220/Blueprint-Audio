@@ -3,6 +3,7 @@ import {
   type AfterViewInit,
   Component,
   type ElementRef,
+  effect,
   inject,
   type OnDestroy,
   type OnInit,
@@ -12,6 +13,7 @@ import { FormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import type { Particle } from '../../models/particle';
 import { AuthService } from '../../services/auth.service';
+import { ThemeService } from '../../services/theme.service';
 
 @Component({
   selector: 'app-auth',
@@ -24,6 +26,7 @@ export class AuthComponent implements OnInit, AfterViewInit, OnDestroy {
   private route = inject(ActivatedRoute);
   private location = inject(Location);
   private authService = inject(AuthService);
+  private themeService = inject(ThemeService);
 
   isRightPanelActive = false;
 
@@ -44,6 +47,17 @@ export class AuthComponent implements OnInit, AfterViewInit, OnDestroy {
   private particles: Particle[] = [];
   private width = 0;
   private height = 0;
+  private rgb = { r: 255, g: 51, b: 0 }; // Default red
+
+  constructor() {
+    effect(() => {
+      const themeId = this.themeService.activeTheme();
+      const theme = this.themeService.themes.find((t) => t.id === themeId);
+      if (theme) {
+        this.rgb = this.hexToRgb(theme.colors[0]);
+      }
+    });
+  }
 
   ngOnInit() {
     // Check URL to determine initial state
@@ -125,7 +139,7 @@ export class AuthComponent implements OnInit, AfterViewInit, OnDestroy {
         vx: (Math.random() - 0.5) * 2,
         vy: (Math.random() - 0.5) * 2,
         size: Math.random() * 3 + 1,
-        color: `rgba(255, 51, 0, ${Math.random() * 0.5 + 0.1})`, // Red theme color
+        alpha: Math.random() * 0.5 + 0.1,
       });
     }
   }
@@ -149,7 +163,7 @@ export class AuthComponent implements OnInit, AfterViewInit, OnDestroy {
       // Draw particle
       this.ctx.beginPath();
       this.ctx.arc(p1.x, p1.y, p1.size, 0, Math.PI * 2);
-      this.ctx.fillStyle = p1.color;
+      this.ctx.fillStyle = `rgba(${this.rgb.r}, ${this.rgb.g}, ${this.rgb.b}, ${p1.alpha})`;
       this.ctx.fill();
 
       // Connect nearby particles
@@ -161,7 +175,9 @@ export class AuthComponent implements OnInit, AfterViewInit, OnDestroy {
 
         if (distance < 100) {
           this.ctx.beginPath();
-          this.ctx.strokeStyle = `rgba(255, 51, 0, ${1 - distance / 100})`;
+          this.ctx.strokeStyle = `rgba(${this.rgb.r}, ${this.rgb.g}, ${this.rgb.b}, ${
+            1 - distance / 100
+          })`;
           this.ctx.moveTo(p1.x, p1.y);
           this.ctx.lineTo(p2.x, p2.y);
           this.ctx.stroke();
@@ -170,5 +186,16 @@ export class AuthComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     this.animationFrameId = requestAnimationFrame(this.animate.bind(this));
+  }
+
+  private hexToRgb(hex: string) {
+    const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+    return result
+      ? {
+          r: parseInt(result[1], 16),
+          g: parseInt(result[2], 16),
+          b: parseInt(result[3], 16),
+        }
+      : { r: 0, g: 0, b: 0 };
   }
 }

@@ -1,8 +1,8 @@
 <label class="theme-switch">
   <input
     type="checkbox"
-    [checked]="themeService.currentTheme() === 'dark'"
-    (change)="themeService.toggleTheme()"
+    [checked]="themeService.currentMode() === 'dark'"
+    (change)="themeService.toggleMode()"
   />
   <span class="slider round">
     <i class="fa-solid fa-sun sun-icon"></i>

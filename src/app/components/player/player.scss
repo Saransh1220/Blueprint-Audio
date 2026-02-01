@@ -53,6 +53,8 @@
   display: flex;
   flex-direction: column;
   justify-content: center;
+  min-width: 0;
+  /* Critical for Grid truncation */
 
   div:first-child {
     font-weight: 600;
@@ -73,41 +75,94 @@
   }
 }
 
+// Waveform Analysis
+.seeker-container {
+  display: flex;
+  flex-direction: row;
+  /* Horizontal alignment */
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
 .waveform {
-  height: 24px;
-  width: 180px;
+  height: 32px;
+  width: 200px;
   display: flex;
   align-items: center;
   gap: 3px;
+  position: relative;
+  transition: all 0.3s ease;
 }
 
+.seeker-canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 1;
+  pointer-events: all;
+  z-index: 10;
+  cursor: pointer;
+}
+
+.time-info {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  color: var(--text-color);
+  font-family: 'Space Mono', monospace;
+
+  // Start Hidden (Collapsed Sideways)
+  max-width: 0;
+  opacity: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  /* Smooth ease-out */
+
+  &.left {
+    justify-content: flex-end;
+  }
+
+  &.right {
+    justify-content: flex-start;
+  }
+}
+
+// Hover State: Expand Player Sideways
+.control-deck {
+  /* ... existing styles ... */
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+
+  &:hover {
+    transform: translateX(-50%) translateY(-2px);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
+    // padding-bottom remains same
+
+    // Reveal Time
+    .time-info {
+      opacity: 0.8;
+      max-width: 45px; // Enough for 00:00
+    }
+  }
+}
+
+// Remove old wave-bar styles as we are using canvas primarily now
 .wave-bar {
-  width: 4px;
-  background: var(--text-color);
-  opacity: 0.2;
-  border-radius: 2px;
-  height: 20%;
-  transition:
-    height 0.1s,
-    background-color 0.3s,
-    opacity 0.3s;
-  animation: wave 1s ease-in-out infinite;
-}
-
-.control-deck:hover .wave-bar {
-  background: var(--brand-color);
-  opacity: 0.8;
+  display: none;
 }
 
 @keyframes wave {
-
   0%,
   100% {
     height: 20%;
   }
 
   50% {
-    height: 80%;
+    height: 60%;
   }
 }
 
@@ -117,7 +172,110 @@
   align-items: center;
 }
 
+// Volume Control
+.volume-group {
+  position: relative;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  // Vertical Popup Behavior
+  &:hover,
+  &:focus-within,
+  &:active {
+    .volume-slider {
+      opacity: 1;
+      visibility: visible;
+      transform: translateX(-50%) translateY(0) rotate(-90deg);
+      pointer-events: all;
+    }
+  }
+}
+
+.volume-slider {
+  position: absolute;
+  bottom: 85px;
+  /* Position above/centered on button */
+  left: 50%;
+
+  /* Dimensions of the "Pill" container */
+  width: 110px;
+  /* Height of the slider area */
+  height: 28px;
+  /* Width of the pill */
+
+  /* Rotate to vertical */
+  transform: translateX(-50%) translateY(20px) rotate(-90deg);
+  transform-origin: center;
+
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+
+  /* Pill Styling */
+  -webkit-appearance: none;
+  appearance: none;
+  background: rgba(var(--card-bg-color-rgb), 0.95);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid var(--line-color);
+  border-radius: 14px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+
+  cursor: pointer;
+  z-index: 100;
+
+  /* Thumb & Track Styling */
+  &::-webkit-slider-runnable-track {
+    width: 100%;
+    height: 4px;
+    background: rgba(255, 255, 255, 0.15);
+    /* Faint track */
+    border-radius: 2px;
+    margin: 0 12px;
+    /* Inner padding for track */
+  }
+
+  &::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 14px;
+    height: 14px;
+    background: var(--text-color);
+    border-radius: 50%;
+    margin-top: -5px;
+    /* Center relative to 4px track: (4 - 14)/2 = -5 */
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+    transition: transform 0.2s;
+  }
+
+  &:hover::-webkit-slider-thumb {
+    transform: scale(1.1);
+    background: var(--brand-color);
+  }
+
+  /* Firefox */
+  &::-moz-range-track {
+    height: 4px;
+    background: rgba(255, 255, 255, 0.15);
+    margin: 0 12px;
+    border-radius: 2px;
+  }
+
+  &::-moz-range-thumb {
+    width: 14px;
+    height: 14px;
+    background: var(--text-color);
+    border: none;
+    border-radius: 50%;
+    margin-top: -5px;
+  }
+}
+
 .ctrl-btn {
+  /* ... existing ... */
   cursor: pointer;
   font-size: 1.1rem;
   color: var(--text-color);

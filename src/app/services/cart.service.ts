@@ -1,5 +1,5 @@
 import { computed, Injectable, signal } from '@angular/core';
-import type { LicenseOption, Spec } from '../models/spec';
+import type { LicenseOption, Spec } from '../models';
 
 export interface CartItem {
   id: string; // Unique ID for the cart item (e.g., timestamp)

@@ -1,0 +1,127 @@
+@use '../../styles/variables' as *;
+
+:host {
+  display: block;
+  min-height: 100vh;
+}
+
+.page-container {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 120px 20px 60px; // Top padding clears the fixed header
+}
+
+// --- The Glass Sheet ---
+.settings-glass {
+  display: flex;
+  min-height: 70vh;
+  background: rgba(var(--card-bg-color-rgb), 0.4); // Consistent with theme
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 32px;
+  overflow: hidden;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.1);
+}
+
+// --- Sidebar ---
+.glass-sidebar {
+  width: 260px;
+  border-right: 1px solid rgba(255, 255, 255, 0.06);
+  padding: 40px;
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+
+  .sidebar-title {
+    font-family: $font-head;
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 30px;
+    color: var(--text-color);
+  }
+}
+
+.settings-nav {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+
+  .nav-link {
+    text-align: left;
+    background: transparent;
+    border: none;
+    padding: 10px 16px;
+    font-family: $font-tech;
+    font-size: 0.95rem;
+    color: var(--text-secondary);
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+
+    &:hover:not(.disabled) {
+      color: var(--text-color);
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    &.active {
+      background: rgba(var(--brand-color-rgb), 0.1);
+      color: var(--brand-color);
+      font-weight: 600;
+    }
+
+    &.disabled {
+      opacity: 0.5;
+      cursor: default;
+    }
+  }
+}
+
+.sidebar-footer {
+  margin-top: auto;
+
+  .version {
+    font-family: monospace;
+    font-size: 0.7rem;
+    color: rgba(255, 255, 255, 0.3);
+  }
+}
+
+// --- Content ---
+.glass-content {
+  flex: 1;
+  padding: 0; // Component handles padding
+}
+
+@media (max-width: 900px) {
+  .settings-glass {
+    flex-direction: column;
+  }
+
+  .glass-sidebar {
+    width: 100%;
+    border-right: none;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px;
+  }
+
+  .sidebar-title {
+    margin: 0;
+    font-size: 1.2rem;
+  }
+
+  .settings-nav {
+    display: none;
+  }
+
+  // Hide nav on mobile for simplicity or use dropdown
+  .sidebar-footer {
+    display: none;
+  }
+}
