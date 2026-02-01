@@ -31,27 +31,22 @@ nav {
   display: flex;
   align-items: center;
   gap: 16px;
-  /* Increased gap */
   cursor: pointer;
   padding-left: 20px;
-  /* Added padding before logo */
 
   .desktop-logo {
     font-weight: 700;
     letter-spacing: 1px;
-    /* Increased spacing for professional look */
     font-size: 1.1rem;
 
     span {
       color: var(--brand-color);
       font-weight: 400;
-      /* Thinner accent text */
     }
   }
 
   .brand-logo {
     width: 36px;
-    /* Slightly smaller for elegance */
     height: 36px;
     color: var(--brand-color);
     flex-shrink: 0;
@@ -65,7 +60,6 @@ nav {
 
   .mobile-logo {
     display: none;
-    /* Hidden on desktop */
   }
 }
 
@@ -74,7 +68,6 @@ nav {
   justify-content: center;
   gap: 40px;
   height: 100%;
-  align-items: center;
   align-items: center;
 
   a {
@@ -143,6 +136,14 @@ nav {
       color: var(--brand-color);
     }
 
+    &.logout-btn {
+      color: var(--text-color);
+
+      &:hover {
+        color: var(--brand-color);
+      }
+    }
+
     &.cart-btn {
       position: relative;
 
@@ -170,7 +171,7 @@ nav {
   }
 
   .hamburger-btn {
-    display: none; // Hidden by default
+    display: none;
     flex-direction: column;
     justify-content: space-between;
     width: 30px;
@@ -216,7 +217,6 @@ nav {
   z-index: 999;
   display: flex;
   flex-direction: column;
-  /* Changed to column for logo stacking */
   align-items: center;
   justify-content: center;
   opacity: 0;
@@ -288,7 +288,7 @@ nav {
     align-items: center;
     width: 100%;
     max-width: 300px;
-    margin-bottom: 60px; // Space for footer
+    margin-bottom: 60px;
 
     a {
       font-family: $font-head;
@@ -368,15 +368,15 @@ nav {
       align-items: center;
       gap: 20px;
       padding: 15px 30px;
-      background: rgba(var(--text-color-rgb), 0.08); // Slightly darker background
-      border: 1px solid rgba(var(--text-color-rgb), 0.2); // Use text color for border
+      background: rgba(var(--text-color-rgb), 0.08);
+      border: 1px solid rgba(var(--text-color-rgb), 0.2);
       border-radius: 999px;
       backdrop-filter: blur(10px);
 
       span {
         font-family: $font-tech;
         font-size: 0.8rem;
-        color: var(--text-color); // Use text color for better visibility
+        color: var(--text-color);
         font-weight: 700;
         letter-spacing: 1px;
       }
@@ -398,6 +398,14 @@ nav {
 
       &:nth-child(3) {
         transition-delay: 0.3s;
+      }
+
+      &:nth-child(4) {
+        transition-delay: 0.4s;
+      }
+
+      &:nth-child(5) {
+        transition-delay: 0.5s;
       }
     }
 
@@ -450,7 +458,7 @@ nav {
 
     .login-btn,
     .desktop-theme-toggle {
-      display: none; // Hide login and theme toggle on mobile
+      display: none;
     }
 
     .hamburger-btn {

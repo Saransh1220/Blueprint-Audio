@@ -10,10 +10,11 @@ import {
   ViewChild,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import type { Particle } from '../../models/particle';
 import { AuthService } from '../../services/auth.service';
 import { ThemeService } from '../../services/theme.service';
+import { ToastService } from '../../services/toast.service';
 
 @Component({
   selector: 'app-auth',
@@ -24,9 +25,11 @@ import { ThemeService } from '../../services/theme.service';
 })
 export class AuthComponent implements OnInit, AfterViewInit, OnDestroy {
   private route = inject(ActivatedRoute);
+  private router = inject(Router);
   private location = inject(Location);
   private authService = inject(AuthService);
   private themeService = inject(ThemeService);
+  private toastService = inject(ToastService);
 
   isRightPanelActive = false;
 
@@ -88,17 +91,50 @@ export class AuthComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   onLoginSubmit() {
-    console.log('Login:', this.loginEmail);
-    this.authService.login(this.loginEmail);
+    this.authService
+      .login({
+        email: this.loginEmail,
+        password: this.loginPassword,
+      })
+      .subscribe({
+        next: () => {
+          this.toastService.show('Welcome back!', 'success');
+          this.router.navigate(['/dashboard']);
+        },
+        error: (err) => {
+          this.toastService.show(
+            'Login failed: ' + (err.error?.error || 'Invalid credentials'),
+            'error',
+          );
+        },
+      });
   }
 
   onRegisterSubmit() {
-    console.log('Register:', this.registerUsername, this.registerRole);
-    this.authService.register({
-      username: this.registerUsername,
-      email: this.registerEmail,
-      role: this.registerRole,
-    });
+    if (this.registerPassword !== this.registerConfirmPassword && this.registerConfirmPassword) {
+      this.toastService.show('Passwords do not match', 'error');
+      return;
+    }
+
+    this.authService
+      .register({
+        name: this.registerUsername,
+        email: this.registerEmail,
+        password: this.registerPassword,
+        role: this.registerRole,
+      })
+      .subscribe({
+        next: () => {
+          this.toastService.show('Registration successful!', 'success');
+          this.router.navigate(['/dashboard']);
+        },
+        error: (err) => {
+          this.toastService.show(
+            'Registration failed: ' + (err.error?.error || 'Unknown error'),
+            'error',
+          );
+        },
+      });
   }
 
   // --- Fluid Animation Logic ---

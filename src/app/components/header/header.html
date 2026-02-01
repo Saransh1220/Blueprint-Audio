@@ -32,7 +32,14 @@
     </div>
 
     <div class="header-actions">
-      <a routerLink="/login" class="login-btn">LOGIN</a>
+      @if (authService.currentUser()) {
+        <a routerLink="/dashboard" class="login-btn">DASHBOARD</a>
+        <button class="icon-btn logout-btn" (click)="authService.logout()" aria-label="Logout">
+          <i class="fas fa-sign-out-alt"></i>
+        </button>
+      } @else {
+        <a routerLink="/login" class="login-btn">LOGIN</a>
+      }
       <a routerLink="/settings" class="icon-btn settings-btn" aria-label="Settings">
         <i class="fas fa-cog"></i>
       </a>
@@ -83,7 +90,12 @@
     >
     <a routerLink="/battles" routerLinkActive="active" (click)="closeMobileMenu()">BATTLES</a>
     <a routerLink="/settings" routerLinkActive="active" (click)="closeMobileMenu()">SETTINGS</a>
-    <a routerLink="/login" (click)="closeMobileMenu()">LOGIN</a>
+    @if (authService.currentUser()) {
+      <a routerLink="/dashboard" routerLinkActive="active" (click)="closeMobileMenu()">DASHBOARD</a>
+      <a (click)="authService.logout(); closeMobileMenu()" style="cursor: pointer">LOGOUT</a>
+    } @else {
+      <a routerLink="/login" (click)="closeMobileMenu()">LOGIN</a>
+    }
   </div>
 
   <div class="mobile-menu-footer">

@@ -1,7 +1,7 @@
-import { Component, inject, computed, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { AppearanceSettingsComponent } from '../../components/settings/appearance-settings/appearance-settings.component';
+import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
 import { HeaderComponent } from '../../components/header/header';
+import { AppearanceSettingsComponent } from '../../components/settings/appearance-settings/appearance-settings.component';
 import { ThemeService } from '../../services/theme.service';
 
 @Component({

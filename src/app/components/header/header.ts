@@ -1,7 +1,7 @@
 import { Component, inject, output } from '@angular/core';
 
 import { RouterLink, RouterLinkActive } from '@angular/router';
-import { CartService } from '../../services';
+import { AuthService, CartService } from '../../services';
 import { ThemeToggleComponent } from '../theme-toggle/theme-toggle';
 
 @Component({
@@ -15,6 +15,7 @@ export class HeaderComponent {
   cartClick = output<void>();
   isMobileMenuOpen = false;
   cartService = inject(CartService);
+  authService = inject(AuthService);
 
   toggleMobileMenu() {
     this.isMobileMenuOpen = !this.isMobileMenuOpen;

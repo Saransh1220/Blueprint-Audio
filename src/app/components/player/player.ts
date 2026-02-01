@@ -1,12 +1,12 @@
 import {
   type AfterViewInit,
   Component,
-  type ElementRef,
   computed,
+  type ElementRef,
   effect,
   inject,
-  ViewChild,
   OnDestroy,
+  ViewChild,
 } from '@angular/core';
 import { gsap } from 'gsap';
 import { PlayerService } from '../../services/player.service';

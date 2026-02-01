@@ -16,6 +16,14 @@
       </div>
 
       <div class="form-group">
+        <label for="role">I am a...</label>
+        <select id="role" [(ngModel)]="role" name="role" required>
+          <option value="artist">Artist</option>
+          <option value="producer">Producer</option>
+        </select>
+      </div>
+
+      <div class="form-group">
         <label for="email">Email</label>
         <input
           type="email"
