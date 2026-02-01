@@ -21,4 +21,5 @@ export interface Spec {
   tags: string[];
   price: number; // Starting price
   licenses: LicenseOption[];
+  audioUrl?: string; // Optional for now to avoid strict checks everywhere immediately
 }

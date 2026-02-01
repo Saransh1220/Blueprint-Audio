@@ -10,7 +10,7 @@ import { ThemeService } from '../../services/theme.service';
   imports: [CommonModule, AppearanceSettingsComponent, HeaderComponent],
   templateUrl: './settings.component.html',
   styleUrls: ['./settings.component.scss'],
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SettingsComponent {
   themeService = inject(ThemeService);
@@ -19,6 +19,6 @@ export class SettingsComponent {
   // Computed property to get details of the current active theme
   activeThemeDetails = computed(() => {
     const themeId = this.themeService.activeTheme();
-    return this.themeService.themes.find(t => t.id === themeId);
+    return this.themeService.themes.find((t) => t.id === themeId);
   });
 }

@@ -2,11 +2,12 @@ import { Location } from '@angular/common';
 import {
   type AfterViewInit,
   Component,
-  type ElementRef, effect,
+  type ElementRef,
+  effect,
   inject,
   type OnDestroy,
   type OnInit,
-  ViewChild
+  ViewChild,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
@@ -174,8 +175,9 @@ export class AuthComponent implements OnInit, AfterViewInit, OnDestroy {
 
         if (distance < 100) {
           this.ctx.beginPath();
-          this.ctx.strokeStyle = `rgba(${this.rgb.r}, ${this.rgb.g}, ${this.rgb.b}, ${1 - distance / 100
-            })`;
+          this.ctx.strokeStyle = `rgba(${this.rgb.r}, ${this.rgb.g}, ${this.rgb.b}, ${
+            1 - distance / 100
+          })`;
           this.ctx.moveTo(p1.x, p1.y);
           this.ctx.lineTo(p2.x, p2.y);
           this.ctx.stroke();
@@ -190,10 +192,10 @@ export class AuthComponent implements OnInit, AfterViewInit, OnDestroy {
     const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
     return result
       ? {
-        r: parseInt(result[1], 16),
-        g: parseInt(result[2], 16),
-        b: parseInt(result[3], 16),
-      }
+          r: parseInt(result[1], 16),
+          g: parseInt(result[2], 16),
+          b: parseInt(result[3], 16),
+        }
       : { r: 0, g: 0, b: 0 };
   }
 }

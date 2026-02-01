@@ -78,8 +78,11 @@
   .mockup-bg {
     position: absolute;
     inset: 0;
-    background-image:
-      radial-gradient(circle at 50% -20%, rgba(var(--p-brand), 0.15), transparent 70%);
+    background-image: radial-gradient(
+      circle at 50% -20%,
+      rgba(var(--p-brand), 0.15),
+      transparent 70%
+    );
     pointer-events: none;
   }
 
@@ -301,7 +304,6 @@
     }
   }
 }
-
 
 // --- Theme List ---
 .themes-list {

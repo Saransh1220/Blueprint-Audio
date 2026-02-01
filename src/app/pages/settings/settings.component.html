@@ -1,30 +1,26 @@
 <app-header></app-header>
 
 <div class="page-container">
-
   <!-- Main Glass Sheet -->
   <div class="settings-glass">
-
     <!-- Sidebar -->
     <aside class="glass-sidebar">
       <div class="sidebar-title">Settings</div>
 
       <nav class="settings-nav">
-        <button class="nav-link" [class.active]="activeTab === 'appearance'" (click)="activeTab = 'appearance'">
+        <button
+          class="nav-link"
+          [class.active]="activeTab === 'appearance'"
+          (click)="activeTab = 'appearance'"
+        >
           Appearance
         </button>
 
-        <button class="nav-link disabled" title="Coming Soon">
-          Account
-        </button>
+        <button class="nav-link disabled" title="Coming Soon">Account</button>
 
-        <button class="nav-link disabled" title="Coming Soon">
-          Notifications
-        </button>
+        <button class="nav-link disabled" title="Coming Soon">Notifications</button>
 
-        <button class="nav-link disabled" title="Coming Soon">
-          Privacy
-        </button>
+        <button class="nav-link disabled" title="Coming Soon">Privacy</button>
       </nav>
 
       <div class="sidebar-footer">
@@ -35,10 +31,8 @@
     <!-- Content -->
     <main class="glass-content">
       @if (activeTab === 'appearance') {
-      <app-appearance-settings></app-appearance-settings>
+        <app-appearance-settings></app-appearance-settings>
       }
     </main>
-
   </div>
-
 </div>

@@ -12,4 +12,4 @@ import { HeroComponent, LabSectionComponent, TickerComponent } from '../../compo
     <app-lab-section></app-lab-section>
   `,
 })
-export class HomeComponent { }
+export class HomeComponent {}

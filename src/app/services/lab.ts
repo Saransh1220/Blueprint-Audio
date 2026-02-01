@@ -14,6 +14,7 @@ export class LabService {
       imageUrl:
         'https://images.unsplash.com/photo-1619983081563-430f63602796?q=80&w=1000&auto=format&fit=crop',
       title: 'Neon_Glitch',
+      audioUrl: '/TAG.mp3',
       bpm: 140,
       key: MusicalKey.C_SHARP_MINOR,
       tags: [Genre.TECH, 'DARK'],
@@ -49,6 +50,7 @@ export class LabService {
       imageUrl:
         'https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=1000&auto=format&fit=crop',
       title: 'Deep_Orbit',
+      audioUrl: '/TAG.mp3',
       bpm: 124,
       key: MusicalKey.A_MAJOR,
       tags: [Genre.HOUSE, 'SPACE'],
@@ -84,6 +86,7 @@ export class LabService {
       imageUrl:
         'https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=1000&auto=format&fit=crop',
       title: 'Red_Protocol',
+      audioUrl: '/TAG.mp3',
       bpm: 150,
       key: MusicalKey.D_MINOR,
       tags: [Genre.DRILL, 'HARD'],
@@ -119,6 +122,7 @@ export class LabService {
       imageUrl:
         'https://images.unsplash.com/photo-1550745165-9bc0b252726f?q=80&w=1000&auto=format&fit=crop',
       title: 'Analog_Soul',
+      audioUrl: '/TAG.mp3',
       bpm: 90,
       key: MusicalKey.F_SHARP_MAJOR,
       tags: [Genre.RNB, 'VINTAGE'],
@@ -155,6 +159,7 @@ export class LabService {
       imageUrl:
         'https://images.unsplash.com/photo-1516280440614-6697288d5d38?q=80&w=1000&auto=format&fit=crop',
       title: 'Cyber_Drums_Vol1',
+      audioUrl: '/TAG.mp3',
       bpm: 140,
       key: MusicalKey.C_MINOR,
       tags: [Genre.TECH, 'DRUMS'],
@@ -168,6 +173,7 @@ export class LabService {
       imageUrl:
         'https://images.unsplash.com/photo-1511379938547-c1f69419868d?q=80&w=1000&auto=format&fit=crop',
       title: 'Synth_Textures',
+      audioUrl: '/TAG.mp3',
       bpm: 120,
       key: MusicalKey.G_MINOR,
       tags: [Genre.AMBIENT, 'SYNTH', 'LOOPS'],
@@ -181,6 +187,7 @@ export class LabService {
       imageUrl:
         'https://images.unsplash.com/photo-1493225255756-d9584f8606e9?q=80&w=1000&auto=format&fit=crop',
       title: 'Night_Rider',
+      audioUrl: '/TAG.mp3',
       bpm: 130,
       key: MusicalKey.C_MINOR,
       tags: [Genre.TRAP, 'DARK'],
@@ -216,6 +223,7 @@ export class LabService {
       imageUrl:
         'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?q=80&w=1000&auto=format&fit=crop',
       title: 'Vinyl_Cuts',
+      audioUrl: '/TAG.mp3',
       bpm: 95,
       key: MusicalKey.A_MINOR,
       tags: [Genre.HIPHOP, 'LOOPS', 'VINTAGE'],

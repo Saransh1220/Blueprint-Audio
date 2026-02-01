@@ -1,5 +1,4 @@
 <div class="appearance-page">
-
   <header class="page-header">
     <div class="header-content">
       <h1>Appearance</h1>
@@ -12,23 +11,24 @@
     <div class="stage-header">
       <h3>Interactive Preview</h3>
       @if (activeTheme() !== previewTheme()) {
-      <button class="apply-btn" (click)="applyTheme()">
-        Apply {{ previewThemeDetails()?.name }}
-      </button>
+        <button class="apply-btn" (click)="applyTheme()">
+          Apply {{ previewThemeDetails()?.name }}
+        </button>
       }
     </div>
 
     <!-- The "Window" Mockup -->
-    <div class="mockup-window" [style.--p-brand]="previewThemeDetails()?.colors?.[0]"
+    <div
+      class="mockup-window"
+      [style.--p-brand]="previewThemeDetails()?.colors?.[0]"
       [style.--p-bg]="previewThemeDetails()?.colors?.[1]"
-      [style.--p-accent]="previewThemeDetails()?.colors?.[2] || previewThemeDetails()?.colors?.[0]">
-
+      [style.--p-accent]="previewThemeDetails()?.colors?.[2] || previewThemeDetails()?.colors?.[0]"
+    >
       <!-- Mockup Background (Global Theme Bg) -->
       <div class="mockup-bg"></div>
 
       <!-- Mockup UI (Stylized Abstraction) -->
       <div class="mockup-ui">
-
         <!-- Mini Navigation -->
         <div class="mini-nav">
           <div class="mini-nav-left">
@@ -42,7 +42,6 @@
 
         <!-- Mini Dashboard Content -->
         <div class="mini-dashboard-content">
-
           <!-- Hero Section (Compacted) -->
           <div class="mini-hero-section">
             <div class="mini-welcome">Welcome back</div>
@@ -84,9 +83,7 @@
               </div>
             </div>
           </div>
-
         </div>
-
       </div>
     </div>
   </div>
@@ -95,15 +92,18 @@
     <h3>Theme Library</h3>
     <div class="grid">
       @for (theme of themes; track theme.id) {
-      <div class="theme-item glass-panel" [class.active]="activeTheme() === theme.id"
-        [class.previewing]="previewTheme() === theme.id" (click)="selectPreview(theme.id)">
-        <div class="swatch" [style.background]="theme.colors[0]"></div>
-        <div class="details">
-          <span class="name">{{ theme.name }}</span>
+        <div
+          class="theme-item glass-panel"
+          [class.active]="activeTheme() === theme.id"
+          [class.previewing]="previewTheme() === theme.id"
+          (click)="selectPreview(theme.id)"
+        >
+          <div class="swatch" [style.background]="theme.colors[0]"></div>
+          <div class="details">
+            <span class="name">{{ theme.name }}</span>
+          </div>
         </div>
-      </div>
       }
     </div>
   </div>
-
 </div>

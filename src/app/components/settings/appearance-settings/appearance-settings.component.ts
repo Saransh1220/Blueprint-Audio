@@ -1,4 +1,11 @@
-import { Component, computed, effect, inject, signal, ChangeDetectionStrategy } from '@angular/core';
+import {
+  Component,
+  computed,
+  effect,
+  inject,
+  signal,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ThemeService } from '../../../services/theme.service';
 import { ToastService } from '../../../services/toast.service';

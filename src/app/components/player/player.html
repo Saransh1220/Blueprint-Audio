@@ -17,32 +17,52 @@
     </div>
   }
 
-  <div class="waveform">
-    <!-- Simple bars -->
-    <div class="wave-bar" style="animation-delay: 0.1s"></div>
-    <div class="wave-bar" style="animation-delay: 0.3s"></div>
-    <div class="wave-bar" style="animation-delay: 0.5s"></div>
-    <div class="wave-bar" style="animation-delay: 0.2s"></div>
-    <div class="wave-bar" style="animation-delay: 0.4s"></div>
-    <div class="wave-bar" style="animation-delay: 0s"></div>
-    <div class="wave-bar" style="animation-delay: 0.3s"></div>
-    <div class="wave-bar" style="animation-delay: 0.1s"></div>
-    <div class="wave-bar" style="animation-delay: 0.5s"></div>
-    <div class="wave-bar" style="animation-delay: 0.2s"></div>
-    <div class="wave-bar" style="animation-delay: 0.4s"></div>
-    <div class="wave-bar" style="animation-delay: 0.1s"></div>
+  <div class="seeker-container">
+    <div class="time-info left">
+      <span>{{ playerService.currentTimeFormatted() }}</span>
+    </div>
+
+    <div class="waveform">
+      <!-- Interactive Seeker (Always Visible now) -->
+      <canvas #waveformCanvas class="seeker-canvas" (click)="onSeek($event)"></canvas>
+    </div>
+
+    <div class="time-info right">
+      <span>{{ playerService.durationFormatted() }}</span>
+    </div>
   </div>
 
   <div class="deck-controls">
     <div class="ctrl-btn">
       <i class="fa-solid fa-backward-step"></i>
     </div>
-    <div class="ctrl-btn play-pause">
-      <i class="fa-solid fa-play"></i>
+    <div class="ctrl-btn play-pause" (click)="playerService.togglePlay()">
+      @if (playerService.isPlaying()) {
+        <i class="fa-solid fa-pause"></i>
+      } @else {
+        <i class="fa-solid fa-play"></i>
+      }
     </div>
     <div class="ctrl-btn">
       <i class="fa-solid fa-forward-step"></i>
     </div>
+
+    <!-- Volume Control -->
+    <div class="volume-group">
+      <div class="ctrl-btn vol-btn">
+        <i class="fa-solid" [class]="playerService.volumeIcon()"></i>
+      </div>
+      <input
+        type="range"
+        min="0"
+        max="1"
+        step="0.01"
+        [value]="playerService.volume()"
+        (input)="onVolumeChange($event)"
+        class="volume-slider"
+      />
+    </div>
+
     <div class="ctrl-btn" (click)="playerService.hidePlayer()">
       <i class="fa-solid fa-xmark"></i>
     </div>

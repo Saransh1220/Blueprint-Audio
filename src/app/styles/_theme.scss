@@ -7,49 +7,54 @@
 // --- Mixins for Theme Generation ---
 @mixin theme-properties($bg, $card, $text, $brand, $line, $on-brand, $faded-rgb) {
   --bg-color: #{$bg};
-  --bg-color-rgb: #{color.channel($bg, 'red', $space: rgb)},
-  #{color.channel($bg, 'green', $space: rgb)},
-  #{color.channel($bg, 'blue', $space: rgb)};
+  --bg-color-rgb:
+    #{color.channel($bg, 'red', $space: rgb)}, #{color.channel($bg, 'green', $space: rgb)},
+    #{color.channel($bg, 'blue', $space: rgb)};
 
   --card-bg-color: #{$card};
-  --card-bg-color-rgb: #{color.channel($card, 'red', $space: rgb)},
-  #{color.channel($card, 'green', $space: rgb)},
-  #{color.channel($card, 'blue', $space: rgb)};
+  --card-bg-color-rgb:
+    #{color.channel($card, 'red', $space: rgb)}, #{color.channel($card, 'green', $space: rgb)},
+    #{color.channel($card, 'blue', $space: rgb)};
 
   --text-color: #{$text};
-  --text-color-rgb: #{color.channel($text, 'red', $space: rgb)},
-  #{color.channel($text, 'green', $space: rgb)},
-  #{color.channel($text, 'blue', $space: rgb)};
+  --text-color-rgb:
+    #{color.channel($text, 'red', $space: rgb)}, #{color.channel($text, 'green', $space: rgb)},
+    #{color.channel($text, 'blue', $space: rgb)};
 
   --brand-color: #{$brand};
-  --brand-color-rgb: #{color.channel($brand, 'red', $space: rgb)},
-  #{color.channel($brand, 'green', $space: rgb)},
-  #{color.channel($brand, 'blue', $space: rgb)};
+  --brand-color-rgb:
+    #{color.channel($brand, 'red', $space: rgb)}, #{color.channel($brand, 'green', $space: rgb)},
+    #{color.channel($brand, 'blue', $space: rgb)};
 
   --on-brand-color: #{$on-brand};
 
   --line-color: #{$line};
-  --line-color-rgb: #{color.channel($line, 'red', $space: rgb)},
-  #{color.channel($line, 'green', $space: rgb)},
-  #{color.channel($line, 'blue', $space: rgb)};
+  --line-color-rgb:
+    #{color.channel($line, 'red', $space: rgb)}, #{color.channel($line, 'green', $space: rgb)},
+    #{color.channel($line, 'blue', $space: rgb)};
 
-  --faded-ink: rgba(#{color.channel($text, 'red', $space: rgb)},
+  --faded-ink: rgba(
+    #{color.channel($text, 'red', $space: rgb)},
     #{color.channel($text, 'green', $space: rgb)},
     #{color.channel($text, 'blue', $space: rgb)},
-    0.05);
+    0.05
+  );
 }
 
 // --- Theme Configurations Map ---
 // We define themes in a map to easily loop and create preview classes
 $themes: (
-  'vampire': (light: (#faf5f5,
+  'vampire': (
+    light: (
+      #faf5f5,
       #ffffff,
       #7f1d1d,
       #dc2626,
       #fecaca,
       #ffffff,
     ),
-    dark: (#0f0a15,
+    dark: (
+      #0f0a15,
       #1f1a28,
       #e5e7eb,
       #ef4444,
@@ -57,14 +62,17 @@ $themes: (
       #ffffff,
     ),
   ),
-  'neon': (light: (#fff1f2,
+  'neon': (
+    light: (
+      #fff1f2,
       #ffffff,
       #4c1d95,
       #f43f5e,
       #fecdd3,
       #ffffff,
     ),
-    dark: (#0f172a,
+    dark: (
+      #0f172a,
       #1e293b,
       #e2e8f0,
       #d946ef,
@@ -72,14 +80,17 @@ $themes: (
       #ffffff,
     ),
   ),
-  'toxic': (light: (#f7fee7,
+  'toxic': (
+    light: (
+      #f7fee7,
       #ffffff,
       #1a2e05,
       #65a30d,
       #d9f99d,
       #ffffff,
     ),
-    dark: (#020617,
+    dark: (
+      #020617,
       #0f172a,
       #ecfccb,
       #a3e635,
@@ -87,44 +98,55 @@ $themes: (
       #000000,
     ),
   ),
-  'royal': (light: (#f0f9ff,
+  'royal': (
+    light: (
+      #f0f9ff,
       #ffffff,
       #0c4a6e,
       #0284c7,
       #bae6fd,
       #ffffff,
     ),
-    dark: (#0b1120,
+    dark: (
+      #0b1120,
       #151f32,
       #e0f2fe,
       #38bdf8,
       #1e293b,
-      #000000, // Sky blue needs black text
+      #000000,
+      // Sky blue needs black text
     ),
   ),
-  'mint': (light: (#ecfdf5,
+  'mint': (
+    light: (
+      #ecfdf5,
       #ffffff,
       #064e3b,
       #10b981,
       #a7f3d0,
       #ffffff,
     ),
-    dark: (#051910,
+    dark: (
+      #051910,
       #0c281e,
       #d1fae5,
       #34d399,
       #134e4a,
-      #000000, // Mint green needs black text
+      #000000,
+      // Mint green needs black text
     ),
   ),
-  'onyx': (light: (#f9fafb,
+  'onyx': (
+    light: (
+      #f9fafb,
       #ffffff,
       #111827,
       #374151,
       #e5e7eb,
       #ffffff,
     ),
-    dark: (#000000,
+    dark: (
+      #000000,
       #111111,
       #f3f4f6,
       #ff6600,
@@ -139,51 +161,58 @@ $themes: (
 // Default (Vampire)
 :root {
   $c: map.get(map.get($themes, 'vampire'), light);
-  @include theme-properties(list.nth($c, 1),
+  @include theme-properties(
+    list.nth($c, 1),
     list.nth($c, 2),
     list.nth($c, 3),
     list.nth($c, 4),
     list.nth($c, 5),
     list.nth($c, 6),
-    null);
+    null
+  );
 }
 
 body.dark-theme {
   $c: map.get(map.get($themes, 'vampire'), dark);
-  @include theme-properties(list.nth($c, 1),
+  @include theme-properties(
+    list.nth($c, 1),
     list.nth($c, 2),
     list.nth($c, 3),
     list.nth($c, 4),
     list.nth($c, 5),
     list.nth($c, 6),
-    null);
+    null
+  );
 }
 
 // Apply Global Themes
 @each $name, $modes in $themes {
   [data-theme='#{$name}'] {
-
     &.light-theme,
     &:not(.dark-theme) {
       $c: map.get($modes, light);
-      @include theme-properties(list.nth($c, 1),
+      @include theme-properties(
+        list.nth($c, 1),
         list.nth($c, 2),
         list.nth($c, 3),
         list.nth($c, 4),
         list.nth($c, 5),
         list.nth($c, 6),
-        null);
+        null
+      );
     }
 
     &.dark-theme {
       $c: map.get($modes, dark);
-      @include theme-properties(list.nth($c, 1),
+      @include theme-properties(
+        list.nth($c, 1),
         list.nth($c, 2),
         list.nth($c, 3),
         list.nth($c, 4),
         list.nth($c, 5),
         list.nth($c, 6),
-        null);
+        null
+      );
     }
   }
 }
@@ -199,24 +228,28 @@ body.dark-theme {
 
     &.light-theme-preview {
       $c: map.get($modes, light);
-      @include theme-properties(list.nth($c, 1),
+      @include theme-properties(
+        list.nth($c, 1),
         list.nth($c, 2),
         list.nth($c, 3),
         list.nth($c, 4),
         list.nth($c, 5),
         list.nth($c, 6),
-        null);
+        null
+      );
     }
 
     &.dark-theme-preview {
       $c: map.get($modes, dark);
-      @include theme-properties(list.nth($c, 1),
+      @include theme-properties(
+        list.nth($c, 1),
         list.nth($c, 2),
         list.nth($c, 3),
         list.nth($c, 4),
         list.nth($c, 5),
         list.nth($c, 6),
-        null);
+        null
+      );
     }
   }
 }
