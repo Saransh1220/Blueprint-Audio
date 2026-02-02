@@ -1,7 +1,8 @@
-import { HttpClient } from '@angular/common/http';
 import { Injectable, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { catchError, of, switchMap, tap } from 'rxjs';
+import { ApiService } from '../core/services/api.service';
+import { GetMeRequest, LoginRequest, RegisterRequest } from '../core/api/auth.requests';
 
 export interface User {
   id: string;
@@ -10,19 +11,12 @@ export interface User {
   role: 'artist' | 'producer';
 }
 
-interface LoginResponse {
-  token: string;
-}
-
-import { environment } from '../../environments/environment';
-
 @Injectable({
   providedIn: 'root',
 })
 export class AuthService {
-  private http = inject(HttpClient);
+  private api = inject(ApiService);
   private router = inject(Router);
-  private apiUrl = environment.apiUrl;
 
   currentUser = signal<User | null>(null);
 
@@ -38,7 +32,7 @@ export class AuthService {
   }
 
   login(credentials: { email: string; password: string }) {
-    return this.http.post<LoginResponse>(`${this.apiUrl}/login`, credentials).pipe(
+    return this.api.execute(new LoginRequest(credentials)).pipe(
       tap((res) => {
         localStorage.setItem('token', res.token);
         this.getMe().subscribe();
@@ -47,7 +41,7 @@ export class AuthService {
   }
 
   register(data: { email: string; password: string; name: string; role: string }) {
-    return this.http.post<User>(`${this.apiUrl}/register`, data).pipe(
+    return this.api.execute(new RegisterRequest(data)).pipe(
       switchMap(() => {
         // Automatically login and return the login observable
         return this.login({ email: data.email, password: data.password });
@@ -56,7 +50,7 @@ export class AuthService {
   }
 
   getMe() {
-    return this.http.get<User>(`${this.apiUrl}/me`).pipe(
+    return this.api.execute(new GetMeRequest()).pipe(
       tap((user) => {
         this.currentUser.set(user);
       }),
