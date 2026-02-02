@@ -1,12 +1,12 @@
 import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component, inject, type OnInit, signal } from '@angular/core';
-import { HeaderComponent, SpecRowComponent } from '../../components';
+import { SpecRowComponent } from '../../components';
 import { AuthService, type User } from '../../services';
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, HeaderComponent, SpecRowComponent],
+  imports: [CommonModule, SpecRowComponent],
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
