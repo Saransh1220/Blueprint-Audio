@@ -7,6 +7,7 @@ import {
   inject,
   type OnDestroy,
   type OnInit,
+  signal,
   ViewChild,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
@@ -16,10 +17,12 @@ import { AuthService } from '../../services/auth.service';
 import { ThemeService } from '../../services/theme.service';
 import { ToastService } from '../../services/toast.service';
 
+import { LoadingSpinnerComponent } from '../../components';
+
 @Component({
   selector: 'app-auth',
   standalone: true,
-  imports: [FormsModule],
+  imports: [FormsModule, LoadingSpinnerComponent],
   templateUrl: './auth.component.html',
   styleUrls: ['./auth.component.scss'],
 })
@@ -32,6 +35,7 @@ export class AuthComponent implements OnInit, AfterViewInit, OnDestroy {
   private toastService = inject(ToastService);
 
   isRightPanelActive = false;
+  isLoading = signal(false);
 
   // Login Form Data
   loginEmail = '';
@@ -91,6 +95,7 @@ export class AuthComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   onLoginSubmit() {
+    this.isLoading.set(true);
     this.authService
       .login({
         email: this.loginEmail,
@@ -98,10 +103,12 @@ export class AuthComponent implements OnInit, AfterViewInit, OnDestroy {
       })
       .subscribe({
         next: () => {
+          this.isLoading.set(false);
           this.toastService.show('Welcome back!', 'success');
           this.router.navigate(['/dashboard']);
         },
         error: (err) => {
+          this.isLoading.set(false);
           this.toastService.show(
             'Login failed: ' + (err.error?.error || 'Invalid credentials'),
             'error',
@@ -116,6 +123,7 @@ export class AuthComponent implements OnInit, AfterViewInit, OnDestroy {
       return;
     }
 
+    this.isLoading.set(true);
     this.authService
       .register({
         name: this.registerUsername,
@@ -125,10 +133,12 @@ export class AuthComponent implements OnInit, AfterViewInit, OnDestroy {
       })
       .subscribe({
         next: () => {
+          this.isLoading.set(false);
           this.toastService.show('Registration successful!', 'success');
           this.router.navigate(['/dashboard']);
         },
         error: (err) => {
+          this.isLoading.set(false);
           this.toastService.show(
             'Registration failed: ' + (err.error?.error || 'Unknown error'),
             'error',

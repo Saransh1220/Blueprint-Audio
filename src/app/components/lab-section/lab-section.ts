@@ -15,11 +15,12 @@ import { Genre, MusicalKey, type Spec } from '../../models';
 import { LabService, PlayerService } from '../../services';
 import { SpecCardComponent } from '../spec-card/spec-card';
 import { SpecListItemComponent } from '../spec-list-item/spec-list-item.component';
+import { LoadingSpinnerComponent } from '../ui/loading-spinner/loading-spinner.component';
 
 @Component({
   selector: 'app-lab-section',
   standalone: true,
-  imports: [SpecCardComponent, SpecListItemComponent, FormsModule],
+  imports: [SpecCardComponent, SpecListItemComponent, FormsModule, LoadingSpinnerComponent],
   templateUrl: './lab-section.html',
   styleUrls: ['./lab-section.scss'],
 })
@@ -33,6 +34,7 @@ export class LabSectionComponent implements OnInit, AfterViewInit {
 
   @Input() type: 'beat' | 'sample' = 'beat';
   specs = signal<Spec[]>([]);
+  isLoading = signal(true);
   viewMode = signal<'grid' | 'list'>('grid');
 
   setViewMode(mode: 'grid' | 'list') {
@@ -103,8 +105,11 @@ export class LabSectionComponent implements OnInit, AfterViewInit {
   });
 
   ngOnInit(): void {
+    this.isLoading.set(true);
     this.labService.getSpecs(this.type).subscribe((specs) => {
       this.specs.set(specs);
+      this.isLoading.set(false);
+      this.refreshAnimations();
     });
   }
 
