@@ -38,4 +38,8 @@ export class SpecCardComponent {
     const id = this.spec.id.replace('#', '');
     this.router.navigate(['/beats', id]);
   }
+
+  get imageUrl(): string {
+    return this.spec.imageUrl || 'assets/images/placeholder.jpg';
+  }
 }

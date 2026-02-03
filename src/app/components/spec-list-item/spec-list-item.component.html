@@ -12,7 +12,9 @@
   <div class="item-content">
     <div class="content-header">
       <h3 class="item-title">{{ spec.title }}</h3>
-      <span class="item-type">{{ spec.type }}</span>
+      @if (spec.genres && spec.genres.length > 0) {
+        <span class="genre-badge">{{ spec.genres[0].name }}</span>
+      }
     </div>
 
     <div class="content-meta">

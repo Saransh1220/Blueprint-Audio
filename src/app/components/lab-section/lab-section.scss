@@ -394,3 +394,22 @@ select {
     padding: 40px 10px;
   }
 }
+
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 100px 0;
+  gap: 20px;
+  position: relative;
+  z-index: 1;
+
+  .loading-text {
+    font-family: $font-tech;
+    color: var(--brand-color);
+    letter-spacing: 2px;
+    font-size: 0.9rem;
+    opacity: 0.8;
+  }
+}

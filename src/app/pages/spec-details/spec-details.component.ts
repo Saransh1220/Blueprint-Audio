@@ -33,7 +33,7 @@ export class SpecDetailsComponent {
 
   // Related specs (mock logic for now, just same category)
   relatedSpecs = toSignal(
-    this.labService.getSpecs('beat'), // simplified for now
+    this.labService.getSpecs({ category: 'beat' }), // simplified for now
   );
 
   playSpec() {

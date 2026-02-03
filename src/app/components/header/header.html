@@ -29,20 +29,49 @@
         >HOME</a
       >
       <a routerLink="/battles" routerLinkActive="active">BATTLES</a>
+      @if (authService.currentUser()) {
+        <a routerLink="/dashboard" routerLinkActive="active">DASHBOARD</a>
+      }
     </div>
 
     <div class="header-actions">
-      <a routerLink="/login" class="login-btn">LOGIN</a>
-      <a routerLink="/settings" class="icon-btn settings-btn" aria-label="Settings">
-        <i class="fas fa-cog"></i>
-      </a>
       <button class="icon-btn cart-btn" (click)="cartClick.emit()">
         <i class="fas fa-shopping-cart"></i>
         @if (cartService.count() > 0) {
           <span class="cart-badge">{{ cartService.count() }}</span>
         }
       </button>
-      <app-theme-toggle class="desktop-theme-toggle"></app-theme-toggle>
+
+      @if (authService.currentUser()) {
+        <div class="user-menu-wrap">
+          <button
+            class="icon-btn user-btn"
+            (click)="toggleUserMenu()"
+            [class.active]="isUserMenuOpen"
+          >
+            <i class="fas fa-user-circle"></i>
+          </button>
+
+          @if (isUserMenuOpen) {
+            <div class="dropdown-menu">
+              <a routerLink="/settings" (click)="closeUserMenu()" class="menu-item">
+                <i class="fas fa-cog"></i> SETTINGS
+              </a>
+              <div class="menu-item theme-row">
+                <span><i class="fas fa-adjust"></i> THEME</span>
+                <app-theme-toggle></app-theme-toggle>
+              </div>
+              <button (click)="authService.logout(); closeUserMenu()" class="menu-item logout-item">
+                <i class="fas fa-sign-out-alt"></i> LOGOUT
+              </button>
+            </div>
+            <div class="backdrop" (click)="closeUserMenu()"></div>
+          }
+        </div>
+      } @else {
+        <a routerLink="/login" class="login-btn">LOGIN</a>
+        <app-theme-toggle class="desktop-theme-toggle"></app-theme-toggle>
+      }
 
       <button class="hamburger-btn" (click)="toggleMobileMenu()" [class.active]="isMobileMenuOpen">
         <span></span>
@@ -83,7 +112,12 @@
     >
     <a routerLink="/battles" routerLinkActive="active" (click)="closeMobileMenu()">BATTLES</a>
     <a routerLink="/settings" routerLinkActive="active" (click)="closeMobileMenu()">SETTINGS</a>
-    <a routerLink="/login" (click)="closeMobileMenu()">LOGIN</a>
+    @if (authService.currentUser()) {
+      <a routerLink="/dashboard" routerLinkActive="active" (click)="closeMobileMenu()">DASHBOARD</a>
+      <a (click)="authService.logout(); closeMobileMenu()" style="cursor: pointer">LOGOUT</a>
+    } @else {
+      <a routerLink="/login" (click)="closeMobileMenu()">LOGIN</a>
+    }
   </div>
 
   <div class="mobile-menu-footer">

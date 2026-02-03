@@ -1,7 +1,7 @@
-import { Component } from '@angular/core';
-
+import { Component, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
+import { AuthService } from '../../../services/auth.service';
 
 @Component({
   selector: 'app-login',
@@ -11,12 +11,22 @@ import { RouterLink } from '@angular/router';
   styleUrls: ['./login.component.scss'],
 })
 export class LoginComponent {
+  private authService = inject(AuthService);
+
   email = '';
   password = '';
 
   onSubmit() {
-    console.log('Login attempt:', this.email);
-    // TODO: Implement actual login logic with Auth Service
+    this.authService
+      .login({
+        email: this.email,
+        password: this.password,
+      })
+      .subscribe({
+        error: (err) => {
+          alert('Login failed: ' + (err.error?.error || 'Invalid credentials'));
+        },
+      });
   }
 
   loginWithGoogle() {

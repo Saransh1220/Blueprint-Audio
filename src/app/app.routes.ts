@@ -1,4 +1,6 @@
 import type { Routes } from '@angular/router';
+import { authGuard } from './guards/auth.guard';
+import { guestGuard } from './guards/guest.guard';
 import { AuthComponent } from './pages/auth/auth.component';
 import { BattleDetailsComponent } from './pages/battle-details/battle-details.component';
 import { BattlesComponent } from './pages/battles/battles.component';
@@ -12,9 +14,9 @@ export const routes: Routes = [
   { path: 'battles', component: BattlesComponent },
   { path: 'battles/:id', component: BattleDetailsComponent },
   { path: 'beats/:id', component: SpecDetailsComponent },
-  { path: 'login', component: AuthComponent },
-  { path: 'register', component: AuthComponent },
-  { path: 'dashboard', component: DashboardComponent },
+  { path: 'login', component: AuthComponent, canActivate: [guestGuard] },
+  { path: 'register', component: AuthComponent, canActivate: [guestGuard] },
+  { path: 'dashboard', component: DashboardComponent, canActivate: [authGuard] },
   { path: 'settings', component: SettingsComponent },
   { path: '**', redirectTo: '' },
 ];

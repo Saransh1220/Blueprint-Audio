@@ -1,7 +1,7 @@
-import { Component } from '@angular/core';
-
+import { Component, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
+import { AuthService } from '../../../services/auth.service';
 
 @Component({
   selector: 'app-register',
@@ -11,17 +11,31 @@ import { RouterLink } from '@angular/router';
   styleUrls: ['./register.component.scss'],
 })
 export class RegisterComponent {
+  private authService = inject(AuthService);
+
   username = '';
   email = '';
   password = '';
   confirmPassword = '';
+  role: 'artist' | 'producer' = 'artist';
 
   onSubmit() {
     if (this.password !== this.confirmPassword) {
       alert('PASSCODES DO NOT MATCH');
       return;
     }
-    console.log('Register attempt:', this.username, this.email);
-    // TODO: Implement actual registration logic
+
+    this.authService
+      .register({
+        email: this.email,
+        password: this.password,
+        name: this.username,
+        role: this.role,
+      })
+      .subscribe({
+        error: (err) => {
+          alert('Registration failed: ' + (err.error?.error || 'Unknown error'));
+        },
+      });
   }
 }

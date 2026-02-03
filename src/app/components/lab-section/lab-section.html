@@ -119,28 +119,36 @@
     </div>
   }
 
-  <!-- GRID VIEW -->
-  @if (viewMode() === 'grid') {
-    <div class="spec-grid">
-      @for (spec of filteredSpecs(); track spec) {
-        <app-spec-card [spec]="spec"></app-spec-card>
-      }
+  <!-- LOADING STATE -->
+  @if (isLoading()) {
+    <div class="loading-container">
+      <app-loading-spinner size="60px"></app-loading-spinner>
+      <div class="loading-text">Loading...</div>
     </div>
-  }
+  } @else {
+    <!-- GRID VIEW -->
+    @if (viewMode() === 'grid') {
+      <div class="spec-grid">
+        @for (spec of filteredSpecs(); track spec) {
+          <app-spec-card [spec]="spec"></app-spec-card>
+        }
+      </div>
+    }
 
-  <!-- LIST VIEW -->
-  @if (viewMode() === 'list') {
-    <div class="list-container">
-      @for (spec of filteredSpecs(); track spec) {
-        <app-spec-list-item [spec]="spec"></app-spec-list-item>
-      }
-    </div>
-  }
+    <!-- LIST VIEW -->
+    @if (viewMode() === 'list') {
+      <div class="list-container">
+        @for (spec of filteredSpecs(); track spec) {
+          <app-spec-list-item [spec]="spec"></app-spec-list-item>
+        }
+      </div>
+    }
 
-  @if (filteredSpecs().length === 0) {
-    <div style="text-align: center; padding: 60px; color: var(--line-color)">
-      NO SPECIMENS FOUND MATCHING CRITERIA.
-    </div>
+    @if (filteredSpecs().length === 0) {
+      <div style="text-align: center; padding: 60px; color: var(--line-color)">
+        NO SPECIMENS FOUND MATCHING CRITERIA.
+      </div>
+    }
   }
 
   <div style="text-align: center; margin-top: 60px">
