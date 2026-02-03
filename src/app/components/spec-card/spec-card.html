@@ -1,6 +1,6 @@
 <div class="spec-card" (click)="openDetails()">
   <div class="spec-img-box">
-    <img [ngSrc]="spec.imageUrl" fill priority class="card-img" />
+    <img [src]="imageUrl" class="card-img" alt="{{ spec.title }} Cover" />
     <div class="overlay-gradient"></div>
     <div class="play-btn-neon" (click)="playSong($event)">
       <i class="fa-solid fa-play"></i>
@@ -9,7 +9,10 @@
 
   <div class="card-content">
     <div class="spec-header-mini">
-      <span>{{ spec.type }}</span>
+      <!-- Show Primary Genre if available, else nothing or fallback -->
+      @if (spec.genres && spec.genres.length > 0) {
+        <span class="genre-badge">{{ spec.genres[0].name }}</span>
+      }
     </div>
 
     <div class="spec-title">{{ spec.title }}</div>
@@ -17,8 +20,9 @@
     <div class="card-meta">
       <span class="tag-glass">{{ spec.bpm }} BPM</span>
       <span class="tag-glass">{{ spec.key }}</span>
-      @for (tag of spec.tags; track tag) {
-        <span class="tag-glass">{{ tag }}</span>
+      <!-- Limit tags to 3 -->
+      @for (tag of spec.tags.slice(0, 3); track tag) {
+        <span class="tag-glass">#{{ tag }}</span>
       }
     </div>
 

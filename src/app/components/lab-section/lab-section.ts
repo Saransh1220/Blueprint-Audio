@@ -106,7 +106,7 @@ export class LabSectionComponent implements OnInit, AfterViewInit {
 
   ngOnInit(): void {
     this.isLoading.set(true);
-    this.labService.getSpecs(this.type).subscribe((specs) => {
+    this.labService.getSpecs({ category: this.type }).subscribe((specs) => {
       this.specs.set(specs);
       this.isLoading.set(false);
       this.refreshAnimations();

@@ -120,6 +120,15 @@
   text-transform: uppercase;
   letter-spacing: 1px;
   font-weight: 600;
+
+  .genre-badge {
+    background: rgba(var(--brand-color-rgb), 0.2);
+    color: var(--brand-color);
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 0.65rem;
+    border: 1px solid rgba(var(--brand-color-rgb), 0.3);
+  }
 }
 
 .spec-title {

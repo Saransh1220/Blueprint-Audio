@@ -181,6 +181,12 @@
         border-radius: 100px;
         color: var(--text-color);
         font-weight: 600;
+
+        &.genre {
+          background: rgba(var(--brand-color-rgb), 0.15);
+          color: var(--brand-color);
+          border: 1px solid rgba(var(--brand-color-rgb), 0.3);
+        }
       }
     }
 
@@ -201,7 +207,7 @@
         }
 
         &::before {
-          content: '#';
+          content: '';
           opacity: 0.5;
         }
       }

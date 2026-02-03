@@ -39,24 +39,32 @@ export class SpecRowComponent implements OnInit {
     this.playerService.showPlayer(spec);
   }
 
-  ngOnInit() {
+  ngOnChanges() {
     if (this.specsInput) {
       this.specs.set(this.specsInput);
+    }
+  }
+
+  ngOnInit() {
+    if (this.specsInput) {
+      // Handled in ngOnChanges, but safe to keep or remove if we trust OnChanges runs first/also
+      // Actually OnChanges runs before Init.
       return;
     }
 
-    // In a real app, we'd have a more specific API call.
     // Here we'll fetch all and filter client-side for the mock.
-    this.labService.getSpecs(this.type).subscribe((allSpecs) => {
+    this.labService.getSpecs({ category: this.type }).subscribe((allSpecs) => {
+      // If we have a filterTag, filter by it (client side simplified)
       if (this.filterTag) {
-        this.specs.set(
-          allSpecs.filter(
-            (s) =>
-              s.tags.includes(this.filterTag) ||
-              s.key === this.filterTag ||
-              s.title.includes(this.filterTag),
-          ),
+        const tag = this.filterTag.toUpperCase();
+        // Check genre or tags
+        // This is legacy/mock behavior for the "Recommended" rows which use string tags
+        const filtered = allSpecs.filter(
+          (s) =>
+            s.tags.some((t) => t.toUpperCase() === tag) ||
+            s.genres.some((g) => g.slug.toUpperCase() === tag || g.name.toUpperCase() === tag),
         );
+        this.specs.set(filtered);
       } else {
         this.specs.set(allSpecs);
       }

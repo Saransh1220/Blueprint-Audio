@@ -1,7 +1,14 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component, inject, type OnInit, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  inject,
+  type OnInit,
+  signal,
+  effect,
+} from '@angular/core';
 import { SpecRowComponent } from '../../components';
-import { AuthService, type User } from '../../services';
+import { AuthService, type User, LabService } from '../../services'; // Import LabService
 
 @Component({
   selector: 'app-dashboard',
@@ -16,6 +23,11 @@ export class DashboardComponent implements OnInit {
 
   currentUser = signal<User | null>(null);
   currentDate = signal<Date>(new Date());
+
+  // Filtering
+  selectedGenres = signal<string[]>([]);
+  filteredSpecs = signal<any[]>([]); // Using 'any' for now to avoid import update hell, but mapped to Spec
+
   genres = signal<string[]>([
     'Trap',
     'Drill',
@@ -28,6 +40,40 @@ export class DashboardComponent implements OnInit {
     'Experimental',
     'Ambient',
   ]);
+
+  private labService = inject(LabService); // Inject LabService
+
+  constructor() {
+    // React to genre changes
+    effect(
+      () => {
+        const genres = this.selectedGenres();
+        this.loadSpecs(genres);
+      },
+      { allowSignalWrites: true },
+    );
+  }
+
+  loadSpecs(genres: string[]) {
+    // Call LabService with filters
+    this.labService.getSpecs({ category: 'beat', genres }).subscribe((specs) => {
+      if (genres.length === 0) {
+        this.filteredSpecs.set(specs);
+        return;
+      }
+      this.filteredSpecs.set(specs);
+    });
+  }
+
+  toggleGenre(genre: string) {
+    this.selectedGenres.update((current) => {
+      if (current.includes(genre)) {
+        return current.filter((g) => g !== genre);
+      } else {
+        return [...current, genre];
+      }
+    });
+  }
 
   getGenreImage(genre: string): string {
     const map: Record<string, string> = {
