@@ -24,4 +24,14 @@ export class HeaderComponent {
   closeMobileMenu() {
     this.isMobileMenuOpen = false;
   }
+
+  isUserMenuOpen = false;
+
+  toggleUserMenu() {
+    this.isUserMenuOpen = !this.isUserMenuOpen;
+  }
+
+  closeUserMenu() {
+    this.isUserMenuOpen = false;
+  }
 }
