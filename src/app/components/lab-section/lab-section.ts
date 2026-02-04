@@ -103,8 +103,9 @@ export class LabSectionComponent implements OnInit, AfterViewInit {
       // BPM
       const matchesBpm = spec.bpm >= minBpm && spec.bpm <= maxBpm;
 
-      // Price
-      const matchesPrice = spec.price >= minPrice && spec.price <= maxPrice;
+      // Price (Convert cents to dollars for comparison)
+      const priceInDollars = spec.price / 100;
+      const matchesPrice = priceInDollars >= minPrice && priceInDollars <= maxPrice;
 
       // Key
       const matchesKey = keyFilter === 'All' || spec.key === keyFilter;

@@ -1,7 +1,12 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { type Observable, map, tap } from 'rxjs';
 import { ApiService } from '../core/services/api.service';
-import { GetSpecRequest, GetSpecsRequest, type SpecDto } from '../core/api/spec.requests';
+import {
+  GetSpecRequest,
+  GetSpecsRequest,
+  CreateSpecRequest,
+  type SpecDto,
+} from '../core/api/spec.requests';
 import { type Spec } from '../models';
 import { SpecAdapter } from '../adapters/spec.adapter';
 
@@ -44,6 +49,12 @@ export class LabService {
 
     return this.api
       .execute(new GetSpecRequest(cleanId))
+      .pipe(map((dto) => this.adapter.adapt(dto)));
+  }
+
+  createSpec(formData: FormData): Observable<Spec> {
+    return this.api
+      .execute(new CreateSpecRequest(formData))
       .pipe(map((dto) => this.adapter.adapt(dto)));
   }
 }

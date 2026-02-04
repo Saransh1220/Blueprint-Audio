@@ -1,0 +1,304 @@
+<div class="upload-page-container container">
+  <section class="upload-section">
+    <div class="stepper-indicator">
+      <div class="step" [class.active]="currentStep() >= 1">
+        <div class="step-num">1</div>
+        <span>Track Details</span>
+      </div>
+      <div class="step-line" [class.active]="currentStep() >= 2"></div>
+      <div class="step" [class.active]="currentStep() >= 2">
+        <div class="step-num">2</div>
+        <span>Licenses & Pricing</span>
+      </div>
+    </div>
+
+    <form [formGroup]="uploadForm" (ngSubmit)="submitUpload()" class="upload-form-stepper">
+      <!-- STEP 1: DETAILS & FILES -->
+      @if (currentStep() === 1) {
+        <div class="step-container step-1-grid">
+          <!-- LEFT: FILES (Prominent) -->
+          <div class="form-panel files-panel">
+            <h3>Assets</h3>
+            <!-- Cover Art -->
+            <div
+              class="file-drop-zone cover-zone"
+              [class.has-file]="coverFile()"
+              (drop)="onFileDropped($event, 'cover')"
+              (dragover)="onDragOver($event)"
+              (click)="coverInput.click()"
+            >
+              <input
+                #coverInput
+                type="file"
+                hidden
+                accept="image/*"
+                (change)="onFileSelected($event, 'cover')"
+              />
+              @if (coverPreviewUrl()) {
+                <img [src]="coverPreviewUrl()" class="cover-preview" alt="Cover Preview" />
+                <div class="hover-overlay"><i class="fas fa-pen"></i></div>
+              } @else {
+                <div class="placeholder">
+                  <i class="fas fa-image"></i>
+                  <span>Upload Cover Art</span>
+                </div>
+              }
+            </div>
+
+            <!-- Audio Files -->
+            <div class="audio-files-list">
+              <!-- Preview -->
+              <div class="file-row">
+                <div class="file-label">
+                  <i class="fas fa-music"></i>
+                  <div>
+                    <span>MP3 Preview <span class="req">*</span></span>
+                    <small class="file-name" [class.has-file]="previewFile()">{{
+                      previewFile() ? previewFile()?.name : 'Required for playback'
+                    }}</small>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  class="btn-icon-action"
+                  (click)="previewFile() ? removeFile('preview') : previewInput.click()"
+                >
+                  <i [class]="previewFile() ? 'fas fa-trash' : 'fas fa-upload'"></i>
+                </button>
+                <input
+                  #previewInput
+                  type="file"
+                  hidden
+                  accept="audio/mpeg"
+                  (change)="onFileSelected($event, 'preview')"
+                />
+              </div>
+
+              <div class="file-row">
+                <div class="file-label">
+                  <i class="fas fa-wave-square"></i>
+                  <div>
+                    <span>WAV File</span>
+                    <small class="file-name" [class.has-file]="wavFile()">{{
+                      wavFile()
+                        ? wavFile()?.name
+                        : 'High quality
+                                        audio'
+                    }}</small>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  class="btn-icon-action"
+                  (click)="wavFile() ? removeFile('wav') : wavInput.click()"
+                >
+                  <i [class]="wavFile() ? 'fas fa-trash' : 'fas fa-upload'"></i>
+                </button>
+                <input
+                  #wavInput
+                  type="file"
+                  hidden
+                  accept="audio/wav"
+                  (change)="onFileSelected($event, 'wav')"
+                />
+              </div>
+
+              <div class="file-row">
+                <div class="file-label">
+                  <i class="fas fa-layer-group"></i>
+                  <div>
+                    <span>Track Stems</span>
+                    <small class="file-name" [class.has-file]="stemsFile()">{{
+                      stemsFile()
+                        ? stemsFile()?.name
+                        : 'ZIP
+                                        archive'
+                    }}</small>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  class="btn-icon-action"
+                  (click)="stemsFile() ? removeFile('stems') : stemsInput.click()"
+                >
+                  <i [class]="stemsFile() ? 'fas fa-trash' : 'fas fa-upload'"></i>
+                </button>
+                <input
+                  #stemsInput
+                  type="file"
+                  hidden
+                  accept=".zip,.rar"
+                  (change)="onFileSelected($event, 'stems')"
+                />
+              </div>
+            </div>
+          </div>
+
+          <!-- RIGHT: METADATA -->
+          <div class="form-panel metadata-panel">
+            <h3>Track Info</h3>
+
+            <div class="form-group">
+              <label>Title <span class="req">*</span></label>
+              <input
+                type="text"
+                formControlName="title"
+                placeholder="e.g. 'Midnight Rain'"
+                [class.error]="f['title'].invalid && f['title'].touched"
+              />
+              @if (f['title'].invalid && f['title'].touched) {
+                <span class="error-msg">Title is required (max 100 chars).</span>
+              }
+            </div>
+
+            <div class="row-2">
+              <div class="form-group">
+                <label>Genre <span class="req">*</span></label>
+                <select
+                  formControlName="genre"
+                  [class.error]="f['genre'].invalid && f['genre'].touched"
+                >
+                  <option value="">Select Genre</option>
+                  @for (g of genres(); track g) {
+                    <option [value]="g">{{ g }}</option>
+                  }
+                </select>
+                @if (f['genre'].invalid && f['genre'].touched) {
+                  <span class="error-msg">Genre is required.</span>
+                }
+              </div>
+              <div class="form-group">
+                <label>BPM</label>
+                <input
+                  type="text"
+                  formControlName="bpm"
+                  placeholder="140"
+                  [class.error]="f['bpm'].invalid && f['bpm'].touched"
+                />
+                @if (f['bpm'].errors?.['pattern']) {
+                  <span class="error-msg">Must be a number.</span>
+                }
+              </div>
+            </div>
+
+            <div class="row-2">
+              <div class="form-group">
+                <label>Key</label>
+                <select formControlName="key">
+                  <option value="">Unknown</option>
+                  @for (k of keys; track k) {
+                    <option [value]="k">{{ k }}</option>
+                  }
+                </select>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label>Tags (Max 3)</label>
+              <div class="tags-input-container">
+                <input
+                  #tagInput
+                  type="text"
+                  placeholder="Add tag..."
+                  (keydown.enter)="$event.preventDefault(); addTag($event)"
+                  [disabled]="tags.length >= 3"
+                />
+                <button
+                  type="button"
+                  class="btn-add-tag"
+                  (click)="addTag({ target: tagInput })"
+                  [disabled]="tags.length >= 3"
+                >
+                  <i class="fas fa-plus"></i>
+                </button>
+              </div>
+              <div class="tags-list">
+                @for (tag of tags.controls; track tag; let i = $index) {
+                  <span class="tag-chip"
+                    >{{ tag.value }} <i class="fas fa-times" (click)="removeTag(i)"></i
+                  ></span>
+                }
+              </div>
+            </div>
+
+            <div class="action-footer">
+              <button type="button" class="btn-next" (click)="nextStep()">
+                Configure Licenses <i class="fas fa-arrow-right"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      }
+
+      <!-- STEP 2: LICENSES -->
+      @if (currentStep() === 2) {
+        <div class="step-container step-2-layout">
+          <div class="form-panel full-width">
+            <h3>License Configuration</h3>
+            <p class="panel-desc">Select which licenses to offer and set their prices.</p>
+
+            <div class="licenses-grid-cards" formArrayName="licenses">
+              @for (license of licenses.controls; track license; let i = $index) {
+                <div
+                  [formGroupName]="i"
+                  class="license-card"
+                  [class.disabled]="!license.get('enabled')?.value"
+                >
+                  <div class="lic-toggle-header">
+                    <span class="status-label">{{
+                      license.get('enabled')?.value ? 'Enabled' : 'Disabled'
+                    }}</span>
+                    <label class="switch">
+                      <input type="checkbox" formControlName="enabled" />
+                      <span class="slider round"></span>
+                    </label>
+                  </div>
+
+                  <div class="lic-content" [class.faded]="!license.get('enabled')?.value">
+                    <div class="lic-header">
+                      <span class="lic-name">{{ license.get('name')?.value }}</span>
+                      <span class="lic-type">{{ license.get('type')?.value }}</span>
+                    </div>
+
+                    <div class="lic-features">
+                      <ul>
+                        @for (feat of license.get('features')?.value; track feat) {
+                          <li><i class="fas fa-check"></i> {{ feat }}</li>
+                        }
+                      </ul>
+                    </div>
+
+                    <div class="lic-price-input">
+                      <span class="currency">₹</span>
+                      <input
+                        type="text"
+                        formControlName="price"
+                        [placeholder]="'Price'"
+                        [class.error]="
+                          license.get('price')?.invalid && license.get('price')?.touched
+                        "
+                      />
+                    </div>
+                  </div>
+                </div>
+              }
+            </div>
+          </div>
+
+          <div class="action-footer step-actions">
+            <button type="button" class="btn-back" (click)="prevStep()">
+              <i class="fas fa-arrow-left"></i> Back
+            </button>
+            <button type="submit" class="btn-submit" [disabled]="isSubmitting()">
+              @if (isSubmitting()) {
+                <i class="fas fa-spinner fa-spin"></i> Publishing...
+              } @else {
+                Publish Track
+              }
+            </button>
+          </div>
+        </div>
+      }
+    </form>
+  </section>
+</div>

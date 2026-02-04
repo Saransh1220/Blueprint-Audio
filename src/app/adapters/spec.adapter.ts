@@ -17,7 +17,7 @@ export class SpecAdapter {
       // Map "C Minor" -> "C MINOR" (simple uppercase to match Enum values roughly)
       key: dto.key.toUpperCase() as MusicalKey,
       tags: dto.tags || [],
-      price: dto.price / 100,
+      price: dto.price,
       audioUrl: dto.preview_url, // Mapping preview_url to audioUrl for playback
       genres: dto.genres ? dto.genres : [],
       licenses: dto.licenses ? dto.licenses.map((l) => this.mapLicenseDto(l)) : [],

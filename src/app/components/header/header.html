@@ -35,6 +35,12 @@
     </div>
 
     <div class="header-actions">
+      @if (authService.currentUser()?.role === 'producer') {
+        <a routerLink="/upload" class="upload-btn-cta">
+          <i class="fas fa-cloud-upload-alt"></i> <span>UPLOAD</span>
+        </a>
+      }
+
       <button class="icon-btn cart-btn" (click)="cartClick.emit()">
         <i class="fas fa-shopping-cart"></i>
         @if (cartService.count() > 0) {

@@ -68,3 +68,14 @@ export class GetSpecRequest implements ApiRequest<SpecDto> {
     this.path = `/specs/${id}`;
   }
 }
+
+export class CreateSpecRequest implements ApiRequest<SpecDto> {
+  readonly path = '/specs';
+  readonly method: HttpMethod = 'POST';
+  readonly body: FormData;
+  readonly _responseType?: SpecDto;
+
+  constructor(body: FormData) {
+    this.body = body;
+  }
+}

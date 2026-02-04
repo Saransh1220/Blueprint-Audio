@@ -9,6 +9,7 @@ import { HomeComponent } from './pages/home/home.component';
 import { SettingsComponent } from './pages/settings/settings.component';
 import { SpecDetailsComponent } from './pages/spec-details/spec-details.component';
 import { PurchasesComponent } from './pages/purchases/purchases.component';
+import { UploadComponent } from './pages/upload/upload.component';
 
 export const routes: Routes = [
   { path: '', component: HomeComponent },
@@ -18,6 +19,7 @@ export const routes: Routes = [
   { path: 'login', component: AuthComponent, canActivate: [guestGuard] },
   { path: 'register', component: AuthComponent, canActivate: [guestGuard] },
   { path: 'dashboard', component: DashboardComponent, canActivate: [authGuard] },
+  { path: 'upload', component: UploadComponent, canActivate: [authGuard] },
   { path: 'purchases', component: PurchasesComponent, canActivate: [authGuard] },
   { path: 'settings', component: SettingsComponent },
   { path: '**', redirectTo: '' },
