@@ -57,6 +57,9 @@
               <a routerLink="/settings" (click)="closeUserMenu()" class="menu-item">
                 <i class="fas fa-cog"></i> SETTINGS
               </a>
+              <a routerLink="/purchases" (click)="closeUserMenu()" class="menu-item">
+                <i class="fas fa-music"></i> MY PURCHASES
+              </a>
               <div class="menu-item theme-row">
                 <span><i class="fas fa-adjust"></i> THEME</span>
                 <app-theme-toggle></app-theme-toggle>
@@ -114,6 +117,9 @@
     <a routerLink="/settings" routerLinkActive="active" (click)="closeMobileMenu()">SETTINGS</a>
     @if (authService.currentUser()) {
       <a routerLink="/dashboard" routerLinkActive="active" (click)="closeMobileMenu()">DASHBOARD</a>
+      <a routerLink="/purchases" routerLinkActive="active" (click)="closeMobileMenu()"
+        >MY PURCHASES</a
+      >
       <a (click)="authService.logout(); closeMobileMenu()" style="cursor: pointer">LOGOUT</a>
     } @else {
       <a routerLink="/login" (click)="closeMobileMenu()">LOGIN</a>

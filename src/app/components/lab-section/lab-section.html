@@ -151,7 +151,14 @@
     }
   }
 
-  <div style="text-align: center; margin-top: 60px">
-    <a href="#" class="btn btn-outline"><span>Load Full Database</span></a>
-  </div>
+  @if (pagination()) {
+    <div style="margin-top: 40px">
+      <app-pagination
+        [currentPage]="currentPage()"
+        [total]="pagination()!.total"
+        [perPage]="pagination()!.per_page"
+        (pageChange)="onPageChange($event)"
+      />
+    </div>
+  }
 </section>

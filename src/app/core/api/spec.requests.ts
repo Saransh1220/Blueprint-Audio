@@ -41,11 +41,13 @@ export interface LicenseDto {
   updated_at: string;
 }
 
-export class GetSpecsRequest implements ApiRequest<SpecDto[]> {
+import { PaginatedResponse } from '../../models/payment';
+
+export class GetSpecsRequest implements ApiRequest<PaginatedResponse<SpecDto>> {
   readonly path = '/specs';
   readonly method: HttpMethod = 'GET';
   readonly params: HttpParams;
-  readonly _responseType?: SpecDto[];
+  readonly _responseType?: PaginatedResponse<SpecDto>;
 
   constructor(filters?: { category?: string; genres?: string[]; tags?: string[]; page?: number }) {
     let params = new HttpParams();

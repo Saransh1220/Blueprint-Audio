@@ -1,0 +1,201 @@
+<div class="purchases-container">
+  <div class="header">
+    <h1>My Purchases</h1>
+    <span class="subtitle">Manage licensed content</span>
+  </div>
+
+  <!-- Filter Bar -->
+  <div class="filter-bar">
+    <div class="search-wrapper">
+      <i class="fas fa-search"></i>
+      <input
+        type="text"
+        placeholder="Search beats..."
+        [ngModel]="searchQuery"
+        (ngModelChange)="onSearch($event)"
+      />
+    </div>
+
+    <div class="filter-wrapper">
+      <select [(ngModel)]="filterType" (change)="onFilterChange()">
+        <option value="ALL">All Licenses</option>
+        <option value="Basic">Basic</option>
+        <option value="Premium">Premium</option>
+        <option value="Trackout">Trackout</option>
+        <option value="Unlimited">Unlimited</option>
+      </select>
+      <i class="fas fa-chevron-down dropdown-icon"></i>
+    </div>
+  </div>
+
+  @if (loading() && (!licenses() || licenses().length === 0)) {
+    <div class="loading-state">
+      <div class="spinner"></div>
+      <p>Syncing your library...</p>
+    </div>
+  } @else if (!licenses() || licenses().length === 0) {
+    @if (searchQuery || filterType !== 'ALL') {
+      <!-- No Search Results State -->
+      <div class="empty-state">
+        <div class="icon-container">
+          <i
+            class="fas fa-search"
+            style="font-size: 3rem; color: rgba(255, 255, 255, 0.2); margin-bottom: 1rem"
+          ></i>
+        </div>
+        <h3>No results found</h3>
+        <p>Try adjusting your search or filters.</p>
+        <button class="btn-browse" (click)="clearFilters()">Clear Filters</button>
+      </div>
+    } @else {
+      <!-- No Purchases State -->
+      <div class="empty-state">
+        <div class="icon-container">
+          <i
+            class="fas fa-folder-open"
+            style="font-size: 3rem; color: rgba(255, 255, 255, 0.2); margin-bottom: 1rem"
+          ></i>
+        </div>
+        <h3>No purchases found</h3>
+        <p>Your library is looking empty.</p>
+        <a href="/" class="btn-browse">Browse Store</a>
+      </div>
+    }
+  } @else {
+    <div class="purchases-list">
+      @for (license of licenses(); track license.id) {
+        <div class="purchase-row">
+          <!-- 1. Left: Thumbnail -->
+          <div class="row-image">
+            <img
+              [src]="license.spec_image || 'assets/images/placeholder-cover.jpg'"
+              [alt]="license.spec_title"
+              loading="lazy"
+            />
+          </div>
+
+          <!-- 2. Middle: Info -->
+          <div class="row-info">
+            <div class="main-info">
+              <div class="row-header">
+                <h3>{{ license.spec_title || 'Untitled Beat' }}</h3>
+                <span class="license-badge" [class]="license.license_type.toLowerCase()">
+                  {{ license.license_type }}
+                </span>
+              </div>
+            </div>
+
+            <div class="meta-group">
+              <div class="meta-item">
+                <i class="fas fa-calendar-alt"></i>
+                <span>{{ license.issued_at | date: 'mediumDate' }}</span>
+              </div>
+              <div class="meta-item">
+                <i class="fas fa-fingerprint"></i>
+                <span title="License Key"
+                  >#{{ license.license_key.substring(license.license_key.length - 8) }}</span
+                >
+              </div>
+            </div>
+          </div>
+
+          <!-- 3. Right: Actions -->
+          <div class="row-actions">
+            <button
+              class="btn-download"
+              [class.loading]="downloading() === license.id"
+              (click)="openDownloadModal(license)"
+              [disabled]="downloading() === license.id || !license.is_active"
+            >
+              @if (downloading() === license.id) {
+                <!-- Spinner via CSS -->
+              } @else {
+                <i class="fas fa-download"></i>
+                <span>Download</span>
+              }
+            </button>
+          </div>
+        </div>
+      }
+    </div>
+
+    @if (pagination()) {
+      <app-pagination
+        [currentPage]="currentPage"
+        [total]="pagination()!.total"
+        [perPage]="pagination()!.per_page"
+        (pageChange)="onPageChange($event)"
+      />
+    }
+  }
+</div>
+
+<!-- Download Modal -->
+@if (showModal() && selectedDownloads()) {
+  <div class="modal-backdrop" (click)="closeModal()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>Download Assets</h3>
+        <button class="close-btn" (click)="closeModal()">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="limit-info">
+          <i class="fas fa-shield-alt"></i>
+          <span>Secure links expire in 1 hour.</span>
+        </div>
+
+        <div class="download-options">
+          @if (selectedDownloads()?.mp3_url) {
+            <div class="download-item">
+              <div class="file-info">
+                <span class="type">MP3</span>
+                <span class="desc">High Quality Audio (320kbps)</span>
+              </div>
+              <button
+                class="btn-icon-dl"
+                (click)="downloadFile(selectedDownloads()!.mp3_url)"
+                title="Download MP3"
+              >
+                <i class="fas fa-arrow-down"></i>
+              </button>
+            </div>
+          }
+
+          @if (selectedDownloads()?.wav_url) {
+            <div class="download-item">
+              <div class="file-info">
+                <span class="type">WAV</span>
+                <span class="desc">Lossless High Fidelity</span>
+              </div>
+              <button
+                class="btn-icon-dl"
+                (click)="downloadFile(selectedDownloads()!.wav_url)"
+                title="Download WAV"
+              >
+                <i class="fas fa-arrow-down"></i>
+              </button>
+            </div>
+          }
+
+          @if (selectedDownloads()?.stems_url) {
+            <div class="download-item">
+              <div class="file-info">
+                <span class="type">STEMS</span>
+                <span class="desc">Individual Track Stems (ZIP)</span>
+              </div>
+              <button
+                class="btn-icon-dl"
+                (click)="downloadFile(selectedDownloads()!.stems_url)"
+                title="Download Stems"
+              >
+                <i class="fas fa-arrow-down"></i>
+              </button>
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+  </div>
+}

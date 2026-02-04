@@ -35,6 +35,8 @@ export interface License {
   issued_at: string;
   created_at: string;
   updated_at: string;
+  spec_title?: string;
+  spec_image?: string;
 }
 
 // Razorpay Checkout options
@@ -80,9 +82,30 @@ export interface PaymentVerificationResponse {
   message: string;
 }
 
+export interface LicenseDownloadsResponse {
+  license_id: string;
+  license_type: string;
+  spec_title: string;
+  expires_in: number;
+  mp3_url?: string;
+  wav_url?: string;
+  stems_url?: string;
+}
+
 // Declare Razorpay global (from SDK script)
 declare global {
   interface Window {
     Razorpay: any;
   }
+}
+
+export interface PaginationMetadata {
+  total: number;
+  page: number;
+  per_page: number;
+}
+
+export interface PaginatedResponse<T> {
+  data: T[];
+  metadata: PaginationMetadata;
 }

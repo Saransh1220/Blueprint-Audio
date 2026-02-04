@@ -16,11 +16,18 @@ import { LabService, PlayerService } from '../../services';
 import { SpecCardComponent } from '../spec-card/spec-card';
 import { SpecListItemComponent } from '../spec-list-item/spec-list-item.component';
 import { LoadingSpinnerComponent } from '../ui/loading-spinner/loading-spinner.component';
+import { PaginationComponent } from '../../shared/components/pagination/pagination.component';
 
 @Component({
   selector: 'app-lab-section',
   standalone: true,
-  imports: [SpecCardComponent, SpecListItemComponent, FormsModule, LoadingSpinnerComponent],
+  imports: [
+    SpecCardComponent,
+    SpecListItemComponent,
+    FormsModule,
+    LoadingSpinnerComponent,
+    PaginationComponent,
+  ],
   templateUrl: './lab-section.html',
   styleUrls: ['./lab-section.scss'],
 })
@@ -34,7 +41,9 @@ export class LabSectionComponent implements OnInit, AfterViewInit {
 
   @Input() type: 'beat' | 'sample' = 'beat';
   specs = signal<Spec[]>([]);
+  pagination = this.labService.specsPagination;
   isLoading = signal(true);
+  currentPage = signal(1);
   viewMode = signal<'grid' | 'list'>('grid');
 
   setViewMode(mode: 'grid' | 'list') {
@@ -105,12 +114,24 @@ export class LabSectionComponent implements OnInit, AfterViewInit {
   });
 
   ngOnInit(): void {
+    this.refreshSpecs();
+  }
+
+  refreshSpecs(page: number = 1) {
     this.isLoading.set(true);
-    this.labService.getSpecs({ category: this.type }).subscribe((specs) => {
+    this.currentPage.set(page);
+    this.labService.getSpecs({ category: this.type, page }).subscribe((specs) => {
       this.specs.set(specs);
       this.isLoading.set(false);
       this.refreshAnimations();
     });
+  }
+
+  onPageChange(page: number) {
+    this.refreshSpecs(page);
+    // Scroll to top of lab section
+    const el = document.querySelector('.lab-section');
+    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 
   playSong(spec: Spec) {
