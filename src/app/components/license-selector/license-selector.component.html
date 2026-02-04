@@ -45,7 +45,7 @@
 
     <div class="licenses-grid">
       @for (license of spec.licenses; track license.type; let i = $index) {
-        <div class="license-card" [class.recommended]="i === 1" (click)="selectLicense(license)">
+        <div class="license-card" [class.recommended]="i === 1" (click)="addToCart(license)">
           @if (i === 1) {
             <span class="badge-rec">Most Popular</span>
           }
@@ -61,7 +61,7 @@
 
           <div class="card-right">
             <span class="price">${{ license.price }}</span>
-            <button class="btn-select">Add to Cart</button>
+            <button class="btn-select" (click)="buyNow(license, $event)">Buy Now</button>
           </div>
         </div>
       }

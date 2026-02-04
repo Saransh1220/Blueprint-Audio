@@ -3,6 +3,8 @@ export * from './cart.service';
 export * from './directory';
 export * from './lab';
 export * from './modal.service';
+export * from './payment.service';
 export * from './player.service';
 export * from './theme.service';
 export * from './toast.service';
+export * from './visualizer.service';

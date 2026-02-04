@@ -4,6 +4,7 @@ import type { LicenseOption, Spec } from '../../models';
 import { CartService } from '../../services/cart.service';
 import { ModalService } from '../../services/modal.service';
 import { ToastService } from '../../services/toast.service';
+import { PaymentService } from '../../services/payment.service';
 
 @Component({
   selector: 'app-license-selector',
@@ -16,12 +17,27 @@ export class LicenseSelectorComponent {
   private cartService = inject(CartService);
   private modalService = inject(ModalService);
   private toastService = inject(ToastService);
+  private paymentService = inject(PaymentService);
 
   @Input() spec!: Spec;
 
-  selectLicense(license: LicenseOption) {
+  // Add to cart (original functionality)
+  addToCart(license: LicenseOption) {
     this.cartService.addItem(this.spec, license);
     this.toastService.show(`Added ${this.spec.title} (${license.name}) to cart`, 'success');
     this.modalService.close();
+  }
+
+  // Buy now with Razorpay
+  buyNow(license: LicenseOption, event: Event) {
+    event.stopPropagation(); // Prevent card click
+    this.modalService.close();
+
+    // Initiate payment flow
+    this.paymentService.initiatePayment(this.spec.id, license.id, this.spec.title).subscribe({
+      error: (err) => {
+        console.error('Payment initiation failed:', err);
+      },
+    });
   }
 }
