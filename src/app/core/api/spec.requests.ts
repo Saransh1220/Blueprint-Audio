@@ -27,7 +27,7 @@ export interface GenreDto {
   slug: string;
 }
 
-export interface LicenseDto { }
+export interface LicenseDto {}
 
 export interface LicenseDto {
   id: string;
@@ -60,6 +60,7 @@ export class GetSpecsRequest implements ApiRequest<PaginatedResponse<SpecDto>> {
     max_price?: number;
     key?: string;
     page?: number;
+    sort?: string;
   }) {
     let params = new HttpParams();
     if (filters?.category) params = params.set('category', filters.category);
@@ -75,6 +76,7 @@ export class GetSpecsRequest implements ApiRequest<PaginatedResponse<SpecDto>> {
     if (filters?.max_price) params = params.set('max_price', filters.max_price);
     if (filters?.key && filters.key !== 'All') params = params.set('key', filters.key);
     if (filters?.page) params = params.set('page', filters.page);
+    if (filters?.sort) params = params.set('sort', filters.sort);
     this.params = params;
   }
 }
@@ -100,7 +102,7 @@ export class CreateSpecRequest implements ApiRequest<SpecDto> {
   }
 }
 
-export interface SpecResponse extends SpecDto { }
+export interface SpecResponse extends SpecDto {}
 
 export interface UpdateSpecDto {
   title?: string;

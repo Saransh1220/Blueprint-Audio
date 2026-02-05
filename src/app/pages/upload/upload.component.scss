@@ -538,11 +538,11 @@
             }
           }
 
-          input:checked+.slider {
+          input:checked + .slider {
             background-color: var(--brand-color);
           }
 
-          input:checked+.slider:before {
+          input:checked + .slider:before {
             transform: translateX(20px);
           }
         }

@@ -12,9 +12,11 @@ import { PurchasesComponent } from './pages/purchases/purchases.component';
 import { UploadComponent } from './pages/upload/upload.component';
 import { ProfileComponent } from './pages/profile/profile.component';
 import { StoreComponent } from './pages/store/store.component';
+import { SearchPageComponent } from './pages/search/search.component';
 
 export const routes: Routes = [
   { path: '', component: HomeComponent },
+  { path: 'search', component: SearchPageComponent },
   { path: 'battles', component: BattlesComponent },
   { path: 'battles/:id', component: BattleDetailsComponent },
   { path: 'beats/:id', component: SpecDetailsComponent },

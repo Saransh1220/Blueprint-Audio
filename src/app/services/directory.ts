@@ -5,6 +5,4 @@ import type { Producer } from '../models';
 @Injectable({
   providedIn: 'root',
 })
-export class DirectoryService {
-
-}
+export class DirectoryService {}

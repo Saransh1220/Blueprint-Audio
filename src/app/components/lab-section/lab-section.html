@@ -1,122 +1,79 @@
 <section class="lab-section container">
   <div class="section-head">
-    {{ type === 'beat' ? 'Beats' : 'Samples' }}<br />
-    <span class="catalog-subtitle">CATALOG</span>
+    {{ type === 'beat' ? 'Featured Beats' : 'Featured Samples' }}<br />
+    <span class="catalog-subtitle">LATEST DROPS</span>
   </div>
 
-  <!-- SEARCH & TOOLBAR -->
+  <!-- TOOLBAR: SEARCH ONLY -->
   <div class="toolbar">
     <div class="search-bar">
       <i class="fas fa-search"></i>
-      <input type="text" placeholder="SEARCH_DATABASE..." [ngModel]="searchTerm()"
-        (ngModelChange)="searchTerm.set($event)" (keydown.enter)="refreshSpecs()" />
+      <input
+        type="text"
+        placeholder="SEARCH_DATABASE..."
+        [ngModel]="searchTerm()"
+        (ngModelChange)="searchTerm.set($event)"
+        (keydown.enter)="onSearch()"
+      />
     </div>
 
     <div class="toolbar-actions">
       <div class="view-controls">
-        <button class="btn-view" [class.active]="viewMode() === 'grid'" (click)="setViewMode('grid')" title="Grid View">
+        <button
+          class="btn-view"
+          [class.active]="viewMode() === 'grid'"
+          (click)="setViewMode('grid')"
+          title="Grid View"
+        >
           <i class="fas fa-th-large"></i>
         </button>
-        <button class="btn-view" [class.active]="viewMode() === 'list'" (click)="setViewMode('list')" title="List View">
+        <button
+          class="btn-view"
+          [class.active]="viewMode() === 'list'"
+          (click)="setViewMode('list')"
+          title="List View"
+        >
           <i class="fas fa-list"></i>
         </button>
       </div>
-
-      <button class="btn-filter" [class.active]="showFilters()" (click)="toggleFilterPanel()">
-        <i class="fas fa-sliders-h"></i> FILTERS
-      </button>
     </div>
   </div>
-
-  <!-- FILTER PANEL -->
-  @if (showFilters()) {
-  <div class="filter-panel">
-    <div class="filter-grid">
-      <!-- GENRE -->
-      <div class="filter-group">
-        <label>GENRE / STYLE</label>
-        <div class="tags">
-          @for (g of genres; track g) {
-          <div class="tag" [class.active]="filters.genre().includes(g)" (click)="toggleGenre(g)">
-            {{ g }}
-          </div>
-          }
-        </div>
-      </div>
-      <!-- BPM -->
-      <div class="filter-group">
-        <label>BPM RANGE: {{ filters.bpmRange()[0] }} - {{ filters.bpmRange()[1] }}</label>
-        <div class="range-slider">
-          <input type="range" min="60" max="200" [value]="filters.bpmRange()[0]" (input)="updateBpm($event, 0)"
-            (change)="refreshSpecs()" />
-          <input type="range" min="60" max="200" [value]="filters.bpmRange()[1]" (input)="updateBpm($event, 1)"
-            (change)="refreshSpecs()" />
-        </div>
-      </div>
-      <!-- PRICE -->
-      <div class="filter-group">
-        <label>PRICE: Rs. {{ filters.priceRange()[0] }} - Rs. {{ filters.priceRange()[1] }}</label>
-        <div class="range-slider">
-          <input type="range" min="0" max="50000" [value]="filters.priceRange()[0]" (input)="updatePrice($event, 0)"
-            (change)="refreshSpecs()" />
-          <input type="range" min="0" max="50000" [value]="filters.priceRange()[1]" (input)="updatePrice($event, 1)"
-            (change)="refreshSpecs()" />
-        </div>
-      </div>
-      <!-- KEY -->
-      <div class="filter-group">
-        <label>KEY</label>
-        <select [ngModel]="filters.key()" (ngModelChange)="filters.key.set($event); refreshSpecs()">
-          @for (k of keys; track k) {
-          <option [value]="k">{{ k }}</option>
-          }
-        </select>
-      </div>
-    </div>
-    <div style="margin-top: 30px; display: flex; justify-content: flex-end">
-      <button class="btn-clear" (click)="clearFilters()">
-        <i class="fas fa-times"></i> CLEAR ALL
-      </button>
-    </div>
-  </div>
-  }
 
   <!-- LOADING STATE -->
   @if (isLoading()) {
-  <div class="loading-container">
-    <app-loading-spinner size="60px"></app-loading-spinner>
-    <div class="loading-text">Loading...</div>
-  </div>
+    <div class="loading-container">
+      <app-loading-spinner size="60px"></app-loading-spinner>
+      <div class="loading-text">Loading...</div>
+    </div>
   } @else {
-  <!-- GRID VIEW -->
-  @if (viewMode() === 'grid') {
-  <div class="spec-grid">
-    @for (spec of specs(); track spec) {
-    <app-spec-card [spec]="spec"></app-spec-card>
+    <!-- GRID VIEW -->
+    @if (viewMode() === 'grid') {
+      <div class="spec-grid">
+        @for (spec of specs(); track spec.id) {
+          <app-spec-card [spec]="spec"></app-spec-card>
+        }
+      </div>
     }
-  </div>
-  }
 
-  <!-- LIST VIEW -->
-  @if (viewMode() === 'list') {
-  <div class="list-container">
-    @for (spec of specs(); track spec) {
-    <app-spec-list-item [spec]="spec"></app-spec-list-item>
+    <!-- LIST VIEW -->
+    @if (viewMode() === 'list') {
+      <div class="list-container">
+        @for (spec of specs(); track spec.id) {
+          <app-spec-list-item [spec]="spec"></app-spec-list-item>
+        }
+      </div>
     }
-  </div>
-  }
 
-  @if (specs().length === 0) {
-  <div style="text-align: center; padding: 60px; color: var(--line-color)">
-    NO SPECIMENS FOUND MATCHING CRITERIA.
-  </div>
-  }
-  }
+    @if (specs().length === 0) {
+      <div style="text-align: center; padding: 60px; color: var(--line-color)">
+        NO DATA AVAILABLE.
+      </div>
+    }
 
-  @if (pagination()) {
-  <div style="margin-top: 40px">
-    <app-pagination [currentPage]="currentPage()" [total]="pagination()!.total" [perPage]="pagination()!.per_page"
-      (pageChange)="onPageChange($event)" />
-  </div>
+    <div class="view-all-container">
+      <button class="btn-view-all" (click)="navigateToSearch()">
+        VIEW FULL CATALOG <i class="fas fa-long-arrow-alt-right"></i>
+      </button>
+    </div>
   }
 </section>
