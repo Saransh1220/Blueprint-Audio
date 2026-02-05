@@ -57,7 +57,7 @@ export class LabSectionComponent implements OnInit, AfterViewInit {
   filters = {
     genre: signal<string[]>([]),
     bpmRange: signal<[number, number]>([60, 200]),
-    priceRange: signal<[number, number]>([0, 100]),
+    priceRange: signal<[number, number]>([0, 50000]),
     key: signal('All'),
   };
 
@@ -103,9 +103,8 @@ export class LabSectionComponent implements OnInit, AfterViewInit {
       // BPM
       const matchesBpm = spec.bpm >= minBpm && spec.bpm <= maxBpm;
 
-      // Price (Convert cents to dollars for comparison)
-      const priceInDollars = spec.price / 100;
-      const matchesPrice = priceInDollars >= minPrice && priceInDollars <= maxPrice;
+      // Price
+      const matchesPrice = spec.price >= minPrice && spec.price <= maxPrice;
 
       // Key
       const matchesKey = keyFilter === 'All' || spec.key === keyFilter;
