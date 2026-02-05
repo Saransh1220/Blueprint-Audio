@@ -81,37 +81,7 @@ export class LabSectionComponent implements OnInit, AfterViewInit {
     return map[genre] || 'assets/images/placeholder.jpg';
   }
 
-  filteredSpecs = computed(() => {
-    const term = this.searchTerm().toLowerCase();
-    const allSpecs = this.specs();
-    const genreFilters = this.filters.genre();
-    const [minBpm, maxBpm] = this.filters.bpmRange();
-    const [minPrice, maxPrice] = this.filters.priceRange();
-    const keyFilter = this.filters.key();
 
-    return allSpecs.filter((spec) => {
-      // Search
-      const matchesSearch =
-        spec.title.toLowerCase().includes(term) ||
-        spec.tags.some((tag) => tag.toLowerCase().includes(term));
-
-      // Genre (Tags)
-      // Check if any of the selected genres match any of the spec's tags
-      const matchesGenre =
-        genreFilters.length === 0 || genreFilters.some((g) => spec.tags.includes(g));
-
-      // BPM
-      const matchesBpm = spec.bpm >= minBpm && spec.bpm <= maxBpm;
-
-      // Price
-      const matchesPrice = spec.price >= minPrice && spec.price <= maxPrice;
-
-      // Key
-      const matchesKey = keyFilter === 'All' || spec.key === keyFilter;
-
-      return matchesSearch && matchesGenre && matchesBpm && matchesPrice && matchesKey;
-    });
-  });
 
   ngOnInit(): void {
     this.refreshSpecs();
@@ -120,11 +90,23 @@ export class LabSectionComponent implements OnInit, AfterViewInit {
   refreshSpecs(page: number = 1) {
     this.isLoading.set(true);
     this.currentPage.set(page);
-    this.labService.getSpecs({ category: this.type, page }).subscribe((specs) => {
-      this.specs.set(specs);
-      this.isLoading.set(false);
-      this.refreshAnimations();
-    });
+    this.labService
+      .getSpecs({
+        category: this.type,
+        page,
+        search: this.searchTerm(),
+        genres: this.filters.genre(),
+        min_bpm: this.filters.bpmRange()[0],
+        max_bpm: this.filters.bpmRange()[1],
+        min_price: this.filters.priceRange()[0],
+        max_price: this.filters.priceRange()[1],
+        key: this.filters.key(),
+      })
+      .subscribe((specs) => {
+        this.specs.set(specs);
+        this.isLoading.set(false);
+        this.refreshAnimations();
+      });
   }
 
   onPageChange(page: number) {
@@ -175,6 +157,7 @@ export class LabSectionComponent implements OnInit, AfterViewInit {
         return [...current, genre];
       }
     });
+    this.refreshSpecs();
   }
 
   updateBpm(event: Event, index: 0 | 1) {
@@ -198,8 +181,9 @@ export class LabSectionComponent implements OnInit, AfterViewInit {
   clearFilters() {
     this.filters.genre.set([]);
     this.filters.bpmRange.set([60, 200]);
-    this.filters.priceRange.set([0, 100]);
+    this.filters.priceRange.set([0, 10000]);
     this.filters.key.set('All');
     this.searchTerm.set('');
+    this.refreshSpecs();
   }
 }

@@ -27,7 +27,7 @@ export interface GenreDto {
   slug: string;
 }
 
-export interface LicenseDto {}
+export interface LicenseDto { }
 
 export interface LicenseDto {
   id: string;
@@ -49,11 +49,31 @@ export class GetSpecsRequest implements ApiRequest<PaginatedResponse<SpecDto>> {
   readonly params: HttpParams;
   readonly _responseType?: PaginatedResponse<SpecDto>;
 
-  constructor(filters?: { category?: string; genres?: string[]; tags?: string[]; page?: number }) {
+  constructor(filters?: {
+    category?: string;
+    genres?: string[];
+    tags?: string[];
+    search?: string;
+    min_bpm?: number;
+    max_bpm?: number;
+    min_price?: number;
+    max_price?: number;
+    key?: string;
+    page?: number;
+  }) {
     let params = new HttpParams();
     if (filters?.category) params = params.set('category', filters.category);
-    if (filters?.genres?.length) params = params.set('genres', filters.genres.join(','));
+    if (filters?.genres?.length) {
+      const mappedGenres = filters.genres.map((g) => (g === 'R&B' ? 'RnB' : g));
+      params = params.set('genres', mappedGenres.join(','));
+    }
     if (filters?.tags?.length) params = params.set('tags', filters.tags.join(','));
+    if (filters?.search) params = params.set('search', filters.search);
+    if (filters?.min_bpm) params = params.set('min_bpm', filters.min_bpm);
+    if (filters?.max_bpm) params = params.set('max_bpm', filters.max_bpm);
+    if (filters?.min_price) params = params.set('min_price', filters.min_price);
+    if (filters?.max_price) params = params.set('max_price', filters.max_price);
+    if (filters?.key && filters.key !== 'All') params = params.set('key', filters.key);
     if (filters?.page) params = params.set('page', filters.page);
     this.params = params;
   }
@@ -80,7 +100,7 @@ export class CreateSpecRequest implements ApiRequest<SpecDto> {
   }
 }
 
-export interface SpecResponse extends SpecDto {}
+export interface SpecResponse extends SpecDto { }
 
 export interface UpdateSpecDto {
   title?: string;

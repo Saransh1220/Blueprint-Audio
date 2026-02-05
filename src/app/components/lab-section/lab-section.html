@@ -8,30 +8,16 @@
   <div class="toolbar">
     <div class="search-bar">
       <i class="fas fa-search"></i>
-      <input
-        type="text"
-        placeholder="SEARCH_DATABASE..."
-        [ngModel]="searchTerm()"
-        (ngModelChange)="searchTerm.set($event)"
-      />
+      <input type="text" placeholder="SEARCH_DATABASE..." [ngModel]="searchTerm()"
+        (ngModelChange)="searchTerm.set($event)" (keydown.enter)="refreshSpecs()" />
     </div>
 
     <div class="toolbar-actions">
       <div class="view-controls">
-        <button
-          class="btn-view"
-          [class.active]="viewMode() === 'grid'"
-          (click)="setViewMode('grid')"
-          title="Grid View"
-        >
+        <button class="btn-view" [class.active]="viewMode() === 'grid'" (click)="setViewMode('grid')" title="Grid View">
           <i class="fas fa-th-large"></i>
         </button>
-        <button
-          class="btn-view"
-          [class.active]="viewMode() === 'list'"
-          (click)="setViewMode('list')"
-          title="List View"
-        >
+        <button class="btn-view" [class.active]="viewMode() === 'list'" (click)="setViewMode('list')" title="List View">
           <i class="fas fa-list"></i>
         </button>
       </div>
@@ -44,121 +30,93 @@
 
   <!-- FILTER PANEL -->
   @if (showFilters()) {
-    <div class="filter-panel">
-      <div class="filter-grid">
-        <!-- GENRE -->
-        <div class="filter-group">
-          <label>GENRE / STYLE</label>
-          <div class="tags">
-            @for (g of genres; track g) {
-              <div
-                class="tag"
-                [class.active]="filters.genre().includes(g)"
-                (click)="toggleGenre(g)"
-              >
-                {{ g }}
-              </div>
-            }
+  <div class="filter-panel">
+    <div class="filter-grid">
+      <!-- GENRE -->
+      <div class="filter-group">
+        <label>GENRE / STYLE</label>
+        <div class="tags">
+          @for (g of genres; track g) {
+          <div class="tag" [class.active]="filters.genre().includes(g)" (click)="toggleGenre(g)">
+            {{ g }}
           </div>
-        </div>
-        <!-- BPM -->
-        <div class="filter-group">
-          <label>BPM RANGE: {{ filters.bpmRange()[0] }} - {{ filters.bpmRange()[1] }}</label>
-          <div class="range-slider">
-            <input
-              type="range"
-              min="60"
-              max="200"
-              [value]="filters.bpmRange()[0]"
-              (input)="updateBpm($event, 0)"
-            />
-            <input
-              type="range"
-              min="60"
-              max="200"
-              [value]="filters.bpmRange()[1]"
-              (input)="updateBpm($event, 1)"
-            />
-          </div>
-        </div>
-        <!-- PRICE -->
-        <div class="filter-group">
-          <label>PRICE: ${{ filters.priceRange()[0] }} - ${{ filters.priceRange()[1] }}</label>
-          <div class="range-slider">
-            <input
-              type="range"
-              min="0"
-              max="100"
-              [value]="filters.priceRange()[0]"
-              (input)="updatePrice($event, 0)"
-            />
-            <input
-              type="range"
-              min="0"
-              max="100"
-              [value]="filters.priceRange()[1]"
-              (input)="updatePrice($event, 1)"
-            />
-          </div>
-        </div>
-        <!-- KEY -->
-        <div class="filter-group">
-          <label>KEY</label>
-          <select [ngModel]="filters.key()" (ngModelChange)="filters.key.set($event)">
-            @for (k of keys; track k) {
-              <option [value]="k">{{ k }}</option>
-            }
-          </select>
+          }
         </div>
       </div>
-      <div style="margin-top: 30px; display: flex; justify-content: flex-end">
-        <button class="btn-clear" (click)="clearFilters()">
-          <i class="fas fa-times"></i> CLEAR ALL
-        </button>
+      <!-- BPM -->
+      <div class="filter-group">
+        <label>BPM RANGE: {{ filters.bpmRange()[0] }} - {{ filters.bpmRange()[1] }}</label>
+        <div class="range-slider">
+          <input type="range" min="60" max="200" [value]="filters.bpmRange()[0]" (input)="updateBpm($event, 0)"
+            (change)="refreshSpecs()" />
+          <input type="range" min="60" max="200" [value]="filters.bpmRange()[1]" (input)="updateBpm($event, 1)"
+            (change)="refreshSpecs()" />
+        </div>
+      </div>
+      <!-- PRICE -->
+      <div class="filter-group">
+        <label>PRICE: Rs. {{ filters.priceRange()[0] }} - Rs. {{ filters.priceRange()[1] }}</label>
+        <div class="range-slider">
+          <input type="range" min="0" max="50000" [value]="filters.priceRange()[0]" (input)="updatePrice($event, 0)"
+            (change)="refreshSpecs()" />
+          <input type="range" min="0" max="50000" [value]="filters.priceRange()[1]" (input)="updatePrice($event, 1)"
+            (change)="refreshSpecs()" />
+        </div>
+      </div>
+      <!-- KEY -->
+      <div class="filter-group">
+        <label>KEY</label>
+        <select [ngModel]="filters.key()" (ngModelChange)="filters.key.set($event); refreshSpecs()">
+          @for (k of keys; track k) {
+          <option [value]="k">{{ k }}</option>
+          }
+        </select>
       </div>
     </div>
+    <div style="margin-top: 30px; display: flex; justify-content: flex-end">
+      <button class="btn-clear" (click)="clearFilters()">
+        <i class="fas fa-times"></i> CLEAR ALL
+      </button>
+    </div>
+  </div>
   }
 
   <!-- LOADING STATE -->
   @if (isLoading()) {
-    <div class="loading-container">
-      <app-loading-spinner size="60px"></app-loading-spinner>
-      <div class="loading-text">Loading...</div>
-    </div>
+  <div class="loading-container">
+    <app-loading-spinner size="60px"></app-loading-spinner>
+    <div class="loading-text">Loading...</div>
+  </div>
   } @else {
-    <!-- GRID VIEW -->
-    @if (viewMode() === 'grid') {
-      <div class="spec-grid">
-        @for (spec of filteredSpecs(); track spec) {
-          <app-spec-card [spec]="spec"></app-spec-card>
-        }
-      </div>
+  <!-- GRID VIEW -->
+  @if (viewMode() === 'grid') {
+  <div class="spec-grid">
+    @for (spec of specs(); track spec) {
+    <app-spec-card [spec]="spec"></app-spec-card>
     }
+  </div>
+  }
 
-    <!-- LIST VIEW -->
-    @if (viewMode() === 'list') {
-      <div class="list-container">
-        @for (spec of filteredSpecs(); track spec) {
-          <app-spec-list-item [spec]="spec"></app-spec-list-item>
-        }
-      </div>
+  <!-- LIST VIEW -->
+  @if (viewMode() === 'list') {
+  <div class="list-container">
+    @for (spec of specs(); track spec) {
+    <app-spec-list-item [spec]="spec"></app-spec-list-item>
     }
+  </div>
+  }
 
-    @if (filteredSpecs().length === 0) {
-      <div style="text-align: center; padding: 60px; color: var(--line-color)">
-        NO SPECIMENS FOUND MATCHING CRITERIA.
-      </div>
-    }
+  @if (specs().length === 0) {
+  <div style="text-align: center; padding: 60px; color: var(--line-color)">
+    NO SPECIMENS FOUND MATCHING CRITERIA.
+  </div>
+  }
   }
 
   @if (pagination()) {
-    <div style="margin-top: 40px">
-      <app-pagination
-        [currentPage]="currentPage()"
-        [total]="pagination()!.total"
-        [perPage]="pagination()!.per_page"
-        (pageChange)="onPageChange($event)"
-      />
-    </div>
+  <div style="margin-top: 40px">
+    <app-pagination [currentPage]="currentPage()" [total]="pagination()!.total" [perPage]="pagination()!.per_page"
+      (pageChange)="onPageChange($event)" />
+  </div>
   }
 </section>

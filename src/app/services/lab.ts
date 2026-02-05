@@ -24,6 +24,12 @@ export class LabService {
   getSpecs(filters?: {
     category?: 'beat' | 'sample';
     genres?: string[];
+    search?: string;
+    min_bpm?: number;
+    max_bpm?: number;
+    min_price?: number;
+    max_price?: number;
+    key?: string;
     page?: number;
   }): Observable<Spec[]> {
     return this.api.execute(new GetSpecsRequest(filters)).pipe(
