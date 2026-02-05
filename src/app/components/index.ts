@@ -1,5 +1,4 @@
 export * from './cart/cart.component';
-export * from './directory/directory';
 export * from './footer/footer';
 export * from './header/header';
 export * from './hero/hero';
