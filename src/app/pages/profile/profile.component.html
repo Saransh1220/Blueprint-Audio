@@ -1,0 +1,114 @@
+<div class="profile-page">
+  <div class="page-header">
+    <h1>My Profile</h1>
+    <span class="subtitle">Manage your account settings</span>
+  </div>
+
+  <form [formGroup]="profileForm">
+    <!-- User Card -->
+    <div class="user-card">
+      <div class="avatar">{{ currentUser()?.name?.charAt(0) || 'U' }}</div>
+
+      <div class="user-details">
+        <h2>{{ currentUser()?.name }}</h2>
+        <span class="badge">
+          <i class="fas fa-{{ currentUser()?.role === 'producer' ? 'sliders-h' : 'music' }}"></i>
+          {{ currentUser()?.role }}
+        </span>
+      </div>
+
+      <div class="actions">
+        <button type="button" class="btn-store" (click)="navigateToStore()">
+          <i class="fas fa-store"></i>
+          <span>My Store</span>
+        </button>
+        <button
+          type="button"
+          class="btn-save"
+          (click)="saveProfile()"
+          [disabled]="!profileForm.dirty || isSaving()"
+        >
+          @if (isSaving()) {
+            <span>Saving...</span>
+          } @else {
+            <i class="fas fa-save"></i>
+            <span>Save</span>
+          }
+        </button>
+      </div>
+    </div>
+
+    <!-- Bio -->
+    <div class="section">
+      <div class="section-title">
+        <i class="fas fa-user-circle"></i>
+        <span>About</span>
+      </div>
+      <textarea
+        formControlName="bio"
+        rows="5"
+        placeholder="Tell us about yourself, your work, and what makes your sound unique..."
+        maxlength="500"
+      ></textarea>
+      <div class="counter">{{ profileForm.get('bio')?.value?.length || 0 }}/500</div>
+    </div>
+
+    <!-- Social Links -->
+    <div class="section">
+      <div class="section-title">
+        <i class="fas fa-link"></i>
+        <span>Social Links</span>
+      </div>
+
+      <div class="social-list">
+        <div class="social-input">
+          <label>
+            <i class="fab fa-instagram"></i>
+            <span>Instagram</span>
+          </label>
+          <input
+            type="url"
+            formControlName="instagram_url"
+            placeholder="https://instagram.com/yourprofile"
+          />
+        </div>
+
+        <div class="social-input">
+          <label>
+            <i class="fab fa-twitter"></i>
+            <span>Twitter</span>
+          </label>
+          <input
+            type="url"
+            formControlName="twitter_url"
+            placeholder="https://twitter.com/yourprofile"
+          />
+        </div>
+
+        <div class="social-input">
+          <label>
+            <i class="fab fa-youtube"></i>
+            <span>YouTube</span>
+          </label>
+          <input
+            type="url"
+            formControlName="youtube_url"
+            placeholder="https://youtube.com/@yourchannel"
+          />
+        </div>
+
+        <div class="social-input">
+          <label>
+            <i class="fab fa-spotify"></i>
+            <span>Spotify</span>
+          </label>
+          <input
+            type="url"
+            formControlName="spotify_url"
+            placeholder="https://open.spotify.com/artist/yourprofile"
+          />
+        </div>
+      </div>
+    </div>
+  </form>
+</div>

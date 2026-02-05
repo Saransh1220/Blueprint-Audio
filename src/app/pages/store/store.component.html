@@ -1,0 +1,154 @@
+<div class="store-container">
+  <div class="page-header">
+    <h1>{{ profile()?.name || 'Producer' }}'s Store</h1>
+    @if (totalSpecs() > 0) {
+      <span class="subtitle"
+        >{{ totalSpecs() }} {{ totalSpecs() === 1 ? 'Beat' : 'Beats' }} Available</span
+      >
+    }
+  </div>
+
+  @if (profile(); as user) {
+    <div class="user-info-card">
+      <div class="user-header">
+        <div class="user-avatar">{{ user.name.charAt(0) || 'U' }}</div>
+
+        <div class="user-meta-inline">
+          <h2>{{ user.name }}</h2>
+          <div class="badges">
+            <span class="role-badge">
+              <i class="fas fa-{{ user.role === 'producer' ? 'sliders-h' : 'music' }}"></i>
+              {{ user.role }}
+            </span>
+            @if (totalSpecs() > 0) {
+              <span class="count-badge">
+                <i class="fas fa-folder-open"></i>
+                {{ totalSpecs() }} {{ totalSpecs() === 1 ? 'Upload' : 'Uploads' }}
+              </span>
+            }
+          </div>
+        </div>
+
+        @if (isOwnStore()) {
+          <button class="edit-btn" (click)="navigateToProfile()">
+            <i class="fas fa-pen"></i>
+            <span>Edit Profile</span>
+          </button>
+        }
+      </div>
+
+      @if (
+        user.bio || user.instagram_url || user.twitter_url || user.youtube_url || user.spotify_url
+      ) {
+        <div class="user-details">
+          @if (user.bio) {
+            <div class="detail-section">
+              <div class="label">
+                <i class="fas fa-info-circle"></i>
+                About
+              </div>
+              <p>{{ user.bio }}</p>
+            </div>
+          }
+
+          @if (user.instagram_url || user.twitter_url || user.youtube_url || user.spotify_url) {
+            <div class="detail-section">
+              <div class="label">
+                <i class="fas fa-share-alt"></i>
+                Connect
+              </div>
+              <div class="social-links">
+                @if (user.instagram_url) {
+                  <a [href]="user.instagram_url" target="_blank" class="social-icon instagram">
+                    <i class="fab fa-instagram"></i>
+                  </a>
+                }
+                @if (user.twitter_url) {
+                  <a [href]="user.twitter_url" target="_blank" class="social-icon twitter">
+                    <i class="fab fa-twitter"></i>
+                  </a>
+                }
+                @if (user.youtube_url) {
+                  <a [href]="user.youtube_url" target="_blank" class="social-icon youtube">
+                    <i class="fab fa-youtube"></i>
+                  </a>
+                }
+                @if (user.spotify_url) {
+                  <a [href]="user.spotify_url" target="_blank" class="social-icon spotify">
+                    <i class="fab fa-spotify"></i>
+                  </a>
+                }
+              </div>
+            </div>
+          }
+        </div>
+      }
+    </div>
+  }
+
+  @if (isLoading()) {
+    <div class="loading-state">
+      <div class="spinner"></div>
+      <p>Loading beats...</p>
+    </div>
+  } @else if (specs().length === 0) {
+    <div class="empty-state">
+      <i class="fas fa-music"></i>
+      <h3>No Beats Yet</h3>
+      <p>
+        @if (isOwnStore()) {
+          Start uploading your beats to build your store!
+        } @else {
+          This producer hasn't uploaded any beats yet.
+        }
+      </p>
+    </div>
+  } @else {
+    <div class="beats-list">
+      @for (spec of specs(); track spec.id) {
+        <div class="beat-row">
+          <div class="beat-thumbnail">
+            <img [src]="spec.image_url" [alt]="spec.title" />
+          </div>
+
+          <div class="beat-info">
+            <h3 class="beat-title">{{ spec.title }}</h3>
+            <div class="beat-meta">
+              <span class="meta-tag">
+                <i class="fas fa-drum"></i>
+                {{ spec.bpm }} BPM
+              </span>
+              <span class="meta-tag">
+                <i class="fas fa-music"></i>
+                {{ spec.key }}
+              </span>
+              @if (spec.genres && spec.genres.length > 0) {
+                <span class="meta-tag">
+                  <i class="fas fa-tag"></i>
+                  {{ spec.genres[0].name }}
+                </span>
+              }
+            </div>
+          </div>
+
+          <div class="beat-price">{{ formatPrice(spec.price) }}</div>
+
+          <div class="beat-actions">
+            @if (isOwnStore()) {
+              <button class="btn-action edit" (click)="openEditModal(spec)" title="Edit">
+                <i class="fas fa-pen"></i>
+              </button>
+              <button class="btn-action delete" (click)="confirmDelete(spec)" title="Delete">
+                <i class="fas fa-trash"></i>
+              </button>
+            }
+          </div>
+        </div>
+      }
+    </div>
+  }
+</div>
+
+<app-edit-spec-modal />
+
+<app-confirm-dialog (confirmed)="onDeleteConfirmed()"></app-confirm-dialog>

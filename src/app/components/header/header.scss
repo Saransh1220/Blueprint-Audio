@@ -124,6 +124,29 @@ nav {
     }
   }
 
+  .upload-btn-cta {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--brand-color);
+    color: white;
+    padding: 8px 20px;
+    border-radius: 999px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    text-decoration: none;
+    transition: all 0.3s ease;
+
+    i {
+      font-size: 1rem;
+    }
+
+    &:hover {
+      opacity: 0.85;
+    }
+  }
+
   .icon-btn {
     background: transparent;
     border: none;

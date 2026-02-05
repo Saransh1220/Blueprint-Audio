@@ -26,6 +26,7 @@ export class SpecAdapter {
 
   private mapLicenseDto(dto: LicenseDto): LicenseOption {
     return {
+      id: dto.id,
       type: dto.type as LicenseType,
       name: dto.name,
       price: dto.price,

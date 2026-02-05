@@ -1,15 +1,9 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
-import { catchError, of, switchMap, tap } from 'rxjs';
+import { catchError, map, of, switchMap, tap } from 'rxjs';
 import { ApiService } from '../core/services/api.service';
 import { GetMeRequest, LoginRequest, RegisterRequest } from '../core/api/auth.requests';
-
-export interface User {
-  id: string;
-  email: string;
-  name: string;
-  role: 'artist' | 'producer';
-}
+import { User, UserAdapter } from '../models';
 
 @Injectable({
   providedIn: 'root',
@@ -51,6 +45,7 @@ export class AuthService {
 
   getMe() {
     return this.api.execute(new GetMeRequest()).pipe(
+      map((apiResponse) => UserAdapter.toUser(apiResponse)),
       tap((user) => {
         this.currentUser.set(user);
       }),

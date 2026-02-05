@@ -1,4 +1,3 @@
-import { NgOptimizedImage } from '@angular/common';
 import { ChangeDetectionStrategy, Component, Input, inject } from '@angular/core';
 import { Router } from '@angular/router';
 
@@ -9,7 +8,7 @@ import { LicenseSelectorComponent } from '../license-selector/license-selector.c
 @Component({
   selector: 'app-spec-card',
   standalone: true,
-  imports: [NgOptimizedImage],
+  imports: [],
   templateUrl: './spec-card.html',
   styleUrls: ['./spec-card.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

@@ -8,7 +8,8 @@ import {
   effect,
 } from '@angular/core';
 import { SpecRowComponent } from '../../components';
-import { AuthService, type User, LabService } from '../../services'; // Import LabService
+import { AuthService, LabService } from '../../services';
+import { User } from '../../models';
 
 @Component({
   selector: 'app-dashboard',
@@ -20,13 +21,14 @@ import { AuthService, type User, LabService } from '../../services'; // Import L
 })
 export class DashboardComponent implements OnInit {
   private authService = inject(AuthService);
+  private labService = inject(LabService);
 
   currentUser = signal<User | null>(null);
   currentDate = signal<Date>(new Date());
 
-  // Filtering
+  // --- Overview State ---
   selectedGenres = signal<string[]>([]);
-  filteredSpecs = signal<any[]>([]); // Using 'any' for now to avoid import update hell, but mapped to Spec
+  filteredSpecs = signal<any[]>([]);
 
   genres = signal<string[]>([
     'Trap',
@@ -41,10 +43,7 @@ export class DashboardComponent implements OnInit {
     'Ambient',
   ]);
 
-  private labService = inject(LabService); // Inject LabService
-
   constructor() {
-    // React to genre changes
     effect(
       () => {
         const genres = this.selectedGenres();
@@ -54,24 +53,21 @@ export class DashboardComponent implements OnInit {
     );
   }
 
+  ngOnInit() {
+    this.currentUser.set(this.authService.currentUser());
+  }
+
+  // --- Overview Logic ---
   loadSpecs(genres: string[]) {
-    // Call LabService with filters
     this.labService.getSpecs({ category: 'beat', genres }).subscribe((specs) => {
-      if (genres.length === 0) {
-        this.filteredSpecs.set(specs);
-        return;
-      }
       this.filteredSpecs.set(specs);
     });
   }
 
   toggleGenre(genre: string) {
     this.selectedGenres.update((current) => {
-      if (current.includes(genre)) {
-        return current.filter((g) => g !== genre);
-      } else {
-        return [...current, genre];
-      }
+      if (current.includes(genre)) return current.filter((g) => g !== genre);
+      return [...current, genre];
     });
   }
 
@@ -92,37 +88,15 @@ export class DashboardComponent implements OnInit {
   }
 
   stats = signal([
-    {
-      label: 'Total Plays',
-      value: '12.5K',
-      icon: 'fas fa-play',
-      trend: '+12%',
-    },
-    {
-      label: 'Revenue',
-      value: '$2,450',
-      icon: 'fas fa-dollar-sign',
-      trend: '+8%',
-    },
-    {
-      label: 'Followers',
-      value: '850',
-      icon: 'fas fa-user-friends',
-      trend: '+24%',
-    },
+    { label: 'Total Plays', value: '12.5K', icon: 'fas fa-play', trend: '+12%' },
+    { label: 'Revenue', value: '₹2,450', icon: 'fas fa-rupee-sign', trend: '+8%' },
+    { label: 'Followers', value: '850', icon: 'fas fa-user-friends', trend: '+24%' },
   ]);
 
   spotlight = signal({
     title: 'FEATURED DROP',
     artist: 'METRO BOOMIN',
-    image: 'assets/images/metro.jpg', // Placeholder
+    image: 'assets/images/metro.jpg',
     description: 'Explore the latest sound kit from the legendary producer.',
   });
-
-  ngOnInit() {
-    // In a real app, we'd subscribe to the signal or observable.
-    // Since AuthService uses a signal, we can just read it or use computed.
-    // But for now, let's just set it from the service.
-    this.currentUser.set(this.authService.currentUser());
-  }
 }

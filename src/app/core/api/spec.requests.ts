@@ -41,18 +41,42 @@ export interface LicenseDto {
   updated_at: string;
 }
 
-export class GetSpecsRequest implements ApiRequest<SpecDto[]> {
+import { PaginatedResponse } from '../../models/payment';
+
+export class GetSpecsRequest implements ApiRequest<PaginatedResponse<SpecDto>> {
   readonly path = '/specs';
   readonly method: HttpMethod = 'GET';
   readonly params: HttpParams;
-  readonly _responseType?: SpecDto[];
+  readonly _responseType?: PaginatedResponse<SpecDto>;
 
-  constructor(filters?: { category?: string; genres?: string[]; tags?: string[]; page?: number }) {
+  constructor(filters?: {
+    category?: string;
+    genres?: string[];
+    tags?: string[];
+    search?: string;
+    min_bpm?: number;
+    max_bpm?: number;
+    min_price?: number;
+    max_price?: number;
+    key?: string;
+    page?: number;
+    sort?: string;
+  }) {
     let params = new HttpParams();
     if (filters?.category) params = params.set('category', filters.category);
-    if (filters?.genres?.length) params = params.set('genres', filters.genres.join(','));
+    if (filters?.genres?.length) {
+      const mappedGenres = filters.genres.map((g) => (g === 'R&B' ? 'RnB' : g));
+      params = params.set('genres', mappedGenres.join(','));
+    }
     if (filters?.tags?.length) params = params.set('tags', filters.tags.join(','));
+    if (filters?.search) params = params.set('search', filters.search);
+    if (filters?.min_bpm) params = params.set('min_bpm', filters.min_bpm);
+    if (filters?.max_bpm) params = params.set('max_bpm', filters.max_bpm);
+    if (filters?.min_price) params = params.set('min_price', filters.min_price);
+    if (filters?.max_price) params = params.set('max_price', filters.max_price);
+    if (filters?.key && filters.key !== 'All') params = params.set('key', filters.key);
     if (filters?.page) params = params.set('page', filters.page);
+    if (filters?.sort) params = params.set('sort', filters.sort);
     this.params = params;
   }
 }
@@ -64,5 +88,60 @@ export class GetSpecRequest implements ApiRequest<SpecDto> {
 
   constructor(id: string) {
     this.path = `/specs/${id}`;
+  }
+}
+
+export class CreateSpecRequest implements ApiRequest<SpecDto> {
+  readonly path = '/specs';
+  readonly method: HttpMethod = 'POST';
+  readonly body: FormData;
+  readonly _responseType?: SpecDto;
+
+  constructor(body: FormData) {
+    this.body = body;
+  }
+}
+
+export interface SpecResponse extends SpecDto {}
+
+export interface UpdateSpecDto {
+  title?: string;
+  category?: string;
+  type?: string;
+  bpm?: number;
+  key?: string;
+  base_price?: number;
+  tags?: string[];
+}
+
+export class GetUserSpecsRequest implements ApiRequest<PaginatedResponse<SpecDto>> {
+  readonly method: HttpMethod = 'GET';
+  readonly path: string;
+  readonly _responseType?: PaginatedResponse<SpecDto>;
+
+  constructor(userId: string, page: number = 1) {
+    this.path = `/users/${userId}/specs?page=${page}`;
+  }
+}
+
+export class UpdateSpecRequest implements ApiRequest<SpecDto> {
+  readonly method: HttpMethod = 'PATCH';
+  readonly path: string;
+  readonly body: UpdateSpecDto;
+  readonly _responseType?: SpecDto;
+
+  constructor(specId: string, data: UpdateSpecDto) {
+    this.path = `/specs/${specId}`;
+    this.body = data;
+  }
+}
+
+export class DeleteSpecRequest implements ApiRequest<void> {
+  readonly method: HttpMethod = 'DELETE';
+  readonly path: string;
+  readonly _responseType?: void;
+
+  constructor(specId: string) {
+    this.path = `/specs/${specId}`;
   }
 }

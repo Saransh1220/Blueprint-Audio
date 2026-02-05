@@ -9,6 +9,7 @@ export interface GenreModel {
 export type LicenseType = 'Basic' | 'Premium' | 'Trackout' | 'Unlimited';
 
 export interface LicenseOption {
+  id: string;
   type: LicenseType;
   name: string;
   price: number;

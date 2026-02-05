@@ -1,0 +1,185 @@
+<div class="search-page-container">
+  <!-- SIDEBAR -->
+  <aside class="search-sidebar">
+    <!-- GENRES -->
+    <div class="filter-group start-group">
+      <label>GENRES</label>
+      <div class="tag-cloud">
+        @for (g of genres; track g) {
+          <div class="filter-tag" [class.active]="genre().includes(g)" (click)="toggleGenre(g)">
+            {{ g }}
+          </div>
+        }
+      </div>
+    </div>
+
+    <!-- BPM -->
+    <div class="filter-group">
+      <label>BPM: {{ bpmRange()[0] }} - {{ bpmRange()[1] }}</label>
+      <div class="dual-slider">
+        <input
+          type="range"
+          min="60"
+          max="200"
+          [value]="bpmRange()[0]"
+          (input)="updateBpm($event, 0)"
+          (change)="onFilterChange()"
+        />
+        <input
+          type="range"
+          min="60"
+          max="200"
+          [value]="bpmRange()[1]"
+          (input)="updateBpm($event, 1)"
+          (change)="onFilterChange()"
+        />
+      </div>
+    </div>
+
+    <!-- PRICE -->
+    <div class="filter-group">
+      <label>PRICE: Rs. {{ priceRange()[0] }} - {{ priceRange()[1] }}</label>
+      <div class="dual-slider">
+        <input
+          type="range"
+          min="0"
+          max="50000"
+          [value]="priceRange()[0]"
+          (input)="updatePrice($event, 0)"
+          (change)="onFilterChange()"
+        />
+        <input
+          type="range"
+          min="0"
+          max="50000"
+          [value]="priceRange()[1]"
+          (input)="updatePrice($event, 1)"
+          (change)="onFilterChange()"
+        />
+      </div>
+    </div>
+
+    <!-- KEY -->
+    <div class="filter-group">
+      <label>KEY</label>
+      <select [ngModel]="key()" (ngModelChange)="setKey($event)">
+        @for (k of keys; track k) {
+          <option [value]="k">{{ k }}</option>
+        }
+      </select>
+    </div>
+
+    <button class="btn-clear" (click)="clearFilters()">CLEAR ALL FILTERS</button>
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <main class="search-results">
+    <!-- RESULTS HEADER -->
+    <div class="results-header">
+      <div class="header-main">
+        <div class="header-title">
+          <h1>Results</h1>
+          <span class="result-count"
+            >Showing {{ specs().length }} results
+            @if (searchTerm()) {
+              for "{{ searchTerm() }}"
+            }
+          </span>
+        </div>
+
+        <div class="header-controls">
+          <!-- SEARCH (Original Design) -->
+          <div class="search-container">
+            <i class="fas fa-search"></i>
+            <input
+              type="text"
+              placeholder="Search..."
+              [ngModel]="searchTerm()"
+              (ngModelChange)="searchTerm.set($event)"
+              (keydown.enter)="onSearch()"
+            />
+          </div>
+
+          <!-- SORT -->
+          <div class="sort-dropdown">
+            <label>Sort by:</label>
+            <select [ngModel]="sortOption()" (ngModelChange)="setSortOption($event)">
+              <option value="newest">Newest</option>
+              <option value="name">Name (A-Z)</option>
+              <option value="price_asc">Price (Low to High)</option>
+              <option value="price_desc">Price (High to Low)</option>
+            </select>
+          </div>
+
+          <!-- VIEW TOGGLE -->
+          <div class="view-toggle">
+            <button
+              [class.active]="viewMode() === 'grid'"
+              (click)="setViewMode('grid')"
+              title="Grid View"
+            >
+              <i class="fas fa-th-large"></i>
+            </button>
+            <button
+              [class.active]="viewMode() === 'list'"
+              (click)="setViewMode('list')"
+              title="List View"
+            >
+              <i class="fas fa-list"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- LIST HEADERS (Only in List Mode) -->
+    @if (viewMode() === 'list') {
+      <div class="list-headers">
+        <div class="col-spacer"></div>
+        <!-- Spacer for Image -->
+        <div class="col-track">TRACK</div>
+        <div class="col-info">GENRES / TAGS</div>
+        <div class="col-price">PRICE</div>
+      </div>
+    }
+
+    @if (isLoading()) {
+      <div class="loading-wrapper">
+        <app-loading-spinner size="60px"></app-loading-spinner>
+      </div>
+    } @else {
+      @if (specs().length === 0) {
+        <div class="no-results">
+          <i class="fas fa-search"></i>
+          <p>No beats found. Try adjusting your filters.</p>
+        </div>
+      }
+
+      @if (viewMode() === 'grid') {
+        <div class="results-grid">
+          @for (spec of specs(); track spec.id) {
+            <app-spec-card [spec]="spec"></app-spec-card>
+          }
+        </div>
+      } @else {
+        <div class="results-list">
+          @for (spec of specs(); track spec.id) {
+            <app-spec-list-item [spec]="spec"></app-spec-list-item>
+          }
+        </div>
+      }
+
+      @if (pagination()) {
+        <div class="pagination-wrapper">
+          <app-pagination
+            [currentPage]="currentPage()"
+            [total]="pagination()!.total"
+            [perPage]="pagination()!.per_page"
+            (pageChange)="updatePage($event)"
+          >
+          </app-pagination>
+        </div>
+      }
+    }
+  </main>
+</div>

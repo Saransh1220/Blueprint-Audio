@@ -1,9 +1,16 @@
-import { Injectable, inject } from '@angular/core';
-import { type Observable, map } from 'rxjs';
+import { Injectable, inject, signal } from '@angular/core';
+import { type Observable, map, tap } from 'rxjs';
 import { ApiService } from '../core/services/api.service';
-import { GetSpecRequest, GetSpecsRequest, type SpecDto } from '../core/api/spec.requests';
+import {
+  GetSpecRequest,
+  GetSpecsRequest,
+  CreateSpecRequest,
+  type SpecDto,
+} from '../core/api/spec.requests';
 import { type Spec } from '../models';
 import { SpecAdapter } from '../adapters/spec.adapter';
+
+import { PaginationMetadata } from '../models/payment';
 
 @Injectable({
   providedIn: 'root',
@@ -12,10 +19,30 @@ export class LabService {
   private api = inject(ApiService);
   private adapter = inject(SpecAdapter);
 
-  getSpecs(filters?: { category?: 'beat' | 'sample'; genres?: string[] }): Observable<Spec[]> {
-    return this.api
-      .execute(new GetSpecsRequest(filters))
-      .pipe(map((dtos) => dtos.map((dto) => this.adapter.adapt(dto))));
+  specsPagination = signal<PaginationMetadata | null>(null);
+
+  getSpecs(filters?: {
+    category?: 'beat' | 'sample';
+    genres?: string[];
+    search?: string;
+    min_bpm?: number;
+    max_bpm?: number;
+    min_price?: number;
+    max_price?: number;
+    key?: string;
+    page?: number;
+    sort?: string;
+  }): Observable<Spec[]> {
+    return this.api.execute(new GetSpecsRequest(filters)).pipe(
+      tap((response: any) => {
+        const metadata = response?.metadata || null;
+        this.specsPagination.set(metadata);
+      }),
+      map((response: any) => {
+        const data = response?.data || (Array.isArray(response) ? response : []);
+        return data.map((dto: any) => this.adapter.adapt(dto));
+      }),
+    );
   }
 
   getSpecById(id: string): Observable<Spec | undefined> {
@@ -29,6 +56,12 @@ export class LabService {
 
     return this.api
       .execute(new GetSpecRequest(cleanId))
+      .pipe(map((dto) => this.adapter.adapt(dto)));
+  }
+
+  createSpec(formData: FormData): Observable<Spec> {
+    return this.api
+      .execute(new CreateSpecRequest(formData))
       .pipe(map((dto) => this.adapter.adapt(dto)));
   }
 }

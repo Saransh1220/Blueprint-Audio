@@ -35,6 +35,12 @@
     </div>
 
     <div class="header-actions">
+      @if (authService.currentUser()?.role === 'producer') {
+        <a routerLink="/upload" class="upload-btn-cta">
+          <i class="fas fa-cloud-upload-alt"></i> <span>UPLOAD</span>
+        </a>
+      }
+
       <button class="icon-btn cart-btn" (click)="cartClick.emit()">
         <i class="fas fa-shopping-cart"></i>
         @if (cartService.count() > 0) {
@@ -54,8 +60,21 @@
 
           @if (isUserMenuOpen) {
             <div class="dropdown-menu">
+              <a routerLink="/profile" (click)="closeUserMenu()" class="menu-item">
+                <i class="fas fa-user"></i> PROFILE
+              </a>
+              <a
+                [routerLink]="['/store', authService.currentUser()?.id]"
+                (click)="closeUserMenu()"
+                class="menu-item"
+              >
+                <i class="fas fa-store"></i> MY STORE
+              </a>
               <a routerLink="/settings" (click)="closeUserMenu()" class="menu-item">
                 <i class="fas fa-cog"></i> SETTINGS
+              </a>
+              <a routerLink="/purchases" (click)="closeUserMenu()" class="menu-item">
+                <i class="fas fa-music"></i> MY PURCHASES
               </a>
               <div class="menu-item theme-row">
                 <span><i class="fas fa-adjust"></i> THEME</span>
@@ -114,6 +133,16 @@
     <a routerLink="/settings" routerLinkActive="active" (click)="closeMobileMenu()">SETTINGS</a>
     @if (authService.currentUser()) {
       <a routerLink="/dashboard" routerLinkActive="active" (click)="closeMobileMenu()">DASHBOARD</a>
+      <a routerLink="/profile" routerLinkActive="active" (click)="closeMobileMenu()">PROFILE</a>
+      <a
+        [routerLink]="['/store', authService.currentUser()?.id]"
+        routerLinkActive="active"
+        (click)="closeMobileMenu()"
+        >MY STORE</a
+      >
+      <a routerLink="/purchases" routerLinkActive="active" (click)="closeMobileMenu()"
+        >MY PURCHASES</a
+      >
       <a (click)="authService.logout(); closeMobileMenu()" style="cursor: pointer">LOGOUT</a>
     } @else {
       <a routerLink="/login" (click)="closeMobileMenu()">LOGIN</a>

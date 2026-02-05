@@ -8,10 +8,11 @@ import {
   signal,
 } from '@angular/core';
 
+import { RouterLink, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { Genre, MusicalKey, type Spec } from '../../models';
+import { type Spec } from '../../models';
 import { LabService, PlayerService } from '../../services';
 import { SpecCardComponent } from '../spec-card/spec-card';
 import { SpecListItemComponent } from '../spec-list-item/spec-list-item.component';
@@ -27,6 +28,7 @@ import { LoadingSpinnerComponent } from '../ui/loading-spinner/loading-spinner.c
 export class LabSectionComponent implements OnInit, AfterViewInit {
   private labService = inject(LabService);
   private playerService = inject(PlayerService);
+  private router = inject(Router);
 
   constructor() {
     gsap.registerPlugin(ScrollTrigger);
@@ -37,80 +39,45 @@ export class LabSectionComponent implements OnInit, AfterViewInit {
   isLoading = signal(true);
   viewMode = signal<'grid' | 'list'>('grid');
 
+  // Search State
+  searchTerm = signal('');
+
   setViewMode(mode: 'grid' | 'list') {
     this.viewMode.set(mode);
   }
 
-  // Search & Filter State
-  searchTerm = signal('');
-  showFilters = signal(false);
-
-  filters = {
-    genre: signal<string[]>([]),
-    bpmRange: signal<[number, number]>([60, 200]),
-    priceRange: signal<[number, number]>([0, 100]),
-    key: signal('All'),
-  };
-
-  // Options for Dropdowns/Tags
-  genres = Object.values(Genre);
-  keys = ['All', ...Object.values(MusicalKey)];
-
-  getGenreImage(genre: string): string {
-    const map: Record<string, string> = {
-      [Genre.TRAP]: 'assets/images/genres/trap.png',
-      [Genre.DRILL]: 'assets/images/genres/drill.png',
-      [Genre.RNB]: 'assets/images/genres/rnb.png',
-      [Genre.EXPERIMENTAL]: 'assets/images/genres/experimental.png',
-      [Genre.HOUSE]: 'assets/images/genres/house.png',
-      [Genre.LOFI]: 'assets/images/genres/lofi.png',
-      [Genre.HIPHOP]: 'assets/images/genres/hiphop.png',
-      [Genre.POP]: 'assets/images/genres/pop.png',
-      [Genre.TECH]: 'assets/images/genres/tech.png',
-      [Genre.AMBIENT]: 'assets/images/genres/ambient.png',
-    };
-    return map[genre] || 'assets/images/placeholder.jpg';
+  ngOnInit(): void {
+    this.loadFeaturedSpecs();
   }
 
-  filteredSpecs = computed(() => {
-    const term = this.searchTerm().toLowerCase();
-    const allSpecs = this.specs();
-    const genreFilters = this.filters.genre();
-    const [minBpm, maxBpm] = this.filters.bpmRange();
-    const [minPrice, maxPrice] = this.filters.priceRange();
-    const keyFilter = this.filters.key();
-
-    return allSpecs.filter((spec) => {
-      // Search
-      const matchesSearch =
-        spec.title.toLowerCase().includes(term) ||
-        spec.tags.some((tag) => tag.toLowerCase().includes(term));
-
-      // Genre (Tags)
-      // Check if any of the selected genres match any of the spec's tags
-      const matchesGenre =
-        genreFilters.length === 0 || genreFilters.some((g) => spec.tags.includes(g));
-
-      // BPM
-      const matchesBpm = spec.bpm >= minBpm && spec.bpm <= maxBpm;
-
-      // Price
-      const matchesPrice = spec.price >= minPrice && spec.price <= maxPrice;
-
-      // Key
-      const matchesKey = keyFilter === 'All' || spec.key === keyFilter;
-
-      return matchesSearch && matchesGenre && matchesBpm && matchesPrice && matchesKey;
-    });
-  });
-
-  ngOnInit(): void {
+  loadFeaturedSpecs() {
     this.isLoading.set(true);
-    this.labService.getSpecs({ category: this.type }).subscribe((specs) => {
-      this.specs.set(specs);
-      this.isLoading.set(false);
-      this.refreshAnimations();
-    });
+    // Fetch only top 8 for home page
+    this.labService
+      .getSpecs({
+        category: this.type,
+        page: 1,
+        // per_page could be handled efficiently in backend or just slice here if needed,
+        // but for now we rely on default pagination.
+        // Ideally we'd validly limit this request.
+      })
+      .subscribe((specs) => {
+        this.specs.set(specs.slice(0, 8)); // Limit to 8 for featured view
+        this.isLoading.set(false);
+        this.refreshAnimations();
+      });
+  }
+
+  onSearch() {
+    if (this.searchTerm().trim()) {
+      this.router.navigate(['/search'], {
+        queryParams: { search: this.searchTerm() },
+      });
+    }
+  }
+
+  navigateToSearch() {
+    this.router.navigate(['/search']);
   }
 
   playSong(spec: Spec) {
@@ -140,45 +107,5 @@ export class LabSectionComponent implements OnInit, AfterViewInit {
         );
       });
     }, 100);
-  }
-
-  toggleFilterPanel() {
-    this.showFilters.update((v) => !v);
-  }
-
-  toggleGenre(genre: string) {
-    this.filters.genre.update((current) => {
-      if (current.includes(genre)) {
-        return current.filter((g) => g !== genre);
-      } else {
-        return [...current, genre];
-      }
-    });
-  }
-
-  updateBpm(event: Event, index: 0 | 1) {
-    const val = Number((event.target as HTMLInputElement).value);
-    this.filters.bpmRange.update((current) => {
-      const newRange = [...current] as [number, number];
-      newRange[index] = val;
-      return newRange;
-    });
-  }
-
-  updatePrice(event: Event, index: 0 | 1) {
-    const val = Number((event.target as HTMLInputElement).value);
-    this.filters.priceRange.update((current) => {
-      const newRange = [...current] as [number, number];
-      newRange[index] = val;
-      return newRange;
-    });
-  }
-
-  clearFilters() {
-    this.filters.genre.set([]);
-    this.filters.bpmRange.set([60, 200]);
-    this.filters.priceRange.set([0, 100]);
-    this.filters.key.set('All');
-    this.searchTerm.set('');
   }
 }

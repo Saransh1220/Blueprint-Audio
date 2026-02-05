@@ -113,8 +113,8 @@
         }
 
         &::placeholder {
-          color: var(--line-color);
-          opacity: 0.6;
+          color: var(--text-color);
+          opacity: 0.5;
         }
       }
 
@@ -500,6 +500,10 @@
     );
   }
 }
+
+/* DASHBOARD TABS & UPLOAD SECTION REMOVED */
+
+// End dashboard-container
 
 @media (max-width: 900px) {
   .dashboard-container {
