@@ -10,6 +10,8 @@ import { SettingsComponent } from './pages/settings/settings.component';
 import { SpecDetailsComponent } from './pages/spec-details/spec-details.component';
 import { PurchasesComponent } from './pages/purchases/purchases.component';
 import { UploadComponent } from './pages/upload/upload.component';
+import { ProfileComponent } from './pages/profile/profile.component';
+import { StoreComponent } from './pages/store/store.component';
 
 export const routes: Routes = [
   { path: '', component: HomeComponent },
@@ -21,6 +23,8 @@ export const routes: Routes = [
   { path: 'dashboard', component: DashboardComponent, canActivate: [authGuard] },
   { path: 'upload', component: UploadComponent, canActivate: [authGuard] },
   { path: 'purchases', component: PurchasesComponent, canActivate: [authGuard] },
+  { path: 'profile', component: ProfileComponent, canActivate: [authGuard] },
+  { path: 'store/:id', component: StoreComponent },
   { path: 'settings', component: SettingsComponent },
   { path: '**', redirectTo: '' },
 ];

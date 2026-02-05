@@ -79,3 +79,47 @@ export class CreateSpecRequest implements ApiRequest<SpecDto> {
     this.body = body;
   }
 }
+
+export interface SpecResponse extends SpecDto {}
+
+export interface UpdateSpecDto {
+  title?: string;
+  category?: string;
+  type?: string;
+  bpm?: number;
+  key?: string;
+  base_price?: number;
+  tags?: string[];
+}
+
+export class GetUserSpecsRequest implements ApiRequest<PaginatedResponse<SpecDto>> {
+  readonly method: HttpMethod = 'GET';
+  readonly path: string;
+  readonly _responseType?: PaginatedResponse<SpecDto>;
+
+  constructor(userId: string, page: number = 1) {
+    this.path = `/users/${userId}/specs?page=${page}`;
+  }
+}
+
+export class UpdateSpecRequest implements ApiRequest<SpecDto> {
+  readonly method: HttpMethod = 'PATCH';
+  readonly path: string;
+  readonly body: UpdateSpecDto;
+  readonly _responseType?: SpecDto;
+
+  constructor(specId: string, data: UpdateSpecDto) {
+    this.path = `/specs/${specId}`;
+    this.body = data;
+  }
+}
+
+export class DeleteSpecRequest implements ApiRequest<void> {
+  readonly method: HttpMethod = 'DELETE';
+  readonly path: string;
+  readonly _responseType?: void;
+
+  constructor(specId: string) {
+    this.path = `/specs/${specId}`;
+  }
+}

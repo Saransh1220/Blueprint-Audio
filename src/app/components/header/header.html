@@ -60,6 +60,16 @@
 
           @if (isUserMenuOpen) {
             <div class="dropdown-menu">
+              <a routerLink="/profile" (click)="closeUserMenu()" class="menu-item">
+                <i class="fas fa-user"></i> PROFILE
+              </a>
+              <a
+                [routerLink]="['/store', authService.currentUser()?.id]"
+                (click)="closeUserMenu()"
+                class="menu-item"
+              >
+                <i class="fas fa-store"></i> MY STORE
+              </a>
               <a routerLink="/settings" (click)="closeUserMenu()" class="menu-item">
                 <i class="fas fa-cog"></i> SETTINGS
               </a>
@@ -123,6 +133,13 @@
     <a routerLink="/settings" routerLinkActive="active" (click)="closeMobileMenu()">SETTINGS</a>
     @if (authService.currentUser()) {
       <a routerLink="/dashboard" routerLinkActive="active" (click)="closeMobileMenu()">DASHBOARD</a>
+      <a routerLink="/profile" routerLinkActive="active" (click)="closeMobileMenu()">PROFILE</a>
+      <a
+        [routerLink]="['/store', authService.currentUser()?.id]"
+        routerLinkActive="active"
+        (click)="closeMobileMenu()"
+        >MY STORE</a
+      >
       <a routerLink="/purchases" routerLinkActive="active" (click)="closeMobileMenu()"
         >MY PURCHASES</a
       >

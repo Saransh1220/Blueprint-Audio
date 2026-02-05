@@ -1,5 +1,5 @@
 import { ApiRequest, HttpMethod } from './api-request';
-import { User } from '../../services/auth.service';
+import { UserApiResponse } from '../../models';
 
 interface LoginResponse {
   token: string;
@@ -12,15 +12,15 @@ export class LoginRequest implements ApiRequest<LoginResponse> {
   constructor(public body: any) {}
 }
 
-export class RegisterRequest implements ApiRequest<User> {
+export class RegisterRequest implements ApiRequest<UserApiResponse> {
   readonly path = '/register';
   readonly method: HttpMethod = 'POST';
-  readonly _responseType?: User;
+  readonly _responseType?: UserApiResponse;
   constructor(public body: any) {}
 }
 
-export class GetMeRequest implements ApiRequest<User> {
+export class GetMeRequest implements ApiRequest<UserApiResponse> {
   readonly path = '/me';
   readonly method: HttpMethod = 'GET';
-  readonly _responseType?: User;
+  readonly _responseType?: UserApiResponse;
 }

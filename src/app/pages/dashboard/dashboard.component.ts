@@ -8,7 +8,8 @@ import {
   effect,
 } from '@angular/core';
 import { SpecRowComponent } from '../../components';
-import { AuthService, type User, LabService } from '../../services';
+import { AuthService, LabService } from '../../services';
+import { User } from '../../models';
 
 @Component({
   selector: 'app-dashboard',
