@@ -3,7 +3,7 @@
   <div class="item-visual" (click)="playSong($event)">
     <img [src]="spec.imageUrl" [alt]="spec.title" loading="lazy" />
     <div class="play-overlay">
-      <i class="fas fa-play"></i>
+      <i [class]="isCurrentlyPlaying() ? 'fas fa-pause' : 'fas fa-play'"></i>
     </div>
     <div class="equalizer-bars"><span></span><span></span><span></span><span></span></div>
   </div>

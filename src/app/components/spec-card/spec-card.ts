@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, Input, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, Input, inject, computed } from '@angular/core';
 import { Router } from '@angular/router';
 
 import type { Spec } from '../../models';
@@ -19,9 +19,24 @@ export class SpecCardComponent {
   modalService = inject(ModalService);
   router = inject(Router);
 
+  // Computed: Check if this spec is currently playing
+  isCurrentlyPlaying = computed(() => {
+    const currentTrack = this.playerService.currentTrack();
+    const isPlaying = this.playerService.isPlaying();
+    return currentTrack?.id === this.spec.id && isPlaying;
+  });
+
   playSong(event: MouseEvent) {
     event.stopPropagation();
-    this.playerService.showPlayer(this.spec);
+    const currentTrack = this.playerService.currentTrack();
+
+    // If this track is already loaded, toggle play/pause
+    if (currentTrack?.id === this.spec.id) {
+      this.playerService.togglePlay();
+    } else {
+      // Load and play new track
+      this.playerService.showPlayer(this.spec);
+    }
   }
 
   addToCart(event: MouseEvent) {

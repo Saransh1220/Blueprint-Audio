@@ -3,7 +3,7 @@
     <img [src]="imageUrl" class="card-img" alt="{{ spec.title }} Cover" />
     <div class="overlay-gradient"></div>
     <div class="play-btn-neon" (click)="playSong($event)">
-      <i class="fa-solid fa-play"></i>
+      <i [class]="isCurrentlyPlaying() ? 'fa-solid fa-pause' : 'fa-solid fa-play'"></i>
     </div>
   </div>
 
