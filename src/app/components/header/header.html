@@ -35,7 +35,7 @@
     </div>
 
     <div class="header-actions">
-      @if (authService.currentUser()?.role === 'producer') {
+      @if (authService.currentUser()?.role === Role.PRODUCER) {
         <a routerLink="/upload" class="upload-btn-cta">
           <i class="fas fa-cloud-upload-alt"></i> <span>UPLOAD</span>
         </a>
@@ -55,7 +55,16 @@
             (click)="toggleUserMenu()"
             [class.active]="isUserMenuOpen"
           >
-            <i class="fas fa-user-circle"></i>
+            @if (authService.currentUser()?.avatar_url) {
+              <div
+                class="user-avatar"
+                [style.background-image]="'url(' + authService.currentUser()?.avatar_url + ')'"
+              ></div>
+            } @else {
+              <div class="user-avatar-fallback">
+                {{ authService.currentUser()?.name?.charAt(0) || 'U' }}
+              </div>
+            }
           </button>
 
           @if (isUserMenuOpen) {

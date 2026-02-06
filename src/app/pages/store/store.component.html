@@ -11,7 +11,11 @@
   @if (profile(); as user) {
     <div class="user-info-card">
       <div class="user-header">
-        <div class="user-avatar">{{ user.name.charAt(0) || 'U' }}</div>
+        @if (user.avatar_url) {
+          <div class="user-avatar" [style.background-image]="'url(' + user.avatar_url + ')'"></div>
+        } @else {
+          <div class="user-avatar">{{ user.name.charAt(0) || 'U' }}</div>
+        }
 
         <div class="user-meta-inline">
           <h2>{{ user.name }}</h2>

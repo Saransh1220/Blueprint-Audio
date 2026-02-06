@@ -9,7 +9,7 @@ import {
 } from '@angular/core';
 import { SpecRowComponent } from '../../components';
 import { AuthService, LabService } from '../../services';
-import { User } from '../../models';
+import { User, Role } from '../../models';
 
 @Component({
   selector: 'app-dashboard',
@@ -22,6 +22,8 @@ import { User } from '../../models';
 export class DashboardComponent implements OnInit {
   private authService = inject(AuthService);
   private labService = inject(LabService);
+
+  readonly Role = Role;
 
   currentUser = signal<User | null>(null);
   currentDate = signal<Date>(new Date());

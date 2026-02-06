@@ -20,7 +20,7 @@
 
   <div class="dashboard-content container">
     <!-- QUICK STATS -->
-    @if (currentUser()?.role === 'producer') {
+    @if (currentUser()?.role === Role.PRODUCER) {
       <section class="stats-section">
         @for (stat of stats(); track stat.label) {
           <div class="stat-card">

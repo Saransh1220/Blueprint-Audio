@@ -8,11 +8,13 @@ export class UserAdapter {
       email: apiResponse.email,
       name: apiResponse.name,
       role: apiResponse.role,
-      bio: apiResponse.bio,
-      instagram_url: apiResponse.instagram_url,
-      twitter_url: apiResponse.twitter_url,
-      youtube_url: apiResponse.youtube_url,
-      spotify_url: apiResponse.spotify_url,
+      bio: apiResponse.bio || null,
+      avatar_url: apiResponse.avatar_url || null,
+      instagram_url: apiResponse.instagram_url || null,
+      twitter_url: apiResponse.twitter_url || null,
+      youtube_url: apiResponse.youtube_url || null,
+      spotify_url: apiResponse.spotify_url || null,
+      created_at: new Date().toISOString(), // Default to current date if not provided
     };
   }
 }
