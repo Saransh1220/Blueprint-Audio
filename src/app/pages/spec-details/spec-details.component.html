@@ -7,11 +7,7 @@
         <div class="artwork-box">
           <img [src]="s.imageUrl" [alt]="s.title" class="artwork" />
           <div class="waveform-overlay">
-            <div
-              class="bar"
-              *ngFor="let i of [].constructor(24)"
-              [style.height.%]="20 + ((i * 13) % 80)"
-            ></div>
+            <div class="bar" *ngFor="let i of [].constructor(24)" [style.height.%]="20 + ((i * 13) % 80)"></div>
           </div>
           <button class="play-fab" (click)="playSpec()">
             <i class="fas fa-play"></i>
@@ -31,9 +27,27 @@
         <div class="meta-row">
           <span class="badge">{{ s.bpm }} BPM</span>
           <span class="badge">{{ s.key }}</span>
+          @if (s.duration) {
+          <span class="badge">{{ formatDuration(s.duration) }}</span>
+          }
           <!-- Genres -->
           <span class="badge genre" *ngFor="let g of s.genres">{{ g.name }}</span>
         </div>
+
+        <!-- Analytics Row -->
+        @if (s.analytics) {
+        <div class="analytics-row">
+          <span class="stat" title="Total Plays">
+            <i class="fas fa-play"></i> {{ s.analytics.playCount }}
+          </span>
+          <span class="stat" title="Favorites">
+            <i class="fas fa-heart"></i> {{ s.analytics.favoriteCount }}
+          </span>
+          @if (s.freeMp3Enabled) {
+          <span class="tag free-tag">FREE MP3</span>
+          }
+        </div>
+        }
 
         <!-- Tags -->
         <div class="tags-row">
@@ -44,11 +58,7 @@
       <!-- Purchase Section -->
       <div class="purchase-section">
         <div class="license-selector">
-          <div
-            class="license-option"
-            *ngFor="let license of s.licenses"
-            (click)="openLicenseModal()"
-          >
+          <div class="license-option" *ngFor="let license of s.licenses" (click)="openLicenseModal()">
             <div class="opt-left">
               <span class="opt-name">{{ license.name }}</span>
               <span class="opt-type">{{ license.type }}</span>
@@ -57,10 +67,23 @@
           </div>
         </div>
 
-        <button class="btn-add-cart" (click)="openLicenseModal()">
-          <span class="label">Add to Cart</span>
-          <span class="price-tag">${{ s.price }}+</span>
-        </button>
+        <div class="action-row">
+          <button class="btn-add-cart" (click)="openLicenseModal()">
+            <span class="label">Add to Cart</span>
+            <span class="price-tag">${{ s.price }}+</span>
+          </button>
+
+          <button class="btn-icon fav-btn" [class.active]="s.analytics?.isFavorited" (click)="toggleFavorite()"
+            [disabled]="isFavoriting()">
+            <i [class]="s.analytics?.isFavorited ? 'fas fa-heart' : 'far fa-heart'"></i>
+          </button>
+
+          @if (s.freeMp3Enabled) {
+          <button class="btn-icon download-btn" (click)="downloadFreeMp3()" title="Download Free MP3">
+            <i class="fas fa-download"></i>
+          </button>
+          }
+        </div>
       </div>
     </aside>
 

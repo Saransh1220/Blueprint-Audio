@@ -1,4 +1,5 @@
 import { CommonModule } from '@angular/common';
+import { RouterLink } from '@angular/router';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -8,13 +9,13 @@ import {
   effect,
 } from '@angular/core';
 import { SpecRowComponent } from '../../components';
-import { AuthService, LabService } from '../../services';
+import { AuthService, LabService, AnalyticsService } from '../../services';
 import { User, Role } from '../../models';
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, SpecRowComponent],
+  imports: [CommonModule, SpecRowComponent, RouterLink],
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -22,6 +23,7 @@ import { User, Role } from '../../models';
 export class DashboardComponent implements OnInit {
   private authService = inject(AuthService);
   private labService = inject(LabService);
+  private analyticsService = inject(AnalyticsService);
 
   readonly Role = Role;
 
@@ -56,7 +58,35 @@ export class DashboardComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.currentUser.set(this.authService.currentUser());
+    const user = this.authService.currentUser();
+    this.currentUser.set(user);
+
+    if (user?.role === Role.PRODUCER) {
+      this.loadAnalytics();
+    }
+  }
+
+  loadAnalytics() {
+    this.analyticsService.getOverview().subscribe({
+      next: (data) => {
+        this.stats.set([
+          { label: 'Total Plays', value: data.total_plays.toLocaleString(), icon: 'fas fa-play', trend: 'Lifetime' },
+          { label: 'Revenue', value: '₹' + data.total_revenue.toLocaleString(), icon: 'fas fa-rupee-sign', trend: 'Lifetime' },
+          { label: 'Downloads', value: data.total_downloads.toLocaleString(), icon: 'fas fa-download', trend: 'Lifetime' },
+          { label: 'Favorites', value: data.total_favorites.toLocaleString(), icon: 'fas fa-heart', trend: 'Lifetime' },
+        ]);
+      },
+      error: (err) => {
+        console.error('Dashboard analytics error', err);
+        // Fallback to zeros if API fails (e.g. backend not updated yet)
+        this.stats.set([
+          { label: 'Total Plays', value: '0', icon: 'fas fa-play', trend: 'No Data' },
+          { label: 'Revenue', value: '₹0', icon: 'fas fa-rupee-sign', trend: 'No Data' },
+          { label: 'Downloads', value: '0', icon: 'fas fa-download', trend: 'No Data' },
+          { label: 'Favorites', value: '0', icon: 'fas fa-heart', trend: 'No Data' },
+        ]);
+      }
+    });
   }
 
   // --- Overview Logic ---
@@ -90,9 +120,10 @@ export class DashboardComponent implements OnInit {
   }
 
   stats = signal([
-    { label: 'Total Plays', value: '12.5K', icon: 'fas fa-play', trend: '+12%' },
-    { label: 'Revenue', value: '₹2,450', icon: 'fas fa-rupee-sign', trend: '+8%' },
-    { label: 'Followers', value: '850', icon: 'fas fa-user-friends', trend: '+24%' },
+    { label: 'Total Plays', value: '-', icon: 'fas fa-play', trend: 'Loading...' },
+    { label: 'Revenue', value: '-', icon: 'fas fa-dollar-sign', trend: 'Loading...' },
+    { label: 'Downloads', value: '-', icon: 'fas fa-download', trend: 'Loading...' },
+    { label: 'Favorites', value: '-', icon: 'fas fa-heart', trend: 'Loading...' },
   ]);
 
   spotlight = signal({

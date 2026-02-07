@@ -1,0 +1,273 @@
+@use '../../styles/variables' as *;
+
+.analytics-container {
+    padding: 2rem;
+    max-width: 1400px;
+    margin: 0 auto;
+    min-height: 100vh;
+    padding-top: 100px; // account for navbar
+    color: var(--text-color);
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+
+    h1 {
+        font-family: $font-head;
+        font-size: 2.5rem;
+        background: linear-gradient(135deg, #fff 0%, #ccc 100%);
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    .controls {
+        display: flex;
+        gap: 1rem;
+
+        .time-selector {
+            padding: 0.5rem 1rem;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid var(--line-color);
+            border-radius: 8px;
+            color: var(--text-color);
+            font-family: $font-tech;
+            cursor: pointer;
+            outline: none;
+
+            option {
+                background: #0f0a15;
+            }
+        }
+
+        .btn-export {
+            padding: 0.5rem 1.5rem;
+            background: var(--brand-color);
+            border: none;
+            border-radius: 8px;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+
+            &:hover {
+                background: darken(#ef4444, 10%);
+                transform: translateY(-2px);
+            }
+        }
+    }
+}
+
+.loading-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 400px;
+    gap: 1rem;
+
+    .spinner {
+        width: 40px;
+        height: 40px;
+        border: 3px solid rgba(255, 255, 255, 0.1);
+        border-top-color: var(--brand-color);
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+    }
+}
+
+// Stats Grid
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+
+    .stat-card {
+        background: rgba(var(--card-bg-color-rgb), 0.4);
+        backdrop-filter: blur(12px);
+        border: 1px solid var(--line-color);
+        border-radius: 16px;
+        padding: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+        transition: transform 0.2s ease;
+
+        &:hover {
+            transform: translateY(-4px);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+
+            &.red {
+                background: rgba(239, 68, 68, 0.2);
+                color: #ef4444;
+            }
+
+            &.blue {
+                background: rgba(59, 130, 246, 0.2);
+                color: #3b82f6;
+            }
+
+            &.green {
+                background: rgba(16, 185, 129, 0.2);
+                color: #10b981;
+            }
+
+            &.purple {
+                background: rgba(139, 92, 246, 0.2);
+                color: #8b5cf6;
+            }
+        }
+
+        .details {
+            display: flex;
+            flex-direction: column;
+
+            .label {
+                font-size: 0.85rem;
+                color: rgba(255, 255, 255, 0.6);
+                font-family: $font-tech;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+            }
+
+            .value {
+                font-size: 1.75rem;
+                font-weight: 700;
+                font-family: $font-head;
+            }
+        }
+    }
+}
+
+// Charts Section
+.charts-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+
+    @media (max-width: 1024px) {
+        grid-template-columns: 1fr;
+    }
+
+    .chart-card {
+        background: rgba(var(--card-bg-color-rgb), 0.4);
+        backdrop-filter: blur(12px);
+        border: 1px solid var(--line-color);
+        border-radius: 16px;
+        padding: 1.5rem;
+        min-height: 400px;
+        display: flex;
+        flex-direction: column;
+
+        h3 {
+            font-size: 1.25rem;
+            margin-bottom: 1.5rem;
+            font-family: $font-tech;
+        }
+
+        .chart-container {
+            flex: 1;
+            position: relative;
+            width: 100%;
+            height: 100%;
+            min-height: 300px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .empty-chart {
+            color: rgba(255, 255, 255, 0.4);
+            font-style: italic;
+        }
+    }
+}
+
+// Table Section
+.table-section {
+    background: rgba(var(--card-bg-color-rgb), 0.4);
+    backdrop-filter: blur(12px);
+    border: 1px solid var(--line-color);
+    border-radius: 16px;
+    padding: 1.5rem;
+
+    h3 {
+        font-size: 1.25rem;
+        margin-bottom: 1.5rem;
+        font-family: $font-tech;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+
+        th {
+            text-align: left;
+            padding: 1rem;
+            font-family: $font-tech;
+            color: rgba(255, 255, 255, 0.6);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        td {
+            padding: 1rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+
+            &:first-child {
+                font-weight: 600;
+                color: white;
+            }
+        }
+
+        .progress-bar {
+            width: 100px;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 3px;
+            overflow: hidden;
+
+            .fill {
+                height: 100%;
+                background: var(--brand-color);
+                border-radius: 3px;
+            }
+        }
+    }
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.fade-in {
+    animation: fadeIn 0.5s ease-out forwards;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}

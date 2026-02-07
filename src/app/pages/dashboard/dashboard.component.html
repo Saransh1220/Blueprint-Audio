@@ -21,20 +21,29 @@
   <div class="dashboard-content container">
     <!-- QUICK STATS -->
     @if (currentUser()?.role === Role.PRODUCER) {
-      <section class="stats-section">
-        @for (stat of stats(); track stat.label) {
-          <div class="stat-card">
-            <div class="stat-header">
-              <span class="stat-label">{{ stat.label }}</span>
-              <i [class]="stat.icon"></i>
-            </div>
-            <div class="stat-body">
-              <span class="stat-value">{{ stat.value }}</span>
-              <span class="stat-trend">{{ stat.trend }}</span>
-            </div>
-          </div>
-        }
-      </section>
+    <div class="section-header"
+      style="margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center;">
+      <h2 style="font-family: 'Space Grotesk', sans-serif; font-size: 1.5rem; color: var(--text-color);">Quick Stats
+      </h2>
+      <a routerLink="/analytics" class="btn-text"
+        style="color: var(--brand-color); text-decoration: none; font-weight: 600; display: flex; align-items: center; gap: 8px;">
+        View Full Analytics <i class="fas fa-arrow-right"></i>
+      </a>
+    </div>
+    <section class="stats-section">
+      @for (stat of stats(); track stat.label) {
+      <div class="stat-card">
+        <div class="stat-header">
+          <span class="stat-label">{{ stat.label }}</span>
+          <i [class]="stat.icon"></i>
+        </div>
+        <div class="stat-body">
+          <span class="stat-value">{{ stat.value }}</span>
+          <span class="stat-trend">{{ stat.trend }}</span>
+        </div>
+      </div>
+      }
+    </section>
     }
 
     <div class="modern-divider"></div>
@@ -82,18 +91,14 @@
       </div>
       <div class="genre-grid">
         @for (genre of genres(); track genre) {
-          <div
-            class="genre-tile"
-            [class.active]="selectedGenres().includes(genre)"
-            (click)="toggleGenre(genre)"
-            [style.background-image]="'url(' + getGenreImage(genre) + ')'"
-          >
-            <div class="overlay"></div>
-            <span class="genre-name">{{ genre }}</span>
-            @if (selectedGenres().includes(genre)) {
-              <div class="check-mark"><i class="fas fa-check"></i></div>
-            }
-          </div>
+        <div class="genre-tile" [class.active]="selectedGenres().includes(genre)" (click)="toggleGenre(genre)"
+          [style.background-image]="'url(' + getGenreImage(genre) + ')'">
+          <div class="overlay"></div>
+          <span class="genre-name">{{ genre }}</span>
+          @if (selectedGenres().includes(genre)) {
+          <div class="check-mark"><i class="fas fa-check"></i></div>
+          }
+        </div>
         }
       </div>
     </section>

@@ -1,6 +1,22 @@
 import { HttpParams } from '@angular/common/http';
 import { ApiRequest, HttpMethod } from './api-request';
 
+export interface PublicAnalyticsDto {
+  play_count: number;
+  favorite_count: number;
+  total_download_count: number;
+  is_favorited?: boolean;
+}
+
+export interface ProducerAnalyticsDto {
+  play_count: number;
+  favorite_count: number;
+  total_download_count: number;
+  total_purchase_count: number;
+  purchases_by_license: Record<string, number>;
+  total_revenue: number;
+}
+
 export interface SpecDto {
   id: string;
   producer_id: string;
@@ -14,11 +30,14 @@ export interface SpecDto {
   wav_url?: string;
   stems_url?: string;
   price: number;
+  duration?: number;
+  free_mp3_enabled?: boolean;
   created_at: string;
   updated_at: string;
   tags?: string[];
   genres?: GenreDto[];
   licenses?: LicenseDto[];
+  analytics?: PublicAnalyticsDto;
 }
 
 export interface GenreDto {
@@ -27,7 +46,7 @@ export interface GenreDto {
   slug: string;
 }
 
-export interface LicenseDto {}
+export interface LicenseDto { }
 
 export interface LicenseDto {
   id: string;
@@ -102,7 +121,7 @@ export class CreateSpecRequest implements ApiRequest<SpecDto> {
   }
 }
 
-export interface SpecResponse extends SpecDto {}
+export interface SpecResponse extends SpecDto { }
 
 export interface UpdateSpecDto {
   title?: string;

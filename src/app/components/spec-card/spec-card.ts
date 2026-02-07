@@ -1,14 +1,15 @@
-import { ChangeDetectionStrategy, Component, Input, inject, computed } from '@angular/core';
+import { ChangeDetectionStrategy, Component, Input, inject, computed, signal } from '@angular/core';
 import { Router } from '@angular/router';
+import { CommonModule } from '@angular/common';
 
 import type { Spec } from '../../models';
 import { ModalService, PlayerService } from '../../services';
+import { AnalyticsService } from '../../services/analytics.service';
 import { LicenseSelectorComponent } from '../license-selector/license-selector.component';
 
 @Component({
   selector: 'app-spec-card',
-  standalone: true,
-  imports: [],
+  imports: [CommonModule],
   templateUrl: './spec-card.html',
   styleUrls: ['./spec-card.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -18,6 +19,10 @@ export class SpecCardComponent {
   playerService = inject(PlayerService);
   modalService = inject(ModalService);
   router = inject(Router);
+  analyticsService = inject(AnalyticsService);
+
+  // Local state for favorite
+  isFavoriting = signal(false);
 
   // Computed: Check if this spec is currently playing
   isCurrentlyPlaying = computed(() => {
@@ -36,6 +41,10 @@ export class SpecCardComponent {
     } else {
       // Load and play new track
       this.playerService.showPlayer(this.spec);
+      // Track the play event
+      this.analyticsService.trackPlay(this.spec.id).subscribe({
+        error: (err) => console.error('Failed to track play:', err),
+      });
     }
   }
 
@@ -53,7 +62,47 @@ export class SpecCardComponent {
     this.router.navigate(['/beats', id]);
   }
 
+  toggleFavorite(event: MouseEvent) {
+    event.stopPropagation();
+    if (this.isFavoriting()) return;
+
+    this.isFavoriting.set(true);
+    this.analyticsService.toggleFavorite(this.spec.id).subscribe({
+      next: (response) => {
+        // Update the spec's analytics
+        if (this.spec.analytics) {
+          this.spec.analytics.isFavorited = response.favorited;
+          this.spec.analytics.favoriteCount = response.total_count;
+        }
+        this.isFavoriting.set(false);
+      },
+      error: (err) => {
+        console.error('Failed to toggle favorite:', err);
+        this.isFavoriting.set(false);
+      },
+    });
+  }
+
+  downloadFreeMp3(event: MouseEvent) {
+    event.stopPropagation();
+    this.analyticsService.downloadFreeMp3(this.spec.id).subscribe({
+      next: (response) => {
+        // Open download URL in new tab
+        window.open(response.download_url, '_blank');
+      },
+      error: (err) => {
+        console.error('Failed to download free MP3:', err);
+      },
+    });
+  }
+
   get imageUrl(): string {
     return this.spec.imageUrl || 'assets/images/placeholder.jpg';
+  }
+
+  formatDuration(seconds: number): string {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
   }
 }
