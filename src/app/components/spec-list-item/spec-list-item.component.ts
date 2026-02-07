@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, Input, inject, computed, signal } from '@angular/core';
 import { Router } from '@angular/router';
-import { CommonModule } from '@angular/common';
+import { CommonModule, NgOptimizedImage } from '@angular/common';
 
 import type { Spec } from '../../models';
 import { ModalService, PlayerService, AnalyticsService } from '../../services';
@@ -8,7 +8,7 @@ import { LicenseSelectorComponent } from '../license-selector/license-selector.c
 
 @Component({
   selector: 'app-spec-list-item',
-  imports: [CommonModule],
+  imports: [CommonModule, NgOptimizedImage],
   templateUrl: './spec-list-item.component.html',
   styleUrls: ['./spec-list-item.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -22,6 +22,7 @@ export class SpecListItemComponent {
   isFavoriting = signal(false);
 
   @Input({ required: true }) spec!: Spec;
+  @Input() priority = false;
 
   // Computed: Check if this spec is currently playing
   isCurrentlyPlaying = computed(() => {

@@ -1,3 +1,4 @@
+@use 'sass:color';
 @use '../../styles/variables' as *;
 
 .analytics-container {
@@ -54,7 +55,7 @@
       transition: all 0.2s ease;
 
       &:hover {
-        background: darken(#ef4444, 10%);
+        background: color.adjust(#ef4444, $lightness: -10%);
         transform: translateY(-2px);
       }
     }

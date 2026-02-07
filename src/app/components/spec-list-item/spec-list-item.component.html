@@ -1,7 +1,7 @@
 <div class="spec-item" (click)="openDetails()">
   <!-- Left Section: Image & Play -->
   <div class="item-visual" (click)="playSong($event)">
-    <img [src]="spec.imageUrl" [alt]="spec.title" loading="lazy" />
+    <img [ngSrc]="spec.imageUrl" [alt]="spec.title" fill [priority]="priority" />
     <div class="play-overlay">
       <i [class]="isCurrentlyPlaying() ? 'fas fa-pause' : 'fas fa-play'"></i>
     </div>

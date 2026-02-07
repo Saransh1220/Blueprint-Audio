@@ -35,6 +35,7 @@ export interface SpecDto {
   created_at: string;
   updated_at: string;
   tags?: string[];
+  description?: string;
   genres?: GenreDto[];
   licenses?: LicenseDto[];
   analytics?: PublicAnalyticsDto;
@@ -146,12 +147,12 @@ export class GetUserSpecsRequest implements ApiRequest<PaginatedResponse<SpecDto
 export class UpdateSpecRequest implements ApiRequest<SpecDto> {
   readonly method: HttpMethod = 'PATCH';
   readonly path: string;
-  readonly body: UpdateSpecDto;
+  readonly body: UpdateSpecDto | FormData;
   readonly _responseType?: SpecDto;
 
-  constructor(specId: string, data: UpdateSpecDto) {
+  constructor(specId: string, body: UpdateSpecDto | FormData) {
     this.path = `/specs/${specId}`;
-    this.body = data;
+    this.body = body;
   }
 }
 

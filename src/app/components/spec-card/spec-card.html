@@ -1,6 +1,12 @@
 <div class="spec-card" (click)="openDetails()">
   <div class="spec-img-box">
-    <img [src]="imageUrl" class="card-img" alt="{{ spec.title }} Cover" />
+    <img
+      [ngSrc]="imageUrl"
+      fill
+      [priority]="priority"
+      class="card-img"
+      alt="{{ spec.title }} Cover"
+    />
     <div class="overlay-gradient"></div>
 
     <div class="play-btn-neon" (click)="playSong($event)">

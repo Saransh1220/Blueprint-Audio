@@ -2,6 +2,8 @@ import { ChangeDetectionStrategy, Component, Input, inject, computed, signal } f
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 
+import { NgOptimizedImage } from '@angular/common';
+
 import type { Spec } from '../../models';
 import { ModalService, PlayerService } from '../../services';
 import { AnalyticsService } from '../../services/analytics.service';
@@ -9,13 +11,14 @@ import { LicenseSelectorComponent } from '../license-selector/license-selector.c
 
 @Component({
   selector: 'app-spec-card',
-  imports: [CommonModule],
+  imports: [CommonModule, NgOptimizedImage],
   templateUrl: './spec-card.html',
   styleUrls: ['./spec-card.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SpecCardComponent {
   @Input() spec!: Spec;
+  @Input() priority = false;
   playerService = inject(PlayerService);
   modalService = inject(ModalService);
   router = inject(Router);

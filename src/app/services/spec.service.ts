@@ -20,7 +20,7 @@ export class SpecService {
     return this.api.execute(new GetUserSpecsRequest(userId, page));
   }
 
-  updateSpec(specId: string, data: UpdateSpecDto): Observable<SpecDto> {
+  updateSpec(specId: string, data: UpdateSpecDto | FormData): Observable<SpecDto> {
     return this.api.execute(new UpdateSpecRequest(specId, data));
   }
 

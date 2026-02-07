@@ -1,69 +1,123 @@
 @if (isOpen()) {
   <div class="modal-overlay" (click)="close()">
-    <div class="modal-content" (click)="$event.stopPropagation()">
+    <div class="glass-modal" (click)="$event.stopPropagation()">
       <div class="modal-header">
-        <h2>Edit Spec</h2>
-        <button class="btn-close" (click)="close()">&times;</button>
+        <h2>Refine Your Sound</h2>
+        <button class="btn-close" (click)="close()">
+          <i class="fas fa-times"></i>
+        </button>
       </div>
 
-      <form [formGroup]="editForm" class="modal-body">
-        <div class="form-group">
-          <label for="title">Title *</label>
-          <input id="title" type="text" formControlName="title" placeholder="Enter spec title" />
-          @if (editForm.get('title')?.invalid && editForm.get('title')?.touched) {
-            <small class="error">Title is required</small>
-          }
-        </div>
-
-        <div class="form-row">
-          <div class="form-group">
-            <label for="base_price">Price (₹) *</label>
-            <input
-              id="base_price"
-              type="number"
-              formControlName="base_price"
-              step="0.01"
-              min="0"
-              placeholder="29.99"
-            />
-            @if (editForm.get('base_price')?.invalid && editForm.get('base_price')?.touched) {
-              <small class="error">Valid price required</small>
+      <div class="modal-body">
+        <!-- Image Upload Section -->
+        <div class="image-upload-section">
+          <div class="image-preview" [class.has-image]="imagePreview()">
+            @if (imagePreview()) {
+              <img [ngSrc]="imagePreview()!" alt="Cover Preview" fill priority />
+            } @else {
+              <div class="placeholder-icon">
+                <i class="fas fa-image"></i>
+              </div>
             }
+            <div class="overlay">
+              <label for="cover-upload" class="upload-btn">
+                <i class="fas fa-camera"></i> Change Cover
+              </label>
+              <input
+                id="cover-upload"
+                type="file"
+                accept="image/*"
+                (change)="onFileSelected($event)"
+                hidden
+              />
+            </div>
+          </div>
+          <div class="upload-tip">
+            <small>Recommended: 1080x1080px (Square)</small>
+          </div>
+        </div>
+
+        <!-- Form Section -->
+        <form [formGroup]="editForm" class="spec-form">
+          <div class="form-group">
+            <label for="title">Title</label>
+            <input
+              id="title"
+              type="text"
+              formControlName="title"
+              placeholder="Enter track title"
+              class="glass-input"
+            />
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="base_price">Price (₹)</label>
+              <div class="input-with-icon">
+                <i class="fas fa-rupee-sign"></i>
+                <input
+                  id="base_price"
+                  type="number"
+                  formControlName="base_price"
+                  class="glass-input"
+                  placeholder="2999"
+                />
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="bpm">BPM</label>
+              <input
+                id="bpm"
+                type="number"
+                formControlName="bpm"
+                class="glass-input"
+                placeholder="140"
+              />
+            </div>
+
+            <div class="form-group">
+              <label for="key">Key</label>
+              <input
+                id="key"
+                type="text"
+                formControlName="key"
+                class="glass-input"
+                placeholder="Cm"
+              />
+            </div>
           </div>
 
           <div class="form-group">
-            <label for="bpm">BPM</label>
+            <label for="tags">Tags</label>
             <input
-              id="bpm"
-              type="number"
-              formControlName="bpm"
-              min="50"
-              max="300"
-              placeholder="140"
+              id="tags"
+              type="text"
+              formControlName="tags"
+              class="glass-input"
+              placeholder="trap, dark, hard"
             />
+            <small class="hint">Comma separated</small>
           </div>
-        </div>
 
-        <div class="form-group">
-          <label for="key">Key</label>
-          <input id="key" type="text" formControlName="key" placeholder="C Minor" />
-        </div>
-
-        <div class="form-group">
-          <label for="tags">Tags (comma separated)</label>
-          <input id="tags" type="text" formControlName="tags" placeholder="trap, dark, 808" />
-        </div>
-      </form>
+          <div class="form-group">
+            <label for="description">Description</label>
+            <textarea
+              id="description"
+              formControlName="description"
+              class="glass-input"
+              rows="3"
+              placeholder="Tell the story behind this beat..."
+            ></textarea>
+          </div>
+        </form>
+      </div>
 
       <div class="modal-footer">
-        <button class="btn btn-secondary" (click)="close()" [disabled]="isSaving()">Cancel</button>
-        <button
-          class="btn btn-primary"
-          (click)="save()"
-          [disabled]="isSaving() || editForm.invalid"
-        >
+        <button class="btn-text" (click)="close()" [disabled]="isSaving()">Cancel</button>
+        <button class="btn-neon" (click)="save()" [disabled]="isSaving() || editForm.invalid">
           @if (isSaving()) {
-            Saving...
+            <span class="spinner-sm"></span> Saving...
           } @else {
             Save Changes
           }
