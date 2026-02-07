@@ -4,6 +4,7 @@ import { BaseChartDirective } from 'ng2-charts';
 import { ChartConfiguration, ChartData, ChartType } from 'chart.js';
 import { AnalyticsService } from '../../services/analytics.service';
 import { AnalyticsOverviewDto, DailyStat, TopSpecStat } from '../../core/api/analytics.requests';
+import { CsvExportService } from '../../core/services/csv-export.service';
 
 @Component({
   selector: 'app-analytics',
@@ -19,6 +20,7 @@ export class AnalyticsComponent {
   isLoading = signal(true);
   error = signal<string | null>(null);
   data = signal<AnalyticsOverviewDto | null>(null);
+  currentDays = signal(30);
 
   // Chart Configs
   public lineChartType: ChartType = 'line';
@@ -64,9 +66,16 @@ export class AnalyticsComponent {
     this.loadData();
   }
 
+  onFilterChange(event: Event) {
+    const select = event.target as HTMLSelectElement;
+    const days = parseInt(select.value, 10);
+    this.currentDays.set(days);
+    this.loadData();
+  }
+
   loadData() {
     this.isLoading.set(true);
-    this.analyticsService.getOverview().subscribe({
+    this.analyticsService.getOverview(this.currentDays()).subscribe({
       next: (res) => {
         this.data.set(res);
         this.isLoading.set(false);
@@ -78,6 +87,14 @@ export class AnalyticsComponent {
         this.isLoading.set(false);
       },
     });
+  }
+
+  private csvService = inject(CsvExportService);
+
+  exportCSV() {
+    const data = this.data();
+    if (!data) return;
+    this.csvService.downloadAnalyticsCsv(data, this.currentDays());
   }
 
   updateCharts(data: AnalyticsOverviewDto) {

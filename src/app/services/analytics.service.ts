@@ -56,7 +56,7 @@ export class AnalyticsService {
   /**
    * Get aggregated analytics overview for the dashboard
    */
-  getOverview(range: string = '30d'): Observable<AnalyticsOverviewDto> {
-    return this.api.execute(new GetAnalyticsOverviewRequest(range));
+  getOverview(days: number = 30): Observable<AnalyticsOverviewDto> {
+    return this.api.execute(new GetAnalyticsOverviewRequest(days));
   }
 }

@@ -2,13 +2,13 @@
   <div class="header">
     <h1>Overview</h1>
     <div class="controls">
-      <select class="time-selector">
-        <option value="7d">Last 7 Days</option>
-        <option value="30d" selected>Last 30 Days</option>
-        <option value="90d">Last 3 Months</option>
-        <option value="year">This Year</option>
+      <select class="time-selector" (change)="onFilterChange($event)">
+        <option value="7">Last 7 Days</option>
+        <option value="30" selected>Last 30 Days</option>
+        <option value="90">Last 3 Months</option>
+        <option value="365">This Year</option>
       </select>
-      <button class="btn-export">Export CSV</button>
+      <button class="btn-export" (click)="exportCSV()">Export CSV</button>
     </div>
   </div>
 
@@ -35,10 +35,10 @@
         </div>
       </div>
       <div class="stat-card">
-        <div class="icon green"><i class="fas fa-dollar-sign"></i></div>
+        <div class="icon green"><i class="fas fa-rupee-sign"></i></div>
         <div class="details">
           <span class="label">Revenue</span>
-          <span class="value">{{ data()?.total_revenue | currency: 'USD' }}</span>
+          <span class="value">{{ data()?.total_revenue | currency: 'INR' }}</span>
         </div>
       </div>
       <div class="stat-card">

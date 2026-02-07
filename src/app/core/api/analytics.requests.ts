@@ -84,7 +84,7 @@ export class GetAnalyticsOverviewRequest implements ApiRequest<AnalyticsOverview
   readonly params: HttpParams;
   readonly _responseType?: AnalyticsOverviewDto;
 
-  constructor(range: string = '30d') {
-    this.params = new HttpParams().set('range', range);
+  constructor(days: number = 30) {
+    this.params = new HttpParams().set('days', days.toString());
   }
 }
