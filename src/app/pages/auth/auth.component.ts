@@ -118,8 +118,23 @@ export class AuthComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   onRegisterSubmit() {
-    if (this.registerPassword !== this.registerConfirmPassword && this.registerConfirmPassword) {
+    if (
+      !this.registerUsername ||
+      !this.registerEmail ||
+      !this.registerPassword ||
+      !this.registerConfirmPassword
+    ) {
+      this.toastService.show('Please fill in all fields', 'error');
+      return;
+    }
+
+    if (this.registerPassword !== this.registerConfirmPassword) {
       this.toastService.show('Passwords do not match', 'error');
+      return;
+    }
+
+    if (this.registerPassword.length < 8) {
+      this.toastService.show('Password must be at least 8 characters', 'error');
       return;
     }
 

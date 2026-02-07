@@ -168,22 +168,54 @@ export class UploadComponent implements OnInit {
   }
 
   private handleFile(file: File, type: 'cover' | 'preview' | 'wav' | 'stems') {
+    const limits = {
+      cover: { size: 5 * 1024 * 1024, label: '5MB' },
+      preview: { size: 30 * 1024 * 1024, label: '30MB' },
+      wav: { size: 300 * 1024 * 1024, label: '300MB' },
+      stems: { size: 1024 * 1024 * 1024, label: '1GB' },
+    };
+
+    if (file.size > limits[type].size) {
+      this.toastService.show(
+        `File too large. Max size for ${type} is ${limits[type].label}`,
+        'error',
+      );
+      return;
+    }
+
     switch (type) {
       case 'cover':
-        if (!file.type.startsWith('image/')) return;
+        if (!file.type.startsWith('image/')) {
+          this.toastService.show('Invalid file type. Please upload an image.', 'error');
+          return;
+        }
         this.coverFile.set(file);
         const reader = new FileReader();
         reader.onload = (e) => this.coverPreviewUrl.set(e.target?.result as string);
         reader.readAsDataURL(file);
         break;
       case 'preview':
-        if (!file.type.startsWith('audio/')) return;
+        if (!file.type.startsWith('audio/')) {
+          this.toastService.show('Invalid file type. Please upload an audio file.', 'error');
+          return;
+        }
         this.previewFile.set(file);
         break;
       case 'wav':
+        if (!file.name.toLowerCase().endsWith('.wav') && !file.type.includes('wav')) {
+          this.toastService.show('Invalid file type. Please upload a WAV file.', 'error');
+          return;
+        }
         this.wavFile.set(file);
         break;
       case 'stems':
+        if (
+          !file.name.toLowerCase().endsWith('.zip') &&
+          !file.name.toLowerCase().endsWith('.rar')
+        ) {
+          this.toastService.show('Invalid file type. Please upload a ZIP or RAR file.', 'error');
+          return;
+        }
         this.stemsFile.set(file);
         break;
     }
