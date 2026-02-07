@@ -6,9 +6,7 @@
       <i [class]="isCurrentlyPlaying() ? 'fas fa-pause' : 'fas fa-play'"></i>
     </div>
     @if (spec.analytics) {
-    <div class="img-analytics">
-      <i class="fas fa-play"></i> {{ spec.analytics.playCount }}
-    </div>
+      <div class="img-analytics"><i class="fas fa-play"></i> {{ spec.analytics.playCount }}</div>
     }
     <div class="equalizer-bars"><span></span><span></span><span></span><span></span></div>
   </div>
@@ -18,10 +16,10 @@
     <div class="content-header">
       <h3 class="item-title">{{ spec.title }}</h3>
       @if (spec.genres && spec.genres.length > 0) {
-      <span class="genre-badge">{{ spec.genres[0].name }}</span>
+        <span class="genre-badge">{{ spec.genres[0].name }}</span>
       }
       @if (spec.freeMp3Enabled) {
-      <span class="free-badge">FREE</span>
+        <span class="free-badge">FREE</span>
       }
     </div>
 
@@ -35,16 +33,16 @@
         <span>{{ spec.key }}</span>
       </div>
       @if (spec.duration) {
-      <div class="meta-pill">
-        <i class="fas fa-clock"></i>
-        <span>{{ formatDuration(spec.duration) }}</span>
-      </div>
+        <div class="meta-pill">
+          <i class="fas fa-clock"></i>
+          <span>{{ formatDuration(spec.duration) }}</span>
+        </div>
       }
       @if (spec.analytics) {
-      <div class="meta-pill glass-stat">
-        <i class="fas fa-heart"></i>
-        <span>{{ spec.analytics.favoriteCount }}</span>
-      </div>
+        <div class="meta-pill glass-stat">
+          <i class="fas fa-heart"></i>
+          <span>{{ spec.analytics.favoriteCount }}</span>
+        </div>
       }
     </div>
   </div>
@@ -52,7 +50,7 @@
   <!-- Tags Section (Hidden on mobile) -->
   <div class="item-tags">
     @for (tag of spec.tags.slice(0, 3); track tag) {
-    <span class="tag">#{{ tag }}</span>
+      <span class="tag">#{{ tag }}</span>
     }
   </div>
 
@@ -60,16 +58,24 @@
   <div class="item-actions">
     <div class="secondary-actions">
       <!-- Favorite Button -->
-      <button class="action-btn fav-btn" [class.active]="spec.analytics?.isFavorited" (click)="toggleFavorite($event)"
-        [disabled]="isFavoriting()">
+      <button
+        class="action-btn fav-btn"
+        [class.active]="spec.analytics?.isFavorited"
+        (click)="toggleFavorite($event)"
+        [disabled]="isFavoriting()"
+      >
         <i [class]="spec.analytics?.isFavorited ? 'fas fa-heart' : 'far fa-heart'"></i>
       </button>
 
       <!-- Free Download Button -->
       @if (spec.freeMp3Enabled) {
-      <button class="action-btn download-btn" (click)="downloadFreeMp3($event)" title="Download Free MP3">
-        <i class="fas fa-download"></i>
-      </button>
+        <button
+          class="action-btn download-btn"
+          (click)="downloadFreeMp3($event)"
+          title="Download Free MP3"
+        >
+          <i class="fas fa-download"></i>
+        </button>
       }
     </div>
 

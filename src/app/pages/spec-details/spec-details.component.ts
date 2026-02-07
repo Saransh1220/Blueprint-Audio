@@ -5,7 +5,13 @@ import { ActivatedRoute, RouterLink } from '@angular/router';
 import { switchMap } from 'rxjs/operators';
 import { HeaderComponent, LicenseSelectorComponent, SpecRowComponent } from '../../components';
 import { Spec } from '../../models';
-import { CartService, LabService, ModalService, PlayerService, AnalyticsService } from '../../services';
+import {
+  CartService,
+  LabService,
+  ModalService,
+  PlayerService,
+  AnalyticsService,
+} from '../../services';
 
 @Component({
   selector: 'app-spec-details',

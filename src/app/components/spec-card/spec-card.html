@@ -9,28 +9,28 @@
 
     <!-- Analytics overlay -->
     @if (spec.analytics) {
-    <div class="analytics-overlay">
-      <span class="analytics-stat">
-        <i class="fa-solid fa-play"></i>
-        {{ spec.analytics.playCount }}
-      </span>
-      <span class="analytics-stat">
-        <i class="fa-solid fa-heart"></i>
-        {{ spec.analytics.favoriteCount }}
-      </span>
-    </div>
+      <div class="analytics-overlay">
+        <span class="analytics-stat">
+          <i class="fa-solid fa-play"></i>
+          {{ spec.analytics.playCount }}
+        </span>
+        <span class="analytics-stat">
+          <i class="fa-solid fa-heart"></i>
+          {{ spec.analytics.favoriteCount }}
+        </span>
+      </div>
     }
   </div>
 
   <div class="card-content">
     <div class="spec-header-mini">
       @if (spec.genres && spec.genres.length > 0) {
-      <span class="genre-badge">{{ spec.genres[0].name }}</span>
+        <span class="genre-badge">{{ spec.genres[0].name }}</span>
       }
 
       <!-- Free MP3 badge -->
       @if (spec.freeMp3Enabled) {
-      <span class="free-badge">FREE MP3</span>
+        <span class="free-badge">FREE MP3</span>
       }
     </div>
 
@@ -40,11 +40,11 @@
       <span class="tag-glass">{{ spec.bpm }} BPM</span>
       <span class="tag-glass">{{ spec.key }}</span>
       @if (spec.duration) {
-      <span class="tag-glass">{{ formatDuration(spec.duration) }}</span>
+        <span class="tag-glass">{{ formatDuration(spec.duration) }}</span>
       }
       <!-- Limit tags to 2 if duration exists, else 3 -->
       @for (tag of spec.tags.slice(0, spec.duration ? 2 : 3); track tag) {
-      <span class="tag-glass">#{{ tag }}</span>
+        <span class="tag-glass">#{{ tag }}</span>
       }
     </div>
 
@@ -53,16 +53,27 @@
 
       <div class="action-buttons">
         <!-- Favorite button (auth required in service) -->
-        <button class="icon-btn favorite-btn" [class.favorited]="spec.analytics?.isFavorited"
-          [disabled]="isFavoriting()" (click)="toggleFavorite($event)" title="Favorite">
-          <i [class]="spec.analytics?.isFavorited ? 'fa-solid fa-heart' : 'fa-regular fa-heart'"></i>
+        <button
+          class="icon-btn favorite-btn"
+          [class.favorited]="spec.analytics?.isFavorited"
+          [disabled]="isFavoriting()"
+          (click)="toggleFavorite($event)"
+          title="Favorite"
+        >
+          <i
+            [class]="spec.analytics?.isFavorited ? 'fa-solid fa-heart' : 'fa-regular fa-heart'"
+          ></i>
         </button>
 
         <!-- Free download button -->
         @if (spec.freeMp3Enabled) {
-        <button class="icon-btn download-btn" (click)="downloadFreeMp3($event)" title="Download Free MP3">
-          <i class="fa-solid fa-download"></i>
-        </button>
+          <button
+            class="icon-btn download-btn"
+            (click)="downloadFreeMp3($event)"
+            title="Download Free MP3"
+          >
+            <i class="fa-solid fa-download"></i>
+          </button>
         }
 
         <!-- Cart button -->

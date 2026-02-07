@@ -70,10 +70,30 @@ export class DashboardComponent implements OnInit {
     this.analyticsService.getOverview().subscribe({
       next: (data) => {
         this.stats.set([
-          { label: 'Total Plays', value: data.total_plays.toLocaleString(), icon: 'fas fa-play', trend: 'Lifetime' },
-          { label: 'Revenue', value: '₹' + data.total_revenue.toLocaleString(), icon: 'fas fa-rupee-sign', trend: 'Lifetime' },
-          { label: 'Downloads', value: data.total_downloads.toLocaleString(), icon: 'fas fa-download', trend: 'Lifetime' },
-          { label: 'Favorites', value: data.total_favorites.toLocaleString(), icon: 'fas fa-heart', trend: 'Lifetime' },
+          {
+            label: 'Total Plays',
+            value: data.total_plays.toLocaleString(),
+            icon: 'fas fa-play',
+            trend: 'Lifetime',
+          },
+          {
+            label: 'Revenue',
+            value: '₹' + data.total_revenue.toLocaleString(),
+            icon: 'fas fa-rupee-sign',
+            trend: 'Lifetime',
+          },
+          {
+            label: 'Downloads',
+            value: data.total_downloads.toLocaleString(),
+            icon: 'fas fa-download',
+            trend: 'Lifetime',
+          },
+          {
+            label: 'Favorites',
+            value: data.total_favorites.toLocaleString(),
+            icon: 'fas fa-heart',
+            trend: 'Lifetime',
+          },
         ]);
       },
       error: (err) => {
@@ -85,7 +105,7 @@ export class DashboardComponent implements OnInit {
           { label: 'Downloads', value: '0', icon: 'fas fa-download', trend: 'No Data' },
           { label: 'Favorites', value: '0', icon: 'fas fa-heart', trend: 'No Data' },
         ]);
-      }
+      },
     });
   }
 

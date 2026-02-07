@@ -46,7 +46,7 @@ export interface GenreDto {
   slug: string;
 }
 
-export interface LicenseDto { }
+export interface LicenseDto {}
 
 export interface LicenseDto {
   id: string;
@@ -121,7 +121,7 @@ export class CreateSpecRequest implements ApiRequest<SpecDto> {
   }
 }
 
-export interface SpecResponse extends SpecDto { }
+export interface SpecResponse extends SpecDto {}
 
 export interface UpdateSpecDto {
   title?: string;

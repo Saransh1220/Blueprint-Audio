@@ -25,7 +25,12 @@ export const routes: Routes = [
   { path: 'dashboard', component: DashboardComponent, canActivate: [authGuard] },
   { path: 'upload', component: UploadComponent, canActivate: [authGuard] },
   { path: 'purchases', component: PurchasesComponent, canActivate: [authGuard] },
-  { path: 'analytics', loadComponent: () => import('./pages/analytics/analytics.component').then(m => m.AnalyticsComponent), canActivate: [authGuard] },
+  {
+    path: 'analytics',
+    loadComponent: () =>
+      import('./pages/analytics/analytics.component').then((m) => m.AnalyticsComponent),
+    canActivate: [authGuard],
+  },
   { path: 'profile', component: ProfileComponent, canActivate: [authGuard] },
   { path: 'store/:id', component: StoreComponent },
   { path: 'settings', component: SettingsComponent },
