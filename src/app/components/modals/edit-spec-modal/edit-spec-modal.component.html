@@ -52,20 +52,6 @@
 
           <div class="form-row">
             <div class="form-group">
-              <label for="base_price">Price (₹)</label>
-              <div class="input-with-icon">
-                <i class="fas fa-rupee-sign"></i>
-                <input
-                  id="base_price"
-                  type="number"
-                  formControlName="base_price"
-                  class="glass-input"
-                  placeholder="2999"
-                />
-              </div>
-            </div>
-
-            <div class="form-group">
               <label for="bpm">BPM</label>
               <input
                 id="bpm"
@@ -109,6 +95,44 @@
               rows="3"
               placeholder="Tell the story behind this beat..."
             ></textarea>
+          </div>
+
+          <div class="licenses-section">
+            <h3>License Configuration</h3>
+            <div class="licenses-grid" formArrayName="licenses">
+              @for (license of licenses.controls; track license; let i = $index) {
+                <div
+                  [formGroupName]="i"
+                  class="license-card"
+                  [class.disabled]="!license.get('enabled')?.value"
+                >
+                  <div class="lic-header">
+                    <label class="switch">
+                      <input type="checkbox" formControlName="enabled" />
+                      <span class="slider round"></span>
+                    </label>
+                    <span class="lic-name">{{ license.get('name')?.value }}</span>
+                  </div>
+
+                  <div class="lic-body" [class.faded]="!license.get('enabled')?.value">
+                    <div class="lic-price">
+                      <i class="fas fa-rupee-sign"></i>
+                      <input
+                        type="number"
+                        formControlName="price"
+                        class="glass-input price-input"
+                        placeholder="Price"
+                      />
+                    </div>
+                    <ul class="lic-features">
+                      @for (feat of license.get('features')?.value; track feat) {
+                        <li><i class="fas fa-check"></i> {{ feat }}</li>
+                      }
+                    </ul>
+                  </div>
+                </div>
+              }
+            </div>
           </div>
         </form>
       </div>

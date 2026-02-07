@@ -1,6 +1,6 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule, NgOptimizedImage } from '@angular/common';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators, FormArray } from '@angular/forms';
 import { SpecService } from '../../../services/spec.service';
 import { ToastService } from '../../../services/toast.service';
 import { SpecDto } from '../../../core/api/spec.requests';
@@ -37,15 +37,73 @@ export class EditSpecModalComponent implements OnInit {
     this.isOpen.set(true);
   }
 
+  get licenses() {
+    return this.editForm.get('licenses') as FormArray;
+  }
+
   private initForm() {
     const currentSpec = this.spec();
     this.editForm = this.fb.group({
       title: [currentSpec?.title || '', [Validators.required, Validators.maxLength(100)]],
-      base_price: [currentSpec ? currentSpec.price : 0, [Validators.required, Validators.min(0)]],
+      // base_price removed -> calculated from licenses
       bpm: [currentSpec?.bpm || null, [Validators.min(50), Validators.max(300)]],
       key: [currentSpec?.key || ''],
       tags: [currentSpec?.tags?.join(', ') || ''],
       description: [currentSpec?.description || ''],
+      licenses: this.fb.array([]),
+    });
+
+    this.initializeLicenses(currentSpec);
+  }
+
+  private initializeLicenses(spec: SpecDto | null) {
+    const defaultLicenses = [
+      {
+        type: 'Basic',
+        name: 'Basic Lease',
+        price: 1499,
+        features: ['MP3', 'Untagged', 'Limited Streams (50k)'],
+        file_types: ['MP3'],
+      },
+      {
+        type: 'Premium',
+        name: 'Premium Lease',
+        price: 2499,
+        features: ['MP3', 'WAV', 'Untagged', 'Limited Streams (500k)'],
+        file_types: ['MP3', 'WAV'],
+      },
+      {
+        type: 'Trackout',
+        name: 'Trackout Lease',
+        price: 4999,
+        features: ['MP3', 'WAV', 'Stems', 'Untagged', 'Unlimited Streams'],
+        file_types: ['MP3', 'WAV', 'ZIP'],
+      },
+      {
+        type: 'Unlimited',
+        name: 'Unlimited Lease',
+        price: 9999,
+        features: ['Exclusive Rights', 'All Files Included', 'Full Ownership'],
+        file_types: ['MP3', 'WAV', 'ZIP'],
+      },
+    ];
+
+    const currentLicenses = spec?.licenses || [];
+
+    defaultLicenses.forEach((def) => {
+      // Find matching license in existing spec
+      const existing = currentLicenses.find((l: any) => l.type === def.type || l.name === def.name);
+
+      this.licenses.push(
+        this.fb.group({
+          enabled: [!!existing], // Enabled if it exists
+          type: [existing?.type || def.type],
+          name: [existing?.name || def.name, Validators.required],
+          price: [existing?.price || def.price, [Validators.required, Validators.min(0)]],
+          features: [existing?.features || def.features],
+          file_types: [existing?.file_types || def.file_types],
+        }),
+      );
     });
   }
 
@@ -54,21 +112,18 @@ export class EditSpecModalComponent implements OnInit {
     const file = input.files?.[0];
 
     if (file) {
-      // Validate file type and size (optional but good practice)
       if (!file.type.startsWith('image/')) {
         this.toastService.error('Please select an image file');
         return;
       }
 
       if (file.size > 5 * 1024 * 1024) {
-        // 5MB limit
         this.toastService.error('Image size must be less than 5MB');
         return;
       }
 
       this.selectedFile.set(file);
 
-      // Create preview
       const reader = new FileReader();
       reader.onload = (e) => {
         this.imagePreview.set(e.target?.result as string);
@@ -89,10 +144,27 @@ export class EditSpecModalComponent implements OnInit {
     this.isSaving.set(true);
 
     const formValue = this.editForm.value;
+
+    // Process licenses
+    const enabledLicenses = formValue.licenses
+      .filter((l: any) => l.enabled)
+      .map((l: any) => ({
+        ...l,
+        price: Number(l.price),
+      }));
+
+    if (enabledLicenses.length === 0) {
+      this.toastService.error('Please enable at least one license option');
+      this.isSaving.set(false);
+      return;
+    }
+
+    // Calculate base price (cheapest enabled license)
+    const basePrice = Math.min(...enabledLicenses.map((l: any) => l.price));
+
     const metadata = {
       title: formValue.title,
-      price: formValue.base_price, // Backend uses base_price db tag but expects price in JSON? No, we updated handler to map BasePrice. Wait, let's check DTO.
-      // DTO says "price" for BasePrice.
+      price: basePrice, // Use calculated base price
       bpm: formValue.bpm || 0,
       key: formValue.key || '',
       tags: formValue.tags
@@ -102,9 +174,9 @@ export class EditSpecModalComponent implements OnInit {
             .filter(Boolean)
         : [],
       description: formValue.description || '',
+      licenses: enabledLicenses,
     };
 
-    // Create FormData
     const formData = new FormData();
     formData.append('metadata', JSON.stringify(metadata));
 
