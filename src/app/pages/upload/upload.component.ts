@@ -41,6 +41,7 @@ export class UploadComponent implements OnInit {
     bpm: [null, [Validators.min(60), Validators.max(300), Validators.pattern(/^[0-9]*$/)]],
     key: [''],
     description: [''],
+    freeMp3Enabled: [false],
     tags: this.fb.array([], [Validators.maxLength(3)]),
     licenses: this.fb.array([]),
   });
@@ -286,6 +287,8 @@ export class UploadComponent implements OnInit {
           slug: formValue.genre?.toLowerCase().replace(/\s+/g, '-'),
         },
       ],
+      description: formValue.description || '',
+      free_mp3_enabled: formValue.freeMp3Enabled,
       licenses: enabledLicenses,
     };
 

@@ -99,6 +99,19 @@
 
           <div class="licenses-section">
             <h3>License Configuration</h3>
+
+            <!-- Free MP3 Toggle -->
+            <div class="form-group-row toggle-row">
+              <label class="switch">
+                <input type="checkbox" formControlName="freeMp3Enabled" />
+                <span class="slider round"></span>
+              </label>
+              <div class="toggle-label">
+                <span class="label-title">Enable Free MP3</span>
+                <span class="label-desc">Allow free tagged MP3 downloads</span>
+              </div>
+            </div>
+
             <div class="licenses-grid" formArrayName="licenses">
               @for (license of licenses.controls; track license; let i = $index) {
                 <div

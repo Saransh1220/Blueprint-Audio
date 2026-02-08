@@ -239,6 +239,20 @@
             <h3>License Configuration</h3>
             <p class="panel-desc">Select which licenses to offer and set their prices.</p>
 
+            <!-- Free MP3 Toggle -->
+            <div class="form-group-row toggle-row">
+              <label class="switch">
+                <input type="checkbox" formControlName="freeMp3Enabled" />
+                <span class="slider round"></span>
+              </label>
+              <div class="toggle-label">
+                <span class="label-title">Enable Free MP3 Download</span>
+                <span class="label-desc"
+                  >Allow users to download the tagged MP3 for free (requires email).</span
+                >
+              </div>
+            </div>
+
             <div class="licenses-grid-cards" formArrayName="licenses">
               @for (license of licenses.controls; track license; let i = $index) {
                 <div

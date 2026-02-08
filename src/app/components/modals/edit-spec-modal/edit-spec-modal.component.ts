@@ -50,6 +50,7 @@ export class EditSpecModalComponent implements OnInit {
       key: [currentSpec?.key || ''],
       tags: [currentSpec?.tags?.join(', ') || ''],
       description: [currentSpec?.description || ''],
+      freeMp3Enabled: [currentSpec?.free_mp3_enabled || false],
       licenses: this.fb.array([]),
     });
 
@@ -174,6 +175,7 @@ export class EditSpecModalComponent implements OnInit {
             .filter(Boolean)
         : [],
       description: formValue.description || '',
+      free_mp3_enabled: !!formValue.freeMp3Enabled,
       licenses: enabledLicenses,
     };
 

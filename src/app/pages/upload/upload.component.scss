@@ -452,6 +452,33 @@
       margin-bottom: 30px;
     }
 
+    /* STEP 2: LICENSES CARDS */
+    .toggle-row {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 2rem;
+      padding: 1rem;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+
+      .toggle-label {
+        display: flex;
+        flex-direction: column;
+
+        .label-title {
+          font-weight: 600;
+          color: var(--text-color);
+        }
+
+        .label-desc {
+          font-size: 0.85rem;
+          color: var(--text-muted);
+        }
+      }
+    }
+
     .licenses-grid-cards {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
