@@ -13,6 +13,11 @@
       <i [class]="isCurrentlyPlaying() ? 'fa-solid fa-pause' : 'fa-solid fa-play'"></i>
     </div>
 
+    <!-- Free MP3 badge (Overlay) -->
+    @if (spec.freeMp3Enabled) {
+      <div class="free-tag-overlay"><i class="fas fa-gift"></i> FREE</div>
+    }
+
     <!-- Analytics overlay -->
     @if (spec.analytics) {
       <div class="analytics-overlay">
@@ -32,11 +37,6 @@
     <div class="spec-header-mini">
       @if (spec.genres && spec.genres.length > 0) {
         <span class="genre-badge">{{ spec.genres[0].name }}</span>
-      }
-
-      <!-- Free MP3 badge -->
-      @if (spec.freeMp3Enabled) {
-        <span class="free-badge">FREE MP3</span>
       }
     </div>
 

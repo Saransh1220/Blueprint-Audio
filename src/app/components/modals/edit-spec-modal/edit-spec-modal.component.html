@@ -100,16 +100,21 @@
           <div class="licenses-section">
             <h3>License Configuration</h3>
 
-            <!-- Free MP3 Toggle -->
-            <div class="form-group-row toggle-row">
-              <label class="switch">
+            <!-- Free MP3 Toggle (Enhanced) -->
+            <div class="premium-toggle-container">
+              <div class="toggle-info">
+                <div class="icon-box">
+                  <i class="fas fa-gift"></i>
+                </div>
+                <div class="toggle-text">
+                  <span class="label-title">Free Download</span>
+                  <span class="label-desc">Allow users to download MP3 for free</span>
+                </div>
+              </div>
+              <label class="switch premium-switch">
                 <input type="checkbox" formControlName="freeMp3Enabled" />
                 <span class="slider round"></span>
               </label>
-              <div class="toggle-label">
-                <span class="label-title">Enable Free MP3</span>
-                <span class="label-desc">Allow free tagged MP3 downloads</span>
-              </div>
             </div>
 
             <div class="licenses-grid" formArrayName="licenses">
