@@ -1,16 +1,16 @@
 import { CommonModule } from '@angular/common';
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, computed, effect, inject, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { switchMap } from 'rxjs/operators';
-import { HeaderComponent, LicenseSelectorComponent, SpecRowComponent } from '../../components';
-import { Spec } from '../../models';
+import { SpecRowComponent } from '../../components';
+import { type LicenseOption } from '../../models';
 import {
+  AnalyticsService,
   CartService,
   LabService,
-  ModalService,
   PlayerService,
-  AnalyticsService,
+  ToastService,
 } from '../../services';
 
 @Component({
@@ -25,10 +25,12 @@ export class SpecDetailsComponent {
   private labService = inject(LabService);
   private playerService = inject(PlayerService);
   private cartService = inject(CartService);
-  private modalService = inject(ModalService);
+  private toastService = inject(ToastService);
   private analyticsService = inject(AnalyticsService);
 
+  currencyCode = 'INR';
   isFavoriting = signal(false);
+  selectedLicense = signal<LicenseOption | null>(null);
 
   // Reactive spec fetching
   spec = toSignal(
@@ -45,6 +47,33 @@ export class SpecDetailsComponent {
     this.labService.getSpecs({ category: 'beat' }), // simplified for now
   );
 
+  producerSpecs = computed(() => {
+    const current = this.spec();
+    const all = this.relatedSpecs();
+    if (!current || !all) return [];
+    return all.filter((s) => s.producerId === current.producerId && s.id !== current.id);
+  });
+
+  constructor() {
+    effect(() => {
+      const s = this.spec();
+      if (!s?.licenses?.length) {
+        this.selectedLicense.set(null);
+        return;
+      }
+
+      const current = this.selectedLicense();
+      if (current && s.licenses.some((license) => license.id === current.id)) {
+        return;
+      }
+
+      const cheapest = s.licenses.reduce((min, license) =>
+        license.price < min.price ? license : min,
+      );
+      this.selectedLicense.set(cheapest);
+    });
+  }
+
   playSpec() {
     const s = this.spec();
     if (s) {
@@ -56,13 +85,17 @@ export class SpecDetailsComponent {
     }
   }
 
-  openLicenseModal() {
+  selectLicense(license: LicenseOption) {
+    this.selectedLicense.set(license);
+  }
+
+  addSelectedLicenseToCart() {
     const s = this.spec();
-    if (s) {
-      this.modalService.open(LicenseSelectorComponent, 'Select License', {
-        spec: s,
-      });
-    }
+    const license = this.selectedLicense();
+    if (!s || !license) return;
+
+    this.cartService.addItem(s, license);
+    this.toastService.success(`Added ${s.title} (${license.name}) to cart`);
   }
 
   toggleFavorite() {

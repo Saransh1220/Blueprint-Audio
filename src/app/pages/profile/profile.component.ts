@@ -40,6 +40,7 @@ export class ProfileComponent implements OnInit {
       if (user && this.profileForm) {
         this.profileForm.patchValue({
           bio: user.bio || '',
+          display_name: user.display_name || '',
           instagram_url: user.instagram_url || '',
           twitter_url: user.twitter_url || '',
           youtube_url: user.youtube_url || '',
@@ -58,6 +59,7 @@ export class ProfileComponent implements OnInit {
     const user = this.currentUser();
     this.profileForm = this.fb.group({
       bio: [user?.bio || '', [Validators.maxLength(500)]],
+      display_name: [user?.display_name || '', [Validators.maxLength(50)]],
       instagram_url: [user?.instagram_url || '', [Validators.pattern(/^https?:\/\/.*/)]],
       twitter_url: [user?.twitter_url || '', [Validators.pattern(/^https?:\/\/.*/)]],
       youtube_url: [user?.youtube_url || '', [Validators.pattern(/^https?:\/\/.*/)]],
@@ -79,6 +81,7 @@ export class ProfileComponent implements OnInit {
           this.authService.currentUser.set({
             ...this.currentUser()!,
             bio: profile.bio,
+            display_name: profile.display_name,
             instagram_url: profile.instagram_url,
             twitter_url: profile.twitter_url,
             youtube_url: profile.youtube_url,

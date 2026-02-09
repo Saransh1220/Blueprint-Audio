@@ -277,6 +277,30 @@
 .bio-card {
   margin-bottom: 1.5rem;
 
+  input[type='text'] {
+    width: 100%;
+    padding: 0.875rem;
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid var(--line-color);
+    border-radius: 8px;
+    color: var(--text-color);
+    font-family: inherit;
+    font-size: 0.9375rem;
+    transition: all 0.2s;
+
+    &:focus {
+      outline: none;
+      border-color: var(--brand-color);
+      background: rgba(0, 0, 0, 0.4);
+      box-shadow: 0 0 0 3px rgba(var(--brand-color-rgb), 0.1);
+    }
+
+    &::placeholder {
+      color: var(--text-color);
+      opacity: 0.4;
+    }
+  }
+
   textarea {
     width: 100%;
     padding: 0.875rem;
@@ -288,11 +312,13 @@
     font-size: 0.9375rem;
     line-height: 1.6;
     resize: vertical;
-    transition: border-color 0.2s;
+    transition: all 0.2s;
 
     &:focus {
       outline: none;
       border-color: var(--brand-color);
+      background: rgba(0, 0, 0, 0.4);
+      box-shadow: 0 0 0 3px rgba(var(--brand-color-rgb), 0.1);
     }
 
     &::placeholder {
@@ -366,16 +392,18 @@
     input {
       flex: 1;
       padding: 0.75rem;
-      background: rgba(0, 0, 0, 0.1);
+      background: rgba(0, 0, 0, 0.3);
       border: 1px solid var(--line-color);
       border-radius: 8px;
       color: var(--text-color);
       font-size: 0.875rem;
-      transition: border-color 0.2s;
+      transition: all 0.2s;
 
       &:focus {
         outline: none;
         border-color: var(--brand-color);
+        background: rgba(0, 0, 0, 0.4);
+        box-shadow: 0 0 0 3px rgba(var(--brand-color-rgb), 0.1);
       }
 
       &::placeholder {

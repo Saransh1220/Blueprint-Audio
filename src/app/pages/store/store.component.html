@@ -1,6 +1,6 @@
 <div class="store-container">
   <div class="page-header">
-    <h1>{{ profile()?.name || 'Producer' }}'s Store</h1>
+    <h1>{{ profile()?.display_name || 'Producer' }}'s Store</h1>
     @if (totalSpecs() > 0) {
       <span class="subtitle"
         >{{ totalSpecs() }} {{ totalSpecs() === 1 ? 'Beat' : 'Beats' }} Available</span
@@ -14,11 +14,11 @@
         @if (user.avatar_url) {
           <div class="user-avatar" [style.background-image]="'url(' + user.avatar_url + ')'"></div>
         } @else {
-          <div class="user-avatar">{{ user.name.charAt(0) || 'U' }}</div>
+          <div class="user-avatar">{{ user.display_name?.charAt(0) || 'U' }}</div>
         }
 
         <div class="user-meta-inline">
-          <h2>{{ user.name }}</h2>
+          <h2>{{ user.display_name }}</h2>
           <div class="badges">
             <span class="role-badge">
               <i class="fas fa-{{ user.role === 'producer' ? 'sliders-h' : 'music' }}"></i>

@@ -16,7 +16,15 @@ export class RegisterRequest implements ApiRequest<UserApiResponse> {
   readonly path = '/register';
   readonly method: HttpMethod = 'POST';
   readonly _responseType?: UserApiResponse;
-  constructor(public body: any) {}
+  constructor(
+    public body: {
+      email: string;
+      password: string;
+      name: string;
+      display_name?: string;
+      role: string;
+    },
+  ) {}
 }
 
 export class GetMeRequest implements ApiRequest<UserApiResponse> {

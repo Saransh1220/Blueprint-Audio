@@ -21,6 +21,8 @@ export class SpecAdapter {
   adapt(dto: SpecDto): Spec {
     return {
       id: dto.id,
+      producerId: dto.producer_id,
+      producerName: dto.producer_name,
       type: dto.type,
       category: dto.category,
       imageUrl: dto.image_url,

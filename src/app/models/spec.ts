@@ -35,6 +35,8 @@ export interface ProducerAnalytics {
 
 export interface Spec {
   id: string;
+  producerId: string;
+  producerName: string;
   type: string;
   category: 'beat' | 'sample';
   imageUrl: string;

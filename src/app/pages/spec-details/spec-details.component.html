@@ -1,9 +1,7 @@
 <main class="page-container" *ngIf="spec() as s">
   <div class="layout-grid">
-    <!-- LEFT SIDEBAR: The "Product Card" -->
     <aside class="left-sidebar">
-      <!-- Artwork & Waveform -->
-      <div class="artwork-section">
+      <div class="quick-card">
         <div class="artwork-box">
           <img [src]="s.imageUrl" [alt]="s.title" class="artwork" />
           <div class="waveform-overlay">
@@ -17,116 +15,134 @@
             <i class="fas fa-play"></i>
           </button>
         </div>
-      </div>
 
-      <!-- Track Info -->
-      <div class="info-section">
-        <h1 class="title">{{ s.title }}</h1>
-        <div class="producer">
-          <span>Produced by</span>
-          <span class="name">Red Wave</span>
-        </div>
+        <div class="info-section">
+          <p class="eyebrow">Produced by {{ s.producerName }}</p>
+          <h1 class="title">{{ s.title }}</h1>
 
-        <!-- Clean Meta Badges -->
-        <div class="meta-row">
-          <span class="badge">{{ s.bpm }} BPM</span>
-          <span class="badge">{{ s.key }}</span>
-          @if (s.duration) {
-            <span class="badge">{{ formatDuration(s.duration) }}</span>
-          }
-          <!-- Genres -->
-          <span class="badge genre" *ngFor="let g of s.genres">{{ g.name }}</span>
-        </div>
-
-        <!-- Analytics Row -->
-        @if (s.analytics) {
-          <div class="analytics-row">
-            <span class="stat" title="Total Plays">
-              <i class="fas fa-play"></i> {{ s.analytics.playCount }}
-            </span>
-            <span class="stat" title="Favorites">
-              <i class="fas fa-heart"></i> {{ s.analytics.favoriteCount }}
-            </span>
-            @if (s.freeMp3Enabled) {
-              <span class="tag free-tag">FREE MP3</span>
+          <div class="meta-row">
+            <span class="badge">{{ s.bpm }} BPM</span>
+            <span class="badge">{{ s.key }}</span>
+            @if (s.duration) {
+              <span class="badge">{{ formatDuration(s.duration) }}</span>
+            }
+            @if (s.genres.length) {
+              <span class="badge genre">{{ s.genres[0].name }}</span>
             }
           </div>
-        }
 
-        <!-- Tags -->
-        <div class="tags-row">
-          <span class="tag" *ngFor="let tag of s.tags.slice(0, 3)">#{{ tag }}</span>
-        </div>
-      </div>
-
-      <!-- Purchase Section -->
-      <div class="purchase-section">
-        <div class="license-selector">
-          <div
-            class="license-option"
-            *ngFor="let license of s.licenses"
-            (click)="openLicenseModal()"
-          >
-            <div class="opt-left">
-              <span class="opt-name">{{ license.name }}</span>
-              <span class="opt-type">{{ license.type }}</span>
-            </div>
-            <span class="opt-price">${{ license.price }}</span>
+          <div class="tags-row">
+            <span class="tag" *ngFor="let tag of s.tags.slice(0, 3)">#{{ tag }}</span>
           </div>
+        </div>
+
+        <div class="analytics-row">
+          <span class="stat" title="Total Plays">
+            <i class="fas fa-play"></i> {{ s.analytics?.playCount ?? 0 }}
+          </span>
+          <span class="stat" title="Favorites">
+            <i class="fas fa-heart"></i> {{ s.analytics?.favoriteCount ?? 0 }}
+          </span>
         </div>
 
         <div class="action-row">
-          <button class="btn-add-cart" (click)="openLicenseModal()">
-            <span class="label">Add to Cart</span>
-            <span class="price-tag">${{ s.price }}+</span>
-          </button>
-
           <button
             class="btn-icon fav-btn"
             [class.active]="s.analytics?.isFavorited"
             (click)="toggleFavorite()"
             [disabled]="isFavoriting()"
+            title="Like this beat"
           >
             <i [class]="s.analytics?.isFavorited ? 'fas fa-heart' : 'far fa-heart'"></i>
+            <span>Like</span>
           </button>
 
           @if (s.freeMp3Enabled) {
             <button
               class="btn-icon download-btn"
               (click)="downloadFreeMp3()"
-              title="Download Free MP3"
+              title="Download free MP3"
             >
               <i class="fas fa-download"></i>
+              <span>Free Download</span>
             </button>
           }
         </div>
       </div>
     </aside>
 
-    <!-- RIGHT CONTENT: Discovery -->
-    <section class="discovery-area">
-      <div class="discovery-block">
-        <div class="block-header">
-          <h2>You Might Also Like</h2>
-          <button class="btn-view-all">View All</button>
+    <section class="right-content">
+      <div class="license-module">
+        <div class="module-header">
+          <h2>Choose License</h2>
+          <p>Select a license and add it directly to cart.</p>
         </div>
-        <app-spec-row [title]="''" [specsInput]="relatedSpecs() || []"></app-spec-row>
+
+        <div class="license-list" *ngIf="s.licenses.length > 0; else noLicenses">
+          <button
+            type="button"
+            class="license-card"
+            *ngFor="let license of s.licenses"
+            [class.selected]="selectedLicense()?.id === license.id"
+            (click)="selectLicense(license)"
+          >
+            <div class="license-main">
+              <h3>{{ license.name }}</h3>
+              <p>{{ license.type }} License</p>
+            </div>
+
+            <div class="license-price">{{ license.price | currency: currencyCode }}</div>
+
+            <div class="license-features">
+              <span class="feature" *ngFor="let feature of license.features.slice(0, 3)">
+                {{ feature }}
+              </span>
+            </div>
+          </button>
+        </div>
+
+        <ng-template #noLicenses>
+          <div class="empty-licenses">No licenses available for this beat yet.</div>
+        </ng-template>
+
+        <div class="license-cta">
+          @if (selectedLicense(); as selected) {
+            <div class="selection-summary">
+              <span class="label">Selected</span>
+              <span class="value">{{ selected.name }}</span>
+              <span class="price">{{ selected.price | currency: currencyCode }}</span>
+            </div>
+          } @else {
+            <div class="selection-summary disabled">
+              <span class="label">Selected</span>
+              <span class="value">No license selected</span>
+            </div>
+          }
+
+          <button
+            class="btn-add-cart"
+            (click)="addSelectedLicenseToCart()"
+            [disabled]="!selectedLicense()"
+          >
+            Add to Cart
+          </button>
+        </div>
       </div>
 
-      <div class="discovery-block">
-        <div class="block-header">
-          <h2>More from Red Wave</h2>
-          <button class="btn-view-all">View All</button>
+      <div class="discovery-area">
+        <div class="discovery-block">
+          <div class="block-header">
+            <h2>You Might Also Like</h2>
+          </div>
+          <app-spec-row [title]="''" [specsInput]="relatedSpecs() || []"></app-spec-row>
         </div>
-        <app-spec-row [title]="''" [specsInput]="relatedSpecs() || []"></app-spec-row>
-      </div>
 
-      <div class="discovery-block">
-        <div class="block-header">
-          <h2>Vibe Match: {{ s.tags[0] || 'Trap' }}</h2>
-          <button class="btn-view-all">View All</button>
+        <div class="discovery-block">
+          <div class="block-header">
+            <h2>More from {{ s.producerName }}</h2>
+          </div>
+          <app-spec-row [title]="''" [specsInput]="producerSpecs() || []"></app-spec-row>
         </div>
-        <app-spec-row [title]="''" [specsInput]="relatedSpecs() || []"></app-spec-row>
       </div>
     </section>
   </div>

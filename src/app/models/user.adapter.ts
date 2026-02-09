@@ -7,6 +7,7 @@ export class UserAdapter {
       id: apiResponse.id,
       email: apiResponse.email,
       name: apiResponse.name,
+      display_name: apiResponse.display_name || null,
       role: apiResponse.role,
       bio: apiResponse.bio || null,
       avatar_url: apiResponse.avatar_url || null,

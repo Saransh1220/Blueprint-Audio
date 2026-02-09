@@ -81,7 +81,7 @@
             {{ currentUser()?.role }}
           </div>
         </div>
-        <h2>{{ currentUser()?.name }}</h2>
+        <h2>{{ currentUser()?.display_name || currentUser()?.name }}</h2>
         <p class="email">{{ currentUser()?.email }}</p>
 
         <button
@@ -99,6 +99,20 @@
           }
         </button>
       </div>
+    </div>
+
+    <!-- Basic Info Card -->
+    <div class="card bio-card">
+      <label class="card-label">
+        <i class="fas fa-user-tag"></i>
+        Display Name
+      </label>
+      <input
+        type="text"
+        formControlName="display_name"
+        placeholder="Artist or Producer Name"
+        maxlength="50"
+      />
     </div>
 
     <!-- Bio Card -->

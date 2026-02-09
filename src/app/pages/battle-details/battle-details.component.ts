@@ -18,7 +18,7 @@ export class BattleDetailsComponent implements OnInit {
   battle = signal({
     title: 'NEON NIGHTS TOURNAMENT',
     status: 'VOTING',
-    prize: '$500 + PLACEMENT',
+    prize: '₹500 + PLACEMENT',
     deadline: '2 DAYS LEFT',
     description:
       'Create a Cyberpunk/Synthwave track using the provided sample pack. Focus on atmosphere and sound design.',
