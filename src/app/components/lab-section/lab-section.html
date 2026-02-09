@@ -49,8 +49,8 @@
     <!-- GRID VIEW -->
     @if (viewMode() === 'grid') {
       <div class="spec-grid">
-        @for (spec of specs(); track spec.id) {
-          <app-spec-card [spec]="spec"></app-spec-card>
+        @for (spec of specs(); track spec.id; let i = $index) {
+          <app-spec-card [spec]="spec" [priority]="i < 4"></app-spec-card>
         }
       </div>
     }
@@ -58,8 +58,8 @@
     <!-- LIST VIEW -->
     @if (viewMode() === 'list') {
       <div class="list-container">
-        @for (spec of specs(); track spec.id) {
-          <app-spec-list-item [spec]="spec"></app-spec-list-item>
+        @for (spec of specs(); track spec.id; let i = $index) {
+          <app-spec-list-item [spec]="spec" [priority]="i < 6"></app-spec-list-item>
         }
       </div>
     }

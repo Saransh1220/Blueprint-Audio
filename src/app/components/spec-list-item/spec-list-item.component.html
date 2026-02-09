@@ -1,10 +1,13 @@
 <div class="spec-item" (click)="openDetails()">
   <!-- Left Section: Image & Play -->
   <div class="item-visual" (click)="playSong($event)">
-    <img [src]="spec.imageUrl" [alt]="spec.title" loading="lazy" />
+    <img [ngSrc]="spec.imageUrl" [alt]="spec.title" fill [priority]="priority" />
     <div class="play-overlay">
-      <i class="fas fa-play"></i>
+      <i [class]="isCurrentlyPlaying() ? 'fas fa-pause' : 'fas fa-play'"></i>
     </div>
+    @if (spec.analytics) {
+      <div class="img-analytics"><i class="fas fa-play"></i> {{ spec.analytics.playCount }}</div>
+    }
     <div class="equalizer-bars"><span></span><span></span><span></span><span></span></div>
   </div>
 
@@ -14,6 +17,9 @@
       <h3 class="item-title">{{ spec.title }}</h3>
       @if (spec.genres && spec.genres.length > 0) {
         <span class="genre-badge">{{ spec.genres[0].name }}</span>
+      }
+      @if (spec.freeMp3Enabled) {
+        <span class="free-badge">FREE</span>
       }
     </div>
 
@@ -26,6 +32,18 @@
         <i class="fas fa-music"></i>
         <span>{{ spec.key }}</span>
       </div>
+      @if (spec.duration) {
+        <div class="meta-pill">
+          <i class="fas fa-clock"></i>
+          <span>{{ formatDuration(spec.duration) }}</span>
+        </div>
+      }
+      @if (spec.analytics) {
+        <div class="meta-pill glass-stat">
+          <i class="fas fa-heart"></i>
+          <span>{{ spec.analytics.favoriteCount }}</span>
+        </div>
+      }
     </div>
   </div>
 
@@ -38,6 +56,29 @@
 
   <!-- Right Section: Price & Actions -->
   <div class="item-actions">
+    <div class="secondary-actions">
+      <!-- Favorite Button -->
+      <button
+        class="action-btn fav-btn"
+        [class.active]="spec.analytics?.isFavorited"
+        (click)="toggleFavorite($event)"
+        [disabled]="isFavoriting()"
+      >
+        <i [class]="spec.analytics?.isFavorited ? 'fas fa-heart' : 'far fa-heart'"></i>
+      </button>
+
+      <!-- Free Download Button -->
+      @if (spec.freeMp3Enabled) {
+        <button
+          class="action-btn download-btn"
+          (click)="downloadFreeMp3($event)"
+          title="Download Free MP3"
+        >
+          <i class="fas fa-download"></i>
+        </button>
+      }
+    </div>
+
     <span class="price">₹{{ spec.price }}</span>
     <button class="btn-cart" (click)="addToCart($event)">
       <i class="fas fa-cart-plus"></i>

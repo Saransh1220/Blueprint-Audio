@@ -1,6 +1,22 @@
 import { HttpParams } from '@angular/common/http';
 import { ApiRequest, HttpMethod } from './api-request';
 
+export interface PublicAnalyticsDto {
+  play_count: number;
+  favorite_count: number;
+  total_download_count: number;
+  is_favorited?: boolean;
+}
+
+export interface ProducerAnalyticsDto {
+  play_count: number;
+  favorite_count: number;
+  total_download_count: number;
+  total_purchase_count: number;
+  purchases_by_license: Record<string, number>;
+  total_revenue: number;
+}
+
 export interface SpecDto {
   id: string;
   producer_id: string;
@@ -14,11 +30,15 @@ export interface SpecDto {
   wav_url?: string;
   stems_url?: string;
   price: number;
+  duration?: number;
+  free_mp3_enabled?: boolean;
   created_at: string;
   updated_at: string;
   tags?: string[];
+  description?: string;
   genres?: GenreDto[];
   licenses?: LicenseDto[];
+  analytics?: PublicAnalyticsDto;
 }
 
 export interface GenreDto {
@@ -127,12 +147,12 @@ export class GetUserSpecsRequest implements ApiRequest<PaginatedResponse<SpecDto
 export class UpdateSpecRequest implements ApiRequest<SpecDto> {
   readonly method: HttpMethod = 'PATCH';
   readonly path: string;
-  readonly body: UpdateSpecDto;
+  readonly body: UpdateSpecDto | FormData;
   readonly _responseType?: SpecDto;
 
-  constructor(specId: string, data: UpdateSpecDto) {
+  constructor(specId: string, body: UpdateSpecDto | FormData) {
     this.path = `/specs/${specId}`;
-    this.body = data;
+    this.body = body;
   }
 }
 

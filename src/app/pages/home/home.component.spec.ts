@@ -3,6 +3,8 @@ import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideAnimations } from '@angular/platform-browser/animations';
 import { provideRouter } from '@angular/router';
+import { of } from 'rxjs';
+import { LabService, PlayerService } from '../../services';
 import { HomeComponent } from './home.component';
 
 describe('HomeComponent', () => {
@@ -28,7 +30,13 @@ describe('HomeComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [HomeComponent],
-      providers: [provideHttpClient(), provideAnimations(), provideRouter([])],
+      providers: [
+        provideHttpClient(),
+        provideAnimations(),
+        provideRouter([]),
+        { provide: LabService, useValue: { getSpecs: vi.fn().mockReturnValue(of([])) } },
+        { provide: PlayerService, useValue: { showPlayer: vi.fn() } },
+      ],
       schemas: [NO_ERRORS_SCHEMA],
     }).compileComponents();
 

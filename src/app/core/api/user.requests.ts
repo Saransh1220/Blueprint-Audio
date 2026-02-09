@@ -2,6 +2,7 @@ import { ApiRequest, HttpMethod } from './api-request';
 
 export interface UpdateProfileDto {
   bio?: string;
+  avatar_url?: string;
   instagram_url?: string;
   twitter_url?: string;
   youtube_url?: string;
@@ -13,6 +14,7 @@ export interface PublicUserResponse {
   name: string;
   role: string;
   bio?: string;
+  avatar_url?: string;
   instagram_url?: string;
   twitter_url?: string;
   youtube_url?: string;
@@ -38,5 +40,18 @@ export class GetPublicProfileRequest implements ApiRequest<PublicUserResponse> {
 
   constructor(userId: string) {
     this.path = `/users/${userId}/public`;
+  }
+}
+
+export class UploadAvatarRequest implements ApiRequest<PublicUserResponse> {
+  readonly method: HttpMethod = 'POST';
+  readonly path = '/users/profile/avatar';
+  readonly body: FormData;
+  readonly _responseType?: PublicUserResponse;
+
+  constructor(file: File) {
+    const formData = new FormData();
+    formData.append('avatar', file);
+    this.body = formData;
   }
 }

@@ -1,27 +1,89 @@
-<div class="profile-page">
-  <div class="page-header">
-    <h1>My Profile</h1>
-    <span class="subtitle">Manage your account settings</span>
-  </div>
+<div class="profile-container">
+  <!-- Page Header -->
+  <header class="page-header">
+    <h1>Profile Settings</h1>
+    <p>Manage your account and preferences</p>
+  </header>
 
   <form [formGroup]="profileForm">
-    <!-- User Card -->
-    <div class="user-card">
-      <div class="avatar">{{ currentUser()?.name?.charAt(0) || 'U' }}</div>
+    <!-- Top Section: Avatar + Info -->
+    <div class="top-grid">
+      <!-- Avatar Card -->
+      <div class="card avatar-card">
+        <div class="avatar-display">
+          @if (avatarPreview()) {
+            <div class="avatar" [style.background-image]="'url(' + avatarPreview() + ')'"></div>
+          } @else if (currentUser()?.avatar_url) {
+            <div
+              class="avatar"
+              [style.background-image]="'url(' + currentUser()?.avatar_url + ')'"
+            ></div>
+            <button
+              type="button"
+              class="delete-avatar-btn"
+              (click)="deleteAvatar()"
+              title="Delete avatar"
+            >
+              <i class="fas fa-trash"></i>
+            </button>
+          } @else {
+            <div class="avatar avatar-fallback">
+              {{ currentUser()?.name?.charAt(0) || 'U' }}
+            </div>
+          }
+        </div>
 
-      <div class="user-details">
-        <h2>{{ currentUser()?.name }}</h2>
-        <span class="badge">
-          <i class="fas fa-{{ currentUser()?.role === 'producer' ? 'sliders-h' : 'music' }}"></i>
-          {{ currentUser()?.role }}
-        </span>
+        <input
+          type="file"
+          #avatarInput
+          (change)="onAvatarFileSelected($event)"
+          accept="image/*"
+          style="display: none"
+        />
+
+        @if (selectedAvatarFile()) {
+          <div class="avatar-controls">
+            <button
+              type="button"
+              class="btn-icon btn-upload"
+              (click)="uploadAvatar()"
+              [disabled]="isUploadingAvatar()"
+              title="Upload"
+            >
+              @if (isUploadingAvatar()) {
+                <i class="fas fa-spinner fa-spin"></i>
+              } @else {
+                <i class="fas fa-check"></i>
+              }
+            </button>
+            <button
+              type="button"
+              class="btn-icon btn-cancel"
+              (click)="cancelAvatarUpload()"
+              title="Cancel"
+            >
+              <i class="fas fa-times"></i>
+            </button>
+          </div>
+        } @else {
+          <button type="button" class="btn-change" (click)="avatarInput.click()">
+            <i class="fas fa-camera"></i>
+            <span>Change Photo</span>
+          </button>
+        }
       </div>
 
-      <div class="actions">
-        <button type="button" class="btn-store" (click)="navigateToStore()">
-          <i class="fas fa-store"></i>
-          <span>My Store</span>
-        </button>
+      <!-- User Info Card -->
+      <div class="card info-card">
+        <div class="user-header">
+          <div class="badge">
+            <i class="fas fa-{{ currentUser()?.role === Role.PRODUCER ? 'crown' : 'music' }}"></i>
+            {{ currentUser()?.role }}
+          </div>
+        </div>
+        <h2>{{ currentUser()?.name }}</h2>
+        <p class="email">{{ currentUser()?.email }}</p>
+
         <button
           type="button"
           class="btn-save"
@@ -29,86 +91,68 @@
           [disabled]="!profileForm.dirty || isSaving()"
         >
           @if (isSaving()) {
+            <i class="fas fa-spinner fa-spin"></i>
             <span>Saving...</span>
           } @else {
             <i class="fas fa-save"></i>
-            <span>Save</span>
+            <span>Save Changes</span>
           }
         </button>
       </div>
     </div>
 
-    <!-- Bio -->
-    <div class="section">
-      <div class="section-title">
-        <i class="fas fa-user-circle"></i>
-        <span>About</span>
-      </div>
+    <!-- Bio Card -->
+    <div class="card bio-card">
+      <label class="card-label">
+        <i class="fas fa-align-left"></i>
+        About
+      </label>
       <textarea
         formControlName="bio"
-        rows="5"
-        placeholder="Tell us about yourself, your work, and what makes your sound unique..."
+        rows="4"
+        placeholder="Tell us about yourself..."
         maxlength="500"
       ></textarea>
-      <div class="counter">{{ profileForm.get('bio')?.value?.length || 0 }}/500</div>
+      <span class="char-count">{{ profileForm.get('bio')?.value?.length || 0 }}/500</span>
     </div>
 
-    <!-- Social Links -->
-    <div class="section">
-      <div class="section-title">
+    <!-- Social Links Card -->
+    <div class="card social-card">
+      <label class="card-label">
         <i class="fas fa-link"></i>
-        <span>Social Links</span>
-      </div>
+        Social Links
+      </label>
 
-      <div class="social-list">
-        <div class="social-input">
-          <label>
+      <div class="social-grid">
+        <div class="social-item">
+          <div class="social-icon instagram">
             <i class="fab fa-instagram"></i>
-            <span>Instagram</span>
-          </label>
-          <input
-            type="url"
-            formControlName="instagram_url"
-            placeholder="https://instagram.com/yourprofile"
-          />
+          </div>
+          <input type="url" formControlName="instagram_url" placeholder="Instagram URL" />
         </div>
 
-        <div class="social-input">
-          <label>
+        <div class="social-item">
+          <div class="social-icon twitter">
             <i class="fab fa-twitter"></i>
-            <span>Twitter</span>
-          </label>
-          <input
-            type="url"
-            formControlName="twitter_url"
-            placeholder="https://twitter.com/yourprofile"
-          />
+          </div>
+          <input type="url" formControlName="twitter_url" placeholder="Twitter URL" />
         </div>
 
-        <div class="social-input">
-          <label>
+        <div class="social-item">
+          <div class="social-icon youtube">
             <i class="fab fa-youtube"></i>
-            <span>YouTube</span>
-          </label>
-          <input
-            type="url"
-            formControlName="youtube_url"
-            placeholder="https://youtube.com/@yourchannel"
-          />
+          </div>
+          <input type="url" formControlName="youtube_url" placeholder="YouTube URL" />
         </div>
 
-        <div class="social-input">
-          <label>
+        <div class="social-item">
+          <div class="social-icon spotify">
             <i class="fab fa-spotify"></i>
-            <span>Spotify</span>
-          </label>
-          <input
-            type="url"
-            formControlName="spotify_url"
-            placeholder="https://open.spotify.com/artist/yourprofile"
-          />
+          </div>
+          <input type="url" formControlName="spotify_url" placeholder="Spotify URL" />
         </div>
       </div>
     </div>
   </form>
 </div>
+<app-confirm-dialog (confirmed)="onDeleteConfirmed()"></app-confirm-dialog>

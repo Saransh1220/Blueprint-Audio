@@ -1,3 +1,10 @@
+// User Roles
+export enum Role {
+  PRODUCER = 'producer',
+  ARTIST = 'artist',
+}
+
+// Musical Keys
 export enum MusicalKey {
   // Major Keys
   C_MAJOR = 'C MAJOR',

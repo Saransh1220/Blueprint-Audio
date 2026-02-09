@@ -62,6 +62,8 @@
         var(--brand-color),
         color-mix(in srgb, var(--brand-color), transparent 20%)
       );
+      background-size: cover;
+      background-position: center;
       display: flex;
       align-items: center;
       justify-content: center;

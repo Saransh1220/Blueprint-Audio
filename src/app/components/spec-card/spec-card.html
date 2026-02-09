@@ -1,15 +1,40 @@
 <div class="spec-card" (click)="openDetails()">
   <div class="spec-img-box">
-    <img [src]="imageUrl" class="card-img" alt="{{ spec.title }} Cover" />
+    <img
+      [ngSrc]="imageUrl"
+      fill
+      [priority]="priority"
+      class="card-img"
+      alt="{{ spec.title }} Cover"
+    />
     <div class="overlay-gradient"></div>
+
     <div class="play-btn-neon" (click)="playSong($event)">
-      <i class="fa-solid fa-play"></i>
+      <i [class]="isCurrentlyPlaying() ? 'fa-solid fa-pause' : 'fa-solid fa-play'"></i>
     </div>
+
+    <!-- Free MP3 badge (Overlay) -->
+    @if (spec.freeMp3Enabled) {
+      <div class="free-tag-overlay"><i class="fas fa-gift"></i> FREE</div>
+    }
+
+    <!-- Analytics overlay -->
+    @if (spec.analytics) {
+      <div class="analytics-overlay">
+        <span class="analytics-stat">
+          <i class="fa-solid fa-play"></i>
+          {{ spec.analytics.playCount }}
+        </span>
+        <span class="analytics-stat">
+          <i class="fa-solid fa-heart"></i>
+          {{ spec.analytics.favoriteCount }}
+        </span>
+      </div>
+    }
   </div>
 
   <div class="card-content">
     <div class="spec-header-mini">
-      <!-- Show Primary Genre if available, else nothing or fallback -->
       @if (spec.genres && spec.genres.length > 0) {
         <span class="genre-badge">{{ spec.genres[0].name }}</span>
       }
@@ -20,15 +45,46 @@
     <div class="card-meta">
       <span class="tag-glass">{{ spec.bpm }} BPM</span>
       <span class="tag-glass">{{ spec.key }}</span>
-      <!-- Limit tags to 3 -->
-      @for (tag of spec.tags.slice(0, 3); track tag) {
+      @if (spec.duration) {
+        <span class="tag-glass">{{ formatDuration(spec.duration) }}</span>
+      }
+      <!-- Limit tags to 2 if duration exists, else 3 -->
+      @for (tag of spec.tags.slice(0, spec.duration ? 2 : 3); track tag) {
         <span class="tag-glass">#{{ tag }}</span>
       }
     </div>
 
     <div class="spec-footer">
       <div class="spec-price">₹{{ spec.price }}</div>
-      <i class="fa-solid fa-cart-plus cart-btn" (click)="addToCart($event)"></i>
+
+      <div class="action-buttons">
+        <!-- Favorite button (auth required in service) -->
+        <button
+          class="icon-btn favorite-btn"
+          [class.favorited]="spec.analytics?.isFavorited"
+          [disabled]="isFavoriting()"
+          (click)="toggleFavorite($event)"
+          title="Favorite"
+        >
+          <i
+            [class]="spec.analytics?.isFavorited ? 'fa-solid fa-heart' : 'fa-regular fa-heart'"
+          ></i>
+        </button>
+
+        <!-- Free download button -->
+        @if (spec.freeMp3Enabled) {
+          <button
+            class="icon-btn download-btn"
+            (click)="downloadFreeMp3($event)"
+            title="Download Free MP3"
+          >
+            <i class="fa-solid fa-download"></i>
+          </button>
+        }
+
+        <!-- Cart button -->
+        <i class="fa-solid fa-cart-plus cart-btn" (click)="addToCart($event)"></i>
+      </div>
     </div>
   </div>
 </div>
