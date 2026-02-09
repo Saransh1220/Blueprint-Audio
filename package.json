@@ -7,6 +7,7 @@
 		"build": "ng build",
 		"watch": "ng build --watch --configuration development",
 		"test": "vitest",
+		"test:coverage": "vitest run --coverage",
 		"prettier:fix": "prettier --write \"src/**/*.{ts,html,scss}\"",
 		"biome:lint": "biome lint",
 		"biome:check": "biome check --write"
@@ -49,12 +50,13 @@
 		"@angular/compiler-cli": "^21.0.6",
 		"@biomejs/biome": "2.3.10",
 		"@types/jasmine": "~5.1.13",
-		"@vitest/browser-playwright": "^4.0.16",
+		"@vitest/browser-playwright": "^4.0.18",
+		"@vitest/coverage-v8": "^4.0.18",
 		"baseline-browser-mapping": "^2.9.19",
 		"jasmine-core": "~5.13.0",
 		"jsdom": "^27.3.0",
 		"typescript": "~5.9.3",
 		"vite-plugin-dts": "^4.5.4",
-		"vitest": "^4.0.16"
+		"vitest": "^4.0.18"
 	}
 }

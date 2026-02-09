@@ -3,6 +3,8 @@ import { provideHttpClient } from '@angular/common/http';
 import { type ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideAnimations } from '@angular/platform-browser/animations';
 import { provideRouter } from '@angular/router';
+import { of } from 'rxjs';
+import { LabService, PlayerService } from '../../services';
 
 import { LabSectionComponent } from './lab-section';
 
@@ -13,7 +15,13 @@ describe('LabSectionComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [LabSectionComponent],
-      providers: [provideRouter([]), provideHttpClient(), provideAnimations()],
+      providers: [
+        provideRouter([]),
+        provideHttpClient(),
+        provideAnimations(),
+        { provide: LabService, useValue: { getSpecs: vi.fn().mockReturnValue(of([])) } },
+        { provide: PlayerService, useValue: { showPlayer: vi.fn() } },
+      ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(LabSectionComponent);

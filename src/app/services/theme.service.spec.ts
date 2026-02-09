@@ -6,6 +6,8 @@ import { ThemeService } from './theme.service';
 
 describe('ThemeService', () => {
   let service: ThemeService;
+  let getItemSpy: ReturnType<typeof vi.spyOn>;
+
   beforeEach(() => {
     TestBed.configureTestingModule({
       providers: [ThemeService],
@@ -16,7 +18,7 @@ describe('ThemeService', () => {
     vi.spyOn(doc.body.classList, 'remove');
     vi.spyOn(doc.body, 'setAttribute');
 
-    vi.spyOn(Storage.prototype, 'getItem').mockReturnValue(null);
+    getItemSpy = vi.spyOn(Storage.prototype, 'getItem').mockReturnValue(null);
     vi.spyOn(Storage.prototype, 'setItem');
   });
 
@@ -36,6 +38,27 @@ describe('ThemeService', () => {
     service = TestBed.inject(ThemeService);
     service.setMode('dark');
     service.toggleMode();
+    expect(service.currentMode()).toBe('light');
+  });
+
+  it('initializes from localStorage values when available', () => {
+    getItemSpy.mockImplementation((key: string) => {
+      if (key === 'app-mode') return 'dark';
+      if (key === 'app-theme-preset') return 'mint';
+      return null;
+    });
+
+    service = TestBed.inject(ThemeService);
+
+    expect(service.currentMode()).toBe('dark');
+    expect(service.activeTheme()).toBe('mint');
+  });
+
+  it('ignores invalid mode values', () => {
+    service = TestBed.inject(ThemeService);
+    service.setMode('light');
+    service.setMode('invalid-mode');
+
     expect(service.currentMode()).toBe('light');
   });
 });
