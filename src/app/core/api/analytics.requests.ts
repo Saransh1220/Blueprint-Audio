@@ -66,12 +66,19 @@ export interface TopSpecStat {
   plays: number;
 }
 
+export interface DailyRevenueStat {
+  date: string;
+  revenue: number;
+}
+
 export interface AnalyticsOverviewDto {
   total_plays: number;
   total_favorites: number;
   total_revenue: number;
   total_downloads: number;
   plays_by_day: DailyStat[];
+  downloads_by_day: DailyStat[];
+  revenue_by_day: DailyRevenueStat[];
   top_specs: TopSpecStat[];
   revenue_by_license: { [key: string]: number };
 }

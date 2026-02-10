@@ -12,13 +12,13 @@ export class BattlesComponent {
   tournaments = [
     {
       name: 'Weekly Fire Vol. 42',
-      prize: '$500 + Exclusive Pack',
+      prize: '₹500 + Exclusive Pack',
       participants: 128,
       endsIn: '2d 14h',
     },
     {
       name: 'Monthly King',
-      prize: '$2000 + Studio Time',
+      prize: '₹2000 + Studio Time',
       participants: 542,
       endsIn: '12d 05h',
     },

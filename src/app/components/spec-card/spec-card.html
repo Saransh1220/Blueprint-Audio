@@ -42,6 +42,16 @@
 
     <div class="spec-title">{{ spec.title }}</div>
 
+    <div class="producer-info">
+      <a
+        [routerLink]="['/store', spec.producerId]"
+        (click)="$event.stopPropagation()"
+        class="producer-link"
+      >
+        <i class="fas fa-user-music"></i> {{ spec.producerName }}
+      </a>
+    </div>
+
     <div class="card-meta">
       <span class="tag-glass">{{ spec.bpm }} BPM</span>
       <span class="tag-glass">{{ spec.key }}</span>

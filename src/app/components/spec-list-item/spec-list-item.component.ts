@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, Input, inject, computed, signal } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { CommonModule, NgOptimizedImage } from '@angular/common';
 
 import type { Spec } from '../../models';
@@ -8,7 +8,7 @@ import { LicenseSelectorComponent } from '../license-selector/license-selector.c
 
 @Component({
   selector: 'app-spec-list-item',
-  imports: [CommonModule, NgOptimizedImage],
+  imports: [CommonModule, NgOptimizedImage, RouterLink],
   templateUrl: './spec-list-item.component.html',
   styleUrls: ['./spec-list-item.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

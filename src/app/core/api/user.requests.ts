@@ -2,6 +2,7 @@ import { ApiRequest, HttpMethod } from './api-request';
 
 export interface UpdateProfileDto {
   bio?: string;
+  display_name?: string;
   avatar_url?: string;
   instagram_url?: string;
   twitter_url?: string;
@@ -12,6 +13,7 @@ export interface UpdateProfileDto {
 export interface PublicUserResponse {
   id: string;
   name: string;
+  display_name?: string;
   role: string;
   bio?: string;
   avatar_url?: string;

@@ -20,6 +20,7 @@ export interface ProducerAnalyticsDto {
 export interface SpecDto {
   id: string;
   producer_id: string;
+  producer_name: string;
   title: string;
   category: 'beat' | 'sample';
   type: string;

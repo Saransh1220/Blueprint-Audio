@@ -39,7 +39,13 @@ export class AuthService {
     );
   }
 
-  register(data: { email: string; password: string; name: string; role: string }) {
+  register(data: {
+    email: string;
+    password: string;
+    name: string;
+    display_name?: string;
+    role: string;
+  }) {
     return this.api.execute(new RegisterRequest(data)).pipe(
       switchMap(() => {
         // Automatically login and return the login observable
@@ -50,6 +56,7 @@ export class AuthService {
 
   updateProfile(data: {
     bio?: string;
+    display_name?: string;
     instagram_url?: string;
     twitter_url?: string;
     youtube_url?: string;
@@ -74,6 +81,7 @@ export class AuthService {
     return {
       id: response.id,
       name: response.name,
+      display_name: response.display_name || null,
       email: '', // Not included in public response
       role: response.role as Role,
       bio: response.bio || null,

@@ -4,6 +4,7 @@ export interface UserApiResponse {
   id: string;
   email: string;
   name: string;
+  display_name?: string;
   role: Role;
   bio?: string;
   avatar_url?: string;

@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, Input, inject, computed, signal } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 
 import { NgOptimizedImage } from '@angular/common';
@@ -11,7 +11,7 @@ import { LicenseSelectorComponent } from '../license-selector/license-selector.c
 
 @Component({
   selector: 'app-spec-card',
-  imports: [CommonModule, NgOptimizedImage],
+  imports: [CommonModule, NgOptimizedImage, RouterLink],
   templateUrl: './spec-card.html',
   styleUrls: ['./spec-card.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

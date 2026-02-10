@@ -14,6 +14,7 @@ export class RegisterComponent {
   private authService = inject(AuthService);
 
   username = '';
+  displayName = '';
   email = '';
   password = '';
   confirmPassword = '';
@@ -30,6 +31,7 @@ export class RegisterComponent {
         email: this.email,
         password: this.password,
         name: this.username,
+        display_name: this.displayName || undefined,
         role: this.role,
       })
       .subscribe({
