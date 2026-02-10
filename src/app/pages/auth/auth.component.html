@@ -10,20 +10,41 @@
           <a href="#" class="social"><i class="fab fa-linkedin-in"></i></a>
         </div>
         <span>or use your email for registration</span>
-        <input type="text" placeholder="Name" [(ngModel)]="registerUsername" name="username" />
-        <input type="email" placeholder="Email" [(ngModel)]="registerEmail" name="email" />
+        <div class="input-row">
+          <input
+            type="text"
+            placeholder="Username"
+            [(ngModel)]="registerUsername"
+            name="username"
+          />
+          <input
+            type="text"
+            placeholder="Display Name"
+            [(ngModel)]="registerDisplayName"
+            name="displayName"
+          />
+        </div>
         <input
-          type="password"
-          placeholder="Password"
-          [(ngModel)]="registerPassword"
-          name="password"
+          type="email"
+          placeholder="Email"
+          [(ngModel)]="registerEmail"
+          name="email"
+          class="full-width"
         />
-        <input
-          type="password"
-          placeholder="Confirm Password"
-          [(ngModel)]="registerConfirmPassword"
-          name="confirmPassword"
-        />
+        <div class="input-row">
+          <input
+            type="password"
+            placeholder="Password"
+            [(ngModel)]="registerPassword"
+            name="password"
+          />
+          <input
+            type="password"
+            placeholder="Confirm Pass"
+            [(ngModel)]="registerConfirmPassword"
+            name="confirmPassword"
+          />
+        </div>
         <div class="role-switch-container">
           <span class="label">I am a:</span>
           <div class="switch-wrapper">

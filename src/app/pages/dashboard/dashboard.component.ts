@@ -27,7 +27,7 @@ export class DashboardComponent implements OnInit {
 
   readonly Role = Role;
 
-  currentUser = signal<User | null>(null);
+  currentUser = this.authService.currentUser;
   currentDate = signal<Date>(new Date());
 
   // --- Overview State ---
@@ -55,15 +55,18 @@ export class DashboardComponent implements OnInit {
       },
       { allowSignalWrites: true },
     );
+
+    // Reactively load analytics when user is available
+    effect(() => {
+      const user = this.currentUser();
+      if (user?.role === Role.PRODUCER) {
+        this.loadAnalytics();
+      }
+    });
   }
 
   ngOnInit() {
-    const user = this.authService.currentUser();
-    this.currentUser.set(user);
-
-    if (user?.role === Role.PRODUCER) {
-      this.loadAnalytics();
-    }
+    // Initialization handled by effects
   }
 
   loadAnalytics() {

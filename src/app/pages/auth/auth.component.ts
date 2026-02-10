@@ -43,6 +43,7 @@ export class AuthComponent implements OnInit, AfterViewInit, OnDestroy {
 
   // Register Form Data
   registerUsername = '';
+  registerDisplayName = '';
   registerEmail = '';
   registerPassword = '';
   registerConfirmPassword = '';
@@ -120,6 +121,7 @@ export class AuthComponent implements OnInit, AfterViewInit, OnDestroy {
   onRegisterSubmit() {
     if (
       !this.registerUsername ||
+      !this.registerDisplayName ||
       !this.registerEmail ||
       !this.registerPassword ||
       !this.registerConfirmPassword
@@ -142,6 +144,7 @@ export class AuthComponent implements OnInit, AfterViewInit, OnDestroy {
     this.authService
       .register({
         name: this.registerUsername,
+        display_name: this.registerDisplayName,
         email: this.registerEmail,
         password: this.registerPassword,
         role: this.registerRole,

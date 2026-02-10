@@ -53,7 +53,7 @@
     <!-- Charts Row -->
     <div class="charts-grid">
       <div class="chart-card glass-panel">
-        <h3>Plays Over Time</h3>
+        <h3>Plays & Downloads</h3>
         <div class="chart-container">
           <canvas
             baseChart
@@ -72,6 +72,18 @@
           } @else {
             <div class="empty-chart">No revenue data yet</div>
           }
+        </div>
+      </div>
+      <div class="chart-card glass-panel revenue-history">
+        <h3>Revenue History</h3>
+        <div class="chart-container">
+          <canvas
+            baseChart
+            [data]="revenueChartData"
+            [options]="revenueChartOptions"
+            [type]="lineChartType"
+          >
+          </canvas>
         </div>
       </div>
     </div>

@@ -28,32 +28,59 @@ export class AnalyticsComponent {
 
   public lineChartData: ChartData<'line'> = {
     labels: [],
-    datasets: [
-      {
-        data: [],
-        label: 'Plays',
-        backgroundColor: 'rgba(239, 68, 68, 0.2)',
-        borderColor: '#ef4444',
-        pointBackgroundColor: '#ef4444',
-        pointBorderColor: '#fff',
-        pointHoverBackgroundColor: '#fff',
-        pointHoverBorderColor: 'rgba(148,159,177,0.8)',
-        fill: 'origin',
-      },
-    ],
+    datasets: [],
+  };
+
+  public revenueChartData: ChartData<'line'> = {
+    labels: [],
+    datasets: [],
   };
 
   public lineChartOptions: ChartConfiguration['options'] = {
     elements: {
       line: {
-        tension: 0.5,
+        tension: 0.4,
+      },
+      point: {
+        radius: 2,
+        hoverRadius: 6,
       },
     },
     scales: {
-      // We show x axis
+      y: {
+        beginAtZero: true,
+        grid: {
+          color: 'rgba(255, 255, 255, 0.05)',
+        },
+        ticks: { color: '#94a3b8' },
+      },
+      x: {
+        grid: { display: false },
+        ticks: { color: '#94a3b8' },
+      },
     },
     plugins: {
-      legend: { display: true },
+      legend: {
+        display: true,
+        labels: { color: '#fff' },
+      },
+    },
+  };
+
+  public revenueChartOptions: ChartConfiguration['options'] = {
+    ...this.lineChartOptions,
+    scales: {
+      y: {
+        ...this.lineChartOptions?.scales?.['y'],
+        ticks: {
+          color: '#94a3b8',
+          callback: (value) => '₹' + value,
+        },
+      },
+      x: {
+        grid: { display: false },
+        ticks: { color: '#94a3b8' },
+      },
     },
   };
 
@@ -98,38 +125,71 @@ export class AnalyticsComponent {
   }
 
   updateCharts(data: AnalyticsOverviewDto) {
-    // Update Line Chart (Plays by day)
-    // Note: data.plays_by_day might be empty if we didn't implement time-series properly yet
-    if (data.plays_by_day && data.plays_by_day.length > 0) {
-      this.lineChartData = {
-        labels: data.plays_by_day.map((d) => d.date),
-        datasets: [
-          {
-            data: data.plays_by_day.map((d) => d.count),
-            label: 'Plays',
-            backgroundColor: 'rgba(239, 68, 68, 0.2)',
-            borderColor: '#ef4444',
-            pointBackgroundColor: '#ef4444',
-            fill: 'origin',
-          },
-        ],
-      };
-    } else {
-      // Default empty state
-      this.lineChartData = {
-        labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
-        datasets: [
-          {
-            data: [0, 0, 0, 0, 0, 0, 0],
-            label: 'Plays',
-            backgroundColor: 'rgba(239, 68, 68, 0.2)',
-            borderColor: '#ef4444',
-            pointBackgroundColor: '#ef4444',
-            fill: 'origin',
-          },
-        ],
-      };
-    }
+    // Update Line Chart (Plays & Downloads)
+    // 1. Get all unique dates from both datasets
+    const allDates = new Set<string>();
+    data.plays_by_day?.forEach((d) => allDates.add(d.date));
+    data.downloads_by_day?.forEach((d) => allDates.add(d.date));
+
+    // 2. Sort dates
+    const labels = Array.from(allDates).sort();
+
+    // 3. Create maps for O(1) lookup
+    const playsMap = new Map(data.plays_by_day?.map((d) => [d.date, d.count]));
+    const downloadsMap = new Map(data.downloads_by_day?.map((d) => [d.date, d.count]));
+
+    // 4. Map data to sorted dates (filling 0 for missing days)
+    const playsData = labels.map((date) => playsMap.get(date) || 0);
+    const downloadsData = labels.map((date) => downloadsMap.get(date) || 0);
+
+    this.lineChartData = {
+      labels,
+      datasets: [
+        {
+          data: playsData,
+          label: 'Plays',
+          backgroundColor: 'rgba(239, 68, 68, 0.1)',
+          borderColor: '#ef4444',
+          pointBackgroundColor: '#ef4444',
+          pointBorderColor: '#fff',
+          pointHoverBackgroundColor: '#fff',
+          pointHoverBorderColor: '#ef4444',
+          fill: 'origin',
+        },
+        {
+          data: downloadsData,
+          label: 'Downloads',
+          backgroundColor: 'rgba(168, 85, 247, 0.1)', // Purple
+          borderColor: '#a855f7',
+          pointBackgroundColor: '#a855f7',
+          pointBorderColor: '#fff',
+          pointHoverBackgroundColor: '#fff',
+          pointHoverBorderColor: '#a855f7',
+          fill: 'origin',
+        },
+      ],
+    };
+
+    // Update Revenue Chart
+    const revenueLabels = data.revenue_by_day?.map((d) => d.date) || [];
+    const revenueData = data.revenue_by_day?.map((d) => d.revenue) || [];
+
+    this.revenueChartData = {
+      labels: revenueLabels,
+      datasets: [
+        {
+          data: revenueData,
+          label: 'Revenue (₹)',
+          backgroundColor: 'rgba(16, 185, 129, 0.1)', // Green
+          borderColor: '#10b981',
+          pointBackgroundColor: '#10b981',
+          pointBorderColor: '#fff',
+          pointHoverBackgroundColor: '#fff',
+          pointHoverBorderColor: '#10b981',
+          fill: 'origin',
+        },
+      ],
+    };
 
     // Update Doughnut Chart (Revenue by License)
     const licenseLabels = Object.keys(data.revenue_by_license);
