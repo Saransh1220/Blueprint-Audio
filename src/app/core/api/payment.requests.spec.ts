@@ -2,6 +2,7 @@ import {
   CreateOrderRequest,
   GetLicenseDownloadsRequest,
   GetOrderRequest,
+  GetProducerOrdersRequest,
   GetUserLicensesRequest,
   GetUserOrdersRequest,
   VerifyPaymentRequest,
@@ -26,5 +27,12 @@ describe('payment requests', () => {
     expect(licensesReq.params?.get('page')).toBe('3');
     expect(licensesReq.params?.get('q')).toBe('trap');
     expect(licensesReq.params?.get('type')).toBe('Basic');
+  });
+
+  it('sets producer order paging query param', () => {
+    const req = new GetProducerOrdersRequest(4);
+    expect(req.path).toBe('/orders/producer');
+    expect(req.method).toBe('GET');
+    expect(req.params?.get('page')).toBe('4');
   });
 });

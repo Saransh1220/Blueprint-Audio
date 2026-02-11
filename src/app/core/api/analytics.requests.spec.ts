@@ -1,7 +1,8 @@
 import {
   DownloadFreeMp3Request,
-  GetAnalyticsOverviewRequest,
+  GetOverviewRequest,
   GetProducerAnalyticsRequest,
+  GetTopSpecsRequest,
   ToggleFavoriteRequest,
   TrackPlayRequest,
 } from './analytics.requests';
@@ -21,10 +22,31 @@ describe('analytics requests', () => {
     expect(new DownloadFreeMp3Request('s1').method).toBe('POST');
   });
 
-  it('sets overview days query param', () => {
-    const req = new GetAnalyticsOverviewRequest(14);
+  it('sets overview query params with defaults', () => {
+    const req = new GetOverviewRequest();
+    expect(req.path).toBe('/analytics/overview');
+    expect(req.method).toBe('GET');
+    expect(req.params.get('days')).toBe('30');
+    expect(req.params.get('sortBy')).toBe('plays');
+  });
+
+  it('sets overview query params from input', () => {
+    const req = new GetOverviewRequest(14, 'downloads');
     expect(req.path).toBe('/analytics/overview');
     expect(req.method).toBe('GET');
     expect(req.params.get('days')).toBe('14');
+    expect(req.params.get('sortBy')).toBe('downloads');
+  });
+
+  it('sets top specs query params with defaults and overrides', () => {
+    const defaults = new GetTopSpecsRequest();
+    expect(defaults.path).toBe('/analytics/top-specs');
+    expect(defaults.method).toBe('GET');
+    expect(defaults.params.get('limit')).toBe('5');
+    expect(defaults.params.get('sortBy')).toBe('plays');
+
+    const custom = new GetTopSpecsRequest(10, 'revenue');
+    expect(custom.params.get('limit')).toBe('10');
+    expect(custom.params.get('sortBy')).toBe('revenue');
   });
 });

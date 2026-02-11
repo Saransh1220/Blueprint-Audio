@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 import {
   CreateOrderRequest,
   GetLicenseDownloadsRequest,
+  GetProducerOrdersRequest,
   GetUserLicensesRequest,
   VerifyPaymentRequest,
 } from '../core/api/payment.requests';
@@ -66,6 +67,15 @@ describe('PaymentService', () => {
 
     service.getLicenseDownloads('lic-1').subscribe();
     expect(execute.mock.calls[0][0]).toBeInstanceOf(GetLicenseDownloadsRequest);
+  });
+
+  it('getProducerOrders delegates to ApiService', () => {
+    const execute = vi.fn().mockReturnValue(of({ orders: [], total: 0, limit: 20, offset: 0 }));
+    const { service } = setup(execute);
+
+    service.getProducerOrders(3).subscribe();
+    expect(execute.mock.calls[0][0]).toBeInstanceOf(GetProducerOrdersRequest);
+    expect((execute.mock.calls[0][0] as GetProducerOrdersRequest).params?.get('page')).toBe('3');
   });
 
   it('initiatePayment surfaces create-order errors with toast', () => {

@@ -31,6 +31,11 @@ export const routes: Routes = [
       import('./pages/analytics/analytics.component').then((m) => m.AnalyticsComponent),
     canActivate: [authGuard],
   },
+  {
+    path: 'orders',
+    loadComponent: () => import('./pages/orders/orders.component').then((m) => m.OrdersComponent),
+    canActivate: [authGuard],
+  },
   { path: 'profile', component: ProfileComponent, canActivate: [authGuard] },
   { path: 'store/:id', component: StoreComponent },
   { path: 'settings', component: SettingsComponent },
