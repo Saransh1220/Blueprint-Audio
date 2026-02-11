@@ -73,6 +73,8 @@ export class GetUserOrdersRequest implements ApiRequest<Order[]> {
 
 // Get User Licenses Request
 
+// Get User Licenses Request
+
 export class GetUserLicensesRequest implements ApiRequest<PaginatedResponse<License>> {
   readonly path = '/licenses';
   readonly method: HttpMethod = 'GET';
@@ -87,5 +89,37 @@ export class GetUserLicensesRequest implements ApiRequest<PaginatedResponse<Lice
       if (queryParams.type) params = params.set('type', queryParams.type);
       this.params = params;
     }
+  }
+}
+
+// Get Producer Orders Request
+export interface ProducerOrderDto {
+  id: string;
+  amount: number;
+  currency: string;
+  status: string;
+  created_at: string;
+  license_type: string;
+  buyer_name: string;
+  buyer_email: string;
+  spec_title: string;
+  razorpay_order_id?: string;
+}
+
+export interface ProducerOrderResponse {
+  orders: ProducerOrderDto[];
+  total: number;
+  limit: number;
+  offset: number;
+}
+
+export class GetProducerOrdersRequest implements ApiRequest<ProducerOrderResponse> {
+  readonly path = '/orders/producer';
+  readonly method: HttpMethod = 'GET';
+  readonly _responseType?: ProducerOrderResponse;
+  readonly params?: HttpParams;
+
+  constructor(page: number = 1) {
+    this.params = new HttpParams().set('page', page);
   }
 }

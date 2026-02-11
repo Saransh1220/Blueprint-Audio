@@ -3,7 +3,7 @@ import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/cor
 import { BaseChartDirective } from 'ng2-charts';
 import { ChartConfiguration, ChartData, ChartType } from 'chart.js';
 import { AnalyticsService } from '../../services/analytics.service';
-import { AnalyticsOverviewDto, DailyStat, TopSpecStat } from '../../core/api/analytics.requests';
+import { AnalyticsOverviewResponse, TopSpecStat } from '../../core/api/analytics.requests';
 import { CsvExportService } from '../../core/services/csv-export.service';
 
 @Component({
@@ -19,8 +19,10 @@ export class AnalyticsComponent {
 
   isLoading = signal(true);
   error = signal<string | null>(null);
-  data = signal<AnalyticsOverviewDto | null>(null);
+  data = signal<AnalyticsOverviewResponse | null>(null);
+  topSpecs = signal<TopSpecStat[]>([]);
   currentDays = signal(30);
+  sortBy = signal<'plays' | 'revenue' | 'downloads'>('plays');
 
   // Chart Configs
   public lineChartType: ChartType = 'line';
@@ -100,9 +102,16 @@ export class AnalyticsComponent {
     this.loadData();
   }
 
+  onSortChange(sortBy: string) {
+    this.sortBy.set(sortBy as 'plays' | 'revenue' | 'downloads');
+    this.loadTopSpecs();
+  }
+
   loadData() {
     this.isLoading.set(true);
-    this.analyticsService.getOverview(this.currentDays()).subscribe({
+
+    // Load Overview
+    this.analyticsService.getOverview(this.currentDays(), 'plays').subscribe({
       next: (res) => {
         this.data.set(res);
         this.isLoading.set(false);
@@ -112,6 +121,20 @@ export class AnalyticsComponent {
         console.error('Analytics error', err);
         this.error.set('Failed to load analytics data');
         this.isLoading.set(false);
+      },
+    });
+
+    // Load Top Specs
+    this.loadTopSpecs();
+  }
+
+  loadTopSpecs() {
+    this.analyticsService.getTopSpecs(5, this.sortBy()).subscribe({
+      next: (specs) => {
+        this.topSpecs.set(specs);
+      },
+      error: (err) => {
+        console.error('Failed to load top specs', err);
       },
     });
   }
@@ -124,7 +147,7 @@ export class AnalyticsComponent {
     this.csvService.downloadAnalyticsCsv(data, this.currentDays());
   }
 
-  updateCharts(data: AnalyticsOverviewDto) {
+  updateCharts(data: AnalyticsOverviewResponse) {
     // Update Line Chart (Plays & Downloads)
     // 1. Get all unique dates from both datasets
     const allDates = new Set<string>();

@@ -9,8 +9,10 @@ import {
   GetProducerAnalyticsRequest,
   DownloadFreeMp3Request,
   DownloadFreeMp3Response,
-  GetAnalyticsOverviewRequest,
-  AnalyticsOverviewDto,
+  GetOverviewRequest,
+  AnalyticsOverviewResponse,
+  GetTopSpecsRequest,
+  TopSpecStat,
 } from '../core/api/analytics.requests';
 import { ProducerAnalytics } from '../models/spec';
 import { SpecAdapter } from '../adapters/spec.adapter';
@@ -56,7 +58,20 @@ export class AnalyticsService {
   /**
    * Get aggregated analytics overview for the dashboard
    */
-  getOverview(days: number = 30): Observable<AnalyticsOverviewDto> {
-    return this.api.execute(new GetAnalyticsOverviewRequest(days));
+  getOverview(
+    days: number = 30,
+    sortBy: 'plays' | 'revenue' | 'downloads' = 'plays',
+  ): Observable<AnalyticsOverviewResponse> {
+    return this.api.execute(new GetOverviewRequest(days, sortBy));
+  }
+
+  /**
+   * Get top performing specs (isolated for sorting)
+   */
+  getTopSpecs(
+    limit: number = 5,
+    sortBy: 'plays' | 'revenue' | 'downloads' = 'plays',
+  ): Observable<TopSpecStat[]> {
+    return this.api.execute(new GetTopSpecsRequest(limit, sortBy));
   }
 }

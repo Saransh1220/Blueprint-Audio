@@ -79,6 +79,11 @@
               >
                 <i class="fas fa-store"></i> MY STORE
               </a>
+              @if (authService.currentUser()?.role === Role.PRODUCER) {
+                <a routerLink="/orders" (click)="closeUserMenu()" class="menu-item">
+                  <i class="fas fa-file-invoice-dollar"></i> ORDERS
+                </a>
+              }
               <a routerLink="/settings" (click)="closeUserMenu()" class="menu-item">
                 <i class="fas fa-cog"></i> SETTINGS
               </a>

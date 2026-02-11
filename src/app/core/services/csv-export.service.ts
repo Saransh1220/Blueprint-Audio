@@ -1,11 +1,11 @@
 import { Injectable } from '@angular/core';
-import { AnalyticsOverviewDto } from '../api/analytics.requests';
+import { AnalyticsOverviewResponse } from '../api/analytics.requests';
 
 @Injectable({
   providedIn: 'root',
 })
 export class CsvExportService {
-  downloadAnalyticsCsv(data: AnalyticsOverviewDto, days: number): void {
+  downloadAnalyticsCsv(data: AnalyticsOverviewResponse, days: number): void {
     const sections: string[] = [];
 
     // 1. Report Header
@@ -33,7 +33,7 @@ export class CsvExportService {
     return `Analytics Report\nGenerated on,${today}\nPeriod,Last ${days} Days`;
   }
 
-  private generateSummary(data: AnalyticsOverviewDto): string {
+  private generateSummary(data: AnalyticsOverviewResponse): string {
     return [
       'Summary',
       'Metric,Value',
@@ -49,12 +49,16 @@ export class CsvExportService {
     return ['Revenue by License', 'License Type,Amount', ...rows].join('\n');
   }
 
-  private generateTopSpecs(specs: { title: string; plays: number }[]): string {
+  private generateTopSpecs(
+    specs: { title: string; plays: number; downloads: number; revenue: number }[],
+  ): string {
     if (!specs.length) return 'Top Specs\nNo data available';
 
     // Sanitize titles to avoid CSV injection or broken cols (wrap in quotes if needed)
-    const rows = specs.map((s) => `"${s.title.replace(/"/g, '""')}",${s.plays}`);
-    return ['Top Performing Specs', 'Title,Plays', ...rows].join('\n');
+    const rows = specs.map(
+      (s) => `"${s.title.replace(/"/g, '""')}",${s.plays},${s.downloads},${s.revenue}`,
+    );
+    return ['Top Performing Specs', 'Title,Plays,Downloads,Revenue', ...rows].join('\n');
   }
 
   private generateDailyPlays(days: { date: string; count: number }[]): string {
@@ -64,7 +68,7 @@ export class CsvExportService {
     return ['Daily Plays Timeline', 'Date,Plays', ...rows].join('\n');
   }
 
-  private downloadFile(content: string, filename: string): void {
+  downloadFile(content: string, filename: string): void {
     const blob = new Blob([content], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
@@ -74,5 +78,24 @@ export class CsvExportService {
     link.click();
     document.body.removeChild(link);
     window.URL.revokeObjectURL(url);
+  }
+
+  downloadCsv(data: any[], filename: string): void {
+    if (!data.length) return;
+
+    const headers = Object.keys(data[0]);
+    const csvContent = [
+      headers.join(','),
+      ...data.map((row) =>
+        headers
+          .map((fieldName) => {
+            const value = row[fieldName]?.toString() || '';
+            return `"${value.replace(/"/g, '""')}"`;
+          })
+          .join(','),
+      ),
+    ].join('\n');
+
+    this.downloadFile(csvContent, filename.endsWith('.csv') ? filename : `${filename}.csv`);
   }
 }

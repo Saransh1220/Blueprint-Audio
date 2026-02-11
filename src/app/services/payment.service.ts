@@ -16,6 +16,8 @@ import {
   VerifyPaymentRequest,
   GetUserLicensesRequest,
   GetLicenseDownloadsRequest,
+  GetProducerOrdersRequest,
+  ProducerOrderResponse,
 } from '../core/api/payment.requests';
 import { environment } from '../../environments/environment';
 import { ToastService } from './toast.service';
@@ -167,5 +169,12 @@ export class PaymentService {
    */
   getLicenseDownloads(licenseId: string): Observable<LicenseDownloadsResponse> {
     return this.api.execute(new GetLicenseDownloadsRequest(licenseId));
+  }
+
+  /**
+   * Get orders for producer (sales)
+   */
+  getProducerOrders(page: number = 1): Observable<ProducerOrderResponse> {
+    return this.api.execute(new GetProducerOrdersRequest(page));
   }
 }

@@ -211,10 +211,52 @@
   border-radius: 16px;
   padding: 1.5rem;
 
-  h3 {
-    font-size: 1.25rem;
+  .table-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
     margin-bottom: 1.5rem;
-    font-family: $font-tech;
+
+    h3 {
+      font-size: 1.25rem;
+      font-family: $font-tech;
+      margin: 0;
+    }
+
+    .sort-controls {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      font-size: 0.875rem;
+      color: rgba(255, 255, 255, 0.6);
+
+      select {
+        padding: 0.5rem 1rem;
+        background: rgba(0, 0, 0, 0.2);
+        border: 1px solid var(--line-color);
+        border-radius: 8px;
+        color: var(--text-color);
+        font-family: $font-tech;
+        cursor: pointer;
+        outline: none;
+        transition: all 0.2s ease;
+
+        &:hover,
+        &:focus {
+          border-color: var(--brand-color);
+          background: rgba(0, 0, 0, 0.4);
+        }
+
+        option {
+          background: #0f0a15;
+          color: var(--text-color);
+        }
+      }
+    }
+  }
+
+  .table-responsive {
+    overflow-x: auto;
   }
 
   table {
@@ -225,13 +267,25 @@
       text-align: left;
       padding: 1rem;
       font-family: $font-tech;
-      color: rgba(255, 255, 255, 0.6);
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: rgba(255, 255, 255, 0.5);
       border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+
+      &.text-right {
+        text-align: right;
+      }
     }
 
     td {
-      padding: 1rem;
+      padding: 1.25rem 1rem;
       border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      transition: background 0.2s ease;
+
+      &.text-right {
+        text-align: right;
+      }
 
       &:first-child {
         font-weight: 600;
@@ -239,17 +293,15 @@
       }
     }
 
-    .progress-bar {
-      width: 100px;
-      height: 6px;
-      background: rgba(255, 255, 255, 0.1);
-      border-radius: 3px;
-      overflow: hidden;
+    tr {
+      transition: background 0.2s ease;
 
-      .fill {
-        height: 100%;
-        background: var(--brand-color);
-        border-radius: 3px;
+      &:hover {
+        background: rgba(255, 255, 255, 0.03);
+      }
+
+      &:last-child td {
+        border-bottom: none;
       }
     }
   }

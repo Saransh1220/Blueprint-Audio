@@ -64,6 +64,8 @@ export interface TopSpecStat {
   spec_id: string;
   title: string;
   plays: number;
+  downloads: number;
+  revenue: number;
 }
 
 export interface DailyRevenueStat {
@@ -71,7 +73,7 @@ export interface DailyRevenueStat {
   revenue: number;
 }
 
-export interface AnalyticsOverviewDto {
+export interface AnalyticsOverviewResponse {
   total_plays: number;
   total_favorites: number;
   total_revenue: number;
@@ -80,18 +82,29 @@ export interface AnalyticsOverviewDto {
   downloads_by_day: DailyStat[];
   revenue_by_day: DailyRevenueStat[];
   top_specs: TopSpecStat[];
-  revenue_by_license: { [key: string]: number };
+  revenue_by_license: Record<string, number>;
 }
 
 import { HttpParams } from '@angular/common/http';
 
-export class GetAnalyticsOverviewRequest implements ApiRequest<AnalyticsOverviewDto> {
+export class GetOverviewRequest implements ApiRequest<AnalyticsOverviewResponse> {
   readonly path = '/analytics/overview';
   readonly method: HttpMethod = 'GET';
+  readonly _responseType?: AnalyticsOverviewResponse;
   readonly params: HttpParams;
-  readonly _responseType?: AnalyticsOverviewDto;
 
-  constructor(days: number = 30) {
-    this.params = new HttpParams().set('days', days.toString());
+  constructor(days: number = 30, sortBy: 'plays' | 'revenue' | 'downloads' = 'plays') {
+    this.params = new HttpParams().set('days', days).set('sortBy', sortBy);
+  }
+}
+
+export class GetTopSpecsRequest implements ApiRequest<TopSpecStat[]> {
+  readonly path = '/analytics/top-specs';
+  readonly method: HttpMethod = 'GET';
+  readonly _responseType?: TopSpecStat[];
+  readonly params: HttpParams;
+
+  constructor(limit: number = 5, sortBy: 'plays' | 'revenue' | 'downloads' = 'plays') {
+    this.params = new HttpParams().set('limit', limit).set('sortBy', sortBy);
   }
 }

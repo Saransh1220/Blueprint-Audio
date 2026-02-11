@@ -90,34 +90,39 @@
 
     <!-- Top Specs Table -->
     <div class="table-section glass-panel">
-      <h3>Top Performing Specs</h3>
+      <div class="table-header">
+        <h3>Top Performing Specs</h3>
+        <div class="sort-controls">
+          <label>Sort by:</label>
+          <select #sortSelect (change)="onSortChange(sortSelect.value)">
+            <option value="plays" [selected]="sortBy() === 'plays'">Plays</option>
+            <option value="downloads" [selected]="sortBy() === 'downloads'">Downloads</option>
+            <option value="revenue" [selected]="sortBy() === 'revenue'">Revenue</option>
+          </select>
+        </div>
+      </div>
       <div class="table-responsive">
         <table>
           <thead>
             <tr>
               <th>Title</th>
-              <th>Plays</th>
-              <th>Performance</th>
+              <th class="text-right">Plays</th>
+              <th class="text-right">Downloads</th>
+              <th class="text-right">Revenue</th>
             </tr>
           </thead>
           <tbody>
-            @for (spec of data()?.top_specs; track spec.spec_id) {
+            @for (spec of topSpecs(); track spec.spec_id) {
               <tr>
                 <td>{{ spec.title }}</td>
-                <td>{{ spec.plays | number }}</td>
-                <td>
-                  <div class="progress-bar">
-                    <div
-                      class="fill"
-                      [style.width.%]="(spec.plays / (data()?.total_plays || 1)) * 100"
-                    ></div>
-                  </div>
-                </td>
+                <td class="text-right">{{ spec.plays | number }}</td>
+                <td class="text-right">{{ spec.downloads | number }}</td>
+                <td class="text-right">{{ spec.revenue | currency: 'INR' }}</td>
               </tr>
             }
-            @if (!data()?.top_specs?.length) {
+            @if (!topSpecs().length) {
               <tr>
-                <td colspan="3" class="text-center">No data available</td>
+                <td colspan="4" class="text-center">No data available for the selected period</td>
               </tr>
             }
           </tbody>
