@@ -59,4 +59,25 @@ describe('ApiService', () => {
       'Unsupported HTTP method: TRACE',
     );
   });
+
+  it('upload dispatches by request method with progress options', () => {
+    const { service, http } = createService();
+    const params = new HttpParams().set('bucket', 'beats');
+    const options = { params, reportProgress: true, observe: 'events' as const };
+
+    service.upload({ method: 'POST', path: '/u1', body: { a: 1 }, params }).subscribe();
+    service.upload({ method: 'PUT', path: '/u2', body: { a: 2 }, params }).subscribe();
+    service.upload({ method: 'PATCH', path: '/u3', body: { a: 3 }, params }).subscribe();
+
+    expect(http.post).toHaveBeenCalledWith('http://localhost:8080/u1', { a: 1 }, options);
+    expect(http.put).toHaveBeenCalledWith('http://localhost:8080/u2', { a: 2 }, options);
+    expect(http.patch).toHaveBeenCalledWith('http://localhost:8080/u3', { a: 3 }, options);
+  });
+
+  it('upload throws for unsupported methods', () => {
+    const { service } = createService();
+    expect(() => service.upload({ method: 'GET', path: '/u' } as never).subscribe()).toThrow(
+      'Upload only supported for POST, PUT, PATCH. Got: GET',
+    );
+  });
 });

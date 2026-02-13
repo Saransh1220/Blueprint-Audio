@@ -7,5 +7,7 @@ export interface ApiRequest<TResponse> {
   readonly method: HttpMethod;
   readonly body?: any;
   readonly params?: HttpParams;
+  readonly reportProgress?: boolean;
+  readonly observe?: 'body' | 'events' | 'response';
   readonly _responseType?: TResponse; // Phantom property for type inference
 }

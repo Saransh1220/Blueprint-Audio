@@ -1,4 +1,12 @@
-import { ChangeDetectionStrategy, Component, Input, inject, computed, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  Input,
+  inject,
+  computed,
+  signal,
+  ChangeDetectorRef,
+} from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { CommonModule, NgOptimizedImage } from '@angular/common';
 
@@ -18,6 +26,7 @@ export class SpecListItemComponent {
   private modalService = inject(ModalService);
   private router = inject(Router);
   private analyticsService = inject(AnalyticsService);
+  private cdr = inject(ChangeDetectorRef);
 
   isFavoriting = signal(false);
 
@@ -65,17 +74,42 @@ export class SpecListItemComponent {
     if (this.isFavoriting()) return;
 
     this.isFavoriting.set(true);
+
     this.analyticsService.toggleFavorite(this.spec.id).subscribe({
       next: (response) => {
+        if (!this.spec.analytics) {
+          this.spec.analytics = {
+            playCount: 0,
+            favoriteCount: 0,
+            totalDownloadCount: 0,
+            isFavorited: false,
+          };
+        }
+
         if (this.spec.analytics) {
-          this.spec.analytics.isFavorited = response.favorited;
-          this.spec.analytics.favoriteCount = response.total_count;
+          this.spec.analytics.isFavorited = response.is_favorited;
+
+          if (response.total_count !== undefined) {
+            this.spec.analytics.favoriteCount = response.total_count;
+          } else {
+            // Fallback: manually update count if backend doesn't return it
+            if (response.is_favorited) {
+              this.spec.analytics.favoriteCount++;
+            } else {
+              this.spec.analytics.favoriteCount = Math.max(
+                0,
+                this.spec.analytics.favoriteCount - 1,
+              );
+            }
+          }
         }
         this.isFavoriting.set(false);
+        this.cdr.markForCheck();
       },
       error: (err) => {
-        console.error('Failed to toggle favorite:', err);
+        console.error('List Item: Failed to toggle favorite:', err);
         this.isFavoriting.set(false);
+        this.cdr.markForCheck();
       },
     });
   }
@@ -84,7 +118,11 @@ export class SpecListItemComponent {
     event.stopPropagation();
     this.analyticsService.downloadFreeMp3(this.spec.id).subscribe({
       next: (response) => {
-        window.open(response.download_url, '_blank');
+        if (response.url) {
+          window.open(response.url, '_blank');
+        } else {
+          console.error('Download URL not found in response');
+        }
       },
       error: (err) => {
         console.error('Failed to download free MP3:', err);

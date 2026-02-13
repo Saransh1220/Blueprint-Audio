@@ -4,6 +4,8 @@ import { Router } from '@angular/router';
 import { Role } from '../models/enums';
 import { ApiService } from '../core/services/api.service';
 import { AuthService } from './auth.service';
+import { ModalService } from './modal.service';
+import { AuthRequirementComponent } from '../components/modals/auth-requirement/auth-requirement.component';
 
 describe('AuthService', () => {
   beforeEach(() => {
@@ -12,14 +14,16 @@ describe('AuthService', () => {
 
   function setup(execute: ReturnType<typeof vi.fn>) {
     const navigate = vi.fn();
+    const modalOpen = vi.fn();
     TestBed.configureTestingModule({
       providers: [
         AuthService,
         { provide: ApiService, useValue: { execute } },
         { provide: Router, useValue: { navigate } },
+        { provide: ModalService, useValue: { open: modalOpen } },
       ],
     });
-    return { service: TestBed.inject(AuthService), navigate };
+    return { service: TestBed.inject(AuthService), navigate, modalOpen };
   }
 
   it('login stores token and triggers getMe', () => {
@@ -106,5 +110,40 @@ describe('AuthService', () => {
 
     expect(localStorage.getItem('token')).toBeNull();
     expect(navigate).toHaveBeenCalledWith(['/login']);
+  });
+
+  it('requireAuth executes callback when user is present', () => {
+    const execute = vi.fn().mockReturnValue(of({}));
+    const { service, modalOpen } = setup(execute);
+    const callback = vi.fn();
+
+    service.currentUser.set({
+      id: 'u1',
+      email: 'u@test.com',
+      name: 'Sam',
+      role: Role.PRODUCER,
+      created_at: '2026-01-01',
+      updated_at: '2026-01-02',
+    });
+
+    service.requireAuth(callback);
+
+    expect(callback).toHaveBeenCalledTimes(1);
+    expect(modalOpen).not.toHaveBeenCalled();
+  });
+
+  it('requireAuth opens auth requirement modal when user is missing', () => {
+    const execute = vi.fn().mockReturnValue(of({}));
+    const { service, modalOpen } = setup(execute);
+    const callback = vi.fn();
+    service.currentUser.set(null);
+
+    service.requireAuth(callback);
+
+    expect(callback).not.toHaveBeenCalled();
+    expect(modalOpen).toHaveBeenCalledWith(AuthRequirementComponent, undefined, undefined, {
+      width: '500px',
+      height: 'auto',
+    });
   });
 });

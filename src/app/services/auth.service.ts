@@ -9,6 +9,8 @@ import {
   PublicUserResponse,
 } from '../core/api/user.requests';
 import { User, UserAdapter, Role } from '../models';
+import { ModalService } from './modal.service';
+import { AuthRequirementComponent } from '../components/modals/auth-requirement/auth-requirement.component';
 
 @Injectable({
   providedIn: 'root',
@@ -16,8 +18,20 @@ import { User, UserAdapter, Role } from '../models';
 export class AuthService {
   private api = inject(ApiService);
   private router = inject(Router);
+  private modalService = inject(ModalService);
 
   currentUser = signal<User | null>(null);
+
+  requireAuth(callback: () => void) {
+    if (this.currentUser()) {
+      callback();
+    } else {
+      this.modalService.open(AuthRequirementComponent, undefined, undefined, {
+        width: '500px',
+        height: 'auto',
+      });
+    }
+  }
 
   constructor() {
     this.checkSession();

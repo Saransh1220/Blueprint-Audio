@@ -8,6 +8,7 @@ import { FooterComponent } from './components/footer/footer';
 import { ModalComponent } from './components/modal/modal.component';
 import { PlayerComponent } from './components/player/player';
 import { ToastComponent } from './components/toast/toast.component';
+import { LoadingBarComponent } from './components/loading-bar/loading-bar.component';
 
 @Component({
   selector: 'app-root',
@@ -21,6 +22,7 @@ import { ToastComponent } from './components/toast/toast.component';
     CartComponent,
     ModalComponent,
     ToastComponent,
+    LoadingBarComponent,
   ],
   templateUrl: './app.html',
   styleUrls: ['./app.scss'],

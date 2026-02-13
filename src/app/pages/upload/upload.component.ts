@@ -1,4 +1,5 @@
 import { CommonModule } from '@angular/common';
+import { HttpClient, HttpEventType } from '@angular/common/http';
 import { ChangeDetectionStrategy, Component, inject, signal, OnInit } from '@angular/core';
 import { ReactiveFormsModule, FormBuilder, Validators, FormArray } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -22,6 +23,7 @@ export class UploadComponent implements OnInit {
 
   currentStep = signal(1);
   isSubmitting = signal(false);
+  uploadProgress = signal(0);
 
   // File Signals
   coverFile = signal<File | null>(null);
@@ -304,14 +306,20 @@ export class UploadComponent implements OnInit {
     if (stems) formData.append('stems', stems);
 
     this.labService.createSpec(formData).subscribe({
-      next: (spec) => {
-        this.isSubmitting.set(false);
-        this.toastService.show('Upload Successful!', 'success');
-        this.router.navigate(['/dashboard']);
+      next: (event) => {
+        if (event.type === HttpEventType.UploadProgress && event.total) {
+          const progress = Math.round((100 * event.loaded) / event.total);
+          this.uploadProgress.set(progress);
+        } else if (event.type === HttpEventType.Response) {
+          this.isSubmitting.set(false);
+          this.toastService.show('Upload Successful!', 'success');
+          this.router.navigate(['/dashboard']);
+        }
       },
       error: (err) => {
         console.error('Upload failed', err);
         this.isSubmitting.set(false);
+        this.uploadProgress.set(0);
         this.toastService.show(
           'Upload failed: ' + (err.error?.message || err.message || 'Unknown error'),
           'error',

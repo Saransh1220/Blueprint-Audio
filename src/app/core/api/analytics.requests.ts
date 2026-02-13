@@ -14,8 +14,8 @@ export class TrackPlayRequest implements ApiRequest<void> {
 
 // Toggle favorite status for a spec
 export interface ToggleFavoriteResponse {
-  favorited: boolean;
-  total_count: number;
+  is_favorited: boolean;
+  total_count?: number;
 }
 
 export class ToggleFavoriteRequest implements ApiRequest<ToggleFavoriteResponse> {
@@ -41,8 +41,7 @@ export class GetProducerAnalyticsRequest implements ApiRequest<ProducerAnalytics
 
 // Download free MP3
 export interface DownloadFreeMp3Response {
-  download_url: string;
-  message: string;
+  url: string;
 }
 
 export class DownloadFreeMp3Request implements ApiRequest<DownloadFreeMp3Response> {

@@ -33,6 +33,30 @@ export class ApiService {
     }
   }
 
+  upload<T>(request: ApiRequest<T>): Observable<any> {
+    const url = `${this.baseUrl}${request.path}`;
+    const options = {
+      params: request.params,
+      reportProgress: true,
+      observe: 'events' as const,
+    };
+
+    if (request.method !== 'POST' && request.method !== 'PUT' && request.method !== 'PATCH') {
+      throw new Error(`Upload only supported for POST, PUT, PATCH. Got: ${request.method}`);
+    }
+
+    switch (request.method) {
+      case 'POST':
+        return this.http.post(url, request.body, options);
+      case 'PUT':
+        return this.http.put(url, request.body, options);
+      case 'PATCH':
+        return this.http.patch(url, request.body, options);
+      default:
+        throw new Error(`Unsupported HTTP method for upload: ${request.method}`);
+    }
+  }
+
   get<T>(path: string, params: HttpParams = new HttpParams()): Observable<T> {
     return this.http.get<T>(`${this.baseUrl}${path}`, { params });
   }
