@@ -1,7 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ActivatedRoute, convertToParamMap } from '@angular/router';
 import { of } from 'rxjs';
-import { type Spec } from '../../models';
+import { MusicalKey, type Spec } from '../../models';
 import {
   AnalyticsService,
   CartService,
@@ -17,12 +17,14 @@ describe('SpecDetailsComponent', () => {
 
   const mockSpec: Spec = {
     id: 'beat-1',
+    producerId: 'p1',
+    producerName: 'Test Producer',
     type: 'beat',
     category: 'beat',
     imageUrl: 'cover.jpg',
     title: 'Night Drive',
     bpm: 140,
-    key: 'C Major',
+    key: MusicalKey.C_MAJOR,
     tags: ['dark', 'club'],
     price: 25,
     genres: [{ id: 'g1', name: 'Trap', slug: 'trap' }],
@@ -60,8 +62,8 @@ describe('SpecDetailsComponent', () => {
 
   const analyticsServiceMock = {
     trackPlay: vi.fn().mockReturnValue(of({})),
-    toggleFavorite: vi.fn().mockReturnValue(of({ favorited: true, total_count: 4 })),
-    downloadFreeMp3: vi.fn().mockReturnValue(of({ download_url: 'https://example.com/mp3' })),
+    toggleFavorite: vi.fn().mockReturnValue(of({ is_favorited: true, total_count: 4 })),
+    downloadFreeMp3: vi.fn().mockReturnValue(of({ url: 'https://example.com/mp3' })),
   };
 
   const cartServiceMock = {
@@ -125,5 +127,15 @@ describe('SpecDetailsComponent', () => {
     expect(analyticsServiceMock.toggleFavorite).toHaveBeenCalledWith('beat-1');
     expect(component.spec()?.analytics?.isFavorited).toBe(true);
     expect(component.spec()?.analytics?.favoriteCount).toBe(4);
+  });
+
+  it('should fallback favorite count update when total_count is missing', () => {
+    analyticsServiceMock.toggleFavorite.mockReturnValueOnce(of({ is_favorited: true }));
+    const previousCount = component.spec()?.analytics?.favoriteCount ?? 0;
+
+    component.toggleFavorite();
+
+    expect(component.spec()?.analytics?.isFavorited).toBe(true);
+    expect(component.spec()?.analytics?.favoriteCount).toBe(previousCount + 1);
   });
 });

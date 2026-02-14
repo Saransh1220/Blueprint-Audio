@@ -11,8 +11,13 @@ export class ModalService {
   readonly state = this.modalState.asReadonly();
   readonly isOpen = signal(false);
 
-  open(component: Type<unknown>, title?: string, data?: Record<string, unknown>) {
-    this.modalState.set({ component, title, data });
+  open(
+    component: Type<unknown>,
+    title?: string,
+    data?: Record<string, unknown>,
+    options?: { width?: string; height?: string },
+  ) {
+    this.modalState.set({ component, title, data, ...options });
     this.isOpen.set(true);
     document.body.style.overflow = 'hidden'; // Prevent background scrolling
   }

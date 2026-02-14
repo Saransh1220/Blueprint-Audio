@@ -6,6 +6,7 @@ import { provideRouter, withInMemoryScrolling } from '@angular/router';
 import { AppComponent } from './app/app';
 import { routes } from './app/app.routes';
 import { authInterceptor } from './app/core/interceptors/auth.interceptor';
+import { loadingInterceptor } from './app/core/interceptors/loading.interceptor';
 import { provideCharts, withDefaultRegisterables } from 'ng2-charts';
 
 bootstrapApplication(AppComponent, {
@@ -18,7 +19,7 @@ bootstrapApplication(AppComponent, {
         scrollPositionRestoration: 'top',
       }),
     ),
-    provideHttpClient(withInterceptors([authInterceptor])),
+    provideHttpClient(withInterceptors([authInterceptor, loadingInterceptor])),
     provideCharts(withDefaultRegisterables()),
   ],
 }).catch((err) => console.error(err));

@@ -312,7 +312,15 @@
             </button>
             <button type="submit" class="btn-submit" [disabled]="isSubmitting()">
               @if (isSubmitting()) {
-                <i class="fas fa-spinner fa-spin"></i> Publishing...
+                <div class="processing-content">
+                  @if (uploadProgress() > 0 && uploadProgress() < 100) {
+                    <span class="progress-text">{{ uploadProgress() }}%</span>
+                    <div class="circular-progress" [style.--progress]="uploadProgress()"></div>
+                  } @else {
+                    <i class="fas fa-spinner fa-spin"></i>
+                  }
+                  <span>{{ uploadProgress() === 100 ? 'Finalizing...' : 'Uploading...' }}</span>
+                </div>
               } @else {
                 Publish Track
               }

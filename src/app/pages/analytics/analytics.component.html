@@ -1,133 +1,196 @@
-<div class="analytics-container fade-in">
-  <div class="header">
-    <h1>Overview</h1>
-    <div class="controls">
-      <select class="time-selector" (change)="onFilterChange($event)">
-        <option value="7">Last 7 Days</option>
-        <option value="30" selected>Last 30 Days</option>
-        <option value="90">Last 3 Months</option>
-        <option value="365">This Year</option>
-      </select>
-      <button class="btn-export" (click)="exportCSV()">Export CSV</button>
-    </div>
-  </div>
+<div class="analytics-page">
+  <div class="content-wrapper">
+    <!-- Header Section -->
+    <header class="page-header">
+      <div class="title-group">
+        <h1>Analytics Dashboard</h1>
+        <p class="subtitle">Track your performance, revenue, and audience growth</p>
+      </div>
 
-  @if (isLoading()) {
-    <div class="loading-state">
-      <div class="spinner"></div>
-      <p>Loading analytics...</p>
-    </div>
-  } @else {
-    <!-- Stats Grid -->
-    <div class="stats-grid">
-      <div class="stat-card">
-        <div class="icon red"><i class="fas fa-play"></i></div>
-        <div class="details">
-          <span class="label">Total Plays</span>
-          <span class="value">{{ data()?.total_plays | number }}</span>
-        </div>
-      </div>
-      <div class="stat-card">
-        <div class="icon blue"><i class="fas fa-heart"></i></div>
-        <div class="details">
-          <span class="label">Favorites</span>
-          <span class="value">{{ data()?.total_favorites | number }}</span>
-        </div>
-      </div>
-      <div class="stat-card">
-        <div class="icon green"><i class="fas fa-rupee-sign"></i></div>
-        <div class="details">
-          <span class="label">Revenue</span>
-          <span class="value">{{ data()?.total_revenue | currency: 'INR' }}</span>
-        </div>
-      </div>
-      <div class="stat-card">
-        <div class="icon purple"><i class="fas fa-download"></i></div>
-        <div class="details">
-          <span class="label">Downloads</span>
-          <span class="value">{{ data()?.total_downloads | number }}</span>
-        </div>
-      </div>
-    </div>
-
-    <!-- Charts Row -->
-    <div class="charts-grid">
-      <div class="chart-card glass-panel">
-        <h3>Plays & Downloads</h3>
-        <div class="chart-container">
-          <canvas
-            baseChart
-            [data]="lineChartData"
-            [options]="lineChartOptions"
-            [type]="lineChartType"
-          >
-          </canvas>
-        </div>
-      </div>
-      <div class="chart-card glass-panel">
-        <h3>Revenue by License</h3>
-        <div class="chart-container">
-          @if (doughnutChartData.datasets[0].data.length > 0) {
-            <canvas baseChart [data]="doughnutChartData" [type]="doughnutChartType"> </canvas>
-          } @else {
-            <div class="empty-chart">No revenue data yet</div>
+      <div class="actions">
+        <!-- Custom Tab Switcher for Time Range -->
+        <div class="time-tabs">
+          @for (days of [7, 30, 90, 365]; track days) {
+            <button
+              class="tab-btn"
+              [class.active]="currentDays() === days"
+              (click)="setFilter(days)"
+            >
+              {{ days === 365 ? 'Year' : days + ' Days' }}
+            </button>
           }
         </div>
-      </div>
-      <div class="chart-card glass-panel revenue-history">
-        <h3>Revenue History</h3>
-        <div class="chart-container">
-          <canvas
-            baseChart
-            [data]="revenueChartData"
-            [options]="revenueChartOptions"
-            [type]="lineChartType"
-          >
-          </canvas>
-        </div>
-      </div>
-    </div>
 
-    <!-- Top Specs Table -->
-    <div class="table-section glass-panel">
-      <div class="table-header">
-        <h3>Top Performing Specs</h3>
-        <div class="sort-controls">
-          <label>Sort by:</label>
-          <select #sortSelect (change)="onSortChange(sortSelect.value)">
-            <option value="plays" [selected]="sortBy() === 'plays'">Plays</option>
-            <option value="downloads" [selected]="sortBy() === 'downloads'">Downloads</option>
-            <option value="revenue" [selected]="sortBy() === 'revenue'">Revenue</option>
-          </select>
+        <button class="btn-export" (click)="exportCSV()">
+          <i class="fas fa-download"></i>
+          <span>Export CSV</span>
+        </button>
+      </div>
+    </header>
+
+    @if (isLoading()) {
+      <div class="loading-container">
+        <div class="spinner-premium"></div>
+        <p>Gathering insights...</p>
+      </div>
+    } @else {
+      <div class="dashboard-grid">
+        <!-- Row 1: Key Metrics (Hero Cards) -->
+        <div class="metrics-row">
+          <!-- Accent classes handled in SCSS -->
+          <div class="metric-card glass-panel accent-red">
+            <div class="icon-box">
+              <i class="fas fa-play"></i>
+            </div>
+            <div class="metric-info">
+              <span class="label">Total Plays</span>
+              <span class="value">{{ data()?.total_plays | number }}</span>
+            </div>
+          </div>
+
+          <div class="metric-card glass-panel accent-blue">
+            <div class="icon-box">
+              <i class="fas fa-heart"></i>
+            </div>
+            <div class="metric-info">
+              <span class="label">Favorites</span>
+              <span class="value">{{ data()?.total_favorites | number }}</span>
+            </div>
+          </div>
+
+          <div class="metric-card glass-panel accent-green">
+            <div class="icon-box">
+              <i class="fas fa-rupee-sign"></i>
+            </div>
+            <div class="metric-info">
+              <span class="label">Revenue</span>
+              <span class="value">{{
+                data()?.total_revenue | currency: 'INR' : 'symbol' : '1.0-0'
+              }}</span>
+            </div>
+          </div>
+
+          <div class="metric-card glass-panel accent-purple">
+            <div class="icon-box">
+              <i class="fas fa-download"></i>
+            </div>
+            <div class="metric-info">
+              <span class="label">Downloads</span>
+              <span class="value">{{ data()?.total_downloads | number }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Row 2: Main Performance Chart -->
+        <div class="main-chart-section glass-panel">
+          <div class="panel-header">
+            <h3>Performance Overview</h3>
+            <div class="legend">
+              <div class="legend-item">
+                <span class="dot" style="background-color: #ef4444"></span> Plays
+              </div>
+              <div class="legend-item">
+                <span class="dot" style="background-color: #a855f7"></span> Downloads
+              </div>
+            </div>
+          </div>
+          <div class="chart-wrapper">
+            <canvas
+              baseChart
+              [data]="lineChartData()"
+              [options]="commonChartOptions"
+              [type]="lineChartType"
+            >
+            </canvas>
+          </div>
+        </div>
+
+        <!-- Row 3: Split View (Revenue & License) -->
+        <div class="split-row">
+          <div class="glass-panel revenue-panel">
+            <div class="panel-header">
+              <h3>Revenue Trend</h3>
+            </div>
+            <div class="chart-wrapper">
+              <canvas
+                baseChart
+                [data]="revenueChartData()"
+                [options]="revenueChartOptions"
+                [type]="lineChartType"
+              >
+              </canvas>
+            </div>
+          </div>
+
+          <div class="glass-panel license-panel">
+            <div class="panel-header">
+              <h3>License Distribution</h3>
+            </div>
+            <div class="chart-wrapper doughnut-wrapper">
+              @if (doughnutChartData().datasets[0].data.length > 0) {
+                <canvas
+                  baseChart
+                  [data]="doughnutChartData()"
+                  [options]="doughnutChartOptions"
+                  [type]="doughnutChartType"
+                >
+                </canvas>
+              } @else {
+                <div class="empty-state">No sales data yet</div>
+              }
+            </div>
+          </div>
+        </div>
+
+        <!-- Row 4: Top Content Leaderboard -->
+        <div class="glass-panel leaderboard-panel">
+          <div class="panel-header">
+            <h3>Top Performing Specs</h3>
+            <div class="toggle-group">
+              <button [class.active]="sortBy() === 'plays'" (click)="setSort('plays')">
+                Plays
+              </button>
+              <button [class.active]="sortBy() === 'downloads'" (click)="setSort('downloads')">
+                Downloads
+              </button>
+              <button [class.active]="sortBy() === 'revenue'" (click)="setSort('revenue')">
+                Revenue
+              </button>
+            </div>
+          </div>
+
+          <div class="leaderboard-list">
+            <div class="list-header">
+              <span>Rank</span>
+              <span>Title</span>
+              <span class="text-right">Stats</span>
+            </div>
+
+            @for (spec of topSpecs(); track spec.spec_id; let i = $index) {
+              <div class="list-item">
+                <div class="rank">{{ i + 1 }}</div>
+                <div class="content-info">
+                  <span class="title">{{ spec.title }}</span>
+                  <!-- <span class="sub-text">Released on {{ spec.created_at | date }}</span> -->
+                </div>
+                <div class="stats-value text-right">
+                  @if (sortBy() === 'revenue') {
+                    {{ spec.revenue | currency: 'INR' : 'symbol' : '1.0-0' }}
+                  } @else if (sortBy() === 'downloads') {
+                    {{ spec.downloads | number }} <span class="unit">DLs</span>
+                  } @else {
+                    {{ spec.plays | number }} <span class="unit">Plays</span>
+                  }
+                </div>
+              </div>
+            }
+
+            @if (topSpecs().length === 0) {
+              <div class="empty-list">No data available for this period.</div>
+            }
+          </div>
         </div>
       </div>
-      <div class="table-responsive">
-        <table>
-          <thead>
-            <tr>
-              <th>Title</th>
-              <th class="text-right">Plays</th>
-              <th class="text-right">Downloads</th>
-              <th class="text-right">Revenue</th>
-            </tr>
-          </thead>
-          <tbody>
-            @for (spec of topSpecs(); track spec.spec_id) {
-              <tr>
-                <td>{{ spec.title }}</td>
-                <td class="text-right">{{ spec.plays | number }}</td>
-                <td class="text-right">{{ spec.downloads | number }}</td>
-                <td class="text-right">{{ spec.revenue | currency: 'INR' }}</td>
-              </tr>
-            }
-            @if (!topSpecs().length) {
-              <tr>
-                <td colspan="4" class="text-center">No data available for the selected period</td>
-              </tr>
-            }
-          </tbody>
-        </table>
-      </div>
-    </div>
-  }
+    }
+  </div>
 </div>

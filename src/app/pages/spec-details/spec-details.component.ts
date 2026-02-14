@@ -106,8 +106,18 @@ export class SpecDetailsComponent {
     this.analyticsService.toggleFavorite(s.id).subscribe({
       next: (response) => {
         if (s.analytics) {
-          s.analytics.isFavorited = response.favorited;
-          s.analytics.favoriteCount = response.total_count;
+          s.analytics.isFavorited = response.is_favorited;
+
+          if (response.total_count !== undefined) {
+            s.analytics.favoriteCount = response.total_count;
+          } else {
+            // Fallback: manually update count if backend doesn't return it
+            if (response.is_favorited) {
+              s.analytics.favoriteCount++;
+            } else {
+              s.analytics.favoriteCount = Math.max(0, s.analytics.favoriteCount - 1);
+            }
+          }
         }
         this.isFavoriting.set(false);
       },
@@ -124,7 +134,11 @@ export class SpecDetailsComponent {
 
     this.analyticsService.downloadFreeMp3(s.id).subscribe({
       next: (response) => {
-        window.open(response.download_url, '_blank');
+        if (response.url) {
+          window.open(response.url, '_blank');
+        } else {
+          console.error('Download URL not found in response');
+        }
       },
       error: (err) => {
         console.error('Failed to download free MP3:', err);

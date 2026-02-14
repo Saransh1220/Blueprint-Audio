@@ -59,9 +59,15 @@ export class LabService {
       .pipe(map((dto) => this.adapter.adapt(dto)));
   }
 
-  createSpec(formData: FormData): Observable<Spec> {
-    return this.api
-      .execute(new CreateSpecRequest(formData))
-      .pipe(map((dto) => this.adapter.adapt(dto)));
+  createSpec(formData: FormData): Observable<any> {
+    return this.api.upload(new CreateSpecRequest(formData)).pipe(
+      map((event) => {
+        if (event.type === 4 && event.body) {
+          // HttpEventType.Response === 4
+          return event.clone({ body: this.adapter.adapt(event.body) });
+        }
+        return event;
+      }),
+    );
   }
 }
