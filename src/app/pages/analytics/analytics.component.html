@@ -1,196 +1,214 @@
-<div class="analytics-page">
-  <div class="content-wrapper">
-    <!-- Header Section -->
-    <header class="page-header">
-      <div class="title-group">
-        <h1>Analytics Dashboard</h1>
-        <p class="subtitle">Track your performance, revenue, and audience growth</p>
+<div class="analytics-dashboard">
+  <!-- Header / Toolbar -->
+  <header class="dashboard-header">
+    <div class="header-content">
+      <h1>Analytics</h1>
+      <p class="subtitle">Overview of your performance</p>
+    </div>
+
+    <div class="header-actions">
+      <div class="time-selector">
+        @for (days of [7, 30, 90, 365]; track days) {
+          <button
+            class="time-btn"
+            [class.active]="currentDays() === days"
+            (click)="setFilter(days)"
+          >
+            {{ days === 365 ? '1Y' : days + 'D' }}
+          </button>
+        }
       </div>
 
-      <div class="actions">
-        <!-- Custom Tab Switcher for Time Range -->
-        <div class="time-tabs">
-          @for (days of [7, 30, 90, 365]; track days) {
+      <button class="icon-btn export-btn" (click)="exportCSV()" title="Export CSV">
+        <i class="fas fa-download"></i>
+      </button>
+    </div>
+  </header>
+
+  @if (isLoading()) {
+    <div class="loading-state">
+      <div class="spinner-border"></div>
+      <span>Loading data...</span>
+    </div>
+  } @else {
+    <div class="bento-grid">
+      <!-- 1. Key Metrics Row -->
+      <div class="metric-card card-plays">
+        <div class="card-label"><i class="fas fa-play"></i> Plays</div>
+        <div class="card-value">{{ data()?.total_plays | number }}</div>
+      </div>
+
+      <div class="metric-card card-revenue">
+        <div class="card-label"><i class="fas fa-rupee-sign"></i> Revenue</div>
+        <div class="card-value">
+          {{ data()?.total_revenue | currency: 'INR' : 'symbol' : '1.0-0' }}
+        </div>
+      </div>
+
+      <div class="metric-card card-favorites">
+        <div class="card-label"><i class="fas fa-heart"></i> Favorites</div>
+        <div class="card-value">{{ data()?.total_favorites | number }}</div>
+      </div>
+
+      <div class="metric-card card-downloads">
+        <div class="card-label"><i class="fas fa-download"></i> Downloads</div>
+        <div class="card-value">{{ data()?.total_downloads | number }}</div>
+      </div>
+
+      <!-- 2. Performance Chart (Plays vs Downloads) -->
+      <div class="chart-card performance-section">
+        <div class="card-header">
+          <h3>Performance Trend</h3>
+          <div class="legend-inline">
+            <span class="legend-item plays"><span class="dot"></span> Plays</span>
+            <span class="legend-item downloads"><span class="dot"></span> Downloads</span>
+          </div>
+        </div>
+        <div class="chart-container">
+          <canvas
+            baseChart
+            [data]="lineChartData()"
+            [options]="commonChartOptions"
+            [type]="lineChartType"
+          >
+          </canvas>
+        </div>
+      </div>
+
+      <!-- 3. Revenue Chart (Bar/Line) -->
+      <div class="chart-card revenue-section">
+        <div class="card-header floating-header">
+          <h3>Revenue Trend</h3>
+          <div class="glass-toggle">
             <button
-              class="tab-btn"
-              [class.active]="currentDays() === days"
-              (click)="setFilter(days)"
+              [class.active]="revenueChartType() === 'line'"
+              (click)="revenueChartType.set('line')"
+              title="Line View"
             >
-              {{ days === 365 ? 'Year' : days + ' Days' }}
+              <i class="fas fa-chart-line"></i>
             </button>
-          }
-        </div>
-
-        <button class="btn-export" (click)="exportCSV()">
-          <i class="fas fa-download"></i>
-          <span>Export CSV</span>
-        </button>
-      </div>
-    </header>
-
-    @if (isLoading()) {
-      <div class="loading-container">
-        <div class="spinner-premium"></div>
-        <p>Gathering insights...</p>
-      </div>
-    } @else {
-      <div class="dashboard-grid">
-        <!-- Row 1: Key Metrics (Hero Cards) -->
-        <div class="metrics-row">
-          <!-- Accent classes handled in SCSS -->
-          <div class="metric-card glass-panel accent-red">
-            <div class="icon-box">
-              <i class="fas fa-play"></i>
-            </div>
-            <div class="metric-info">
-              <span class="label">Total Plays</span>
-              <span class="value">{{ data()?.total_plays | number }}</span>
-            </div>
-          </div>
-
-          <div class="metric-card glass-panel accent-blue">
-            <div class="icon-box">
-              <i class="fas fa-heart"></i>
-            </div>
-            <div class="metric-info">
-              <span class="label">Favorites</span>
-              <span class="value">{{ data()?.total_favorites | number }}</span>
-            </div>
-          </div>
-
-          <div class="metric-card glass-panel accent-green">
-            <div class="icon-box">
-              <i class="fas fa-rupee-sign"></i>
-            </div>
-            <div class="metric-info">
-              <span class="label">Revenue</span>
-              <span class="value">{{
-                data()?.total_revenue | currency: 'INR' : 'symbol' : '1.0-0'
-              }}</span>
-            </div>
-          </div>
-
-          <div class="metric-card glass-panel accent-purple">
-            <div class="icon-box">
-              <i class="fas fa-download"></i>
-            </div>
-            <div class="metric-info">
-              <span class="label">Downloads</span>
-              <span class="value">{{ data()?.total_downloads | number }}</span>
-            </div>
+            <button
+              [class.active]="revenueChartType() === 'bar'"
+              (click)="revenueChartType.set('bar')"
+              title="Bar View"
+            >
+              <i class="fas fa-chart-bar"></i>
+            </button>
           </div>
         </div>
+        <div class="chart-container full-bleed">
+          <canvas
+            baseChart
+            [data]="revenueChartData()"
+            [options]="revenueChartOptions"
+            [type]="revenueChartType()"
+          >
+          </canvas>
+        </div>
+      </div>
 
-        <!-- Row 2: Main Performance Chart -->
-        <div class="main-chart-section glass-panel">
-          <div class="panel-header">
-            <h3>Performance Overview</h3>
-            <div class="legend">
-              <div class="legend-item">
-                <span class="dot" style="background-color: #ef4444"></span> Plays
-              </div>
-              <div class="legend-item">
-                <span class="dot" style="background-color: #a855f7"></span> Downloads
-              </div>
-            </div>
+      <!-- Bottom Row: License + Leaderboard -->
+      <div class="bottom-grid">
+        <!-- 4. License Distribution -->
+        <div class="chart-card license-section">
+          <div class="card-header">
+            <h3>License Sales</h3>
           </div>
-          <div class="chart-wrapper">
+          <div class="chart-container">
             <canvas
               baseChart
-              [data]="lineChartData()"
-              [options]="commonChartOptions"
-              [type]="lineChartType"
-            >
-            </canvas>
-          </div>
-        </div>
-
-        <!-- Row 3: Split View (Revenue & License) -->
-        <div class="split-row">
-          <div class="glass-panel revenue-panel">
-            <div class="panel-header">
-              <h3>Revenue Trend</h3>
-            </div>
-            <div class="chart-wrapper">
-              <canvas
-                baseChart
-                [data]="revenueChartData()"
-                [options]="revenueChartOptions"
-                [type]="lineChartType"
-              >
-              </canvas>
-            </div>
-          </div>
-
-          <div class="glass-panel license-panel">
-            <div class="panel-header">
-              <h3>License Distribution</h3>
-            </div>
-            <div class="chart-wrapper doughnut-wrapper">
-              @if (doughnutChartData().datasets[0].data.length > 0) {
-                <canvas
-                  baseChart
-                  [data]="doughnutChartData()"
-                  [options]="doughnutChartOptions"
-                  [type]="doughnutChartType"
-                >
-                </canvas>
-              } @else {
-                <div class="empty-state">No sales data yet</div>
+              [data]="doughnutChartData()"
+              [options]="doughnutChartOptions"
+              [type]="doughnutChartType"
+            ></canvas>
+            <div class="custom-legend">
+              @for (label of doughnutChartData().labels; track label; let i = $index) {
+                <div class="legend-row">
+                  <span class="dot" [style.background-color]="getLegendColor(i)"></span>
+                  <span class="label">{{ label }}</span>
+                  <span class="value">{{ doughnutChartData().datasets[0].data[i] }}</span>
+                </div>
               }
             </div>
           </div>
         </div>
 
-        <!-- Row 4: Top Content Leaderboard -->
-        <div class="glass-panel leaderboard-panel">
-          <div class="panel-header">
-            <h3>Top Performing Specs</h3>
-            <div class="toggle-group">
-              <button [class.active]="sortBy() === 'plays'" (click)="setSort('plays')">
-                Plays
-              </button>
-              <button [class.active]="sortBy() === 'downloads'" (click)="setSort('downloads')">
-                Downloads
-              </button>
-              <button [class.active]="sortBy() === 'revenue'" (click)="setSort('revenue')">
-                Revenue
-              </button>
-            </div>
+        <!-- 5. Top Tracks Leaderboard -->
+        <div class="list-card leaderboard-section">
+          <div class="card-header">
+            <h3>Top Tracks</h3>
           </div>
 
-          <div class="leaderboard-list">
-            <div class="list-header">
-              <span>Rank</span>
-              <span>Title</span>
-              <span class="text-right">Stats</span>
+          <div class="compact-list">
+            <div class="list-head">
+              <span class="col-rank">#</span>
+              <span class="col-title">Track</span>
+
+              <span
+                class="col-sort"
+                (click)="onSort('plays')"
+                [class.active]="sortBy() === 'plays'"
+              >
+                Plays
+                @if (sortBy() === 'plays') {
+                  <i
+                    class="fas"
+                    [class.fa-caret-down]="sortDirection() === 'desc'"
+                    [class.fa-caret-up]="sortDirection() === 'asc'"
+                  ></i>
+                }
+              </span>
+
+              <span
+                class="col-sort"
+                (click)="onSort('downloads')"
+                [class.active]="sortBy() === 'downloads'"
+              >
+                Downloads
+                @if (sortBy() === 'downloads') {
+                  <i
+                    class="fas"
+                    [class.fa-caret-down]="sortDirection() === 'desc'"
+                    [class.fa-caret-up]="sortDirection() === 'asc'"
+                  ></i>
+                }
+              </span>
+
+              <span
+                class="col-sort text-right"
+                (click)="onSort('revenue')"
+                [class.active]="sortBy() === 'revenue'"
+              >
+                Revenue
+                @if (sortBy() === 'revenue') {
+                  <i
+                    class="fas"
+                    [class.fa-caret-down]="sortDirection() === 'desc'"
+                    [class.fa-caret-up]="sortDirection() === 'asc'"
+                  ></i>
+                }
+              </span>
             </div>
 
             @for (spec of topSpecs(); track spec.spec_id; let i = $index) {
-              <div class="list-item">
-                <div class="rank">{{ i + 1 }}</div>
-                <div class="content-info">
-                  <span class="title">{{ spec.title }}</span>
-                  <!-- <span class="sub-text">Released on {{ spec.created_at | date }}</span> -->
-                </div>
-                <div class="stats-value text-right">
-                  @if (sortBy() === 'revenue') {
-                    {{ spec.revenue | currency: 'INR' : 'symbol' : '1.0-0' }}
-                  } @else if (sortBy() === 'downloads') {
-                    {{ spec.downloads | number }} <span class="unit">DLs</span>
-                  } @else {
-                    {{ spec.plays | number }} <span class="unit">Plays</span>
-                  }
-                </div>
+              <div class="list-row" [class.top-3]="i < 3">
+                <span class="col-rank" [attr.data-rank]="i + 1">{{ i + 1 }}</span>
+                <span class="col-title text-truncate">
+                  <i class="fas fa-music"></i> {{ spec.title }}
+                </span>
+                <span class="col-val">{{ spec.plays | number }}</span>
+                <span class="col-val">{{ spec.downloads | number }}</span>
+                <span class="col-val text-right brand-text">
+                  {{ spec.revenue | currency: 'INR' : 'symbol' : '1.0-0' }}
+                </span>
               </div>
             }
-
             @if (topSpecs().length === 0) {
-              <div class="empty-list">No data available for this period.</div>
+              <div class="empty-row">No data</div>
             }
           </div>
         </div>
       </div>
-    }
-  </div>
+    </div>
+  }
 </div>

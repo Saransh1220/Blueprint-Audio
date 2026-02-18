@@ -11,6 +11,19 @@
     <div class="equalizer-bars"><span></span><span></span><span></span><span></span></div>
   </div>
 
+  <!-- Processing Overlay -->
+  @if (spec.processingStatus === 'processing' || spec.processingStatus === 'failed') {
+    <div class="processing-overlay" [class.failed]="spec.processingStatus === 'failed'">
+      @if (spec.processingStatus === 'processing') {
+        <div class="spinner"></div>
+        <span>Processing...</span>
+      } @else {
+        <i class="fas fa-exclamation-circle"></i>
+        <span>Upload Failed</span>
+      }
+    </div>
+  }
+
   <!-- Middle Section: Info -->
   <div class="item-content">
     <div class="content-header">

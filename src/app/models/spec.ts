@@ -47,6 +47,7 @@ export interface Spec {
   price: number; // Starting price
   genres: GenreModel[];
   licenses: LicenseOption[];
+  processingStatus: 'pending' | 'processing' | 'completed' | 'failed';
   audioUrl?: string; // Optional for now to avoid strict checks everywhere immediately
   duration?: number; // Audio duration in seconds
   freeMp3Enabled?: boolean; // Whether free MP3 download is available

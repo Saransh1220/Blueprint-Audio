@@ -63,6 +63,11 @@ export class DashboardComponent implements OnInit {
         this.loadAnalytics();
       }
     });
+
+    // Listen for realtime refreshes
+    this.labService.refresh$.subscribe(() => {
+      this.loadSpecs(this.selectedGenres());
+    });
   }
 
   ngOnInit() {

@@ -31,6 +31,24 @@
         </span>
       </div>
     }
+
+    <!-- Processing Overlay -->
+    @if (spec.processingStatus === 'processing' || spec.processingStatus === 'pending') {
+      <div class="processing-overlay">
+        <div class="p-content">
+          <i class="fas fa-circle-notch fa-spin"></i>
+          <span>PROCESSING</span>
+        </div>
+      </div>
+    }
+    @if (spec.processingStatus === 'failed') {
+      <div class="processing-overlay error">
+        <div class="p-content">
+          <i class="fas fa-exclamation-triangle"></i>
+          <span>FAILED</span>
+        </div>
+      </div>
+    }
   </div>
 
   <div class="card-content">
