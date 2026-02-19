@@ -54,6 +54,7 @@
             class="icon-btn notification-btn"
             (click)="toggleNotifications()"
             [class.active]="isNotificationsOpen"
+            aria-label="Notifications"
           >
             <i class="fas fa-bell"></i>
             @if (unreadCount() > 0) {
@@ -71,7 +72,8 @@
               </div>
               <div class="notifications-list">
                 @for (n of notifications(); track n.id) {
-                  <div
+                  <button
+                    type="button"
                     class="notification-item"
                     [class.unread]="!n.is_read"
                     (click)="markAsRead(n.id, $event)"
@@ -93,7 +95,7 @@
                     @if (!n.is_read) {
                       <div class="n-dot"></div>
                     }
-                  </div>
+                  </button>
                 } @empty {
                   <div class="empty-state">
                     <i class="far fa-bell-slash"></i>

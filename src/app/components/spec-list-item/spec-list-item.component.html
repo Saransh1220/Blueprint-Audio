@@ -12,11 +12,15 @@
   </div>
 
   <!-- Processing Overlay -->
-  @if (spec.processingStatus === 'processing' || spec.processingStatus === 'failed') {
+  @if (
+    spec.processingStatus === 'processing' ||
+    spec.processingStatus === 'failed' ||
+    spec.processingStatus === 'pending'
+  ) {
     <div class="processing-overlay" [class.failed]="spec.processingStatus === 'failed'">
-      @if (spec.processingStatus === 'processing') {
+      @if (spec.processingStatus === 'processing' || spec.processingStatus === 'pending') {
         <div class="spinner"></div>
-        <span>Processing...</span>
+        <span>{{ spec.processingStatus === 'pending' ? 'Pending...' : 'Processing...' }}</span>
       } @else {
         <i class="fas fa-exclamation-circle"></i>
         <span>Upload Failed</span>

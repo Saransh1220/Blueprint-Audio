@@ -66,9 +66,14 @@ export class WebSocketService {
 
     this.socket.onclose = () => {
       console.log('WebSocket Disconnected');
-      this.isConnected.set(false);
-      this.socket = null;
-      setTimeout(() => this.connect(), this.reconnectInterval);
+      // Only reconnect if we intended to stay connected
+      if (this.isConnected()) {
+        this.isConnected.set(false);
+        this.socket = null;
+        setTimeout(() => this.connect(), this.reconnectInterval);
+      } else {
+        this.socket = null;
+      }
     };
 
     this.socket.onerror = (error) => {

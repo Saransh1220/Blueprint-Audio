@@ -37,11 +37,22 @@ export class NotificationService {
     this.wsService.messages$.subscribe((msg: Notification) => {
       console.log('Realtime notification:', msg);
       this.addNotification(msg);
-      this.toastService.show(msg.message, msg.type === 'processing_failed' ? 'error' : 'success');
+      let variant: 'success' | 'error' | 'info' = 'info';
+      if (msg.type === 'processing_complete') variant = 'success';
+      if (msg.type === 'processing_failed') variant = 'error';
+
+      this.toastService.show(msg.message, variant);
 
       if (msg.type === 'processing_complete' || msg.type === 'processing_failed') {
         this.labService.notifyRefresh();
       }
+    });
+
+    // React to auth changes
+    effect(() => {
+      // Accessing currentUser signal for dependency tracking
+      // We don't need the value, just the trigger
+      this.refresh();
     });
   }
 

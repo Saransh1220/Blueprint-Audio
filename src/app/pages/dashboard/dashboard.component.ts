@@ -8,6 +8,7 @@ import {
   signal,
   effect,
 } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { SpecRowComponent } from '../../components';
 import { AuthService, LabService, AnalyticsService } from '../../services';
 import { User, Role } from '../../models';
@@ -65,7 +66,8 @@ export class DashboardComponent implements OnInit {
     });
 
     // Listen for realtime refreshes
-    this.labService.refresh$.subscribe(() => {
+    // Listen for realtime refreshes
+    this.labService.refresh$.pipe(takeUntilDestroyed()).subscribe(() => {
       this.loadSpecs(this.selectedGenres());
     });
   }

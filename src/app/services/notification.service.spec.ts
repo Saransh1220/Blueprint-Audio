@@ -61,14 +61,14 @@ describe('NotificationService', () => {
     expect(service.unreadCount()).toBe(1);
   });
 
-  it('handles realtime message, prepends notification, and shows success toast', () => {
+  it('handles realtime message, prepends notification, and shows info toast for non-processing types', () => {
     const { service, wsSubject, show, notifyRefresh } = setup();
     const msg = makeNotification({ id: 'n-live', type: 'success', message: 'Heads up' });
 
     wsSubject.next(msg);
 
     expect(service.notifications()[0]).toEqual(msg);
-    expect(show).toHaveBeenCalledWith('Heads up', 'success');
+    expect(show).toHaveBeenCalledWith('Heads up', 'info');
     expect(notifyRefresh).not.toHaveBeenCalled();
   });
 
@@ -82,12 +82,13 @@ describe('NotificationService', () => {
     expect(notifyRefresh).toHaveBeenCalledTimes(1);
   });
 
-  it('handles processing_complete realtime message and triggers refresh', () => {
-    const { wsSubject, notifyRefresh } = setup();
+  it('handles processing_complete realtime message with success toast and triggers refresh', () => {
+    const { wsSubject, show, notifyRefresh } = setup();
     const msg = makeNotification({ id: 'n-ok', type: 'processing_complete' });
 
     wsSubject.next(msg);
 
+    expect(show).toHaveBeenCalledWith('Upload complete', 'success');
     expect(notifyRefresh).toHaveBeenCalledTimes(1);
   });
 

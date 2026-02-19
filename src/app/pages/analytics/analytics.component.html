@@ -19,7 +19,12 @@
         }
       </div>
 
-      <button class="icon-btn export-btn" (click)="exportCSV()" title="Export CSV">
+      <button
+        class="icon-btn export-btn"
+        (click)="exportCSV()"
+        title="Export CSV"
+        aria-label="Export CSV"
+      >
         <i class="fas fa-download"></i>
       </button>
     </div>
@@ -84,6 +89,7 @@
               [class.active]="revenueChartType() === 'line'"
               (click)="revenueChartType.set('line')"
               title="Line View"
+              aria-label="Toggle Line Chart"
             >
               <i class="fas fa-chart-line"></i>
             </button>
@@ -91,6 +97,7 @@
               [class.active]="revenueChartType() === 'bar'"
               (click)="revenueChartType.set('bar')"
               title="Bar View"
+              aria-label="Toggle Bar Chart"
             >
               <i class="fas fa-chart-bar"></i>
             </button>

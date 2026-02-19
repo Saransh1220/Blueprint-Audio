@@ -1,5 +1,5 @@
-@use '../../styles/_variables' as *;
-@use '../../styles/_mixins' as *;
+@use '../../styles/variables' as *;
+@use '../../styles/mixins' as *;
 
 .analytics-dashboard {
   padding: 2rem;
@@ -7,7 +7,7 @@
   max-width: 1600px;
   margin: 0 auto;
   color: var(--text-color);
-  font-family: 'Manrope', sans-serif;
+  font-family: Manrope, sans-serif;
   min-height: 100vh;
 
   // Ensure background matches theme
@@ -20,6 +20,7 @@
 }
 
 // --- Header ---
+
 .dashboard-header {
   display: flex;
   justify-content: space-between;
@@ -291,6 +292,7 @@
         justify-content: center;
         cursor: pointer;
         transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        padding: 0;
 
         &:hover {
           color: #fff;
@@ -394,7 +396,7 @@
         height: 10px;
         border-radius: 50%;
         margin-right: 12px;
-        box-shadow: 0 0 5px currentColor;
+        box-shadow: 0 0 5px currentcolor;
       }
 
       .label {
@@ -482,19 +484,25 @@
       background: rgba(0, 0, 0, 0.2);
       margin-bottom: 4px;
 
-      // Use span to target strictly
-      span {
+      // Use button to target strictly
+      button {
         &.col-sort {
           cursor: pointer;
           display: inline-flex;
           align-items: center;
           gap: 6px;
           transition: color 0.2s;
+          background: none;
+          border: none;
+          font: inherit;
+          padding: 0;
+          color: inherit;
 
           &:hover,
           &.active {
             color: var(--brand-color);
             opacity: 1;
+            text-decoration: none;
           }
         }
       }
@@ -511,7 +519,7 @@
       }
 
       .col-rank {
-        font-family: 'Manrope', monospace;
+        font-family: Manrope, monospace;
         font-weight: 800;
         color: var(--text-color);
         opacity: 0.5;

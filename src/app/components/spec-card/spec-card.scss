@@ -378,3 +378,17 @@
     }
   }
 }
+
+@keyframes pulse-bg {
+  0% {
+    background-color: rgba(0, 0, 0, 0.6);
+  }
+
+  50% {
+    background-color: rgba(0, 0, 0, 0.4);
+  }
+
+  100% {
+    background-color: rgba(0, 0, 0, 0.6);
+  }
+}
