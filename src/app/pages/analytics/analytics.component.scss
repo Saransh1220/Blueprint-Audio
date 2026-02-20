@@ -1,508 +1,649 @@
-@use 'sass:color';
 @use '../../styles/variables' as *;
+@use '../../styles/mixins' as *;
 
-.analytics-page {
+.analytics-dashboard {
   padding: 2rem;
-  padding-top: 5rem;
-  min-height: 100vh;
-  // Use theme background as base, overlay subtle gradient
-  background-color: var(--bg-color);
-  background-image:
-    radial-gradient(circle at 15% 50%, rgba(var(--brand-color-rgb), 0.04) 0%, transparent 25%),
-    radial-gradient(circle at 85% 30%, rgba(var(--brand-color-rgb), 0.03) 0%, transparent 25%);
-  color: var(--text-color);
-  font-family: $font-tech;
-}
-
-.content-wrapper {
-  max-width: 1400px;
+  padding-top: 120px; // Fix navbar overlap
+  max-width: 1600px;
   margin: 0 auto;
+  color: var(--text-color);
+  font-family: Manrope, sans-serif;
+  min-height: 100vh;
+
+  // Ensure background matches theme
+  background-color: var(--bg-color);
+
+  @include mobile {
+    padding: 1rem;
+    padding-top: 100px;
+  }
 }
 
 // --- Header ---
-.page-header {
+
+.dashboard-header {
   display: flex;
   justify-content: space-between;
-  align-items: flex-end;
-  margin-bottom: 2.5rem;
+  align-items: center;
+  margin-bottom: 2rem;
   flex-wrap: wrap;
-  gap: 1.5rem;
+  gap: 1rem;
 
-  .title-group {
+  .header-content {
     h1 {
-      font-size: 2.25rem;
-      font-family: $font-head;
+      font-size: 1.75rem;
       font-weight: 700;
+      margin: 0;
+      letter-spacing: -0.02em;
       color: var(--text-color);
-      letter-spacing: -0.5px;
-      margin: 0 0 0.5rem 0;
-
-      // Gradient Text using theme vars
-      background: linear-gradient(
-        135deg,
-        var(--text-color) 0%,
-        rgba(var(--text-color-rgb), 0.7) 100%
-      );
-      -webkit-background-clip: text;
-      background-clip: text;
-      -webkit-text-fill-color: transparent;
     }
 
     .subtitle {
-      color: var(--text-secondary);
-      font-family: $font-tech;
-      font-size: 0.95rem;
-      margin: 0;
+      color: var(--text-secondary); // Use theme var if avail, else fallback
+      font-size: 0.9rem;
+      margin-top: 0.25rem;
+      opacity: 0.8;
     }
   }
 
-  .actions {
+  .header-actions {
     display: flex;
     gap: 1rem;
     align-items: center;
 
-    .time-tabs {
-      background: rgba(var(--card-bg-color-rgb), 0.4);
-      padding: 4px;
-      border-radius: 12px;
+    .time-selector {
+      background: rgba(255, 255, 255, 0.03); // Subtle overlay
       border: 1px solid var(--line-color);
+      border-radius: 8px;
+      padding: 4px;
       display: flex;
-      backdrop-filter: blur(8px);
+      gap: 2px;
 
-      .tab-btn {
+      .time-btn {
         background: transparent;
         border: none;
-        color: var(--text-secondary);
-        padding: 8px 16px;
-        font-family: $font-tech;
+        color: var(--text-color);
+        padding: 6px 12px;
         font-size: 0.85rem;
+        font-weight: 600;
+        border-radius: 6px;
         cursor: pointer;
-        border-radius: 8px;
         transition: all 0.2s ease;
+        opacity: 0.7;
 
         &:hover {
-          color: var(--text-color);
+          opacity: 1;
+          background: rgba(255, 255, 255, 0.05);
         }
 
         &.active {
-          background: rgba(var(--text-color-rgb), 0.1);
-          color: var(--text-color);
-          font-weight: 600;
-          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+          opacity: 1;
+          background: var(--brand-color);
+          color: var(--on-brand-color, #fff);
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
         }
       }
     }
 
-    .btn-export {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      padding: 0.6rem 1.25rem;
-      background: var(--brand-color);
-      border: none;
-      border-radius: 10px;
-      color: var(--on-brand-color);
-      font-family: $font-tech;
-      font-weight: 600;
-      font-size: 0.9rem;
-      cursor: pointer;
-      box-shadow: 0 4px 12px rgba(var(--brand-color-rgb), 0.3);
-      transition: all 0.2s ease;
-
-      &:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 6px 16px rgba(var(--brand-color-rgb), 0.4);
-      }
-    }
-  }
-}
-
-// --- Dashboard Grid ---
-.dashboard-grid {
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-}
-
-// --- Row 1: Metrics ---
-.metrics-row {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-  gap: 1.5rem;
-
-  // Custom Accents via class mapping in SCSS (better than inline styles)
-  .metric-card.accent-red {
-    --accent: var(--brand-color);
-  }
-
-  .metric-card.accent-blue {
-    --accent: #3b82f6;
-  }
-
-  .metric-card.accent-green {
-    --accent: #10b981;
-  }
-
-  .metric-card.accent-purple {
-    --accent: #8b5cf6;
-  }
-
-  .metric-card {
-    padding: 1.5rem;
-    display: flex;
-    align-items: center;
-    gap: 1.25rem;
-    position: relative;
-    overflow: hidden;
-    transition:
-      transform 0.2s ease,
-      border-color 0.2s ease;
-
-    // Subtle colored glow at bottom
-    &::after {
-      content: '';
-      position: absolute;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      height: 3px;
-      background: var(--accent);
-      opacity: 0.3;
-    }
-
-    &:hover {
-      transform: translateY(-4px);
-      border-color: rgba(var(--text-color-rgb), 0.1);
-
-      .icon-box {
-        background: var(--accent);
-        color: white; // Icons on accent bg are usually white
-        transform: scale(1.1) rotate(5deg);
-        border-color: transparent;
-      }
-    }
-
-    .icon-box {
-      width: 52px;
-      height: 52px;
-      border-radius: 14px;
-      background: rgba(var(--card-bg-color-rgb), 0.8);
-      color: var(--accent);
+    .export-btn {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--line-color);
+      color: var(--text-color);
+      width: 40px;
+      height: 40px;
+      border-radius: 8px;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 1.25rem;
-      border: 1px solid var(--line-color);
-      transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-    }
+      cursor: pointer;
+      transition: all 0.2s ease;
+      opacity: 0.8;
 
-    .metric-info {
-      display: flex;
-      flex-direction: column;
-
-      .label {
-        font-family: $font-tech;
-        font-size: 0.8rem;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-        color: var(--text-secondary);
-        margin-bottom: 0.25rem;
-      }
-
-      .value {
-        font-family: $font-head;
-        font-size: 1.75rem;
-        font-weight: 700;
-        color: var(--text-color);
-        line-height: 1;
+      &:hover {
+        opacity: 1;
+        border-color: var(--text-color);
       }
     }
   }
 }
 
-// --- Glass Panel Common ---
-.glass-panel {
-  // Use theme vars!
-  background: rgba(var(--card-bg-color-rgb), 0.7);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid var(--line-color);
-  border-radius: 16px;
-  overflow: hidden;
-  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.05); // Subtle shadow
-  transition: border-color 0.2s;
-
-  &:hover {
-    border-color: rgba(var(--brand-color-rgb), 0.3);
-  }
-}
-
-.panel-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 1.25rem 1.5rem;
-  border-bottom: 1px solid var(--line-color);
-
-  h3 {
-    margin: 0;
-    font-size: 1.1rem;
-    font-weight: 600;
-    font-family: $font-head;
-    color: var(--text-color);
-  }
-}
-
-// --- Charts ---
-.chart-wrapper {
-  padding: 1.5rem;
-  height: 380px; // Slightly taller
-  width: 100%;
-  position: relative;
-}
-
-.legend {
-  display: flex;
-  gap: 1rem;
-
-  .legend-item {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    font-size: 0.85rem;
-    color: var(--text-secondary);
-    font-family: $font-tech;
-
-    .dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-    }
-  }
-}
-
-// --- Row 3: Split Row ---
-.split-row {
+// --- Bento Grid ---
+.bento-grid {
   display: grid;
-  grid-template-columns: 2fr 1fr;
+  grid-template-columns: repeat(4, 1fr);
+  grid-template-rows: auto minmax(300px, auto); // Metrics row, Chart row
   gap: 1.5rem;
 
-  @media (max-width: 1024px) {
+  @include mobile {
     grid-template-columns: 1fr;
   }
 
-  .revenue-panel,
-  .license-panel {
+  @include tablet {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+// --- Cards Generic ---
+.metric-card,
+.chart-card,
+.list-card {
+  background: var(--card-bg-color);
+  border: 1px solid var(--line-color);
+  border-radius: 16px;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  transition:
+    transform 0.2s ease,
+    border-color 0.2s ease;
+  box-shadow:
+    0 4px 6px -1px rgba(0, 0, 0, 0.1),
+    0 2px 4px -1px rgba(0, 0, 0, 0.06);
+
+  &:hover {
+    border-color: var(--brand-color); // Highlight with brand color on hover
+    transform: translateY(-2px);
+  }
+}
+
+// --- 1. Metric Cards ---
+.metric-card {
+  min-height: 120px;
+  justify-content: space-between;
+
+  .card-label {
+    color: var(--text-color);
+    font-size: 0.85rem;
+    font-weight: 600;
     display: flex;
+    align-items: center;
+    gap: 8px;
+    opacity: 0.7;
+
+    i {
+      opacity: 0.8;
+    }
+  }
+
+  .card-value {
+    font-size: 2rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    color: var(--text-color);
+  }
+
+  // Optional: subtle left border accent instead of full color change?
+  // Keeping it minimal for now as requested.
+}
+
+// --- 2. Performance Section ---
+.performance-section {
+  grid-column: span 2;
+  grid-row: span 2;
+
+  @include mobile {
+    grid-column: span 1;
+    grid-row: span 1;
+  }
+
+  @include tablet {
+    grid-column: span 2;
+  }
+
+  .card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+
+    h3 {
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin: 0;
+      color: var(--text-color);
+    }
+  }
+
+  .legend-inline {
+    display: flex;
+    gap: 1rem;
+    font-size: 0.8rem;
+    color: var(--text-color);
+    opacity: 0.8;
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+
+      .dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+      }
+
+      &.plays .dot {
+        background: #ef4444;
+      }
+
+      &.downloads .dot {
+        background: #a855f7;
+      }
+    }
+  }
+
+  .chart-container {
+    flex: 1;
+    position: relative;
+    width: 100%;
+    min-height: 250px;
+  }
+}
+
+// --- 3. Revenue Section ---
+.revenue-section {
+  grid-column: span 2;
+  grid-row: span 2;
+  position: relative; // For floating header
+  padding: 0; // Full bleed
+  overflow: hidden;
+
+  @include mobile {
+    grid-column: span 1;
+    grid-row: span 1;
+  }
+
+  .card-header.floating-header {
+    position: absolute;
+    top: 1.5rem;
+    left: 1.5rem;
+    right: 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    z-index: 10;
+    margin: 0;
+    pointer-events: none; // Let clicks pass through, but re-enable for children
+
+    h3 {
+      pointer-events: auto;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5); // Readability over chart
+    }
+
+    .glass-toggle {
+      pointer-events: auto;
+      display: flex;
+      background: rgba(0, 0, 0, 0.4);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 20px;
+      padding: 4px;
+      gap: 4px;
+
+      button {
+        background: transparent;
+        border: none;
+        color: rgba(255, 255, 255, 0.6);
+        width: 32px;
+        height: 32px;
+        border-radius: 8px; // Rounded Square
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        padding: 0;
+
+        &:hover {
+          color: #fff;
+          background: rgba(255, 255, 255, 0.1);
+        }
+
+        &.active {
+          background: var(--brand-color);
+          color: #fff;
+          box-shadow: 0 0 10px var(--brand-color);
+        }
+
+        i {
+          font-size: 0.9rem;
+        }
+      }
+    }
+  }
+
+  .chart-container.full-bleed {
+    width: 100%;
+    height: 100%;
+    min-height: 320px;
+    padding: 1rem;
+    padding-top: 4rem; // Space for header
+  }
+}
+
+// --- NEW BOTTOM GRID Wrapper (Flexbox for reliability) ---
+.bottom-grid {
+  grid-column: 1 / -1; // Span full width of parent grid
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+
+  @include tablet {
     flex-direction: column;
   }
 
-  .revenue-panel .chart-wrapper {
-    height: 320px;
+  @include mobile {
+    flex-direction: column;
+  }
+}
+
+// --- 4. License Section ---
+.license-section {
+  flex: 0 0 320px; // Fixed width for license chart
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+
+  @include mobile {
+    width: 100%;
+    flex: 1;
   }
 
-  .license-panel .chart-wrapper {
-    height: 320px;
+  .card-header h3 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin: 0 0 1rem 0;
+    color: var(--text-color);
+  }
+
+  // ... (rest of license section styles matching previous)
+  .chart-container {
+    flex: 1;
     display: flex;
+    flex-direction: column;
     justify-content: center;
     align-items: center;
+    min-height: 200px;
+
+    canvas {
+      max-height: 200px;
+      width: 100% !important;
+    }
   }
 
-  .empty-state {
-    color: var(--text-secondary);
-    font-family: $font-tech;
-    font-style: italic;
-    opacity: 0.7;
+  .custom-legend {
+    width: 100%;
+    margin-top: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+
+    .legend-row {
+      display: flex;
+      align-items: center;
+      font-size: 0.85rem;
+      padding: 6px 10px;
+      border-radius: 6px;
+      background: rgba(255, 255, 255, 0.02);
+      transition: background 0.2s;
+
+      &:hover {
+        background: rgba(255, 255, 255, 0.05);
+      }
+
+      .dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        margin-right: 12px;
+        box-shadow: 0 0 5px currentcolor;
+      }
+
+      .label {
+        color: var(--text-color);
+        flex: 1;
+      }
+
+      .value {
+        font-weight: 700;
+        color: var(--text-color);
+        font-family: monospace;
+      }
+    }
   }
 }
 
-// --- Row 4: Leaderboard ---
-.leaderboard-panel {
-  .toggle-group {
-    background: rgba(var(--bg-color-rgb), 0.5);
-    border: 1px solid var(--line-color);
-    border-radius: 8px;
-    padding: 3px;
+// --- 5. Leaderboard Section ---
+.leaderboard-section {
+  flex: 1; // Take remaining space
+  min-width: 0; // Prevent flex overflow
+  height: 100%;
+
+  @include tablet {
+    grid-column: span 2;
+  }
+
+  @include mobile {
+    grid-column: span 1;
+  }
+
+  .card-header {
     display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.25rem;
 
-    button {
-      background: transparent;
-      border: none;
-      color: var(--text-secondary);
-      font-size: 0.8rem;
-      padding: 4px 12px;
-      border-radius: 6px;
-      cursor: pointer;
-      font-family: $font-tech;
-      transition: all 0.2s;
+    h3 {
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin: 0;
+      color: var(--text-color);
+      display: flex;
+      align-items: center;
+      gap: 10px;
 
-      &:hover {
-        color: var(--text-color);
-      }
-
-      &.active {
-        background: var(--brand-color);
-        color: var(--on-brand-color);
+      &::before {
+        content: '\f091';
+        font-family: 'Font Awesome 6 Free';
+        font-weight: 900;
+        color: #ffd700;
+        text-shadow: 0 0 10px rgba(255, 215, 0, 0.4);
       }
     }
   }
 
-  .leaderboard-list {
-    padding: 0;
+  .compact-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
 
-    .list-header {
+    .list-head,
+    .list-row {
       display: grid;
-      grid-template-columns: 60px 1fr 120px;
-      padding: 0.75rem 1.5rem;
+      // Rank | Title | Plays | Downloads | Revenue
+      grid-template-columns: 40px 3fr 1fr 1fr 1fr;
+      gap: 1.5rem;
+      align-items: center;
+      padding: 8px 12px;
+      border-radius: 8px;
+
+      @include mobile {
+        grid-template-columns: 30px 1fr auto auto auto;
+        gap: 0.5rem;
+        overflow-x: auto;
+      }
+    }
+
+    .list-head {
+      color: var(--text-color);
+      opacity: 0.6;
       font-size: 0.75rem;
       text-transform: uppercase;
-      color: var(--text-secondary);
-      font-family: $font-tech;
-      letter-spacing: 1px;
+      letter-spacing: 0.05em;
       border-bottom: 1px solid var(--line-color);
-      background: rgba(var(--bg-color-rgb), 0.2);
+      background: rgba(0, 0, 0, 0.2);
+      margin-bottom: 4px;
+
+      // Use button to target strictly
+      button {
+        &.col-sort {
+          cursor: pointer;
+          display: inline-flex;
+          align-items: center;
+          gap: 6px;
+          transition: color 0.2s;
+          background: none;
+          border: none;
+          font: inherit;
+          padding: 0;
+          color: inherit;
+
+          &:hover,
+          &.active {
+            color: var(--brand-color);
+            opacity: 1;
+            text-decoration: none;
+          }
+        }
+      }
     }
 
-    .list-item {
-      display: grid;
-      grid-template-columns: 60px 1fr 120px;
-      padding: 1rem 1.5rem;
-      align-items: center;
-      transition: background 0.2s ease;
-      cursor: default;
-      border-bottom: 1px solid var(--line-color);
-
-      &:last-child {
-        border-bottom: none;
-      }
+    .list-row {
+      transition: all 0.2s ease;
+      border: 1px solid transparent;
 
       &:hover {
-        background: rgba(var(--text-color-rgb), 0.03);
+        background: rgba(255, 255, 255, 0.03);
+        border-color: rgba(255, 255, 255, 0.1);
+        transform: translateX(2px);
       }
 
-      .rank {
-        font-family: $font-head;
-        font-size: 1rem;
-        color: var(--text-secondary);
-        font-weight: 700;
-        opacity: 0.6;
-      }
-
-      .content-info {
+      .col-rank {
+        font-family: Manrope, monospace;
+        font-weight: 800;
+        color: var(--text-color);
+        opacity: 0.5;
         display: flex;
-        flex-direction: column;
-        overflow: hidden;
+        align-items: center;
+        justify-content: center;
+      }
 
-        .title {
-          font-weight: 600;
-          color: var(--text-color);
-          font-size: 0.95rem;
-          white-space: nowrap;
-          overflow: hidden;
-          text-overflow: ellipsis;
+      .col-title {
+        font-weight: 600;
+        color: var(--text-color);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+
+        i {
+          margin-right: 12px;
+          opacity: 0.5;
+          font-size: 0.9em;
         }
       }
 
-      .stats-value {
-        font-family: $font-tech;
-        font-weight: 700;
-        color: var(--brand-color); // Brand Accent
-        font-size: 1rem;
+      .col-val {
+        font-variant-numeric: tabular-nums;
+        color: var(--text-color);
+        font-weight: 500;
 
-        .unit {
-          font-size: 0.75rem;
-          font-weight: 400;
-          color: var(--text-secondary);
-          margin-left: 4px;
+        &.brand-text {
+          color: var(--brand-color);
+          font-weight: 700;
         }
+      }
+
+      // --- Glowing Ranks ---
+      &.top-3 {
+        background: rgba(255, 255, 255, 0.01);
+
+        .col-rank {
+          opacity: 1;
+        }
+      }
+
+      .col-rank[data-rank='1'] {
+        color: #ffd700;
+        text-shadow: 0 0 10px rgba(255, 215, 0, 0.4);
+      }
+
+      .col-rank[data-rank='2'] {
+        color: #e0e0e0;
+        text-shadow: 0 0 10px rgba(224, 224, 224, 0.4);
+      }
+
+      .col-rank[data-rank='3'] {
+        color: #cd7f32;
+        text-shadow: 0 0 10px rgba(205, 127, 50, 0.4);
       }
     }
-  }
 
-  .empty-list {
-    padding: 3rem;
-    text-align: center;
-    color: var(--text-secondary);
-    font-style: italic;
+    .empty-row {
+      text-align: center;
+      padding: 2rem;
+      font-style: italic;
+      opacity: 0.5;
+    }
   }
 }
 
+// Toggle Button
+.toggle-btn {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--line-color);
+  color: var(--text-color);
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.1);
+  }
+
+  i {
+    font-size: 0.9em;
+  }
+}
+
+// Utils
 .text-right {
   text-align: right;
 }
 
-// --- Loading ---
-.loading-container {
+.text-truncate {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+// Loading State
+.loading-state {
   height: 60vh;
   display: flex;
   flex-direction: column;
-  align-items: center;
   justify-content: center;
-  gap: 1.5rem;
+  align-items: center;
+  gap: 1rem;
+  color: var(--text-color);
+  opacity: 0.7;
 
-  .spinner-premium {
-    width: 40px;
-    height: 40px;
-    border: 3px solid var(--line-color);
+  .spinner-border {
+    width: 2rem;
+    height: 2rem;
+    border: 3px solid rgba(255, 255, 255, 0.1);
     border-top-color: var(--brand-color);
     border-radius: 50%;
-    animation: spin 0.8s cubic-bezier(0.55, 0.055, 0.675, 0.19) infinite;
-  }
-
-  p {
-    color: var(--text-secondary);
-    font-family: $font-tech;
-    letter-spacing: 1px;
-    text-transform: uppercase;
-    font-size: 0.8rem;
-    animation: pulse 2s infinite ease-in-out;
+    animation: spin 1s linear infinite;
   }
 }
 
 @keyframes spin {
   to {
     transform: rotate(360deg);
-  }
-}
-
-@keyframes pulse {
-  0%,
-  100% {
-    opacity: 0.6;
-  }
-
-  50% {
-    opacity: 1;
-  }
-}
-
-@media (max-width: 768px) {
-  .page-header {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 1rem;
-
-    .actions {
-      width: 100%;
-      justify-content: space-between;
-    }
-  }
-
-  .time-tabs {
-    flex: 1;
-    justify-content: center;
-  }
-
-  .actions .btn-export span {
-    display: none;
-  }
-
-  // Icon only on mobile
-
-  .leaderboard-panel .list-item,
-  .leaderboard-panel .list-header {
-    grid-template-columns: 40px 1fr 100px;
-    padding-left: 1rem;
-    padding-right: 1rem;
   }
 }

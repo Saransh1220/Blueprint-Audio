@@ -8,6 +8,7 @@ import {
   signal,
   effect,
 } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { SpecRowComponent } from '../../components';
 import { AuthService, LabService, AnalyticsService } from '../../services';
 import { User, Role } from '../../models';
@@ -62,6 +63,12 @@ export class DashboardComponent implements OnInit {
       if (user?.role === Role.PRODUCER) {
         this.loadAnalytics();
       }
+    });
+
+    // Listen for realtime refreshes
+    // Listen for realtime refreshes
+    this.labService.refresh$.pipe(takeUntilDestroyed()).subscribe(() => {
+      this.loadSpecs(this.selectedGenres());
     });
   }
 

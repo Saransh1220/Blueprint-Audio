@@ -11,6 +11,23 @@
     <div class="equalizer-bars"><span></span><span></span><span></span><span></span></div>
   </div>
 
+  <!-- Processing Overlay -->
+  @if (
+    spec.processingStatus === 'processing' ||
+    spec.processingStatus === 'failed' ||
+    spec.processingStatus === 'pending'
+  ) {
+    <div class="processing-overlay" [class.failed]="spec.processingStatus === 'failed'">
+      @if (spec.processingStatus === 'processing' || spec.processingStatus === 'pending') {
+        <div class="spinner"></div>
+        <span>{{ spec.processingStatus === 'pending' ? 'Pending...' : 'Processing...' }}</span>
+      } @else {
+        <i class="fas fa-exclamation-circle"></i>
+        <span>Upload Failed</span>
+      }
+    </div>
+  }
+
   <!-- Middle Section: Info -->
   <div class="item-content">
     <div class="content-header">

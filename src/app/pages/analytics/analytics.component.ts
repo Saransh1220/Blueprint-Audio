@@ -1,7 +1,14 @@
 import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component, inject, signal, ViewChild } from '@angular/core';
 import { BaseChartDirective } from 'ng2-charts';
-import { ChartConfiguration, ChartData, ChartType, ChartEvent, ActiveElement } from 'chart.js';
+import {
+  ChartConfiguration,
+  ChartData,
+  ChartType,
+  ChartEvent,
+  ActiveElement,
+  ScriptableContext,
+} from 'chart.js';
 import { AnalyticsService } from '../../services/analytics.service';
 import { AnalyticsOverviewResponse, TopSpecStat } from '../../core/api/analytics.requests';
 import { CsvExportService } from '../../core/services/csv-export.service';
@@ -28,6 +35,9 @@ export class AnalyticsComponent {
   // Filter States
   currentDays = signal(30);
   sortBy = signal<'plays' | 'revenue' | 'downloads'>('plays');
+  sortDirection = signal<'asc' | 'desc'>('desc'); // New: sort direction
+
+  revenueChartType = signal<'bar' | 'line'>('bar'); // New: chart toggle
 
   // Chart Properties
   public lineChartType: ChartType = 'line';
@@ -35,7 +45,8 @@ export class AnalyticsComponent {
 
   // --- Chart Data Signals ---
   public lineChartData = signal<ChartData<'line'>>({ labels: [], datasets: [] });
-  public revenueChartData = signal<ChartData<'line'>>({ labels: [], datasets: [] });
+  // Dedicated Revenue Chart
+  public revenueChartData = signal<ChartData<'bar' | 'line'>>({ labels: [], datasets: [] });
   public doughnutChartData = signal<ChartData<'doughnut'>>({ labels: [], datasets: [] });
 
   // --- Chart Options (Premium Style) ---
@@ -110,6 +121,32 @@ export class AnalyticsComponent {
 
   public revenueChartOptions: ChartConfiguration['options'] = {
     ...this.commonChartOptions,
+    elements: {
+      line: {
+        tension: 0.4,
+        borderWidth: 3,
+        fill: 'origin',
+      },
+      point: {
+        radius: 0,
+        hitRadius: 20,
+        hoverRadius: 6,
+        hoverBorderWidth: 2,
+      },
+      bar: {
+        borderRadius: 4,
+        borderSkipped: false,
+      },
+    },
+    plugins: {
+      ...this.commonChartOptions?.plugins,
+      tooltip: {
+        ...this.commonChartOptions?.plugins?.tooltip,
+        callbacks: {
+          label: (context) => ` ₹${context.parsed.y}`,
+        },
+      },
+    },
     scales: {
       ...this.commonChartOptions?.scales,
       y: {
@@ -125,17 +162,12 @@ export class AnalyticsComponent {
   public doughnutChartOptions: ChartConfiguration<'doughnut'>['options'] = {
     responsive: true,
     maintainAspectRatio: false,
-    cutout: '75%', // Thinner ring
+    cutout: '85%', // Thinner ring
+    circumference: 180,
+    rotation: -90,
     plugins: {
       legend: {
-        position: 'right',
-        labels: {
-          color: '#cbd5e1',
-          font: { family: 'Manrope', size: 12 },
-          usePointStyle: true,
-          pointStyle: 'circle',
-          padding: 20,
-        },
+        display: false, // Using custom HTML legend
       },
       tooltip: {
         ...this.commonChartOptions?.plugins?.tooltip,
@@ -143,7 +175,7 @@ export class AnalyticsComponent {
     },
     elements: {
       arc: {
-        borderWidth: 0, // No borders on segments
+        borderWidth: 0,
       },
     },
   };
@@ -158,15 +190,9 @@ export class AnalyticsComponent {
     this.loadData();
   }
 
-  setSort(sort: 'plays' | 'revenue' | 'downloads') {
-    if (this.sortBy() === sort) return;
-    this.sortBy.set(sort);
-    this.loadTopSpecs();
-  }
-
   loadData() {
     this.isLoading.set(true);
-    this.analyticsService.getOverview(this.currentDays(), 'plays').subscribe({
+    this.analyticsService.getOverview(this.currentDays(), this.sortBy()).subscribe({
       next: (res) => {
         this.data.set(res);
         this.isLoading.set(false);
@@ -182,10 +208,30 @@ export class AnalyticsComponent {
   }
 
   loadTopSpecs() {
-    this.analyticsService.getTopSpecs(5, this.sortBy()).subscribe({
-      next: (specs) => this.topSpecs.set(specs),
-      error: (err) => console.error('Failed to load top specs', err),
+    this.analyticsService.getTopSpecs(5, this.sortBy()).subscribe((res) => {
+      // Client-side sort if direction is ASC (since API defaults to DESC usually)
+      let sorted = [...res];
+      if (this.sortDirection() === 'asc') {
+        sorted.reverse();
+      }
+      this.topSpecs.set(sorted);
     });
+  }
+
+  onSort(field: 'plays' | 'revenue' | 'downloads') {
+    if (this.sortBy() === field) {
+      // Toggle direction
+      this.sortDirection.update((d) => (d === 'asc' ? 'desc' : 'asc'));
+    } else {
+      // New field, default to desc
+      this.sortBy.set(field);
+      this.sortDirection.set('desc');
+    }
+    this.loadTopSpecs();
+  }
+
+  toggleRevenueChart() {
+    this.revenueChartType.update((t) => (t === 'bar' ? 'line' : 'bar'));
   }
 
   exportCSV() {
@@ -207,9 +253,6 @@ export class AnalyticsComponent {
     const playsData = labels.map((date) => playsMap.get(date) || 0);
     const downloadsData = labels.map((date) => downloadsMap.get(date) || 0);
 
-    // Create gradients (Note: In a real app we might need a canvas ref to do true gradients,
-    // but we can simulate or just use solid colors with opacity for now)
-
     this.lineChartData.set({
       labels,
       datasets: [
@@ -217,26 +260,42 @@ export class AnalyticsComponent {
           data: playsData,
           label: 'Plays',
           borderColor: '#ef4444',
-          backgroundColor: 'rgba(239, 68, 68, 0.1)',
+          backgroundColor: (ctx: ScriptableContext<'line'>) => {
+            const canvas = ctx.chart.ctx;
+            const gradient = canvas.createLinearGradient(0, 0, 0, 300);
+            gradient.addColorStop(0, 'rgba(239, 68, 68, 0.4)');
+            gradient.addColorStop(1, 'rgba(239, 68, 68, 0.0)');
+            return gradient;
+          },
           pointBackgroundColor: '#ef4444',
           pointBorderColor: '#fff',
           pointHoverBackgroundColor: '#fff',
           pointHoverBorderColor: '#ef4444',
+          fill: true,
+          tension: 0.4,
         },
         {
           data: downloadsData,
           label: 'Downloads',
           borderColor: '#a855f7',
-          backgroundColor: 'rgba(168, 85, 247, 0.1)',
+          backgroundColor: (ctx: ScriptableContext<'line'>) => {
+            const canvas = ctx.chart.ctx;
+            const gradient = canvas.createLinearGradient(0, 0, 0, 300);
+            gradient.addColorStop(0, 'rgba(168, 85, 247, 0.4)');
+            gradient.addColorStop(1, 'rgba(168, 85, 247, 0.0)');
+            return gradient;
+          },
           pointBackgroundColor: '#a855f7',
           pointBorderColor: '#fff',
           pointHoverBackgroundColor: '#fff',
           pointHoverBorderColor: '#a855f7',
+          fill: true,
+          tension: 0.4,
         },
       ],
     });
 
-    // --- 2. Revenue Chart ---
+    // --- 2. Revenue (Bar/Line) ---
     const revLabels = data.revenue_by_day?.map((d) => d.date) || [];
     const revData = data.revenue_by_day?.map((d) => d.revenue) || [];
 
@@ -246,12 +305,19 @@ export class AnalyticsComponent {
         {
           data: revData,
           label: 'Revenue',
-          borderColor: '#10b981',
-          backgroundColor: 'rgba(16, 185, 129, 0.1)',
-          pointBackgroundColor: '#10b981',
-          pointBorderColor: '#fff',
-          pointHoverBackgroundColor: '#fff',
-          pointHoverBorderColor: '#10b981',
+          borderColor: '#10b981', // Emerald
+          backgroundColor: (ctx: ScriptableContext<'bar'>) => {
+            const canvas = ctx.chart.ctx;
+            const gradient = canvas.createLinearGradient(0, 0, 0, 300);
+            gradient.addColorStop(0, 'rgba(16, 185, 129, 0.2)'); // Very subtle start
+            gradient.addColorStop(1, 'rgba(16, 185, 129, 0.0)');
+            return gradient;
+          },
+          hoverBackgroundColor: '#34d399',
+          barThickness: 12,
+          borderRadius: 4,
+          tension: 0.4,
+          fill: this.revenueChartType() === 'line',
         },
       ],
     });
@@ -276,5 +342,16 @@ export class AnalyticsComponent {
         },
       ],
     });
+  }
+
+  getLegendColor(index: number): string {
+    const dataset = this.doughnutChartData().datasets[0];
+    if (!dataset) return '#ccc';
+
+    const bg = dataset.backgroundColor as any;
+    if (Array.isArray(bg)) {
+      return bg[index] || '#ccc';
+    }
+    return typeof bg === 'string' ? bg : '#ccc';
   }
 }
