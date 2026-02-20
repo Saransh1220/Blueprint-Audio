@@ -174,7 +174,7 @@ export class PaymentService {
   /**
    * Get orders for producer (sales)
    */
-  getProducerOrders(page: number = 1): Observable<ProducerOrderResponse> {
-    return this.api.execute(new GetProducerOrdersRequest(page));
+  getProducerOrders(page: number = 1, limit: number = 10): Observable<ProducerOrderResponse> {
+    return this.api.execute(new GetProducerOrdersRequest(page, limit));
   }
 }

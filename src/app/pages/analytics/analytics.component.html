@@ -151,7 +151,8 @@
               <span class="col-rank">#</span>
               <span class="col-title">Track</span>
 
-              <span
+              <button
+                type="button"
                 class="col-sort"
                 (click)="onSort('plays')"
                 [class.active]="sortBy() === 'plays'"
@@ -164,9 +165,10 @@
                     [class.fa-caret-up]="sortDirection() === 'asc'"
                   ></i>
                 }
-              </span>
+              </button>
 
-              <span
+              <button
+                type="button"
                 class="col-sort"
                 (click)="onSort('downloads')"
                 [class.active]="sortBy() === 'downloads'"
@@ -179,9 +181,10 @@
                     [class.fa-caret-up]="sortDirection() === 'asc'"
                   ></i>
                 }
-              </span>
+              </button>
 
-              <span
+              <button
+                type="button"
                 class="col-sort text-right"
                 (click)="onSort('revenue')"
                 [class.active]="sortBy() === 'revenue'"
@@ -194,7 +197,7 @@
                     [class.fa-caret-up]="sortDirection() === 'asc'"
                   ></i>
                 }
-              </span>
+              </button>
             </div>
 
             @for (spec of topSpecs(); track spec.spec_id; let i = $index) {

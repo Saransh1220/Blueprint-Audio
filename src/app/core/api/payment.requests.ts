@@ -31,7 +31,7 @@ export class CreateOrderRequest implements ApiRequest<Order> {
       spec_id: string;
       license_option_id: string;
     },
-  ) {}
+  ) { }
 }
 
 // Verify Payment Request
@@ -40,7 +40,7 @@ export class VerifyPaymentRequest implements ApiRequest<PaymentVerificationRespo
   readonly method: HttpMethod = 'POST';
   readonly _responseType?: PaymentVerificationResponse;
 
-  constructor(public body: PaymentVerificationRequest) {}
+  constructor(public body: PaymentVerificationRequest) { }
 }
 
 // Get Order Request
@@ -119,7 +119,9 @@ export class GetProducerOrdersRequest implements ApiRequest<ProducerOrderRespons
   readonly _responseType?: ProducerOrderResponse;
   readonly params?: HttpParams;
 
-  constructor(page: number = 1) {
-    this.params = new HttpParams().set('page', page);
+  constructor(page: number = 1, limit: number = 10) {
+    let params = new HttpParams().set('page', page);
+    params = params.set('limit', limit);
+    this.params = params;
   }
 }
