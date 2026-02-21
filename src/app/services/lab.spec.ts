@@ -1,11 +1,11 @@
 import { HttpEventType } from '@angular/common/http';
-import { of } from 'rxjs';
 import { TestBed } from '@angular/core/testing';
+import { of } from 'rxjs';
 import { SpecAdapter } from '../adapters/spec.adapter';
 import { CreateSpecRequest, GetSpecRequest, GetSpecsRequest } from '../core/api/spec.requests';
 import { ApiService } from '../core/services/api.service';
-import { LabService } from './lab';
 import { Spec } from '../models';
+import { LabService } from './lab';
 
 const mockSpec = (overrides?: Partial<Spec>): Spec =>
   ({

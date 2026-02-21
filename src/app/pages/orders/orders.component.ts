@@ -1,9 +1,9 @@
-import { Component, inject, signal } from '@angular/core';
 import { CommonModule, CurrencyPipe, DatePipe } from '@angular/common';
-import { PaymentService } from '../../services/payment.service';
+import { Component, inject, signal } from '@angular/core';
 import { ProducerOrderDto, ProducerOrderResponse } from '../../core/api/payment.requests';
-import { PaginationComponent } from '../../shared/components/pagination/pagination.component';
 import { CsvExportService } from '../../core/services/csv-export.service';
+import { PaymentService } from '../../services/payment.service';
+import { PaginationComponent } from '../../shared/components/pagination/pagination.component';
 
 @Component({
   selector: 'app-orders',

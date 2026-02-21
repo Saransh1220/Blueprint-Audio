@@ -1,14 +1,14 @@
 import { Injectable, inject, signal } from '@angular/core';
-import { type Observable, map, tap } from 'rxjs';
-import { ApiService } from '../core/services/api.service';
+import { map, type Observable, tap } from 'rxjs';
+import { SpecAdapter } from '../adapters/spec.adapter';
 import {
+  CreateSpecRequest,
   GetSpecRequest,
   GetSpecsRequest,
-  CreateSpecRequest,
   type SpecDto,
 } from '../core/api/spec.requests';
+import { ApiService } from '../core/services/api.service';
 import { type Spec } from '../models';
-import { SpecAdapter } from '../adapters/spec.adapter';
 
 import { PaginationMetadata } from '../models/payment';
 

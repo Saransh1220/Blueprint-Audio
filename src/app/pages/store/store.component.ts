@@ -1,14 +1,14 @@
-import { Component, OnInit, inject, signal, computed, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Component, computed, inject, OnInit, signal, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { SpecService } from '../../services/spec.service';
-import { UserService } from '../../services/user.service';
-import { AuthService } from '../../services/auth.service';
-import { ToastService } from '../../services/toast.service';
+import { ConfirmDialogComponent } from '../../components/confirm-dialog/confirm-dialog.component';
+import { EditSpecModalComponent } from '../../components/modals/edit-spec-modal/edit-spec-modal.component';
 import { SpecDto } from '../../core/api/spec.requests';
 import { PublicUserResponse } from '../../core/api/user.requests';
-import { EditSpecModalComponent } from '../../components/modals/edit-spec-modal/edit-spec-modal.component';
-import { ConfirmDialogComponent } from '../../components/confirm-dialog/confirm-dialog.component';
+import { AuthService } from '../../services/auth.service';
+import { SpecService } from '../../services/spec.service';
+import { ToastService } from '../../services/toast.service';
+import { UserService } from '../../services/user.service';
 
 @Component({
   selector: 'app-store',

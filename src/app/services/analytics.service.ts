@@ -1,21 +1,21 @@
-import { inject, Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { ApiService } from '../core/services/api.service';
+import { SpecAdapter } from '../adapters/spec.adapter';
 import {
-  TrackPlayRequest,
-  ToggleFavoriteRequest,
-  ToggleFavoriteResponse,
-  GetProducerAnalyticsRequest,
+  AnalyticsOverviewResponse,
   DownloadFreeMp3Request,
   DownloadFreeMp3Response,
   GetOverviewRequest,
-  AnalyticsOverviewResponse,
+  GetProducerAnalyticsRequest,
   GetTopSpecsRequest,
+  ToggleFavoriteRequest,
+  ToggleFavoriteResponse,
   TopSpecStat,
+  TrackPlayRequest,
 } from '../core/api/analytics.requests';
+import { ApiService } from '../core/services/api.service';
 import { ProducerAnalytics } from '../models/spec';
-import { SpecAdapter } from '../adapters/spec.adapter';
 
 @Injectable({ providedIn: 'root' })
 export class AnalyticsService {

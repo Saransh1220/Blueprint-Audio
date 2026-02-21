@@ -6,13 +6,13 @@ import { BattleDetailsComponent } from './pages/battle-details/battle-details.co
 import { BattlesComponent } from './pages/battles/battles.component';
 import { DashboardComponent } from './pages/dashboard/dashboard.component';
 import { HomeComponent } from './pages/home/home.component';
+import { ProfileComponent } from './pages/profile/profile.component';
+import { PurchasesComponent } from './pages/purchases/purchases.component';
+import { SearchPageComponent } from './pages/search/search.component';
 import { SettingsComponent } from './pages/settings/settings.component';
 import { SpecDetailsComponent } from './pages/spec-details/spec-details.component';
-import { PurchasesComponent } from './pages/purchases/purchases.component';
-import { UploadComponent } from './pages/upload/upload.component';
-import { ProfileComponent } from './pages/profile/profile.component';
 import { StoreComponent } from './pages/store/store.component';
-import { SearchPageComponent } from './pages/search/search.component';
+import { UploadComponent } from './pages/upload/upload.component';
 
 export const routes: Routes = [
   { path: '', component: HomeComponent },

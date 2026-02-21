@@ -1,14 +1,14 @@
-import { Component, inject, signal, effect, type OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router, ActivatedRoute } from '@angular/router';
+import { Component, effect, inject, type OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { ActivatedRoute, Router } from '@angular/router';
 import { SpecCardComponent } from '../../components/spec-card/spec-card';
 import { SpecListItemComponent } from '../../components/spec-list-item/spec-list-item.component';
 import { LoadingSpinnerComponent } from '../../components/ui/loading-spinner/loading-spinner.component';
-import { PaginationComponent } from '../../shared/components/pagination/pagination.component';
+import { Genre, MusicalKey, type Spec } from '../../models';
 import { LabService } from '../../services/lab';
 import { ToastService } from '../../services/toast.service';
-import { Genre, MusicalKey, type Spec } from '../../models';
+import { PaginationComponent } from '../../shared/components/pagination/pagination.component';
 
 @Component({
   selector: 'app-search-page',

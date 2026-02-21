@@ -1,5 +1,6 @@
-import { of } from 'rxjs';
 import { TestBed } from '@angular/core/testing';
+import { of } from 'rxjs';
+import { SpecAdapter } from '../adapters/spec.adapter';
 import {
   DownloadFreeMp3Request,
   GetOverviewRequest,
@@ -9,7 +10,6 @@ import {
   TrackPlayRequest,
 } from '../core/api/analytics.requests';
 import { ApiService } from '../core/services/api.service';
-import { SpecAdapter } from '../adapters/spec.adapter';
 import { AnalyticsService } from './analytics.service';
 
 describe('AnalyticsService', () => {

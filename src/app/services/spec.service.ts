@@ -1,6 +1,5 @@
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
-import { ApiService } from '../core/services/api.service';
 import {
   DeleteSpecRequest,
   GetUserSpecsRequest,
@@ -8,6 +7,7 @@ import {
   UpdateSpecDto,
   UpdateSpecRequest,
 } from '../core/api/spec.requests';
+import { ApiService } from '../core/services/api.service';
 import { PaginatedResponse } from '../models/payment';
 
 @Injectable({

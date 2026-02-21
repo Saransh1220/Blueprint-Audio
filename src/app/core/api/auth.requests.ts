@@ -1,5 +1,5 @@
-import { ApiRequest, HttpMethod } from './api-request';
 import { UserApiResponse } from '../../models';
+import { ApiRequest, HttpMethod } from './api-request';
 
 interface LoginResponse {
   token: string;

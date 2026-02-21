@@ -1,16 +1,16 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { catchError, map, of, switchMap, tap } from 'rxjs';
-import { ApiService } from '../core/services/api.service';
-import { LoginRequest, RegisterRequest, GetMeRequest } from '../core/api/auth.requests';
+import { AuthRequirementComponent } from '../components/modals/auth-requirement/auth-requirement.component';
+import { GetMeRequest, LoginRequest, RegisterRequest } from '../core/api/auth.requests';
 import {
+  PublicUserResponse,
   UpdateProfileRequest,
   UploadAvatarRequest,
-  PublicUserResponse,
 } from '../core/api/user.requests';
-import { User, UserAdapter, Role } from '../models';
+import { ApiService } from '../core/services/api.service';
+import { Role, User, UserAdapter } from '../models';
 import { ModalService } from './modal.service';
-import { AuthRequirementComponent } from '../components/modals/auth-requirement/auth-requirement.component';
 
 @Injectable({
   providedIn: 'root',

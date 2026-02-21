@@ -48,7 +48,7 @@ export interface GenreDto {
   slug: string;
 }
 
-export interface LicenseDto {}
+export type LicenseDto = {}
 
 export interface LicenseDto {
   id: string;

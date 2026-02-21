@@ -1,5 +1,5 @@
-import { of } from 'rxjs';
 import { HttpParams } from '@angular/common/http';
+import { of } from 'rxjs';
 import { ApiService } from './api.service';
 
 describe('ApiService', () => {

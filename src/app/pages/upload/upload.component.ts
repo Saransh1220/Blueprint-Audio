@@ -1,10 +1,10 @@
 import { CommonModule } from '@angular/common';
 import { HttpClient, HttpEventType } from '@angular/common/http';
-import { ChangeDetectionStrategy, Component, inject, signal, OnInit } from '@angular/core';
-import { ReactiveFormsModule, FormBuilder, Validators, FormArray } from '@angular/forms';
+import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core';
+import { FormArray, FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
-import { AuthService, LabService, ToastService } from '../../services';
 import { Genre, MusicalKey } from '../../models';
+import { AuthService, LabService, ToastService } from '../../services';
 
 @Component({
   selector: 'app-upload',
@@ -187,7 +187,7 @@ export class UploadComponent implements OnInit {
     }
 
     switch (type) {
-      case 'cover':
+      case 'cover': {
         if (!file.type.startsWith('image/')) {
           this.toastService.show('Invalid file type. Please upload an image.', 'error');
           return;
@@ -197,6 +197,7 @@ export class UploadComponent implements OnInit {
         reader.onload = (e) => this.coverPreviewUrl.set(e.target?.result as string);
         reader.readAsDataURL(file);
         break;
+      }
       case 'preview':
         if (!file.type.startsWith('audio/')) {
           this.toastService.show('Invalid file type. Please upload an audio file.', 'error');
