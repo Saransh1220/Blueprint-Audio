@@ -1,17 +1,17 @@
+import { CommonModule, NgOptimizedImage } from '@angular/common';
 import {
   ChangeDetectionStrategy,
+  ChangeDetectorRef,
   Component,
+  computed,
   Input,
   inject,
-  computed,
   signal,
-  ChangeDetectorRef,
 } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
-import { CommonModule, NgOptimizedImage } from '@angular/common';
 
 import type { Spec } from '../../models';
-import { ModalService, PlayerService, AnalyticsService } from '../../services';
+import { AnalyticsService, ModalService, PlayerService } from '../../services';
 import { LicenseSelectorComponent } from '../license-selector/license-selector.component';
 
 @Component({

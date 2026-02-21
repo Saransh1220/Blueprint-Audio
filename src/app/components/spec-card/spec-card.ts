@@ -1,22 +1,20 @@
+import { CommonModule, NgOptimizedImage } from '@angular/common';
 import {
   ChangeDetectionStrategy,
+  ChangeDetectorRef,
   Component,
+  computed,
   Input,
   inject,
-  computed,
   signal,
-  ChangeDetectorRef,
 } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
-import { CommonModule } from '@angular/common';
-
-import { NgOptimizedImage } from '@angular/common';
 
 import type { Spec } from '../../models';
 import { ModalService, PlayerService } from '../../services';
 import { AnalyticsService } from '../../services/analytics.service';
-import { LicenseSelectorComponent } from '../license-selector/license-selector.component';
 import { AuthService } from '../../services/auth.service';
+import { LicenseSelectorComponent } from '../license-selector/license-selector.component';
 
 @Component({
   selector: 'app-spec-card',

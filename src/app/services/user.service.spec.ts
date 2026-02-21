@@ -1,5 +1,5 @@
-import { of } from 'rxjs';
 import { TestBed } from '@angular/core/testing';
+import { of } from 'rxjs';
 import { GetPublicProfileRequest, UpdateProfileRequest } from '../core/api/user.requests';
 import { ApiService } from '../core/services/api.service';
 import { UserService } from './user.service';

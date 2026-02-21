@@ -1,5 +1,5 @@
-import { provideRouter, Router, UrlTree } from '@angular/router';
 import { TestBed } from '@angular/core/testing';
+import { provideRouter, Router, UrlTree } from '@angular/router';
 import { guestGuard } from './guest.guard';
 
 describe('guestGuard', () => {

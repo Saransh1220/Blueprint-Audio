@@ -1,11 +1,11 @@
-import { of } from 'rxjs';
 import { TestBed } from '@angular/core/testing';
-import { ApiService } from '../core/services/api.service';
+import { of } from 'rxjs';
 import {
   DeleteSpecRequest,
   GetUserSpecsRequest,
   UpdateSpecRequest,
 } from '../core/api/spec.requests';
+import { ApiService } from '../core/services/api.service';
 import { SpecService } from './spec.service';
 
 describe('SpecService', () => {

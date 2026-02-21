@@ -1,27 +1,27 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
-import { Observable, tap, catchError, throwError, map } from 'rxjs';
-import { ApiService } from '../core/services/api.service';
-import {
-  Order,
-  License,
-  RazorpayOptions,
-  RazorpayResponse,
-  PaymentVerificationRequest,
-  LicenseDownloadsResponse,
-  PaginationMetadata,
-} from '../models/payment';
+import { catchError, map, Observable, tap, throwError } from 'rxjs';
+import { environment } from '../../environments/environment';
 import {
   CreateOrderRequest,
-  VerifyPaymentRequest,
-  GetUserLicensesRequest,
   GetLicenseDownloadsRequest,
   GetProducerOrdersRequest,
+  GetUserLicensesRequest,
   ProducerOrderResponse,
+  VerifyPaymentRequest,
 } from '../core/api/payment.requests';
-import { environment } from '../../environments/environment';
-import { ToastService } from './toast.service';
+import { ApiService } from '../core/services/api.service';
+import {
+  License,
+  LicenseDownloadsResponse,
+  Order,
+  PaginationMetadata,
+  PaymentVerificationRequest,
+  RazorpayOptions,
+  RazorpayResponse,
+} from '../models/payment';
 import { AuthService } from './auth.service';
+import { ToastService } from './toast.service';
 
 @Injectable({
   providedIn: 'root',

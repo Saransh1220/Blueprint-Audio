@@ -1,9 +1,9 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule, NgOptimizedImage } from '@angular/common';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators, FormArray } from '@angular/forms';
+import { Component, inject, OnInit, signal } from '@angular/core';
+import { FormArray, FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { SpecDto } from '../../../core/api/spec.requests';
 import { SpecService } from '../../../services/spec.service';
 import { ToastService } from '../../../services/toast.service';
-import { SpecDto } from '../../../core/api/spec.requests';
 
 @Component({
   selector: 'app-edit-spec-modal',

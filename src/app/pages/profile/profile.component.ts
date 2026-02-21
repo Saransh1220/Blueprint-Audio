@@ -1,12 +1,12 @@
-import { Component, OnInit, inject, signal, effect, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Component, effect, inject, OnInit, signal, ViewChild } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
-import { AuthService } from '../../services/auth.service';
-import { UserService } from '../../services/user.service';
-import { ToastService } from '../../services/toast.service';
-import { Role } from '../../models';
 import { ConfirmDialogComponent } from '../../components/confirm-dialog/confirm-dialog.component';
+import { Role } from '../../models';
+import { AuthService } from '../../services/auth.service';
+import { ToastService } from '../../services/toast.service';
+import { UserService } from '../../services/user.service';
 
 @Component({
   selector: 'app-profile',

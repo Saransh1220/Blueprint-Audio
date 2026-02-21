@@ -1,10 +1,10 @@
-import { Component, inject, signal, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { PaymentService } from '../../services/payment.service';
+import { debounceTime, distinctUntilChanged, Subject } from 'rxjs';
 import { License, LicenseDownloadsResponse } from '../../models/payment';
+import { PaymentService } from '../../services/payment.service';
 import { ToastService } from '../../services/toast.service';
-import { Subject, debounceTime, distinctUntilChanged } from 'rxjs';
 import { PaginationComponent } from '../../shared/components/pagination/pagination.component';
 
 @Component({

@@ -7,9 +7,8 @@ import {
   type OnInit,
   signal,
 } from '@angular/core';
-
-import { RouterLink, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
+import { Router, RouterLink } from '@angular/router';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { type Spec } from '../../models';

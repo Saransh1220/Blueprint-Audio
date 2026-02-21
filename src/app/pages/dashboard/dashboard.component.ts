@@ -1,16 +1,16 @@
 import { CommonModule } from '@angular/common';
-import { RouterLink } from '@angular/router';
 import {
   ChangeDetectionStrategy,
   Component,
+  effect,
   inject,
   type OnInit,
   signal,
-  effect,
 } from '@angular/core';
+import { RouterLink } from '@angular/router';
 import { SpecRowComponent } from '../../components';
-import { AuthService, LabService, AnalyticsService } from '../../services';
-import { User, Role } from '../../models';
+import { Role, User } from '../../models';
+import { AnalyticsService, AuthService, LabService } from '../../services';
 
 @Component({
   selector: 'app-dashboard',

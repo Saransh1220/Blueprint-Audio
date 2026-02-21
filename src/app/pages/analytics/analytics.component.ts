@@ -1,10 +1,10 @@
 import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component, inject, signal, ViewChild } from '@angular/core';
+import { ActiveElement, ChartConfiguration, ChartData, ChartEvent, ChartType } from 'chart.js';
 import { BaseChartDirective } from 'ng2-charts';
-import { ChartConfiguration, ChartData, ChartType, ChartEvent, ActiveElement } from 'chart.js';
-import { AnalyticsService } from '../../services/analytics.service';
 import { AnalyticsOverviewResponse, TopSpecStat } from '../../core/api/analytics.requests';
 import { CsvExportService } from '../../core/services/csv-export.service';
+import { AnalyticsService } from '../../services/analytics.service';
 
 @Component({
   selector: 'app-analytics',

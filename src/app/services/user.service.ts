@@ -1,12 +1,12 @@
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
-import { ApiService } from '../core/services/api.service';
 import {
   GetPublicProfileRequest,
   PublicUserResponse,
   UpdateProfileDto,
   UpdateProfileRequest,
 } from '../core/api/user.requests';
+import { ApiService } from '../core/services/api.service';
 
 @Injectable({
   providedIn: 'root',

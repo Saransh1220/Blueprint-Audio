@@ -1,5 +1,5 @@
 export const environment = {
   production: false,
-  apiUrl: 'http://localhost:8080',
+  apiUrl: 'https://links-static-roller-evolution.trycloudflare.com',
   razorpayKeyId: 'rzp_test_SBnb5oqTfLoxEP',
 };

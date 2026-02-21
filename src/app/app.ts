@@ -5,10 +5,10 @@ import { gsap } from 'gsap';
 import { HeaderComponent } from './components';
 import { CartComponent } from './components/cart/cart.component';
 import { FooterComponent } from './components/footer/footer';
+import { LoadingBarComponent } from './components/loading-bar/loading-bar.component';
 import { ModalComponent } from './components/modal/modal.component';
 import { PlayerComponent } from './components/player/player';
 import { ToastComponent } from './components/toast/toast.component';
-import { LoadingBarComponent } from './components/loading-bar/loading-bar.component';
 
 @Component({
   selector: 'app-root',

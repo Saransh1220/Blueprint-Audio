@@ -1,6 +1,6 @@
-import { of, throwError } from 'rxjs';
 import { TestBed } from '@angular/core/testing';
 import { Router } from '@angular/router';
+import { of, throwError } from 'rxjs';
 import {
   CreateOrderRequest,
   GetLicenseDownloadsRequest,

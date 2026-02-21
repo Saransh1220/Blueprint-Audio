@@ -1,17 +1,17 @@
 import { Injectable } from '@angular/core';
 import {
-  SpecDto,
   LicenseDto,
-  PublicAnalyticsDto,
   ProducerAnalyticsDto,
+  PublicAnalyticsDto,
+  SpecDto,
 } from '../core/api/spec.requests';
 import {
-  Spec,
   LicenseOption,
-  MusicalKey,
   LicenseType,
-  PublicAnalytics,
+  MusicalKey,
   ProducerAnalytics,
+  PublicAnalytics,
+  Spec,
 } from '../models';
 
 @Injectable({
