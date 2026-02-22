@@ -18,11 +18,12 @@ import { ModalService } from '../../services/modal.service';
 import { AnalyticsService } from '../../services/analytics.service';
 import { LicenseSelectorComponent } from '../license-selector/license-selector.component';
 import type { Spec } from '../../models';
+import { RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-player',
   standalone: true,
-  imports: [],
+  imports: [RouterLink],
   templateUrl: './player.html',
   styleUrls: ['./player.scss'],
 })

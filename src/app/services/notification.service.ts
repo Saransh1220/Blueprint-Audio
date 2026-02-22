@@ -2,9 +2,9 @@ import { Injectable, inject, signal, computed, effect } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../environments/environment';
 import { Notification } from '../models/notification.model';
-import { toSignal } from '@angular/core/rxjs-interop';
-import { catchError, map, startWith, tap } from 'rxjs/operators';
-import { of, interval, switchMap } from 'rxjs';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { catchError, map } from 'rxjs/operators';
+import { of } from 'rxjs';
 import { WebSocketService } from './websocket.service';
 import { ToastService } from './toast.service';
 import { LabService } from './lab';
@@ -36,8 +36,7 @@ export class NotificationService {
     this.refresh();
 
     // Listen for realtime updates
-    this.wsService.messages$.subscribe((msg: Notification) => {
-      console.log('Realtime notification:', msg);
+    this.wsService.messages$.pipe(takeUntilDestroyed()).subscribe((msg: Notification) => {
       this.addNotification(msg);
       let variant: 'success' | 'error' | 'info' = 'info';
       if (msg.type === 'processing_complete') variant = 'success';

@@ -16,13 +16,11 @@
   border: 1px solid var(--line-color);
   border-radius: 16px;
   padding: 30px;
-
   position: sticky;
   top: 100px;
   height: max-content;
   max-height: calc(100vh - 120px);
   margin: 30px 0 30px 30px;
-
   overflow-y: auto;
   z-index: 10;
   backdrop-filter: blur(10px);

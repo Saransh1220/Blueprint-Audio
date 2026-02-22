@@ -62,6 +62,7 @@ export class HeroComponent implements AfterViewInit, OnDestroy {
   private recordMesh!: THREE.Mesh;
   private abstractShape!: any;
   private resizeObserver!: ResizeObserver;
+  private brandCol = new THREE.Color('#ef4444');
 
   ngAfterViewInit(): void {
     const reveals = this.el.nativeElement.querySelectorAll('.gs-reveal');
@@ -98,9 +99,9 @@ export class HeroComponent implements AfterViewInit, OnDestroy {
 
     const style = getComputedStyle(document.body);
     const brandHex = style.getPropertyValue('--brand-color').trim() || '#ef4444';
-    const brandCol = new THREE.Color(brandHex);
+    this.brandCol = new THREE.Color(brandHex);
 
-    this.buildPlatinumRecord(brandCol);
+    this.buildPlatinumRecord(this.brandCol);
 
     // ─── Museum/Gallery Lighting ─────────────────────────────
     this.scene.add(new THREE.AmbientLight(0xffffff, 0.05)); // Extremely dark shadows
@@ -118,7 +119,7 @@ export class HeroComponent implements AfterViewInit, OnDestroy {
     this.scene.add(rakeLight);
 
     // Brand-colored reflection from below
-    const brandFill = new THREE.PointLight(brandCol, 2.0, 10);
+    const brandFill = new THREE.PointLight(this.brandCol, 2.0, 10);
     brandFill.position.set(4, -4, 2);
     this.scene.add(brandFill);
 
@@ -172,7 +173,7 @@ export class HeroComponent implements AfterViewInit, OnDestroy {
     // Custom Shader Material allows us to easily manipulate individual point sizes and colors seamlessly
     const customShaderMaterial = new THREE.ShaderMaterial({
       uniforms: {
-        brandColor: { value: brandCol },
+        brandColor: { value: this.brandCol },
       },
       vertexShader: `
         attribute vec3 originalPos;
@@ -553,10 +554,6 @@ export class HeroComponent implements AfterViewInit, OnDestroy {
       const colors = this.abstractShape.geometry.attributes['color'];
       const baseColors = this.abstractShape.geometry.attributes['baseColor'];
 
-      const style = getComputedStyle(document.body);
-      const brandHex = style.getPropertyValue('--brand-color').trim() || '#ef4444';
-      const brandCol = new THREE.Color(brandHex);
-
       for (let i = 0; i < positions.count; i++) {
         const ox = originalPos.getX(i);
         const oy = originalPos.getY(i);
@@ -596,9 +593,9 @@ export class HeroComponent implements AfterViewInit, OnDestroy {
 
           // Illuminate the points under the cursor with the brand color
           // Mix original gray color with brand color based on cursor proximity
-          cr = THREE.MathUtils.lerp(cr, brandCol.r, influence);
-          cg = THREE.MathUtils.lerp(cg, brandCol.g, influence);
-          cb = THREE.MathUtils.lerp(cb, brandCol.b, influence);
+          cr = THREE.MathUtils.lerp(cr, this.brandCol.r, influence);
+          cg = THREE.MathUtils.lerp(cg, this.brandCol.g, influence);
+          cb = THREE.MathUtils.lerp(cb, this.brandCol.b, influence);
         }
 
         positions.setXYZ(i, cx, cy, cz);
@@ -616,6 +613,16 @@ export class HeroComponent implements AfterViewInit, OnDestroy {
     if (this.animationId) cancelAnimationFrame(this.animationId);
     if (this.resizeObserver) this.resizeObserver.disconnect();
     if (this.renderer) this.renderer.dispose();
+
+    if (this.abstractShape) {
+      this.abstractShape.geometry.dispose();
+      if (Array.isArray(this.abstractShape.material)) {
+        this.abstractShape.material.forEach((m: any) => m.dispose());
+      } else {
+        this.abstractShape.material.dispose();
+      }
+    }
+
     if (this.recordGroup) {
       this.recordGroup.traverse((child) => {
         if (child instanceof THREE.Mesh) {

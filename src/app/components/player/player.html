@@ -27,7 +27,9 @@
           <img [src]="track.imageUrl" alt="" />
         </div>
         <div class="info">
-          <a class="title">{{ track.title }}</a>
+          <a class="title" [routerLink]="['/beats', track.id.replace('#', '')]" tabindex="0">{{
+            track.title
+          }}</a>
           <div class="meta-row">
             <span class="meta">{{ track.bpm }} BPM • {{ track.key }}</span>
             <div class="track-actions">
@@ -59,7 +61,7 @@
         <span class="time-val left">{{ playerService.currentTimeFormatted() }}</span>
 
         <div class="controls">
-          <button class="btn-icon" title="Previous">
+          <button class="btn-icon" title="Previous" disabled>
             <i class="fa-solid fa-backward-step"></i>
           </button>
           <button class="btn-icon play" (click)="playerService.togglePlay()">
@@ -69,7 +71,9 @@
               <i class="fa-solid fa-play" style="padding-left: 2px"></i>
             }
           </button>
-          <button class="btn-icon" title="Next"><i class="fa-solid fa-forward-step"></i></button>
+          <button class="btn-icon" title="Next" disabled>
+            <i class="fa-solid fa-forward-step"></i>
+          </button>
         </div>
 
         <span class="time-val right">{{ playerService.durationFormatted() }}</span>
@@ -78,7 +82,7 @@
       <!-- RIGHT: Cart & Volume -->
       <div class="p-right">
         <div class="vol-group">
-          <button class="btn-icon vol" title="Mute/Unmute">
+          <button class="btn-icon vol" title="Mute/Unmute" (click)="playerService.toggleMute()">
             <i class="fa-solid" [class]="playerService.volumeIcon()"></i>
           </button>
           <div class="custom-slider-container vol-slider">

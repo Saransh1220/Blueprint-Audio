@@ -129,8 +129,9 @@ export class SpecActionService {
   }
 
   formatDuration(seconds: number): string {
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
+    const currentSeconds = Math.floor(seconds);
+    const mins = Math.floor(currentSeconds / 60);
+    const secs = currentSeconds % 60;
     return `${mins}:${secs.toString().padStart(2, '0')}`;
   }
 
