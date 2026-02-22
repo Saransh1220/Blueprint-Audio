@@ -52,7 +52,7 @@ describe('OrdersComponent', () => {
   it('loads first page on init and stores response', () => {
     const { component, getProducerOrders } = setup();
 
-    expect(getProducerOrders).toHaveBeenCalledWith(1);
+    expect(getProducerOrders).toHaveBeenCalledWith(1, 10);
     expect(component.orders()).toEqual(mockResponse.orders);
     expect(component.total()).toBe(1);
     expect(component.limit()).toBe(20);
@@ -63,7 +63,7 @@ describe('OrdersComponent', () => {
   it('sets error state when loading fails', () => {
     const { component, getProducerOrders } = setup({ shouldError: true });
 
-    expect(getProducerOrders).toHaveBeenCalledWith(1);
+    expect(getProducerOrders).toHaveBeenCalledWith(1, 10);
     expect(component.error()).toBe('Failed to load orders. Please try again.');
     expect(component.isLoading()).toBe(false);
   });
@@ -73,7 +73,7 @@ describe('OrdersComponent', () => {
 
     component.onPageChange(3);
 
-    expect(getProducerOrders).toHaveBeenNthCalledWith(2, 3);
+    expect(getProducerOrders).toHaveBeenNthCalledWith(2, 3, 20);
     expect(component.currentPage()).toBe(3);
   });
 

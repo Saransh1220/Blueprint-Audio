@@ -62,6 +62,62 @@
       color: var(--brand-color);
     }
   }
+
+  // Processing Overlay
+  .processing-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(var(--card-bg-color-rgb), 0.85);
+    backdrop-filter: blur(4px);
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    font-family: $font-tech;
+    font-weight: 600;
+    color: var(--brand-color);
+    animation: pulse-bg 2s infinite;
+
+    .spinner {
+      width: 20px;
+      height: 20px;
+      border: 2px solid rgba(var(--brand-color-rgb), 0.3);
+      border-top-color: var(--brand-color);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    &.failed {
+      background: rgba(var(--card-bg-color-rgb), 0.9);
+      color: #ef4444;
+      animation: none; // No pulse for failed
+
+      i {
+        font-size: 1.2rem;
+      }
+    }
+  }
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes pulse-bg {
+  0% {
+    background: rgba(var(--card-bg-color-rgb), 0.85);
+  }
+
+  50% {
+    background: rgba(var(--card-bg-color-rgb), 0.75);
+  }
+
+  100% {
+    background: rgba(var(--card-bg-color-rgb), 0.85);
+  }
 }
 
 // Visual Section (Image)

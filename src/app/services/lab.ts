@@ -1,5 +1,5 @@
 import { Injectable, inject, signal } from '@angular/core';
-import { type Observable, map, tap } from 'rxjs';
+import { type Observable, map, tap, Subject } from 'rxjs';
 import { ApiService } from '../core/services/api.service';
 import {
   GetSpecRequest,
@@ -19,7 +19,14 @@ export class LabService {
   private api = inject(ApiService);
   private adapter = inject(SpecAdapter);
 
+  private _refreshTrigger = new Subject<void>();
+  refresh$ = this._refreshTrigger.asObservable();
+
   specsPagination = signal<PaginationMetadata | null>(null);
+
+  notifyRefresh() {
+    this._refreshTrigger.next();
+  }
 
   getSpecs(filters?: {
     category?: 'beat' | 'sample';

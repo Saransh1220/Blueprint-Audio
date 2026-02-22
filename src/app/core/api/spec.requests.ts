@@ -40,6 +40,7 @@ export interface SpecDto {
   genres?: GenreDto[];
   licenses?: LicenseDto[];
   analytics?: PublicAnalyticsDto;
+  processing_status?: 'pending' | 'processing' | 'completed' | 'failed';
 }
 
 export interface GenreDto {

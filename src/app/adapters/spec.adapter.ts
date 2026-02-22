@@ -38,6 +38,7 @@ export class SpecAdapter {
       duration: dto.duration,
       freeMp3Enabled: dto.free_mp3_enabled,
       analytics: dto.analytics ? this.adaptPublicAnalytics(dto.analytics) : undefined,
+      processingStatus: dto.processing_status || 'completed', // Default to completed for old records
     };
   }
 

@@ -95,7 +95,7 @@
               type="text"
               placeholder="Search..."
               [ngModel]="searchTerm()"
-              (ngModelChange)="searchTerm.set($event)"
+              (ngModelChange)="onSearchInput($event)"
               (keydown.enter)="onSearch()"
             />
           </div>

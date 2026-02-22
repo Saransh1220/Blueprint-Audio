@@ -2,6 +2,7 @@
 
 .search-page-container {
   display: flex;
+  align-items: flex-start;
   min-height: 100vh;
   padding-top: 80px; // clear navbar
   background: var(--bg-color);
@@ -12,15 +13,26 @@
 .search-sidebar {
   width: 260px; // Compact width
   background: rgba(var(--card-bg-color-rgb), 0.5);
-  border-right: 1px solid var(--line-color);
+  border: 1px solid var(--line-color);
+  border-radius: 16px;
   padding: 30px;
-  position: fixed;
-  height: 100vh;
+  position: sticky;
+  top: 100px;
+  height: max-content;
+  max-height: calc(100vh - 120px);
+  margin: 30px 0 30px 30px;
   overflow-y: auto;
   z-index: 10;
   backdrop-filter: blur(10px);
-  scrollbar-width: thin;
-  scrollbar-color: var(--brand-color) transparent;
+
+  // Hide scrollbar visually while keeping it functional
+  scrollbar-width: none;
+
+  /* Firefox */
+  &::-webkit-scrollbar {
+    display: none;
+    /* Chrome, Safari, Edge */
+  }
 
   .filter-group {
     margin-bottom: 30px;
@@ -183,9 +195,10 @@
 // MAIN CONTENT STYLES
 .search-results {
   flex: 1;
-  margin-left: 260px;
-  padding: 40px 30px;
+  margin-left: 0;
+  padding: 30px;
   min-height: 100vh;
+  min-width: 0;
 
   // NEW RESULTS HEADER
   .results-header {
@@ -431,17 +444,19 @@
   }
 
   .search-sidebar {
-    width: 100%;
+    width: auto;
     height: auto;
+    max-height: none;
     position: relative;
-    border-right: none;
-    border-bottom: 1px solid var(--line-color);
+    top: auto;
+    margin: 20px;
+    border: 1px solid var(--line-color);
     padding: 20px;
   }
 
   .search-results {
     margin-left: 0;
-    padding: 20px;
+    padding: 0 20px 20px 20px;
   }
 
   // Update responsive adjustments for new header

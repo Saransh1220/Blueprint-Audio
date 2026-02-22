@@ -18,7 +18,7 @@ export class OrdersComponent {
 
   orders = signal<ProducerOrderDto[]>([]);
   total = signal(0);
-  limit = signal(20);
+  limit = signal(10);
   offset = signal(0);
   currentPage = signal(1);
   isLoading = signal(true);
@@ -33,7 +33,7 @@ export class OrdersComponent {
     this.error.set(null);
     this.currentPage.set(page);
 
-    this.paymentService.getProducerOrders(page).subscribe({
+    this.paymentService.getProducerOrders(page, this.limit()).subscribe({
       next: (res: ProducerOrderResponse) => {
         this.orders.set(res.orders);
         this.total.set(res.total);

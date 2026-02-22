@@ -127,6 +127,17 @@ export class PlayerService {
     this.volume.set(clamped);
   }
 
+  private previousVolume = 1;
+
+  toggleMute() {
+    if (this.volume() > 0) {
+      this.previousVolume = this.volume();
+      this.setVolume(0);
+    } else {
+      this.setVolume(this.previousVolume > 0 ? this.previousVolume : 1);
+    }
+  }
+
   private formatTime(seconds: number): string {
     if (!seconds || isNaN(seconds)) return '0:00';
     const mins = Math.floor(seconds / 60);

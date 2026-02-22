@@ -312,7 +312,7 @@ export class UploadComponent implements OnInit {
           this.uploadProgress.set(progress);
         } else if (event.type === HttpEventType.Response) {
           this.isSubmitting.set(false);
-          this.toastService.show('Upload Successful!', 'success');
+          this.toastService.show('Upload Started! Processing in background...', 'info');
           this.router.navigate(['/dashboard']);
         }
       },

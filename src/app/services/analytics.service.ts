@@ -1,6 +1,6 @@
 import { inject, Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { Observable, Subject } from 'rxjs';
+import { map, tap } from 'rxjs/operators';
 import { ApiService } from '../core/services/api.service';
 import {
   TrackPlayRequest,
@@ -17,10 +17,19 @@ import {
 import { ProducerAnalytics } from '../models/spec';
 import { SpecAdapter } from '../adapters/spec.adapter';
 
+export interface FavoriteChangeEvent {
+  specId: string;
+  isFavorited: boolean;
+  totalCount?: number;
+}
+
 @Injectable({ providedIn: 'root' })
 export class AnalyticsService {
   private api = inject(ApiService);
   private adapter = inject(SpecAdapter);
+
+  private favoriteChangeSubject = new Subject<FavoriteChangeEvent>();
+  favoriteChanges$ = this.favoriteChangeSubject.asObservable();
 
   /**
    * Track a play event for a spec
@@ -34,7 +43,15 @@ export class AnalyticsService {
    * Returns whether the spec is now favorited and the new total count
    */
   toggleFavorite(specId: string): Observable<ToggleFavoriteResponse> {
-    return this.api.execute(new ToggleFavoriteRequest(specId));
+    return this.api.execute(new ToggleFavoriteRequest(specId)).pipe(
+      tap((response) => {
+        this.favoriteChangeSubject.next({
+          specId,
+          isFavorited: response.is_favorited,
+          totalCount: response.total_count,
+        });
+      }),
+    );
   }
 
   /**
