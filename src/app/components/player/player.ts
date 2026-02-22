@@ -7,10 +7,17 @@ import {
   inject,
   OnDestroy,
   ViewChild,
+  ChangeDetectorRef,
+  signal,
 } from '@angular/core';
 import { gsap } from 'gsap';
 import { PlayerService } from '../../services/player.service';
 import { VisualizerService } from '../../services/visualizer.service';
+import { AuthService } from '../../services/auth.service';
+import { ModalService } from '../../services/modal.service';
+import { AnalyticsService } from '../../services/analytics.service';
+import { LicenseSelectorComponent } from '../license-selector/license-selector.component';
+import type { Spec } from '../../models';
 
 @Component({
   selector: 'app-player',
@@ -22,6 +29,18 @@ import { VisualizerService } from '../../services/visualizer.service';
 export class PlayerComponent implements AfterViewInit, OnDestroy {
   playerService = inject(PlayerService);
   visualizerService = inject(VisualizerService);
+  authService = inject(AuthService);
+  modalService = inject(ModalService);
+  analyticsService = inject(AnalyticsService);
+  cdr = inject(ChangeDetectorRef);
+
+  isFavoriting = signal(false);
+
+  progress = computed(() => {
+    const duration = this.playerService.duration();
+    const current = this.playerService.currentTime();
+    return duration > 0 ? current / duration : 0;
+  });
 
   @ViewChild('controlDeck') controlDeck!: ElementRef;
   @ViewChild('waveformCanvas') canvasRef!: ElementRef<HTMLCanvasElement>;
@@ -124,8 +143,83 @@ export class PlayerComponent implements AfterViewInit, OnDestroy {
     this.playerService.seekTo(percentage * duration);
   }
 
+  onSeekSlider(event: Event) {
+    const input = event.target as HTMLInputElement;
+    const percentage = parseFloat(input.value);
+    const duration = this.playerService.duration() || 1;
+    this.playerService.seekTo(percentage * duration);
+  }
+
+  addToCart(event: MouseEvent) {
+    event.stopPropagation();
+    const track = this.playerService.currentTrack();
+    if (!track) return;
+
+    this.authService.requireAuth(() => {
+      this.modalService.open(LicenseSelectorComponent, 'Select License', {
+        spec: track,
+      });
+    });
+  }
+
   onVolumeChange(event: Event) {
     const input = event.target as HTMLInputElement;
     this.playerService.setVolume(parseFloat(input.value));
+  }
+
+  toggleFavorite(event: MouseEvent, track: Spec) {
+    event.stopPropagation();
+    this.authService.requireAuth(() => {
+      if (this.isFavoriting()) return;
+      this.isFavoriting.set(true);
+
+      this.analyticsService.toggleFavorite(track.id).subscribe({
+        next: (response) => {
+          if (!track.analytics) {
+            track.analytics = {
+              playCount: 0,
+              favoriteCount: 0,
+              totalDownloadCount: 0,
+              isFavorited: false,
+            };
+          }
+          if (track.analytics) {
+            track.analytics.isFavorited = response.is_favorited;
+            if (response.total_count !== undefined) {
+              track.analytics.favoriteCount = response.total_count;
+            } else {
+              if (response.is_favorited) {
+                track.analytics.favoriteCount++;
+              } else {
+                track.analytics.favoriteCount = Math.max(0, track.analytics.favoriteCount - 1);
+              }
+            }
+          }
+          this.isFavoriting.set(false);
+          this.cdr.markForCheck();
+        },
+        error: (err) => {
+          console.error('Player: Failed to toggle favorite:', err);
+          this.isFavoriting.set(false);
+          this.cdr.markForCheck();
+        },
+      });
+    });
+  }
+
+  downloadFreeMp3(event: MouseEvent, track: Spec) {
+    event.stopPropagation();
+    this.analyticsService.downloadFreeMp3(track.id).subscribe({
+      next: (response) => {
+        if (response.url) {
+          window.open(response.url, '_blank');
+        } else {
+          console.error('Download URL not found in response');
+        }
+      },
+      error: (err) => {
+        console.error('Failed to download free MP3:', err);
+      },
+    });
   }
 }

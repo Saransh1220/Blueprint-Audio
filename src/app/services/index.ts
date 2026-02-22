@@ -10,3 +10,4 @@ export * from './theme.service';
 export * from './toast.service';
 export * from './visualizer.service';
 export * from './notification.service';
+export * from './spec-action.service';

@@ -14,6 +14,7 @@ export class WebSocketService {
   private authService = inject(AuthService);
   private reconnectInterval = 5000;
   private isConnected = signal(false);
+  private intentionalDisconnect = false;
 
   constructor() {
     // React to auth state changes
@@ -28,6 +29,8 @@ export class WebSocketService {
   }
 
   connect() {
+    this.intentionalDisconnect = false;
+
     if (
       this.socket &&
       (this.socket.readyState === WebSocket.OPEN || this.socket.readyState === WebSocket.CONNECTING)
@@ -66,9 +69,10 @@ export class WebSocketService {
 
     this.socket.onclose = () => {
       console.log('WebSocket Disconnected');
+      this.isConnected.set(false);
+
       // Only reconnect if we intended to stay connected
-      if (this.isConnected()) {
-        this.isConnected.set(false);
+      if (!this.intentionalDisconnect) {
         this.socket = null;
         setTimeout(() => this.connect(), this.reconnectInterval);
       } else {
@@ -83,6 +87,7 @@ export class WebSocketService {
   }
 
   disconnect() {
+    this.intentionalDisconnect = true;
     if (this.socket) {
       this.socket.close();
       this.socket = null;

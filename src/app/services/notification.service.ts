@@ -8,6 +8,7 @@ import { of, interval, switchMap } from 'rxjs';
 import { WebSocketService } from './websocket.service';
 import { ToastService } from './toast.service';
 import { LabService } from './lab';
+import { AuthService } from './auth.service';
 
 @Injectable({
   providedIn: 'root',
@@ -28,6 +29,7 @@ export class NotificationService {
   private wsService = inject(WebSocketService);
   private toastService = inject(ToastService);
   private labService = inject(LabService);
+  private authService = inject(AuthService);
 
   constructor() {
     // Initial fetch
@@ -52,6 +54,7 @@ export class NotificationService {
     effect(() => {
       // Accessing currentUser signal for dependency tracking
       // We don't need the value, just the trigger
+      this.authService.currentUser();
       this.refresh();
     });
   }

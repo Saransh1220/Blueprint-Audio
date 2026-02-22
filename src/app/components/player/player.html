@@ -1,70 +1,115 @@
-<div class="control-deck" #controlDeck>
+<div class="player-wrapper" #controlDeck>
   @if (playerService.currentTrack(); as track) {
-    <div class="deck-art">
-      <img [src]="track.imageUrl" />
+    <!-- EDGE-TO-EDGE TOP SEEKBAR -->
+    <div class="top-seek-container">
+      <div class="custom-slider-container">
+        <!-- Visual Track Background -->
+        <div class="slider-track"></div>
+        <!-- Filled Colored Progress -->
+        <div class="slider-progress" [style.width.%]="progress() * 100"></div>
+        <!-- The interactive hidden native input -->
+        <input
+          type="range"
+          class="slider-input"
+          min="0"
+          max="1"
+          step="0.001"
+          [value]="progress()"
+          (input)="onSeekSlider($event)"
+        />
+      </div>
     </div>
-    <div class="deck-info">
-      <div>{{ track.title }}</div>
-      <div>{{ track.bpm }} BPM • {{ track.key }}</div>
+
+    <div class="player-inner">
+      <!-- LEFT: Art & Info -->
+      <div class="p-left">
+        <div class="art">
+          <img [src]="track.imageUrl" alt="" />
+        </div>
+        <div class="info">
+          <a class="title">{{ track.title }}</a>
+          <div class="meta-row">
+            <span class="meta">{{ track.bpm }} BPM • {{ track.key }}</span>
+            <div class="track-actions">
+              <button
+                class="action-btn"
+                [class.active]="track.analytics?.isFavorited"
+                (click)="toggleFavorite($event, track)"
+                [disabled]="isFavoriting()"
+                title="Favorite"
+              >
+                <i [class]="track.analytics?.isFavorited ? 'fas fa-heart' : 'far fa-heart'"></i>
+              </button>
+              @if (track.freeMp3Enabled) {
+                <button
+                  class="action-btn"
+                  (click)="downloadFreeMp3($event, track)"
+                  title="Download Free MP3"
+                >
+                  <i class="fas fa-download"></i>
+                </button>
+              }
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CENTER: Playback Controls and Time -->
+      <div class="p-center">
+        <span class="time-val left">{{ playerService.currentTimeFormatted() }}</span>
+
+        <div class="controls">
+          <button class="btn-icon" title="Previous">
+            <i class="fa-solid fa-backward-step"></i>
+          </button>
+          <button class="btn-icon play" (click)="playerService.togglePlay()">
+            @if (playerService.isPlaying()) {
+              <i class="fa-solid fa-pause"></i>
+            } @else {
+              <i class="fa-solid fa-play" style="padding-left: 2px"></i>
+            }
+          </button>
+          <button class="btn-icon" title="Next"><i class="fa-solid fa-forward-step"></i></button>
+        </div>
+
+        <span class="time-val right">{{ playerService.durationFormatted() }}</span>
+      </div>
+
+      <!-- RIGHT: Cart & Volume -->
+      <div class="p-right">
+        <div class="vol-group">
+          <button class="btn-icon vol" title="Mute/Unmute">
+            <i class="fa-solid" [class]="playerService.volumeIcon()"></i>
+          </button>
+          <div class="custom-slider-container vol-slider">
+            <div class="slider-track"></div>
+            <div class="slider-progress" [style.width.%]="playerService.volume() * 100"></div>
+            <input
+              type="range"
+              min="0"
+              max="1"
+              step="0.01"
+              [value]="playerService.volume()"
+              (input)="onVolumeChange($event)"
+              class="slider-input"
+            />
+          </div>
+        </div>
+
+        <!-- Buy button on far right -->
+        <button class="btn-cart" (click)="addToCart($event)">
+          <i class="fa-solid fa-cart-arrow-down"></i>
+          <span>₹{{ track.price }}</span>
+        </button>
+
+        <button class="btn-icon close-btn" (click)="playerService.hidePlayer()">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
     </div>
   } @else {
-    <div class="deck-art" style="display: flex; align-items: center; justify-content: center">
-      <i class="fa-solid fa-music" style="color: var(--text-color); opacity: 0.5"></i>
-    </div>
-    <div class="deck-info">
-      <div>Ready to Play</div>
-      <div>Select a track</div>
+    <div class="player-empty">
+      <i class="fa-solid fa-compact-disc"></i>
     </div>
   }
-
-  <div class="seeker-container">
-    <div class="time-info left">
-      <span>{{ playerService.currentTimeFormatted() }}</span>
-    </div>
-
-    <div class="waveform">
-      <!-- Interactive Seeker (Always Visible now) -->
-      <canvas #waveformCanvas class="seeker-canvas" (click)="onSeek($event)"></canvas>
-    </div>
-
-    <div class="time-info right">
-      <span>{{ playerService.durationFormatted() }}</span>
-    </div>
-  </div>
-
-  <div class="deck-controls">
-    <div class="ctrl-btn">
-      <i class="fa-solid fa-backward-step"></i>
-    </div>
-    <div class="ctrl-btn play-pause" (click)="playerService.togglePlay()">
-      @if (playerService.isPlaying()) {
-        <i class="fa-solid fa-pause"></i>
-      } @else {
-        <i class="fa-solid fa-play"></i>
-      }
-    </div>
-    <div class="ctrl-btn">
-      <i class="fa-solid fa-forward-step"></i>
-    </div>
-
-    <!-- Volume Control -->
-    <div class="volume-group">
-      <div class="ctrl-btn vol-btn">
-        <i class="fa-solid" [class]="playerService.volumeIcon()"></i>
-      </div>
-      <input
-        type="range"
-        min="0"
-        max="1"
-        step="0.01"
-        [value]="playerService.volume()"
-        (input)="onVolumeChange($event)"
-        class="volume-slider"
-      />
-    </div>
-
-    <div class="ctrl-btn" (click)="playerService.hidePlayer()">
-      <i class="fa-solid fa-xmark"></i>
-    </div>
-  </div>
 </div>

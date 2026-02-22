@@ -1,23 +1,51 @@
-<section class="hero">
-  <div class="hero-background">
-    <div class="image-wrapper">
-      <img src="hero-section.jpeg" alt="Studio Atmosphere" class="hero-img" />
-    </div>
-    <div class="overlay-gradient"></div>
+<section class="hero" (mousemove)="onMouseMove($event)">
+  <!-- Elegant minimal background -->
+  <div class="hero-bg" aria-hidden="true">
+    <div class="ambient-glow"></div>
   </div>
 
-  <div class="hero-content">
-    <h1 class="hero-title">The Sonic<br /><span>Ecosystem.</span></h1>
+  <canvas class="hero-canvas" #heroCanvas></canvas>
 
-    <p class="hero-desc gs-reveal">
-      The ultimate resource for music creators.<br />
-      <span class="highlight">Exclusive Beats</span> for Artists.
-      <span class="highlight">Premium Samples</span> for Producers.
-    </p>
+  <div class="hero-inner">
+    <!-- Left: Content -->
+    <div class="hero-content">
+      <div class="hero-collection-label gs-reveal">
+        <span class="dot"></span>
+        <span class="label-text">The Signature Collection</span>
+      </div>
 
-    <div class="hero-actions gs-reveal">
-      <a href="#" class="btn btn-primary"><span>Start Digging</span></a>
-      <a href="#" class="btn btn-outline"><span>View License</span></a>
+      <h1 class="hero-title gs-reveal">
+        Sonic<br />
+        <span class="title-accent">Architecture.</span>
+      </h1>
+
+      <p class="hero-desc gs-reveal">
+        Exclusive instrumentals, loops, and custom sound design. Meticulously crafted, cleared, and
+        ready for your next project.
+      </p>
+
+      <div class="hero-actions gs-reveal">
+        <a routerLink="/search" class="btn btn-solid">
+          <span>Explore the Vault</span>
+        </a>
+        <a routerLink="/upload" class="btn btn-outline">
+          <span>License a Track</span>
+        </a>
+      </div>
+
+      <div class="hero-credits gs-reveal">
+        <div class="credit-item">
+          <span class="credit-num">01</span>
+          <span class="credit-label">Original Compositions</span>
+        </div>
+        <div class="credit-item">
+          <span class="credit-num">02</span>
+          <span class="credit-label">Royalty Free Masters</span>
+        </div>
+      </div>
     </div>
+
+    <!-- Right: 3D Scene Container -->
+    <div class="hero-visual" aria-hidden="true"></div>
   </div>
 </section>

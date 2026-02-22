@@ -1,4 +1,4 @@
-import { Component, inject, signal, effect, type OnInit } from '@angular/core';
+import { Component, inject, signal, effect, type OnInit, type OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, ActivatedRoute } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -9,6 +9,8 @@ import { PaginationComponent } from '../../shared/components/pagination/paginati
 import { LabService } from '../../services/lab';
 import { ToastService } from '../../services/toast.service';
 import { Genre, MusicalKey, type Spec } from '../../models';
+import { Subject, Subscription } from 'rxjs';
+import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 
 @Component({
   selector: 'app-search-page',
@@ -24,7 +26,7 @@ import { Genre, MusicalKey, type Spec } from '../../models';
   templateUrl: './search.component.html',
   styleUrls: ['./search.component.scss'],
 })
-export class SearchPageComponent implements OnInit {
+export class SearchPageComponent implements OnInit, OnDestroy {
   private labService = inject(LabService);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
@@ -48,11 +50,22 @@ export class SearchPageComponent implements OnInit {
   genres = Object.values(Genre);
   keys = ['All', ...Object.values(MusicalKey)];
 
+  // Subject for search debounce
+  private searchSubject = new Subject<string>();
+  private searchSubscription?: Subscription;
+
   constructor() {
     // Effect/Constructor logic if needed
   }
 
   ngOnInit() {
+    // Setup debounce for search input
+    this.searchSubscription = this.searchSubject
+      .pipe(debounceTime(400), distinctUntilChanged())
+      .subscribe(() => {
+        this.applyFilters();
+      });
+
     this.route.queryParams.subscribe((params) => {
       // Update signals from URL
       if (params['search'] !== undefined) this.searchTerm.set(params['search']);
@@ -172,6 +185,11 @@ export class SearchPageComponent implements OnInit {
     this.applyFilters();
   }
 
+  onSearchInput(term: string) {
+    this.searchTerm.set(term);
+    this.searchSubject.next(term);
+  }
+
   onSearch() {
     this.applyFilters();
   }
@@ -192,5 +210,9 @@ export class SearchPageComponent implements OnInit {
 
   setViewMode(mode: 'grid' | 'list') {
     this.viewMode.set(mode);
+  }
+
+  ngOnDestroy() {
+    this.searchSubscription?.unsubscribe();
   }
 }

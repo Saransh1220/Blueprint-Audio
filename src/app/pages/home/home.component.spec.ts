@@ -28,6 +28,9 @@ describe('HomeComponent', () => {
   });
 
   beforeEach(async () => {
+    vi.spyOn(window, 'requestAnimationFrame').mockImplementation(() => 0);
+    vi.spyOn(window, 'cancelAnimationFrame').mockImplementation(() => undefined);
+
     await TestBed.configureTestingModule({
       imports: [HomeComponent],
       providers: [
@@ -43,6 +46,10 @@ describe('HomeComponent', () => {
     fixture = TestBed.createComponent(HomeComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
   });
 
   it('should create', () => {

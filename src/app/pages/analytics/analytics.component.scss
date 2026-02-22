@@ -460,6 +460,7 @@
     .list-head,
     .list-row {
       display: grid;
+
       // Rank | Title | Plays | Downloads | Revenue
       grid-template-columns: 40px 3fr 1fr 1fr 1fr;
       gap: 1.5rem;

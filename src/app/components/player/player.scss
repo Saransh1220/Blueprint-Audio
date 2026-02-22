@@ -1,332 +1,505 @@
 @use '../../styles/variables' as *;
 
-.control-deck {
+.player-wrapper {
   position: fixed;
-  bottom: 20px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 95%;
-  max-width: 800px;
-
-  // Adaptive Background
-  background: rgba(var(--card-bg-color-rgb), 0.85);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-
-  // Adaptive Border
-  border: 1px solid var(--line-color);
-  border-radius: 16px;
-
-  padding: 12px 20px;
-  display: grid;
-  grid-template-columns: auto 1fr auto auto;
-  gap: 20px;
-  align-items: center;
-  z-index: 1000;
-
-  // Adaptive Shadow
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
-  transition: all 0.3s ease;
-
-  &:hover {
-    transform: translateX(-50%) translateY(-2px);
-    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
-  }
-}
-
-.deck-art {
-  width: 56px;
-  height: 56px;
-  border-radius: 8px;
-  overflow: hidden;
-  border: 1px solid var(--line-color);
-  background: var(--bg-color);
-
-  img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
-}
-
-.deck-info {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  min-width: 0;
-  /* Critical for Grid truncation */
-
-  div:first-child {
-    font-weight: 600;
-    font-size: 1rem;
-    color: var(--text-color);
-    margin-bottom: 2px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-
-  div:last-child {
-    font-size: 0.75rem;
-    color: var(--text-color);
-    opacity: 0.7;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-  }
-}
-
-// Waveform Analysis
-.seeker-container {
-  display: flex;
-  flex-direction: row;
-  /* Horizontal alignment */
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-}
-
-.waveform {
-  height: 32px;
-  width: 200px;
-  display: flex;
-  align-items: center;
-  gap: 3px;
-  position: relative;
-  transition: all 0.3s ease;
-}
-
-.seeker-canvas {
-  position: absolute;
-  top: 0;
+  bottom: 0;
   left: 0;
   width: 100%;
-  height: 100%;
-  opacity: 1;
-  pointer-events: all;
-  z-index: 10;
-  cursor: pointer;
-}
-
-.time-info {
+  height: 86px;
+  // Blend an 85% black overlay over the theme's card background to make it extremely dark
+  background: linear-gradient(rgba(0, 0, 0, 0.85), rgba(0, 0, 0, 0.85)), var(--card-bg-color);
+  border-top: 1px solid var(--line-color);
   display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 0.75rem;
+  flex-direction: column;
+  z-index: 1000;
+  font-family: $font-tech;
   color: var(--text-color);
-  font-family: 'Space Mono', monospace;
-
-  // Start Hidden (Collapsed Sideways)
-  max-width: 0;
-  opacity: 0;
-  overflow: hidden;
-  white-space: nowrap;
-  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-  /* Smooth ease-out */
-
-  &.left {
-    justify-content: flex-end;
-  }
-
-  &.right {
-    justify-content: flex-start;
-  }
+  transition:
+    transform 0.4s ease,
+    opacity 0.4s;
+  box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.2); // Elevate the player visually above the content
 }
 
-// Hover State: Expand Player Sideways
-.control-deck {
-  /* ... existing styles ... */
-  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-
-  &:hover {
-    transform: translateX(-50%) translateY(-2px);
-    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
-    // padding-bottom remains same
-
-    // Reveal Time
-    .time-info {
-      opacity: 0.8;
-      max-width: 45px; // Enough for 00:00
-    }
-  }
-}
-
-// Remove old wave-bar styles as we are using canvas primarily now
-.wave-bar {
-  display: none;
-}
-
-@keyframes wave {
-  0%,
-  100% {
-    height: 20%;
-  }
-
-  50% {
-    height: 60%;
-  }
-}
-
-.deck-controls {
-  display: flex;
-  gap: 16px;
-  align-items: center;
-}
-
-// Volume Control
-.volume-group {
+// ------------------------------------
+// TOP EDGE SEEKBAR
+// ------------------------------------
+.top-seek-container {
+  width: 100%;
+  height: 4px; // Thin edge-to-edge line
   position: relative;
-  width: 36px;
-  height: 36px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  background: var(--line-color);
 
-  // Vertical Popup Behavior
-  &:hover,
-  &:focus-within,
-  &:active {
-    .volume-slider {
-      opacity: 1;
-      visibility: visible;
-      transform: translateX(-50%) translateY(0) rotate(-90deg);
-      pointer-events: all;
-    }
-  }
-}
-
-.volume-slider {
-  position: absolute;
-  bottom: 85px;
-  /* Position above/centered on button */
-  left: 50%;
-
-  /* Dimensions of the "Pill" container */
-  width: 110px;
-  /* Height of the slider area */
-  height: 28px;
-  /* Width of the pill */
-
-  /* Rotate to vertical */
-  transform: translateX(-50%) translateY(20px) rotate(-90deg);
-  transform-origin: center;
-
-  opacity: 0;
-  visibility: hidden;
-  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-
-  /* Pill Styling */
-  -webkit-appearance: none;
-  appearance: none;
-  background: rgba(var(--card-bg-color-rgb), 0.95);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  border: 1px solid var(--line-color);
-  border-radius: 14px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
-
-  cursor: pointer;
-  z-index: 100;
-
-  /* Thumb & Track Styling */
-  &::-webkit-slider-runnable-track {
+  .custom-slider-container {
     width: 100%;
-    height: 4px;
-    background: rgba(255, 255, 255, 0.15);
-    /* Faint track */
-    border-radius: 2px;
-    margin: 0 12px;
-    /* Inner padding for track */
-  }
+    height: 14px; // Hit area for thumb (must overhang the 4px track)
+    position: absolute;
+    top: -5px; // Balance the 14px hit area over the 4px visual track (-10/2)
+    left: 0;
+    cursor: pointer;
 
-  &::-webkit-slider-thumb {
-    -webkit-appearance: none;
-    appearance: none;
-    width: 14px;
-    height: 14px;
-    background: var(--text-color);
-    border-radius: 50%;
-    margin-top: -5px;
-    /* Center relative to 4px track: (4 - 14)/2 = -5 */
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
-    transition: transform 0.2s;
-  }
+    .slider-track {
+      display: none; // Unneeded since the container itself is the pure track background
+    }
 
-  &:hover::-webkit-slider-thumb {
-    transform: scale(1.1);
-    background: var(--brand-color);
-  }
+    .slider-progress {
+      position: absolute;
+      top: 5px; // Align to visual track
+      left: 0;
+      height: 4px;
+      background: var(--text-color);
+      pointer-events: none;
+      transition: background 0.2s;
 
-  /* Firefox */
-  &::-moz-range-track {
-    height: 4px;
-    background: rgba(255, 255, 255, 0.15);
-    margin: 0 12px;
-    border-radius: 2px;
-  }
+      &::after {
+        content: '';
+        position: absolute;
+        right: -5px;
+        top: 50%;
+        transform: translateY(-50%) scale(0); // Hidden by default
+        width: 10px;
+        height: 10px;
+        background: var(--text-color);
+        border-radius: 50%;
+        transition: transform 0.15s cubic-bezier(0.2, 0.8, 0.2, 1);
+      }
+    }
 
-  &::-moz-range-thumb {
-    width: 14px;
-    height: 14px;
-    background: var(--text-color);
-    border: none;
-    border-radius: 50%;
-    margin-top: -5px;
-  }
-}
-
-.ctrl-btn {
-  /* ... existing ... */
-  cursor: pointer;
-  font-size: 1.1rem;
-  color: var(--text-color);
-  opacity: 0.7;
-  transition: all 0.2s;
-  width: 36px;
-  height: 36px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 50%;
-  background: transparent;
-
-  &:hover {
-    opacity: 1;
-    background: var(--faded-ink);
-  }
-
-  &.play-pause {
-    width: 44px;
-    height: 44px;
-    font-size: 1.3rem;
-    background: var(--text-color);
-    color: var(--card-bg-color);
-    opacity: 1;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    .slider-input {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      opacity: 0; // Completely invisible hit-target
+      cursor: pointer;
+      -webkit-appearance: none;
+      appearance: none;
+      z-index: 10;
+    }
 
     &:hover {
-      transform: scale(1.05);
-      background: var(--brand-color);
-      color: white;
+      .slider-progress {
+        background: var(--brand-color);
+
+        &::after {
+          transform: translateY(-50%) scale(1);
+          background: var(--brand-color);
+        }
+      }
     }
   }
 }
 
+// ------------------------------------
+// INNER LAYOUT (Under Seekbar)
+// ------------------------------------
+.player-inner {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  width: 100%;
+  flex: 1; // Take up remaining height below the 4px border
+  padding: 0 24px;
+  gap: 20px;
+}
+
+.player-empty {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-color);
+  opacity: 0.3;
+  font-size: 1.5rem;
+  animation: pulse 4s infinite;
+}
+
+// ------------------------------------
+// LEFT
+// ------------------------------------
+.p-left {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-width: 0;
+  justify-self: start;
+
+  .art {
+    width: 56px;
+    height: 56px;
+    border-radius: 4px;
+    overflow: hidden;
+    background: var(--line-color);
+    flex-shrink: 0;
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+  }
+
+  .info {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 4px;
+    overflow: hidden;
+
+    .title {
+      font-weight: 600;
+      font-size: 0.95rem;
+      color: var(--text-color);
+      cursor: pointer;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      text-decoration: none;
+
+      &:hover {
+        text-decoration: underline;
+        color: var(--brand-color);
+      }
+    }
+
+    .meta-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .meta {
+      font-size: 0.65rem;
+      color: var(--text-color);
+      opacity: 0.5;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .track-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+
+      .action-btn {
+        background: transparent;
+        border: none;
+        color: var(--text-color);
+        opacity: 0.4;
+        font-size: 0.8rem;
+        cursor: pointer;
+        padding: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s;
+
+        &:hover {
+          opacity: 1;
+          color: var(--brand-color);
+          transform: scale(1.1);
+        }
+
+        &.active {
+          opacity: 1;
+
+          i {
+            color: var(--brand-color);
+          }
+        }
+
+        &:disabled {
+          opacity: 0.2;
+          cursor: not-allowed;
+          transform: none;
+        }
+      }
+    }
+  }
+}
+
+// ------------------------------------
+// CENTER
+// ------------------------------------
+.p-center {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 24px;
+  justify-self: center;
+
+  .controls {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+
+    .btn-icon {
+      background: transparent;
+      border: none;
+      color: var(--text-color);
+      opacity: 0.6;
+      cursor: pointer;
+      font-size: 1.1rem;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      &:hover {
+        color: var(--brand-color);
+        opacity: 1;
+      }
+
+      &.play {
+        color: var(--card-bg-color);
+        background: var(--text-color);
+        opacity: 1;
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        font-size: 0.95rem;
+        transition:
+          transform 0.15s,
+          background 0.15s;
+
+        &:hover {
+          transform: scale(1.05);
+          background: var(--brand-color);
+          color: var(--on-brand-color);
+        }
+
+        &:active {
+          transform: scale(0.95);
+        }
+      }
+    }
+  }
+
+  .time-val {
+    font-size: 0.75rem;
+    color: var(--text-color);
+    opacity: 0.5;
+    font-family: inherit;
+    min-width: 40px;
+
+    &.left {
+      text-align: right;
+    }
+
+    &.right {
+      text-align: left;
+    }
+  }
+}
+
+// ------------------------------------
+// RIGHT
+// ------------------------------------
+.p-right {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 20px;
+  justify-self: end;
+
+  .btn-cart {
+    background: var(--brand-color);
+    color: var(--on-brand-color);
+    border: none;
+    font-family: $font-tech;
+    font-size: 0.8rem;
+    font-weight: 700;
+    padding: 8px 18px;
+    border-radius: 99px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.2s;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.25);
+
+    &:hover {
+      transform: translateY(-2px);
+      filter: brightness(1.15);
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.35);
+    }
+
+    &:active {
+      transform: translateY(1px);
+    }
+  }
+
+  .vol-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    .btn-icon.vol {
+      color: var(--text-color);
+      opacity: 0.6;
+      border: none;
+      background: transparent;
+      font-size: 0.9rem;
+      width: 20px;
+      display: flex;
+      justify-content: center;
+
+      &:hover {
+        opacity: 1;
+        color: var(--brand-color);
+      }
+    }
+
+    .custom-slider-container.vol-slider {
+      width: 80px;
+      height: 16px;
+      position: relative;
+      display: flex;
+      align-items: center;
+
+      .slider-track {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 100%;
+        height: 4px;
+        background: var(--line-color);
+        border-radius: 2px;
+      }
+
+      .slider-progress {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        height: 4px;
+        background: var(--text-color);
+        border-radius: 2px;
+        pointer-events: none;
+        transition: background 0.2s;
+
+        &::after {
+          content: '';
+          position: absolute;
+          right: -4px;
+          top: 50%;
+          transform: translateY(-50%) scale(0);
+          width: 8px;
+          height: 8px;
+          background: var(--text-color);
+          border-radius: 50%;
+          transition: transform 0.2s;
+        }
+      }
+
+      .slider-input {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        opacity: 0;
+        cursor: pointer;
+        z-index: 10;
+        -webkit-appearance: none;
+        appearance: none;
+      }
+
+      &:hover {
+        .slider-progress {
+          background: var(--brand-color);
+
+          &::after {
+            transform: translateY(-50%) scale(1);
+            background: var(--brand-color);
+          }
+        }
+      }
+    }
+  }
+
+  .close-btn {
+    background: transparent;
+    border: none;
+    color: var(--text-color);
+    opacity: 0.4;
+    font-size: 1.1rem;
+    cursor: pointer;
+    margin-left: 12px;
+
+    &:hover {
+      opacity: 1;
+      color: var(--brand-color);
+    }
+  }
+}
+
+// ------------------------------------
+// RESPONSIVE
+// ------------------------------------
 @media (max-width: 900px) {
-  .control-deck {
-    width: 94%;
-    bottom: 16px;
-    padding: 10px 16px;
-    grid-template-columns: auto 1fr auto;
-    gap: 12px;
+  .player-wrapper {
+    height: auto;
   }
 
-  .waveform {
-    display: none;
+  .player-inner {
+    display: flex;
+    flex-direction: column;
+    padding: 12px 16px;
+    gap: 16px;
   }
 
-  .deck-info {
-    div:last-child {
+  .p-left {
+    width: 100%;
+
+    .art {
+      width: 48px;
+      height: 48px;
+    }
+  }
+
+  .p-center {
+    width: 100%;
+
+    .controls {
+      display: flex;
+      gap: 32px;
+
+      .btn-icon {
+        font-size: 1.3rem;
+      }
+
+      .btn-icon.play {
+        width: 44px;
+        height: 44px;
+        font-size: 1.1rem;
+      }
+    }
+
+    .time-val {
+      font-size: 0.65rem;
+    }
+  }
+
+  .p-right {
+    width: 100%;
+    justify-content: space-between;
+
+    .vol-group {
       display: none;
+    }
+
+    .btn-cart {
+      flex: 1;
+      justify-content: center;
+      padding: 10px;
+      font-size: 0.85rem;
     }
   }
 }

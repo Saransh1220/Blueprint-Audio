@@ -31,7 +31,7 @@ export class CreateOrderRequest implements ApiRequest<Order> {
       spec_id: string;
       license_option_id: string;
     },
-  ) { }
+  ) {}
 }
 
 // Verify Payment Request
@@ -40,7 +40,7 @@ export class VerifyPaymentRequest implements ApiRequest<PaymentVerificationRespo
   readonly method: HttpMethod = 'POST';
   readonly _responseType?: PaymentVerificationResponse;
 
-  constructor(public body: PaymentVerificationRequest) { }
+  constructor(public body: PaymentVerificationRequest) {}
 }
 
 // Get Order Request
