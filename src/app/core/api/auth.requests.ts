@@ -9,7 +9,7 @@ export class LoginRequest implements ApiRequest<LoginResponse> {
   readonly path = '/login';
   readonly method: HttpMethod = 'POST';
   readonly _responseType?: LoginResponse;
-  constructor(public body: any) {}
+  constructor(public body: any) { }
 }
 
 export class RegisterRequest implements ApiRequest<UserApiResponse> {
@@ -24,11 +24,19 @@ export class RegisterRequest implements ApiRequest<UserApiResponse> {
       display_name?: string;
       role: string;
     },
-  ) {}
+  ) { }
 }
 
 export class GetMeRequest implements ApiRequest<UserApiResponse> {
   readonly path = '/me';
   readonly method: HttpMethod = 'GET';
   readonly _responseType?: UserApiResponse;
+}
+
+export class GoogleLoginRequest implements ApiRequest<LoginResponse> {
+  readonly path = '/auth/google';
+  readonly method: HttpMethod = 'POST';
+  readonly _responseType?: LoginResponse;
+
+  constructor(public body: { token: string }) { }
 }

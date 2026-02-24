@@ -4,68 +4,36 @@
     <div class="form-container sign-up-container">
       <form (ngSubmit)="onRegisterSubmit()">
         <h1>Create Account</h1>
-        <div class="social-container">
-          <a href="#" class="social"><i class="fab fa-facebook-f"></i></a>
-          <a href="#" class="social"><i class="fab fa-google-plus-g"></i></a>
-          <a href="#" class="social"><i class="fab fa-linkedin-in"></i></a>
+        <div class="custom-google-btn">
+          <div class="btn-content">
+            <svg viewBox="0 0 24 24" fill="currentColor">
+              <path
+                d="M12.545,10.239v3.821h5.445c-0.712,2.315-2.647,3.972-5.445,3.972c-3.332,0-6.033-2.701-6.033-6.032 s2.701-6.032,6.033-6.032c1.498,0,2.866,0.549,3.921,1.453l2.814-2.814C17.503,2.988,15.139,2,12.545,2 C7.021,2,2.543,6.477,2.543,12s4.478,10,10.002,10c8.396,0,10.249-7.85,9.426-11.748L12.545,10.239z" />
+            </svg>
+            <span>Continue with Google</span>
+          </div>
+          <div class="google-invisible-wrapper">
+            <asl-google-signin-button type="standard" size="large" [width]="400"></asl-google-signin-button>
+          </div>
         </div>
         <span>or use your email for registration</span>
         <div class="input-row">
-          <input
-            type="text"
-            placeholder="Username"
-            [(ngModel)]="registerUsername"
-            name="username"
-          />
-          <input
-            type="text"
-            placeholder="Display Name"
-            [(ngModel)]="registerDisplayName"
-            name="displayName"
-          />
+          <input type="text" placeholder="Username" [(ngModel)]="registerUsername" name="username" />
+          <input type="text" placeholder="Display Name" [(ngModel)]="registerDisplayName" name="displayName" />
         </div>
-        <input
-          type="email"
-          placeholder="Email"
-          [(ngModel)]="registerEmail"
-          name="email"
-          class="full-width"
-        />
+        <input type="email" placeholder="Email" [(ngModel)]="registerEmail" name="email" class="full-width" />
         <div class="input-row">
-          <input
-            type="password"
-            placeholder="Password"
-            [(ngModel)]="registerPassword"
-            name="password"
-          />
-          <input
-            type="password"
-            placeholder="Confirm Pass"
-            [(ngModel)]="registerConfirmPassword"
-            name="confirmPassword"
-          />
+          <input type="password" placeholder="Password" [(ngModel)]="registerPassword" name="password" />
+          <input type="password" placeholder="Confirm Pass" [(ngModel)]="registerConfirmPassword"
+            name="confirmPassword" />
         </div>
         <div class="role-switch-container">
           <span class="label">I am a:</span>
           <div class="switch-wrapper">
-            <input
-              type="radio"
-              id="artist"
-              name="role"
-              [(ngModel)]="registerRole"
-              value="artist"
-              hidden
-            />
+            <input type="radio" id="artist" name="role" [(ngModel)]="registerRole" value="artist" hidden />
             <label for="artist" class="switch-option">Artist</label>
 
-            <input
-              type="radio"
-              id="producer"
-              name="role"
-              [(ngModel)]="registerRole"
-              value="producer"
-              hidden
-            />
+            <input type="radio" id="producer" name="role" [(ngModel)]="registerRole" value="producer" hidden />
             <label for="producer" class="switch-option">Producer</label>
 
             <div class="switch-selection"></div>
@@ -73,9 +41,9 @@
         </div>
         <button type="submit" [disabled]="isLoading()">
           @if (isLoading()) {
-            <app-loading-spinner size="18px"></app-loading-spinner>
+          <app-loading-spinner size="18px"></app-loading-spinner>
           } @else {
-            Sign Up
+          Sign Up
           }
         </button>
       </form>
@@ -85,10 +53,17 @@
     <div class="form-container sign-in-container">
       <form (ngSubmit)="onLoginSubmit()">
         <h1>Sign in</h1>
-        <div class="social-container">
-          <a href="#" class="social"><i class="fab fa-facebook-f"></i></a>
-          <a href="#" class="social"><i class="fab fa-google-plus-g"></i></a>
-          <a href="#" class="social"><i class="fab fa-linkedin-in"></i></a>
+        <div class="custom-google-btn">
+          <div class="btn-content">
+            <svg viewBox="0 0 24 24" fill="currentColor">
+              <path
+                d="M12.545,10.239v3.821h5.445c-0.712,2.315-2.647,3.972-5.445,3.972c-3.332,0-6.033-2.701-6.033-6.032 s2.701-6.032,6.033-6.032c1.498,0,2.866,0.549,3.921,1.453l2.814-2.814C17.503,2.988,15.139,2,12.545,2 C7.021,2,2.543,6.477,2.543,12s4.478,10,10.002,10c8.396,0,10.249-7.85,9.426-11.748L12.545,10.239z" />
+            </svg>
+            <span>Continue with Google</span>
+          </div>
+          <div class="google-invisible-wrapper">
+            <asl-google-signin-button type="standard" size="large" [width]="400"></asl-google-signin-button>
+          </div>
         </div>
         <span>or use your account</span>
         <input type="email" placeholder="Email" [(ngModel)]="loginEmail" name="email" />
@@ -96,9 +71,9 @@
         <a href="#">Forgot your password?</a>
         <button type="submit" [disabled]="isLoading()">
           @if (isLoading()) {
-            <app-loading-spinner size="18px"></app-loading-spinner>
+          <app-loading-spinner size="18px"></app-loading-spinner>
           } @else {
-            Sign In
+          Sign In
           }
         </button>
       </form>

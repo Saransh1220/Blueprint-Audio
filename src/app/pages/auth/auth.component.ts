@@ -12,17 +12,19 @@ import {
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
+import { Subscription } from 'rxjs';
 import type { Particle } from '../../models/particle';
 import { AuthService } from '../../services/auth.service';
 import { ThemeService } from '../../services/theme.service';
 import { ToastService } from '../../services/toast.service';
+import { SocialAuthService, GoogleSigninButtonModule } from '@abacritt/angularx-social-login';
 
 import { LoadingSpinnerComponent } from '../../components';
 
 @Component({
   selector: 'app-auth',
   standalone: true,
-  imports: [FormsModule, LoadingSpinnerComponent],
+  imports: [FormsModule, LoadingSpinnerComponent, GoogleSigninButtonModule],
   templateUrl: './auth.component.html',
   styleUrls: ['./auth.component.scss'],
 })
@@ -33,6 +35,7 @@ export class AuthComponent implements OnInit, AfterViewInit, OnDestroy {
   private authService = inject(AuthService);
   private themeService = inject(ThemeService);
   private toastService = inject(ToastService);
+  private socialAuthService = inject(SocialAuthService);
 
   isRightPanelActive = false;
   isLoading = signal(false);
@@ -56,8 +59,29 @@ export class AuthComponent implements OnInit, AfterViewInit, OnDestroy {
   private width = 0;
   private height = 0;
   private rgb = { r: 255, g: 51, b: 0 }; // Default red
+  private authSubscription?: Subscription;
 
   constructor() {
+    this.authSubscription = this.socialAuthService.authState.subscribe((user) => {
+      if (user && user.idToken) {
+        this.isLoading.set(true);
+        this.authService.googleLogin(user.idToken).subscribe({
+          next: () => {
+            this.isLoading.set(false);
+            this.toastService.show('Welcome to Blueprint Audio!', 'success');
+            this.router.navigate(['/dashboard']);
+          },
+          error: (err) => {
+            this.isLoading.set(false);
+            this.toastService.show(
+              'Google Login failed: ' + (err.error?.error || 'Unknown error'),
+              'error'
+            );
+          },
+        });
+      }
+    });
+
     effect(() => {
       const themeId = this.themeService.activeTheme();
       const theme = this.themeService.themes.find((t) => t.id === themeId);
@@ -85,6 +109,9 @@ export class AuthComponent implements OnInit, AfterViewInit, OnDestroy {
       cancelAnimationFrame(this.animationFrameId);
     }
     window.removeEventListener('resize', this.onResize.bind(this));
+    if (this.authSubscription) {
+      this.authSubscription.unsubscribe();
+    }
   }
 
   togglePanel(isRegister: boolean) {
@@ -239,9 +266,8 @@ export class AuthComponent implements OnInit, AfterViewInit, OnDestroy {
 
         if (distance < 100) {
           this.ctx.beginPath();
-          this.ctx.strokeStyle = `rgba(${this.rgb.r}, ${this.rgb.g}, ${this.rgb.b}, ${
-            1 - distance / 100
-          })`;
+          this.ctx.strokeStyle = `rgba(${this.rgb.r}, ${this.rgb.g}, ${this.rgb.b}, ${1 - distance / 100
+            })`;
           this.ctx.moveTo(p1.x, p1.y);
           this.ctx.lineTo(p2.x, p2.y);
           this.ctx.stroke();
@@ -256,10 +282,10 @@ export class AuthComponent implements OnInit, AfterViewInit, OnDestroy {
     const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
     return result
       ? {
-          r: parseInt(result[1], 16),
-          g: parseInt(result[2], 16),
-          b: parseInt(result[3], 16),
-        }
+        r: parseInt(result[1], 16),
+        g: parseInt(result[2], 16),
+        b: parseInt(result[3], 16),
+      }
       : { r: 0, g: 0, b: 0 };
   }
 }
