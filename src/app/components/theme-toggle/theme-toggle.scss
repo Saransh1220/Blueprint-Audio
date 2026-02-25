@@ -1,70 +1,126 @@
 @use '../../styles/variables' as *;
+@use '../../styles/mixins' as *;
 
-.theme-switch {
+.theme-selector-wrap {
   position: relative;
   display: inline-block;
-  width: 50px;
-  height: 24px;
+  font-family: 'Inter', sans-serif;
 }
 
-.theme-switch input {
-  opacity: 0;
-  width: 0;
-  height: 0;
-}
-
-.slider {
-  position: absolute;
-  cursor: pointer;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: var(--bg-color);
-  border: 1px solid var(--line-color);
-  transition: 0.4s;
+.current-theme-btn {
+  background: rgba(var(--text-color-rgb), 0.05);
+  border: 1px solid rgba(var(--line-color-rgb), 0.5);
+  color: var(--text-color);
+  padding: 6px 12px;
+  border-radius: 6px;
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  padding: 0 5px;
+  gap: 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+
+  &:hover,
+  &.active {
+    background: rgba(var(--text-color-rgb), 0.1);
+    border-color: rgba(var(--text-color-rgb), 0.3);
+  }
+
+  i {
+    font-size: 10px;
+    opacity: 0.6;
+    transition: transform 0.2s;
+  }
+
+  &.active i {
+    transform: rotate(180deg);
+  }
 }
 
-.slider.round {
-  border-radius: 34px;
-}
-
-.slider:before {
+.theme-dropdown-menu {
   position: absolute;
-  content: '';
-  height: 16px;
-  width: 16px;
-  left: 4px;
-  bottom: 3px;
-  background-color: var(--text-color);
-  transition: 0.4s;
-  border-radius: 50%;
-  z-index: 2;
+  top: calc(100% + 8px);
+  right: 0;
+  width: 200px;
+  background: rgba(var(--card-bg-color-rgb), 0.95);
+  backdrop-filter: blur(24px) saturate(200%);
+  -webkit-backdrop-filter: blur(24px) saturate(200%);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  z-index: 2500;
+  animation: slideDownFade 0.2s ease-out forwards;
+
+  .theme-option {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 12px;
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: 6px;
+    cursor: pointer;
+    text-align: left;
+    transition: all 0.2s;
+    color: var(--text-color);
+
+    &:hover {
+      background: rgba(var(--text-color-rgb), 0.05);
+    }
+
+    &.selected {
+      background: rgba(var(--brand-color-rgb), 0.1);
+      border-color: rgba(var(--brand-color-rgb), 0.3);
+      color: var(--brand-color);
+    }
+
+    .color-dots {
+      display: flex;
+      flex-shrink: 0;
+      border-radius: 10px;
+      overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+
+      .dot {
+        width: 12px;
+        height: 12px;
+      }
+    }
+
+    .theme-info {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+
+      .t-name {
+        font-size: 12px;
+        font-weight: 700;
+      }
+    }
+
+    .check-icon {
+      font-size: 12px;
+      color: var(--brand-color);
+    }
+  }
 }
 
-input:checked + .slider {
-  background-color: var(--bg-color);
-}
+@keyframes slideDownFade {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
 
-input:checked + .slider:before {
-  transform: translateX(24px);
-}
-
-.sun-icon,
-.moon-icon {
-  font-size: 10px;
-  color: var(--text-color);
-  z-index: 1;
-}
-
-.sun-icon {
-  margin-left: 2px;
-}
-
-.moon-icon {
-  margin-right: 2px;
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }

@@ -1,4 +1,5 @@
 import { TestBed } from '@angular/core/testing';
+import { signal } from '@angular/core';
 import { Subject, of, throwError } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 import { NotificationService } from './notification.service';
@@ -6,6 +7,7 @@ import { Notification } from '../models/notification.model';
 import { WebSocketService } from './websocket.service';
 import { ToastService } from './toast.service';
 import { LabService } from './lab';
+import { AuthService } from './auth.service';
 
 describe('NotificationService', () => {
   const makeNotification = (overrides?: Partial<Notification>): Notification => ({
@@ -36,6 +38,7 @@ describe('NotificationService', () => {
         { provide: WebSocketService, useValue: { messages$: wsSubject.asObservable() } },
         { provide: ToastService, useValue: { show } },
         { provide: LabService, useValue: { notifyRefresh } },
+        { provide: AuthService, useValue: { currentUser: signal(null) } },
       ],
     });
 

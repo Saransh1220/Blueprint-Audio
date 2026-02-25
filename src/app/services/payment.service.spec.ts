@@ -73,9 +73,27 @@ describe('PaymentService', () => {
     const execute = vi.fn().mockReturnValue(of({ orders: [], total: 0, limit: 20, offset: 0 }));
     const { service } = setup(execute);
 
-    service.getProducerOrders(3).subscribe();
+    service.getProducerOrders(3, 25).subscribe();
     expect(execute.mock.calls[0][0]).toBeInstanceOf(GetProducerOrdersRequest);
     expect((execute.mock.calls[0][0] as GetProducerOrdersRequest).params?.get('page')).toBe('3');
+    expect((execute.mock.calls[0][0] as GetProducerOrdersRequest).params?.get('limit')).toBe('25');
+  });
+
+  it('initiatePayment opens Razorpay checkout on success', () => {
+    const execute = vi
+      .fn()
+      .mockReturnValue(of({ id: 'o1', amount: 1000, currency: 'INR', razorpay_order_id: 'rzp-1' }));
+    const { service } = setup(execute);
+    const openSpy = vi
+      .spyOn(service as any, 'openRazorpayCheckout')
+      .mockImplementation(() => undefined);
+
+    service.initiatePayment('s1', 'lic1', 'Spec').subscribe();
+
+    expect(openSpy).toHaveBeenCalledWith(
+      { id: 'o1', amount: 1000, currency: 'INR', razorpay_order_id: 'rzp-1' },
+      'Spec',
+    );
   });
 
   it('initiatePayment surfaces create-order errors with toast', () => {
@@ -105,6 +123,25 @@ describe('PaymentService', () => {
     expect(fetchSpy).toHaveBeenCalled();
     expect(show).toHaveBeenCalledWith('Payment verified', 'success');
     expect(navigate).toHaveBeenCalledWith(['/purchases']);
+  });
+
+  it('handlePaymentSuccess shows error toast when verification fails', () => {
+    const execute = vi.fn().mockReturnValue(throwError(() => new Error('verify failed')));
+    const { service, show, navigate } = setup(execute);
+    const fetchSpy = vi.spyOn(service, 'fetchUserLicenses');
+
+    (service as any).handlePaymentSuccess('order-1', {
+      razorpay_payment_id: 'pay-1',
+      razorpay_signature: 'sig-1',
+      razorpay_order_id: 'rzp-order-1',
+    });
+
+    expect(show).toHaveBeenCalledWith(
+      'Payment verification failed. Please contact support.',
+      'error',
+    );
+    expect(fetchSpy).not.toHaveBeenCalled();
+    expect(navigate).not.toHaveBeenCalled();
   });
 
   it('openRazorpayCheckout wires handler and dismiss callbacks', () => {
@@ -153,5 +190,68 @@ describe('PaymentService', () => {
       razorpay_signature: 'sig-1',
       razorpay_order_id: 'rzp-order-1',
     });
+  });
+
+  it('openRazorpayCheckout uses empty prefill values when user is missing', () => {
+    const execute = vi.fn().mockReturnValue(of({}));
+    const show = vi.fn();
+    const navigate = vi.fn();
+    const RazorpayMock = vi.fn(function (this: any, options: any) {
+      this.options = options;
+      this.open = vi.fn();
+    });
+    (window as any).Razorpay = RazorpayMock;
+
+    TestBed.configureTestingModule({
+      providers: [
+        PaymentService,
+        { provide: ApiService, useValue: { execute } },
+        { provide: ToastService, useValue: { show } },
+        { provide: AuthService, useValue: { currentUser: () => null } },
+        { provide: Router, useValue: { navigate } },
+      ],
+    });
+    const service = TestBed.inject(PaymentService);
+
+    (service as any).openRazorpayCheckout(
+      { id: 'o1', amount: 1000, currency: 'INR', razorpay_order_id: 'rzp-1' },
+      'Spec',
+    );
+
+    const options = (RazorpayMock.mock.calls[0] as any[])[0];
+    expect(options.prefill.name).toBe('');
+    expect(options.prefill.email).toBe('');
+  });
+
+  it('fetchUserLicenses handles flat arrays and catchError path', () => {
+    const execute = vi
+      .fn()
+      .mockReturnValueOnce(of([{ id: 'l1', spec_id: 's1', is_active: true, is_revoked: false }]))
+      .mockReturnValueOnce(throwError(() => new Error('fetch failed')));
+    const { service } = setup(execute);
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+
+    service.fetchUserLicenses().subscribe((licenses) => {
+      expect(licenses).toHaveLength(1);
+    });
+    expect(service.licensePagination()).toBeNull();
+
+    service.fetchUserLicenses(1, undefined, 'ALL').subscribe({
+      error: () => undefined,
+    });
+
+    expect(errorSpy).toHaveBeenCalled();
+    errorSpy.mockRestore();
+  });
+
+  it('fetchUserLicenses handles undefined response shape', () => {
+    const execute = vi.fn().mockReturnValue(of(undefined));
+    const { service } = setup(execute);
+
+    service.fetchUserLicenses().subscribe((licenses) => {
+      expect(licenses).toEqual([]);
+    });
+    expect(service.userLicenses()).toEqual([]);
+    expect(service.licensePagination()).toBeNull();
   });
 });

@@ -2,6 +2,7 @@ import { provideHttpClient } from '@angular/common/http';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideAnimations } from '@angular/platform-browser/animations';
 import { provideRouter } from '@angular/router';
+import { SocialAuthService } from '@abacritt/angularx-social-login';
 import { AppComponent } from './app';
 
 describe('AppComponent', () => {
@@ -27,7 +28,12 @@ describe('AppComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [AppComponent],
-      providers: [provideRouter([]), provideHttpClient(), provideAnimations()],
+      providers: [
+        provideRouter([]),
+        provideHttpClient(),
+        provideAnimations(),
+        { provide: SocialAuthService, useValue: { signOut: vi.fn().mockResolvedValue(undefined) } },
+      ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(AppComponent);

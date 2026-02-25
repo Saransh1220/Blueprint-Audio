@@ -10,11 +10,6 @@ footer {
   z-index: 10;
 }
 
-:host-context(.dark-theme) footer {
-  background: var(--bg-color);
-  border-top: 1px solid var(--line-color);
-}
-
 .footer-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;

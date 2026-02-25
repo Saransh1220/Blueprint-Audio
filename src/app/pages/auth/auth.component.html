@@ -1,97 +1,249 @@
-<div class="auth-wrapper">
-  <div class="container" [class.right-panel-active]="isRightPanelActive" id="container">
-    <!-- Sign Up Container -->
-    <div class="form-container sign-up-container">
-      <form (ngSubmit)="onRegisterSubmit()">
-        <h1>Create Account</h1>
-        <div class="custom-google-btn">
-          <div class="btn-content">
-            <svg viewBox="0 0 24 24" fill="currentColor">
-              <path
-                d="M12.545,10.239v3.821h5.445c-0.712,2.315-2.647,3.972-5.445,3.972c-3.332,0-6.033-2.701-6.033-6.032 s2.701-6.032,6.033-6.032c1.498,0,2.866,0.549,3.921,1.453l2.814-2.814C17.503,2.988,15.139,2,12.545,2 C7.021,2,2.543,6.477,2.543,12s4.478,10,10.002,10c8.396,0,10.249-7.85,9.426-11.748L12.545,10.239z" />
+<div class="auth-page-wrapper">
+  <div class="auth-card-asymmetric fade-in-up">
+    <!-- Left: Feature Pane (40%) -->
+    <div class="feature-pane">
+      <div class="brand-header">
+        <div class="logo-mark">BA</div>
+        <h2>Blueprint Audio</h2>
+      </div>
+
+      <div class="feature-content">
+        <h3>Shape Your Sound</h3>
+        <p>
+          Join the definitive marketplace for premium beats, samples, and elite production tools.
+        </p>
+
+        <ul class="feature-list">
+          <li>
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <polyline points="20 6 9 17 4 12"></polyline>
             </svg>
-            <span>Continue with Google</span>
-          </div>
-          <div class="google-invisible-wrapper">
-            <asl-google-signin-button type="standard" size="large" [width]="400"></asl-google-signin-button>
-          </div>
-        </div>
-        <span>or use your email for registration</span>
-        <div class="input-row">
-          <input type="text" placeholder="Username" [(ngModel)]="registerUsername" name="username" />
-          <input type="text" placeholder="Display Name" [(ngModel)]="registerDisplayName" name="displayName" />
-        </div>
-        <input type="email" placeholder="Email" [(ngModel)]="registerEmail" name="email" class="full-width" />
-        <div class="input-row">
-          <input type="password" placeholder="Password" [(ngModel)]="registerPassword" name="password" />
-          <input type="password" placeholder="Confirm Pass" [(ngModel)]="registerConfirmPassword"
-            name="confirmPassword" />
-        </div>
-        <div class="role-switch-container">
-          <span class="label">I am a:</span>
-          <div class="switch-wrapper">
-            <input type="radio" id="artist" name="role" [(ngModel)]="registerRole" value="artist" hidden />
-            <label for="artist" class="switch-option">Artist</label>
+            <span>Exclusive Premium Catalog</span>
+          </li>
+          <li>
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <polyline points="20 6 9 17 4 12"></polyline>
+            </svg>
+            <span>100% Royalty-Free Licensing</span>
+          </li>
+          <li>
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <polyline points="20 6 9 17 4 12"></polyline>
+            </svg>
+            <span>Instant Stem Delivery</span>
+          </li>
+        </ul>
+      </div>
 
-            <input type="radio" id="producer" name="role" [(ngModel)]="registerRole" value="producer" hidden />
-            <label for="producer" class="switch-option">Producer</label>
-
-            <div class="switch-selection"></div>
-          </div>
-        </div>
-        <button type="submit" [disabled]="isLoading()">
-          @if (isLoading()) {
-          <app-loading-spinner size="18px"></app-loading-spinner>
-          } @else {
-          Sign Up
-          }
-        </button>
-      </form>
+      <div class="pane-footer">
+        <span>© 2026 Blueprint Audio</span>
+      </div>
     </div>
 
-    <!-- Sign In Container -->
-    <div class="form-container sign-in-container">
-      <form (ngSubmit)="onLoginSubmit()">
-        <h1>Sign in</h1>
-        <div class="custom-google-btn">
-          <div class="btn-content">
-            <svg viewBox="0 0 24 24" fill="currentColor">
-              <path
-                d="M12.545,10.239v3.821h5.445c-0.712,2.315-2.647,3.972-5.445,3.972c-3.332,0-6.033-2.701-6.033-6.032 s2.701-6.032,6.033-6.032c1.498,0,2.866,0.549,3.921,1.453l2.814-2.814C17.503,2.988,15.139,2,12.545,2 C7.021,2,2.543,6.477,2.543,12s4.478,10,10.002,10c8.396,0,10.249-7.85,9.426-11.748L12.545,10.239z" />
-            </svg>
-            <span>Continue with Google</span>
-          </div>
-          <div class="google-invisible-wrapper">
-            <asl-google-signin-button type="standard" size="large" [width]="400"></asl-google-signin-button>
-          </div>
-        </div>
-        <span>or use your account</span>
-        <input type="email" placeholder="Email" [(ngModel)]="loginEmail" name="email" />
-        <input type="password" placeholder="Password" [(ngModel)]="loginPassword" name="password" />
-        <a href="#">Forgot your password?</a>
-        <button type="submit" [disabled]="isLoading()">
-          @if (isLoading()) {
-          <app-loading-spinner size="18px"></app-loading-spinner>
-          } @else {
-          Sign In
-          }
-        </button>
-      </form>
-    </div>
+    <!-- Right: Form Pane (60%) -->
+    <div class="form-pane">
+      <div class="pane-header-actions">
+        @if (isLoginView) {
+          <p>
+            New to Blueprint?
+            <button type="button" class="text-btn" (click)="toggleView(false)">
+              Create an account
+            </button>
+          </p>
+        } @else {
+          <p>
+            Already a member?
+            <button type="button" class="text-btn" (click)="toggleView(true)">Log in</button>
+          </p>
+        }
+      </div>
 
-    <!-- Overlay Container -->
-    <div class="overlay-container">
-      <div class="overlay">
-        <canvas #fluidCanvas class="fluid-canvas"></canvas>
-        <div class="overlay-panel overlay-left">
-          <h1>Already have an account?</h1>
-          <p>Access your beats, samples, and profile.</p>
-          <button class="ghost" (click)="togglePanel(false)">Login Here</button>
-        </div>
-        <div class="overlay-panel overlay-right">
-          <h1>New to Blueprint Audio?</h1>
-          <p>Join the community and discover premium sounds.</p>
-          <button class="ghost" (click)="togglePanel(true)">Create Account</button>
+      <div class="form-scroll-container">
+        <div class="form-content-inner">
+          <div class="form-title-area">
+            @if (isLoginView) {
+              <h2>Welcome back</h2>
+              <p>Enter your details to access your dashboard.</p>
+            } @else {
+              <h2>Get started for free</h2>
+              <p>Setup your account in seconds.</p>
+            }
+          </div>
+
+          <!-- Universal Google Button -->
+          <div class="custom-google-btn">
+            <div class="btn-content">
+              <svg viewBox="0 0 24 24" fill="currentColor">
+                <path
+                  d="M12.545,10.239v3.821h5.445c-0.712,2.315-2.647,3.972-5.445,3.972c-3.332,0-6.033-2.701-6.033-6.032 s2.701-6.032,6.033-6.032c1.498,0,2.866,0.549,3.921,1.453l2.814-2.814C17.503,2.988,15.139,2,12.545,2 C7.021,2,2.543,6.477,2.543,12s4.478,10,10.002,10c8.396,0,10.249-7.85,9.426-11.748L12.545,10.239z"
+                />
+              </svg>
+              <span>Continue with Google</span>
+            </div>
+            <div class="google-invisible-wrapper">
+              <asl-google-signin-button
+                type="standard"
+                size="large"
+                [width]="400"
+              ></asl-google-signin-button>
+            </div>
+          </div>
+
+          <div class="divider">
+            <span>or continue with email</span>
+          </div>
+
+          @if (isLoginView) {
+            <!-- Login Form -->
+            <form (ngSubmit)="onLoginSubmit()">
+              <div class="input-group">
+                <label>Email address</label>
+                <input
+                  type="email"
+                  placeholder="name@company.com"
+                  [(ngModel)]="loginEmail"
+                  name="email"
+                  required
+                />
+              </div>
+              <div class="input-group">
+                <div class="label-row">
+                  <label>Password</label>
+                  <a href="#" class="forgot-link">Forgot password?</a>
+                </div>
+                <input
+                  type="password"
+                  placeholder="••••••••"
+                  [(ngModel)]="loginPassword"
+                  name="password"
+                  required
+                />
+              </div>
+
+              <button type="submit" class="submit-btn" [disabled]="isLoading()">
+                @if (isLoading()) {
+                  <app-loading-spinner size="18px" color="var(--bg-color)"></app-loading-spinner>
+                } @else {
+                  Sign In
+                }
+              </button>
+            </form>
+          } @else {
+            <!-- Register Form -->
+            <form (ngSubmit)="onRegisterSubmit()">
+              <div class="input-row">
+                <div class="input-group">
+                  <label>Username</label>
+                  <input
+                    type="text"
+                    placeholder="artist_01"
+                    [(ngModel)]="registerUsername"
+                    name="username"
+                    required
+                  />
+                </div>
+                <div class="input-group">
+                  <label>Display Name</label>
+                  <input
+                    type="text"
+                    placeholder="Stage Name"
+                    [(ngModel)]="registerDisplayName"
+                    name="displayName"
+                    required
+                  />
+                </div>
+              </div>
+
+              <div class="input-group">
+                <label>Email address</label>
+                <input
+                  type="email"
+                  placeholder="name@company.com"
+                  [(ngModel)]="registerEmail"
+                  name="email"
+                  required
+                />
+              </div>
+
+              <div class="input-row">
+                <div class="input-group">
+                  <label>Password</label>
+                  <input
+                    type="password"
+                    placeholder="Min. 8 characters"
+                    [(ngModel)]="registerPassword"
+                    name="password"
+                    required
+                  />
+                </div>
+                <div class="input-group">
+                  <label>Confirm</label>
+                  <input
+                    type="password"
+                    placeholder="Repeat password"
+                    [(ngModel)]="registerConfirmPassword"
+                    name="confirmPassword"
+                    required
+                  />
+                </div>
+              </div>
+
+              <div class="role-switch-container">
+                <label>I am joining as a:</label>
+                <div class="switch-wrapper">
+                  <input
+                    type="radio"
+                    id="artist"
+                    name="role"
+                    [(ngModel)]="registerRole"
+                    value="artist"
+                    hidden
+                  />
+                  <label for="artist" class="switch-option">Artist</label>
+
+                  <input
+                    type="radio"
+                    id="producer"
+                    name="role"
+                    [(ngModel)]="registerRole"
+                    value="producer"
+                    hidden
+                  />
+                  <label for="producer" class="switch-option">Producer</label>
+                  <div class="switch-selection"></div>
+                </div>
+              </div>
+
+              <button type="submit" class="submit-btn" [disabled]="isLoading()">
+                @if (isLoading()) {
+                  <app-loading-spinner size="18px" color="var(--bg-color)"></app-loading-spinner>
+                } @else {
+                  Create Account
+                }
+              </button>
+            </form>
+          }
         </div>
       </div>
     </div>

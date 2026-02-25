@@ -9,7 +9,11 @@ import { routes } from './app/app.routes';
 import { authInterceptor } from './app/core/interceptors/auth.interceptor';
 import { loadingInterceptor } from './app/core/interceptors/loading.interceptor';
 import { provideCharts, withDefaultRegisterables } from 'ng2-charts';
-import { SocialAuthServiceConfig, GoogleLoginProvider, SOCIAL_AUTH_CONFIG } from '@abacritt/angularx-social-login';
+import {
+  SocialAuthServiceConfig,
+  GoogleLoginProvider,
+  SOCIAL_AUTH_CONFIG,
+} from '@abacritt/angularx-social-login';
 import { environment } from './environments/environment';
 
 bootstrapApplication(AppComponent, {
@@ -31,13 +35,13 @@ bootstrapApplication(AppComponent, {
         providers: [
           {
             id: GoogleLoginProvider.PROVIDER_ID,
-            provider: new GoogleLoginProvider(environment.googleClientId)
-          }
+            provider: new GoogleLoginProvider(environment.googleClientId),
+          },
         ],
         onError: (err) => {
           console.error(err);
-        }
+        },
       } as SocialAuthServiceConfig,
-    }
+    },
   ],
 }).catch((err) => console.error(err));

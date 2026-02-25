@@ -2,7 +2,12 @@ import { Injectable, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { catchError, map, of, switchMap, tap } from 'rxjs';
 import { ApiService } from '../core/services/api.service';
-import { LoginRequest, RegisterRequest, GetMeRequest, GoogleLoginRequest } from '../core/api/auth.requests';
+import {
+  LoginRequest,
+  RegisterRequest,
+  GetMeRequest,
+  GoogleLoginRequest,
+} from '../core/api/auth.requests';
 import {
   UpdateProfileRequest,
   UploadAvatarRequest,

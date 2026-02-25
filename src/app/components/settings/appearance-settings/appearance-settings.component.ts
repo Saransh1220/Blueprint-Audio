@@ -27,7 +27,6 @@ export class AppearanceSettingsComponent {
 
   // Current active theme (for comparison)
   activeTheme = this.themeService.activeTheme;
-  currentMode = this.themeService.currentMode;
 
   // Local preview state
   previewTheme = signal<string>(this.activeTheme()); // Initialize with active theme
@@ -57,9 +56,5 @@ export class AppearanceSettingsComponent {
   applyTheme() {
     this.themeService.setTheme(this.previewTheme());
     this.toastService.show('Theme applied successfully', 'success');
-  }
-
-  toggleMode() {
-    this.themeService.toggleMode();
   }
 }
