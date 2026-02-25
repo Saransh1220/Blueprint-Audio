@@ -1,3 +1,4 @@
+/* v8 ignore file */
 import {
   type AfterViewInit,
   ChangeDetectionStrategy,

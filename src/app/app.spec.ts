@@ -50,4 +50,13 @@ describe('AppComponent', () => {
     const compiled = fixture.nativeElement as HTMLElement;
     expect(compiled.querySelector('.loader')).toBeTruthy();
   });
+
+  it('toggles cart when cart view child exists', () => {
+    (component as any).cart = { toggle: vi.fn() };
+    component.toggleCart();
+    expect((component as any).cart.toggle).toHaveBeenCalled();
+
+    (component as any).cart = null;
+    component.toggleCart();
+  });
 });

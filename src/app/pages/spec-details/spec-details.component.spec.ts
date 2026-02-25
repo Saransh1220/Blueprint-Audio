@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ActivatedRoute, convertToParamMap } from '@angular/router';
-import { of } from 'rxjs';
+import { of, throwError } from 'rxjs';
 import { MusicalKey, type Spec } from '../../models';
 import {
   AnalyticsService,
@@ -69,6 +69,9 @@ describe('SpecDetailsComponent', () => {
   const cartServiceMock = {
     addItem: vi.fn(),
   };
+  const playerServiceMock = {
+    showPlayer: vi.fn(),
+  };
 
   const toastServiceMock = {
     success: vi.fn(),
@@ -83,7 +86,7 @@ describe('SpecDetailsComponent', () => {
           useValue: { paramMap: of(convertToParamMap({ id: 'beat-1' })) },
         },
         { provide: LabService, useValue: labServiceMock },
-        { provide: PlayerService, useValue: { showPlayer: vi.fn() } },
+        { provide: PlayerService, useValue: playerServiceMock },
         { provide: CartService, useValue: cartServiceMock },
         { provide: ToastService, useValue: toastServiceMock },
         { provide: AnalyticsService, useValue: analyticsServiceMock },
@@ -137,5 +140,57 @@ describe('SpecDetailsComponent', () => {
 
     expect(component.spec()?.analytics?.isFavorited).toBe(true);
     expect(component.spec()?.analytics?.favoriteCount).toBe(previousCount + 1);
+  });
+
+  it('tracks play when playing spec and handles track error', () => {
+    const logSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+    component.playSpec();
+    expect(playerServiceMock.showPlayer).toHaveBeenCalledWith(mockSpec);
+    expect(analyticsServiceMock.trackPlay).toHaveBeenCalledWith('beat-1');
+
+    analyticsServiceMock.trackPlay.mockReturnValueOnce(throwError(() => new Error('x')));
+    component.playSpec();
+    expect(logSpy).toHaveBeenCalled();
+  });
+
+  it('handles unfavorite fallback branch and favorite errors', () => {
+    const logSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+    const spec = component.spec();
+    if (spec?.analytics) {
+      spec.analytics.favoriteCount = 2;
+      spec.analytics.isFavorited = true;
+    }
+
+    analyticsServiceMock.toggleFavorite.mockReturnValueOnce(of({ is_favorited: false }));
+    component.toggleFavorite();
+    expect(component.spec()?.analytics?.favoriteCount).toBe(1);
+
+    analyticsServiceMock.toggleFavorite.mockReturnValueOnce(throwError(() => new Error('boom')));
+    component.toggleFavorite();
+    expect(logSpy).toHaveBeenCalled();
+    expect(component.isFavoriting()).toBe(false);
+  });
+
+  it('downloads free mp3 and handles missing url / error branches', () => {
+    const openSpy = vi.spyOn(window, 'open').mockImplementation(() => null);
+    const logSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+
+    component.downloadFreeMp3();
+    expect(openSpy).toHaveBeenCalledWith('https://example.com/mp3', '_blank');
+
+    analyticsServiceMock.downloadFreeMp3.mockReturnValueOnce(of({}));
+    component.downloadFreeMp3();
+    expect(logSpy).toHaveBeenCalledWith('Download URL not found in response');
+
+    analyticsServiceMock.downloadFreeMp3.mockReturnValueOnce(throwError(() => new Error('x')));
+    component.downloadFreeMp3();
+    expect(logSpy).toHaveBeenCalled();
+  });
+
+  it('formats duration and no-ops when no selected license/spec', () => {
+    expect(component.formatDuration(125)).toBe('2:05');
+    component.selectedLicense.set(null);
+    component.addSelectedLicenseToCart();
+    expect(cartServiceMock.addItem).toHaveBeenCalledTimes(0);
   });
 });
