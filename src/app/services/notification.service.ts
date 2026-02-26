@@ -32,9 +32,6 @@ export class NotificationService {
   private authService = inject(AuthService);
 
   constructor() {
-    // Initial fetch
-    this.refresh();
-
     // Listen for realtime updates
     this.wsService.messages$.pipe(takeUntilDestroyed()).subscribe((msg: Notification) => {
       this.addNotification(msg);
@@ -51,10 +48,12 @@ export class NotificationService {
 
     // React to auth changes
     effect(() => {
-      // Accessing currentUser signal for dependency tracking
-      // We don't need the value, just the trigger
-      this.authService.currentUser();
-      this.refresh();
+      const user = this.authService.currentUser();
+      if (user) {
+        this.refresh();
+      } else {
+        this._notifications.set([]);
+      }
     });
   }
 
@@ -64,7 +63,7 @@ export class NotificationService {
 
   refresh() {
     this.http
-      .get<{ data: Notification[] }>(this.apiUrl)
+      .get<{ data: Notification[] }>(this.apiUrl, { params: { limit: 10 } })
       .pipe(
         map((res) => res.data),
         catchError((err) => {
