@@ -24,12 +24,14 @@ describe('NotificationService', () => {
   function setup(options?: {
     getImpl?: ReturnType<typeof vi.fn>;
     patchImpl?: ReturnType<typeof vi.fn>;
+    currentUser?: unknown;
   }) {
     const wsSubject = new Subject<Notification>();
     const get = options?.getImpl ?? vi.fn().mockReturnValue(of({ data: [] }));
     const patch = options?.patchImpl ?? vi.fn().mockReturnValue(of({}));
     const show = vi.fn();
     const notifyRefresh = vi.fn();
+    const currentUser = options?.currentUser === undefined ? { id: 'u-1' } : options.currentUser;
 
     TestBed.configureTestingModule({
       providers: [
@@ -38,7 +40,7 @@ describe('NotificationService', () => {
         { provide: WebSocketService, useValue: { messages$: wsSubject.asObservable() } },
         { provide: ToastService, useValue: { show } },
         { provide: LabService, useValue: { notifyRefresh } },
-        { provide: AuthService, useValue: { currentUser: signal(null) } },
+        { provide: AuthService, useValue: { currentUser: signal(currentUser as any) } },
       ],
     });
 
@@ -52,14 +54,15 @@ describe('NotificationService', () => {
     };
   }
 
-  it('refreshes on construction and computes unread count', () => {
+  it('refresh loads notifications and computes unread count', () => {
     const unread = makeNotification({ id: 'n-1', is_read: false });
     const read = makeNotification({ id: 'n-2', is_read: true });
     const get = vi.fn().mockReturnValue(of({ data: [unread, read] }));
 
     const { service } = setup({ getImpl: get });
+    service.refresh();
 
-    expect(get).toHaveBeenCalledTimes(1);
+    expect(get).toHaveBeenCalled();
     expect(service.notifications()).toEqual([unread, read]);
     expect(service.unreadCount()).toBe(1);
   });
@@ -100,6 +103,7 @@ describe('NotificationService', () => {
     const get = vi.fn().mockReturnValue(throwError(() => new Error('nope')));
 
     const { service } = setup({ getImpl: get });
+    service.refresh();
 
     expect(service.notifications()).toEqual([]);
     expect(errorSpy).toHaveBeenCalled();
@@ -115,6 +119,7 @@ describe('NotificationService', () => {
     const patch = vi.fn().mockReturnValue(of({}));
 
     const { service } = setup({ getImpl: get, patchImpl: patch });
+    service.refresh();
 
     service.markAsRead('n-1');
 
