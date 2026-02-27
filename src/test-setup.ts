@@ -7,7 +7,16 @@ import {
   platformBrowserDynamicTesting,
 } from '@angular/platform-browser-dynamic/testing';
 
-getTestBed().initTestEnvironment(BrowserDynamicTestingModule, platformBrowserDynamicTesting());
+try {
+  getTestBed().initTestEnvironment(BrowserDynamicTestingModule, platformBrowserDynamicTesting());
+} catch (e) {
+  // Environment already initialized, ignore
+}
+
+// Reset TestBed after each test to prevent configuration errors
+afterEach(() => {
+  getTestBed().resetTestingModule();
+});
 
 if (!window.matchMedia) {
   Object.defineProperty(window, 'matchMedia', {
