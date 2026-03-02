@@ -1,4 +1,4 @@
-import { Injectable, inject, signal, effect } from '@angular/core';
+import { effect, Injectable, inject, signal } from '@angular/core';
 import { Subject } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { AuthService } from './auth.service';
@@ -44,7 +44,7 @@ export class WebSocketService {
     if (!token || !user) return;
 
     // Use ws:// or wss:// based on protocol
-    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+    const _protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
     // Use environment api url processing
     const apiUrl = environment.apiUrl.replace(/^http/, 'ws');
 
@@ -52,7 +52,7 @@ export class WebSocketService {
     this.socket = new WebSocket(`${apiUrl}/ws?token=${token}`);
 
     this.socket.onopen = () => {
-      console.log('WebSocket Connected to ' + apiUrl);
+      console.log(`WebSocket Connected to ${apiUrl}`);
       this.isConnected.set(true);
     };
 
