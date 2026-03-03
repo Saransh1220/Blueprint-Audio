@@ -2,7 +2,12 @@ import { Injectable, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { catchError, map, of, switchMap, tap } from 'rxjs';
 import { ApiService } from '../core/services/api.service';
-import { LoginRequest, RegisterRequest, GetMeRequest } from '../core/api/auth.requests';
+import {
+  LoginRequest,
+  RegisterRequest,
+  GetMeRequest,
+  GoogleLoginRequest,
+} from '../core/api/auth.requests';
 import {
   UpdateProfileRequest,
   UploadAvatarRequest,
@@ -11,6 +16,7 @@ import {
 import { User, UserAdapter, Role } from '../models';
 import { ModalService } from './modal.service';
 import { AuthRequirementComponent } from '../components/modals/auth-requirement/auth-requirement.component';
+import { SocialAuthService } from '@abacritt/angularx-social-login';
 
 @Injectable({
   providedIn: 'root',
@@ -19,6 +25,7 @@ export class AuthService {
   private api = inject(ApiService);
   private router = inject(Router);
   private modalService = inject(ModalService);
+  private socialAuthService = inject(SocialAuthService);
 
   currentUser = signal<User | null>(null);
 
@@ -46,6 +53,15 @@ export class AuthService {
 
   login(credentials: { email: string; password: string }) {
     return this.api.execute(new LoginRequest(credentials)).pipe(
+      tap((res) => {
+        localStorage.setItem('token', res.token);
+        this.getMe().subscribe();
+      }),
+    );
+  }
+
+  googleLogin(idToken: string) {
+    return this.api.execute(new GoogleLoginRequest({ token: idToken })).pipe(
       tap((res) => {
         localStorage.setItem('token', res.token);
         this.getMe().subscribe();
@@ -122,9 +138,19 @@ export class AuthService {
     );
   }
 
-  logout() {
+  async logout() {
     localStorage.removeItem('token');
     this.currentUser.set(null);
+
+    // Sign out of Google to prevent auto-login loops
+    if (this.socialAuthService) {
+      try {
+        await this.socialAuthService.signOut();
+      } catch (err) {
+        console.log('Google signout not required or failed', err);
+      }
+    }
+
     this.router.navigate(['/login']);
   }
 }

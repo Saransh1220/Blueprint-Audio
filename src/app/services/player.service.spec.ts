@@ -148,4 +148,96 @@ describe('PlayerService', () => {
     expect(service.isPlaying()).toBe(false);
     expect(service.currentTime()).toBe(0);
   });
+
+  it('warns when showing a track without audio URL', () => {
+    const service = new PlayerService();
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+    const noAudio = { ...track, audioUrl: undefined };
+
+    service.showPlayer(noAudio as Spec);
+
+    expect(warnSpy).toHaveBeenCalled();
+    expect(service.isVisible()).toBe(true);
+    warnSpy.mockRestore();
+  });
+
+  it('returns null waveform without analyser and handles toggleMute branches', () => {
+    const service = new PlayerService();
+
+    expect(service.getWaveformData()).toBeNull();
+
+    service.setVolume(0.7);
+    service.toggleMute();
+    expect(service.volume()).toBe(0);
+
+    service.toggleMute();
+    expect(service.volume()).toBe(0.7);
+
+    service.toggleMute();
+    service.setVolume(0);
+    service.toggleMute();
+    expect(service.volume()).toBeGreaterThan(0);
+  });
+
+  it('resumes suspended audio context and logs playback errors', async () => {
+    class FakeSuspendedAudio extends FakeAudio {
+      override play() {
+        return Promise.reject(new Error('play failed'));
+      }
+    }
+    const analyser = {
+      fftSize: 0,
+      frequencyBinCount: 8,
+      connect: vi.fn(),
+      getByteFrequencyData: vi.fn(),
+    };
+    const source = { connect: vi.fn() };
+    const resume = vi.fn();
+    class SuspendedAudioContextImpl {
+      state = 'suspended';
+      destination = {};
+      createAnalyser = vi.fn(() => analyser);
+      createMediaElementSource = vi.fn(() => source);
+      resume = resume;
+    }
+    (globalThis as any).Audio = FakeSuspendedAudio as any;
+    (window as any).AudioContext = SuspendedAudioContextImpl as any;
+    const service = new PlayerService();
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+
+    service.play();
+    await Promise.resolve();
+
+    expect(resume).toHaveBeenCalled();
+    expect(errorSpy).toHaveBeenCalled();
+    errorSpy.mockRestore();
+  });
+
+  it('uses webkitAudioContext fallback and formats invalid time as 0:00', async () => {
+    const analyser = {
+      fftSize: 0,
+      frequencyBinCount: 8,
+      connect: vi.fn(),
+      getByteFrequencyData: vi.fn(),
+    };
+    const source = { connect: vi.fn() };
+    class WebkitAudioContextImpl {
+      state = 'running';
+      destination = {};
+      createAnalyser = vi.fn(() => analyser);
+      createMediaElementSource = vi.fn(() => source);
+      resume = vi.fn();
+    }
+    (window as any).AudioContext = undefined;
+    (window as any).webkitAudioContext = WebkitAudioContextImpl as any;
+    const service = new PlayerService();
+    const audio = (service as any).audio as FakeAudio;
+
+    await service.play();
+    expect(service.getWaveformData()).not.toBeNull();
+
+    audio.currentTime = NaN;
+    audio.emit('timeupdate');
+    expect(service.currentTimeFormatted()).toBe('0:00');
+  });
 });

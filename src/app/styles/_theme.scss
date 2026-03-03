@@ -43,137 +43,63 @@
 
 // --- Theme Configurations Map ---
 // We define themes in a map to easily loop and create preview classes
+// These are currently set to the original 'dark' theme configurations
 $themes: (
   'vampire': (
-    light: (
-      #faf5f5,
-      #ffffff,
-      #7f1d1d,
-      #dc2626,
-      #fecaca,
-      #ffffff,
-    ),
-    dark: (
-      #0f0a15,
-      #2d2538,
-      #e5e7eb,
-      #ef4444,
-      #3d3447,
-      #ffffff,
-    ),
+    #0f0a15,
+    #2d2538,
+    #e5e7eb,
+    #ef4444,
+    #3d3447,
+    #ffffff,
   ),
   'neon': (
-    light: (
-      #fff1f2,
-      #ffffff,
-      #4c1d95,
-      #f43f5e,
-      #fecdd3,
-      #ffffff,
-    ),
-    dark: (
-      #0f172a,
-      #2d3748,
-      #e2e8f0,
-      #d946ef,
-      #334155,
-      #ffffff,
-    ),
+    #0f172a,
+    #2d3748,
+    #e2e8f0,
+    #d946ef,
+    #334155,
+    #ffffff,
   ),
   'toxic': (
-    light: (
-      #f7fee7,
-      #ffffff,
-      #1a2e05,
-      #65a30d,
-      #d9f99d,
-      #ffffff,
-    ),
-    dark: (
-      #020617,
-      #0f172a,
-      #ecfccb,
-      #a3e635,
-      #3f6212,
-      #000000,
-    ),
+    #020617,
+    #0f172a,
+    #ecfccb,
+    #a3e635,
+    #3f6212,
+    #000000,
   ),
   'royal': (
-    light: (
-      #f0f9ff,
-      #ffffff,
-      #0c4a6e,
-      #0284c7,
-      #bae6fd,
-      #ffffff,
-    ),
-    dark: (
-      #0b1120,
-      #1e2d47,
-      #e0f2fe,
-      #38bdf8,
-      #1e293b,
-      #000000,
-      // Sky blue needs black text
-    ),
+    #0b1120,
+    #1e2d47,
+    #e0f2fe,
+    #38bdf8,
+    #1e293b,
+    #000000,
   ),
   'mint': (
-    light: (
-      #ecfdf5,
-      #ffffff,
-      #064e3b,
-      #10b981,
-      #a7f3d0,
-      #ffffff,
-    ),
-    dark: (
-      #051910,
-      #1a3a2e,
-      #d1fae5,
-      #34d399,
-      #134e4a,
-      #000000,
-      // Mint green needs black text
-    ),
+    #051910,
+    #1a3a2e,
+    #d1fae5,
+    #34d399,
+    #134e4a,
+    #000000,
   ),
   'onyx': (
-    light: (
-      #f9fafb,
-      #ffffff,
-      #111827,
-      #374151,
-      #e5e7eb,
-      #ffffff,
-    ),
-    dark: (
-      #000000,
-      #1a1a1a,
-      #f3f4f6,
-      #ff6600,
-      #333333,
-      #ffffff,
-    ),
+    #000000,
+    #1a1a1a,
+    #f3f4f6,
+    #ff6600,
+    #333333,
+    #ffffff,
   ),
 );
 
 // --- Global Theme Application ---
 
-// Default (Vampire)
+// Default (Vampire base theme)
 :root {
-  $c: map.get(map.get($themes, 'vampire'), light);
-  @include theme-properties(
-    list.nth($c, 1),
-    list.nth($c, 2),
-    list.nth($c, 3),
-    list.nth($c, 4),
-    list.nth($c, 5),
-    list.nth($c, 6),
-    null
-  );
-}
-
-body.dark-theme {
-  $c: map.get(map.get($themes, 'vampire'), dark);
+  $c: map.get($themes, 'vampire');
   @include theme-properties(
     list.nth($c, 1),
     list.nth($c, 2),
@@ -186,70 +112,32 @@ body.dark-theme {
 }
 
 // Apply Global Themes
-@each $name, $modes in $themes {
+@each $name, $colors in $themes {
   [data-theme='#{$name}'] {
-    &.light-theme,
-    &:not(.dark-theme) {
-      $c: map.get($modes, light);
-      @include theme-properties(
-        list.nth($c, 1),
-        list.nth($c, 2),
-        list.nth($c, 3),
-        list.nth($c, 4),
-        list.nth($c, 5),
-        list.nth($c, 6),
-        null
-      );
-    }
-
-    &.dark-theme {
-      $c: map.get($modes, dark);
-      @include theme-properties(
-        list.nth($c, 1),
-        list.nth($c, 2),
-        list.nth($c, 3),
-        list.nth($c, 4),
-        list.nth($c, 5),
-        list.nth($c, 6),
-        null
-      );
-    }
+    @include theme-properties(
+      list.nth($colors, 1),
+      list.nth($colors, 2),
+      list.nth($colors, 3),
+      list.nth($colors, 4),
+      list.nth($colors, 5),
+      list.nth($colors, 6),
+      null
+    );
   }
 }
 
 // --- Scoped Preview Classes ---
 // Used for the Settings "Mini App" preview
-@each $name, $modes in $themes {
+@each $name, $colors in $themes {
   .theme-preview-#{$name} {
-    // We force these scopes to behave like the body root
-    // But we need to handle light/dark inside the preview too
-    // For simplicity, the preview will respect the container's preference or we can force it.
-    // Let's assume the preview container has .light-theme or .dark-theme class as well.
-
-    &.light-theme-preview {
-      $c: map.get($modes, light);
-      @include theme-properties(
-        list.nth($c, 1),
-        list.nth($c, 2),
-        list.nth($c, 3),
-        list.nth($c, 4),
-        list.nth($c, 5),
-        list.nth($c, 6),
-        null
-      );
-    }
-
-    &.dark-theme-preview {
-      $c: map.get($modes, dark);
-      @include theme-properties(
-        list.nth($c, 1),
-        list.nth($c, 2),
-        list.nth($c, 3),
-        list.nth($c, 4),
-        list.nth($c, 5),
-        list.nth($c, 6),
-        null
-      );
-    }
+    @include theme-properties(
+      list.nth($colors, 1),
+      list.nth($colors, 2),
+      list.nth($colors, 3),
+      list.nth($colors, 4),
+      list.nth($colors, 5),
+      list.nth($colors, 6),
+      null
+    );
   }
 }

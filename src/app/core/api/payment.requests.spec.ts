@@ -29,10 +29,23 @@ describe('payment requests', () => {
     expect(licensesReq.params?.get('type')).toBe('Basic');
   });
 
+  it('does not set params when optional query inputs are empty', () => {
+    const ordersReq = new GetUserOrdersRequest();
+    const ordersReqEmpty = new GetUserOrdersRequest({});
+    const licensesReqNoArg = new GetUserLicensesRequest();
+    const licensesReq = new GetUserLicensesRequest({ page: 0, q: '', type: '' });
+
+    expect(ordersReq.params).toBeUndefined();
+    expect(ordersReqEmpty.params?.keys().length).toBe(0);
+    expect(licensesReqNoArg.params).toBeUndefined();
+    expect(licensesReq.params?.keys().length).toBe(0);
+  });
+
   it('sets producer order paging query param', () => {
-    const req = new GetProducerOrdersRequest(4);
+    const req = new GetProducerOrdersRequest(4, 25);
     expect(req.path).toBe('/orders/producer');
     expect(req.method).toBe('GET');
     expect(req.params?.get('page')).toBe('4');
+    expect(req.params?.get('limit')).toBe('25');
   });
 });

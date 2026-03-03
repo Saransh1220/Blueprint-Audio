@@ -6,9 +6,7 @@ import { effect, Injectable, inject, signal } from '@angular/core';
 })
 export class ThemeService {
   private document = inject(DOCUMENT);
-  public currentMode = signal<string>('light'); // 'light' or 'dark'
-  public activeTheme = signal<string>('vampire'); // 'vampire', 'neon', 'toxic'
-  private modeKey = 'app-mode';
+  public activeTheme = signal<string>('vampire'); // 'vampire', 'neon', 'toxic', etc.
   private themeKey = 'app-theme-preset';
 
   public themes = [
@@ -51,54 +49,20 @@ export class ThemeService {
   ];
 
   constructor() {
-    // Initialize MODE (Light/Dark)
-    const storedMode = localStorage.getItem(this.modeKey);
-    if (storedMode) {
-      this.currentMode.set(storedMode);
-    } else {
-      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-      this.currentMode.set(prefersDark ? 'dark' : 'light');
-    }
-
     // Initialize THEME PRESET
     const storedTheme = localStorage.getItem(this.themeKey);
     if (storedTheme) {
       this.activeTheme.set(storedTheme);
     }
 
-    // Effect to update body class/attributes and localStorage
+    // Effect to update body attribute and localStorage
     effect(() => {
-      const mode = this.currentMode();
       const theme = this.activeTheme();
-
-      console.log(`ThemeService update: Mode=${mode}, Theme=${theme}`);
-
-      // Handle Dark Mode Class
-      if (mode === 'dark') {
-        this.document.body.classList.add('dark-theme');
-        this.document.body.classList.remove('light-theme');
-      } else {
-        this.document.body.classList.remove('dark-theme');
-        this.document.body.classList.add('light-theme');
-      }
-
       // Handle Data Theme Attribute
       this.document.body.setAttribute('data-theme', theme);
-
       // Persist
-      localStorage.setItem(this.modeKey, mode);
       localStorage.setItem(this.themeKey, theme);
     });
-  }
-
-  toggleMode() {
-    this.currentMode.update((current) => (current === 'light' ? 'dark' : 'light'));
-  }
-
-  setMode(mode: string) {
-    if (mode === 'light' || mode === 'dark') {
-      this.currentMode.set(mode);
-    }
   }
 
   setTheme(themeName: string) {

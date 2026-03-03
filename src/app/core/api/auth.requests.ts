@@ -32,3 +32,11 @@ export class GetMeRequest implements ApiRequest<UserApiResponse> {
   readonly method: HttpMethod = 'GET';
   readonly _responseType?: UserApiResponse;
 }
+
+export class GoogleLoginRequest implements ApiRequest<LoginResponse> {
+  readonly path = '/auth/google';
+  readonly method: HttpMethod = 'POST';
+  readonly _responseType?: LoginResponse;
+
+  constructor(public body: { token: string }) {}
+}
