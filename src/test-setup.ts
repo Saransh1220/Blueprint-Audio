@@ -9,7 +9,7 @@ import {
 
 try {
   getTestBed().initTestEnvironment(BrowserDynamicTestingModule, platformBrowserDynamicTesting());
-} catch (e) {
+} catch (_e) {
   // Environment already initialized, ignore
 }
 
