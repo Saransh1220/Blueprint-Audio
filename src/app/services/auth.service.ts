@@ -7,6 +7,8 @@ import {
   RegisterRequest,
   GetMeRequest,
   GoogleLoginRequest,
+  RefreshRequest,
+  LogoutApiRequest,
 } from '../core/api/auth.requests';
 import {
   UpdateProfileRequest,
@@ -44,10 +46,25 @@ export class AuthService {
     this.checkSession();
   }
 
+  /**
+   * On app startup:
+   * 1. If we have an access token → call /me to restore user state.
+   * 2. If no access token → try to silently refresh using the HttpOnly cookie.
+   *    If refresh succeeds → call /me; if it fails → leave unauthenticated.
+   */
   checkSession() {
     const token = localStorage.getItem('token');
     if (token) {
+      // We have a stored access token, verify it by fetching the user profile
       this.getMe().subscribe();
+    } else {
+      // No access token; attempt a silent refresh using the HttpOnly refresh cookie
+      this.refreshToken()
+        .pipe(
+          switchMap(() => this.getMe()),
+          catchError(() => of(null)), // Refresh failed – user is not authenticated
+        )
+        .subscribe();
     }
   }
 
@@ -132,23 +149,48 @@ export class AuthService {
       }),
       catchError((err) => {
         console.error('Error fetching user', err);
-        this.logout();
+        // Only clear state if it's not a 401 that the interceptor will handle
+        if (err?.status !== 401) {
+          this.clearLocalSession();
+        }
         return of(null);
       }),
     );
   }
 
-  async logout() {
+  /**
+   * Called by the auth interceptor when a 401 is received.
+   * Uses the HttpOnly refresh token cookie automatically via withCredentials.
+   */
+  refreshToken() {
+    return this.api.execute(new RefreshRequest()).pipe(
+      tap((res) => {
+        if (res?.token) {
+          localStorage.setItem('token', res.token);
+        }
+      }),
+    );
+  }
+
+  /** Clears local session without calling the API (used internally). */
+  private clearLocalSession() {
     localStorage.removeItem('token');
     this.currentUser.set(null);
+  }
+
+  logout() {
+    // Call backend to revoke the session (clears the HttpOnly cookie server-side)
+    this.api.execute(new LogoutApiRequest()).subscribe({
+      error: (err) => console.warn('Logout API failed, continuing local logout', err),
+    });
+
+    this.clearLocalSession();
 
     // Sign out of Google to prevent auto-login loops
     if (this.socialAuthService) {
-      try {
-        await this.socialAuthService.signOut();
-      } catch (err) {
+      this.socialAuthService.signOut().catch((err) => {
         console.log('Google signout not required or failed', err);
-      }
+      });
     }
 
     this.router.navigate(['/login']);

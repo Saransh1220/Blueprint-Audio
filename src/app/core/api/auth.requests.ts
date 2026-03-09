@@ -40,3 +40,15 @@ export class GoogleLoginRequest implements ApiRequest<LoginResponse> {
 
   constructor(public body: { token: string }) {}
 }
+
+export class RefreshRequest implements ApiRequest<LoginResponse> {
+  readonly path = '/auth/refresh';
+  readonly method: HttpMethod = 'POST';
+  readonly _responseType?: LoginResponse;
+}
+
+export class LogoutApiRequest implements ApiRequest<void> {
+  readonly path = '/auth/logout';
+  readonly method: HttpMethod = 'POST';
+  readonly _responseType?: void;
+}
