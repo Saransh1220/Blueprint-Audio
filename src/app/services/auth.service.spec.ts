@@ -13,10 +13,14 @@ describe('AuthService', () => {
     localStorage.clear();
   });
 
-  function setup(execute: ReturnType<typeof vi.fn>) {
+  function setup(execute: ReturnType<typeof vi.fn>, skipInitialSessionCheck = true) {
     const navigate = vi.fn();
     const modalOpen = vi.fn();
     const signOut = vi.fn().mockResolvedValue(undefined);
+    const checkSessionSpy = skipInitialSessionCheck
+      ? vi.spyOn(AuthService.prototype, 'checkSession').mockImplementation(() => undefined)
+      : null;
+
     TestBed.configureTestingModule({
       providers: [
         AuthService,
@@ -26,7 +30,11 @@ describe('AuthService', () => {
         { provide: SocialAuthService, useValue: { signOut } },
       ],
     });
-    return { service: TestBed.inject(AuthService), navigate, modalOpen, signOut };
+
+    const service = TestBed.inject(AuthService);
+    checkSessionSpy?.mockRestore();
+
+    return { service, navigate, modalOpen, signOut };
   }
 
   it('login stores token and triggers getMe', () => {
@@ -67,14 +75,38 @@ describe('AuthService', () => {
     const execute = vi.fn().mockReturnValue(of({}));
     const { service } = setup(execute);
     const getMeSpy = vi.spyOn(service, 'getMe').mockReturnValue(of(null));
+    const refreshTokenSpy = vi
+      .spyOn(service, 'refreshToken')
+      .mockReturnValue(of({ token: 'fresh-token' }));
 
     localStorage.removeItem('token');
     service.checkSession();
-    expect(getMeSpy).not.toHaveBeenCalled();
+    expect(refreshTokenSpy).toHaveBeenCalledTimes(1);
+    expect(getMeSpy).toHaveBeenCalledTimes(1);
+
+    getMeSpy.mockClear();
+    refreshTokenSpy.mockClear();
 
     localStorage.setItem('token', 'jwt-token');
     service.checkSession();
     expect(getMeSpy).toHaveBeenCalledTimes(1);
+    expect(refreshTokenSpy).not.toHaveBeenCalled();
+  });
+
+  it('checkSession ignores refresh failures when bootstrapping without a token', () => {
+    const execute = vi.fn().mockReturnValue(of({}));
+    const { service } = setup(execute);
+    const getMeSpy = vi.spyOn(service, 'getMe').mockReturnValue(of(null));
+    const refreshTokenSpy = vi
+      .spyOn(service, 'refreshToken')
+      .mockReturnValue(throwError(() => new Error('refresh failed')));
+
+    localStorage.removeItem('token');
+    service.checkSession();
+
+    expect(refreshTokenSpy).toHaveBeenCalledTimes(1);
+    expect(getMeSpy).not.toHaveBeenCalled();
+    expect(localStorage.getItem('token')).toBeNull();
   });
 
   it('updateProfile and uploadAvatar update current user', () => {
@@ -129,16 +161,39 @@ describe('AuthService', () => {
     expect(service.currentUser()?.name).toBe('Sam');
   });
 
+  it('refreshToken stores new tokens and ignores empty refresh responses', () => {
+    const execute = vi
+      .fn()
+      .mockReturnValueOnce(of({ token: 'fresh-token' }))
+      .mockReturnValueOnce(of({}));
+    const { service } = setup(execute);
+
+    service.refreshToken().subscribe();
+    expect(localStorage.getItem('token')).toBe('fresh-token');
+
+    service.refreshToken().subscribe();
+    expect(localStorage.getItem('token')).toBe('fresh-token');
+  });
+
   it('getMe error logs out and returns null', async () => {
     const execute = vi.fn().mockReturnValue(throwError(() => new Error('failed')));
     const { service, navigate } = setup(execute);
     localStorage.setItem('token', 'jwt-token');
+    service.currentUser.set({
+      id: 'u1',
+      email: 'u@test.com',
+      name: 'Sam',
+      role: Role.PRODUCER,
+      created_at: '2026-01-01',
+      updated_at: '2026-01-02',
+    });
 
     service.getMe().subscribe((user) => expect(user).toBeNull());
     await Promise.resolve();
 
     expect(localStorage.getItem('token')).toBeNull();
-    expect(navigate).toHaveBeenCalledWith(['/login']);
+    expect(service.currentUser()).toBeNull();
+    expect(navigate).not.toHaveBeenCalled();
   });
 
   it('requireAuth executes callback when user is present', () => {
@@ -198,5 +253,28 @@ describe('AuthService', () => {
     expect(logSpy).toHaveBeenCalled();
     expect(navigate).toHaveBeenCalledWith(['/login']);
     logSpy.mockRestore();
+  });
+
+  it('logout clears local state even when the logout API call fails', () => {
+    const execute = vi.fn().mockReturnValue(throwError(() => new Error('logout api failed')));
+    const { service, navigate } = setup(execute);
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+    localStorage.setItem('token', 'jwt-token');
+    service.currentUser.set({
+      id: 'u1',
+      email: 'u@test.com',
+      name: 'Sam',
+      role: Role.PRODUCER,
+      created_at: '2026-01-01',
+      updated_at: '2026-01-02',
+    });
+
+    service.logout();
+
+    expect(warnSpy).toHaveBeenCalled();
+    expect(localStorage.getItem('token')).toBeNull();
+    expect(service.currentUser()).toBeNull();
+    expect(navigate).toHaveBeenCalledWith(['/login']);
+    warnSpy.mockRestore();
   });
 });
