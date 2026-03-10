@@ -1,6 +1,6 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
-import { Observable, tap, catchError, throwError, map } from 'rxjs';
+import { Observable, tap, catchError, throwError, map, of } from 'rxjs';
 import { ApiService } from '../core/services/api.service';
 import {
   Order,
@@ -116,7 +116,7 @@ export class PaymentService {
         }),
         catchError((error) => {
           this.toast.show('Payment verification failed. Please contact support.', 'error');
-          return throwError(() => error);
+          return of(null);
         }),
       )
       .subscribe();

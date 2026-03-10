@@ -80,7 +80,7 @@
           opacity: 1;
           background: var(--brand-color);
           color: var(--on-brand-color, #fff);
-          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
         }
       }
     }
@@ -276,17 +276,17 @@
       background: rgba(0, 0, 0, 0.4);
       backdrop-filter: blur(10px);
       border: 1px solid rgba(255, 255, 255, 0.1);
-      border-radius: 20px;
-      padding: 4px;
-      gap: 4px;
+      border-radius: 8px; // Match button shapes
+      padding: 2px; // More compact
+      gap: 2px; // Tighter
 
       button {
         background: transparent;
         border: none;
         color: rgba(255, 255, 255, 0.6);
-        width: 32px;
-        height: 32px;
-        border-radius: 8px; // Rounded Square
+        width: 28px; // More compact
+        height: 28px; // More compact
+        border-radius: 6px; // Nested rounded square shape
         display: flex;
         align-items: center;
         justify-content: center;
@@ -302,11 +302,11 @@
         &.active {
           background: var(--brand-color);
           color: #fff;
-          box-shadow: 0 0 10px var(--brand-color);
+          box-shadow: 0 0 4px var(--brand-color);
         }
 
         i {
-          font-size: 0.9rem;
+          font-size: 0.85rem; // Slightly smaller icon
         }
       }
     }

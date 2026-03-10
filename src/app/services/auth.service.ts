@@ -2,7 +2,14 @@ import { Injectable, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { catchError, map, of, switchMap, tap } from 'rxjs';
 import { ApiService } from '../core/services/api.service';
-import { LoginRequest, RegisterRequest, GetMeRequest } from '../core/api/auth.requests';
+import {
+  LoginRequest,
+  RegisterRequest,
+  GetMeRequest,
+  GoogleLoginRequest,
+  RefreshRequest,
+  LogoutApiRequest,
+} from '../core/api/auth.requests';
 import {
   UpdateProfileRequest,
   UploadAvatarRequest,
@@ -11,14 +18,18 @@ import {
 import { User, UserAdapter, Role } from '../models';
 import { ModalService } from './modal.service';
 import { AuthRequirementComponent } from '../components/modals/auth-requirement/auth-requirement.component';
+import { SocialAuthService } from '@abacritt/angularx-social-login';
+import { TokenRefreshService } from './token-refresh.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class AuthService {
-  private api = inject(ApiService);
-  private router = inject(Router);
-  private modalService = inject(ModalService);
+  private readonly api = inject(ApiService);
+  private readonly router = inject(Router);
+  private readonly modalService = inject(ModalService);
+  private readonly socialAuthService = inject(SocialAuthService);
+  private readonly tokenRefreshService = inject(TokenRefreshService);
 
   currentUser = signal<User | null>(null);
 
@@ -37,10 +48,26 @@ export class AuthService {
     this.checkSession();
   }
 
+  /**
+   * On app startup:
+   * 1. If we have an access token → call /me to restore user state.
+   * 2. If no access token → try to silently refresh using the HttpOnly cookie.
+   *    If refresh succeeds → call /me; if it fails → leave unauthenticated.
+   */
   checkSession() {
     const token = localStorage.getItem('token');
     if (token) {
+      // We have a stored access token, verify it by fetching the user profile
       this.getMe().subscribe();
+    } else {
+      // No access token; attempt a silent refresh using the HttpOnly refresh cookie
+      this.tokenRefreshService
+        .refreshTokenWithQueue()
+        .pipe(
+          switchMap(() => this.getMe()),
+          catchError(() => of(null)), // Refresh failed – user is not authenticated
+        )
+        .subscribe();
     }
   }
 
@@ -48,8 +75,17 @@ export class AuthService {
     return this.api.execute(new LoginRequest(credentials)).pipe(
       tap((res) => {
         localStorage.setItem('token', res.token);
-        this.getMe().subscribe();
       }),
+      switchMap(() => this.getMe()),
+    );
+  }
+
+  googleLogin(idToken: string) {
+    return this.api.execute(new GoogleLoginRequest({ token: idToken })).pipe(
+      tap((res) => {
+        localStorage.setItem('token', res.token);
+      }),
+      switchMap(() => this.getMe()),
     );
   }
 
@@ -116,15 +152,50 @@ export class AuthService {
       }),
       catchError((err) => {
         console.error('Error fetching user', err);
-        this.logout();
+        // Only clear state if it's not a 401 that the interceptor will handle
+        if (err?.status !== 401) {
+          this.clearLocalSession();
+        }
         return of(null);
       }),
     );
   }
 
-  logout() {
+  /**
+   * Called by the auth interceptor when a 401 is received.
+   * Uses the HttpOnly refresh token cookie automatically via withCredentials.
+   */
+  refreshToken() {
+    return this.api.execute(new RefreshRequest()).pipe(
+      tap((res) => {
+        if (res?.token) {
+          localStorage.setItem('token', res.token);
+        }
+      }),
+    );
+  }
+
+  /** Clears local session without calling the API (used internally). */
+  private clearLocalSession() {
     localStorage.removeItem('token');
     this.currentUser.set(null);
+  }
+
+  logout() {
+    // Call backend to revoke the session (clears the HttpOnly cookie server-side)
+    this.api.execute(new LogoutApiRequest()).subscribe({
+      error: (err) => console.warn('Logout API failed, continuing local logout', err),
+    });
+
+    this.clearLocalSession();
+
+    // Sign out of Google to prevent auto-login loops
+    if (this.socialAuthService) {
+      this.socialAuthService.signOut().catch((err) => {
+        console.log('Google signout not required or failed', err);
+      });
+    }
+
     this.router.navigate(['/login']);
   }
 }

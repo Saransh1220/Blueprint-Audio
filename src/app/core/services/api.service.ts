@@ -15,6 +15,7 @@ export class ApiService {
     const url = `${this.baseUrl}${request.path}`;
     const options = {
       params: request.params,
+      withCredentials: true,
     };
 
     switch (request.method) {
@@ -39,6 +40,7 @@ export class ApiService {
       params: request.params,
       reportProgress: true,
       observe: 'events' as const,
+      withCredentials: true,
     };
 
     if (request.method !== 'POST' && request.method !== 'PUT' && request.method !== 'PATCH') {
@@ -58,22 +60,22 @@ export class ApiService {
   }
 
   get<T>(path: string, params: HttpParams = new HttpParams()): Observable<T> {
-    return this.http.get<T>(`${this.baseUrl}${path}`, { params });
+    return this.http.get<T>(`${this.baseUrl}${path}`, { params, withCredentials: true });
   }
 
   post<T>(path: string, body: any = {}): Observable<T> {
-    return this.http.post<T>(`${this.baseUrl}${path}`, body);
+    return this.http.post<T>(`${this.baseUrl}${path}`, body, { withCredentials: true });
   }
 
   put<T>(path: string, body: any = {}): Observable<T> {
-    return this.http.put<T>(`${this.baseUrl}${path}`, body);
+    return this.http.put<T>(`${this.baseUrl}${path}`, body, { withCredentials: true });
   }
 
   patch<T>(path: string, body: any = {}): Observable<T> {
-    return this.http.patch<T>(`${this.baseUrl}${path}`, body);
+    return this.http.patch<T>(`${this.baseUrl}${path}`, body, { withCredentials: true });
   }
 
   delete<T>(path: string): Observable<T> {
-    return this.http.delete<T>(`${this.baseUrl}${path}`);
+    return this.http.delete<T>(`${this.baseUrl}${path}`, { withCredentials: true });
   }
 }

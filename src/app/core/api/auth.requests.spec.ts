@@ -1,4 +1,4 @@
-import { GetMeRequest, LoginRequest, RegisterRequest } from './auth.requests';
+import { GetMeRequest, GoogleLoginRequest, LoginRequest, RegisterRequest } from './auth.requests';
 
 describe('auth requests', () => {
   it('creates login request', () => {
@@ -24,5 +24,13 @@ describe('auth requests', () => {
 
     expect(req.method).toBe('GET');
     expect(req.path).toBe('/me');
+  });
+
+  it('creates google login request', () => {
+    const req = new GoogleLoginRequest({ token: 'google-id-token' });
+
+    expect(req.method).toBe('POST');
+    expect(req.path).toBe('/auth/google');
+    expect(req.body).toEqual({ token: 'google-id-token' });
   });
 });

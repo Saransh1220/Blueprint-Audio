@@ -32,3 +32,23 @@ export class GetMeRequest implements ApiRequest<UserApiResponse> {
   readonly method: HttpMethod = 'GET';
   readonly _responseType?: UserApiResponse;
 }
+
+export class GoogleLoginRequest implements ApiRequest<LoginResponse> {
+  readonly path = '/auth/google';
+  readonly method: HttpMethod = 'POST';
+  readonly _responseType?: LoginResponse;
+
+  constructor(public body: { token: string }) {}
+}
+
+export class RefreshRequest implements ApiRequest<LoginResponse> {
+  readonly path = '/auth/refresh';
+  readonly method: HttpMethod = 'POST';
+  readonly _responseType?: LoginResponse;
+}
+
+export class LogoutApiRequest implements ApiRequest<void> {
+  readonly path = '/auth/logout';
+  readonly method: HttpMethod = 'POST';
+  readonly _responseType?: void;
+}
