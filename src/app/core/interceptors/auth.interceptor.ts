@@ -1,13 +1,12 @@
 import { HttpInterceptorFn, HttpErrorResponse } from '@angular/common/http';
 import { inject } from '@angular/core';
-import { catchError, switchMap, throwError, BehaviorSubject, filter, take } from 'rxjs';
+import { catchError, switchMap, throwError } from 'rxjs';
 import { AuthService } from '../../services/auth.service';
-
-let isRefreshing = false;
-const refreshTokenSubject = new BehaviorSubject<string | null>(null);
+import { TokenRefreshService } from '../../services/token-refresh.service';
 
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const authService = inject(AuthService);
+  const tokenRefreshService = inject(TokenRefreshService);
   const token = localStorage.getItem('token');
 
   let authReq = req;
@@ -26,52 +25,28 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
         req.url.includes('/auth/refresh') ||
         req.url.includes('/login') ||
         req.url.includes('/auth/google') ||
-        req.url.includes('/register')
+        req.url.includes('/register') ||
+        req.url.includes('/auth/logout')
       ) {
         return throwError(() => error);
       }
 
       if (error.status === 401) {
-        if (!isRefreshing) {
-          isRefreshing = true;
-          refreshTokenSubject.next(null);
-
-          return authService.refreshToken().pipe(
-            switchMap((res) => {
-              isRefreshing = false;
-              refreshTokenSubject.next(res.token);
-
-              // Retry current request immediately
-              return next(
-                req.clone({
-                  setHeaders: {
-                    Authorization: `Bearer ${res.token}`,
-                  },
-                }),
-              );
-            }),
-            catchError((err) => {
-              isRefreshing = false;
-              authService.logout();
-              return throwError(() => err);
-            }),
-          );
-        } else {
-          // Wait for the ongoing refresh to succeed and retry
-          return refreshTokenSubject.pipe(
-            filter((newToken) => newToken !== null),
-            take(1),
-            switchMap((newToken) => {
-              return next(
-                req.clone({
-                  setHeaders: {
-                    Authorization: `Bearer ${newToken}`,
-                  },
-                }),
-              );
-            }),
-          );
-        }
+        return tokenRefreshService.refreshTokenWithQueue().pipe(
+          switchMap((res) => {
+            return next(
+              req.clone({
+                setHeaders: {
+                  Authorization: `Bearer ${res.token}`,
+                },
+              }),
+            );
+          }),
+          catchError((err) => {
+            authService.logout();
+            return throwError(() => err);
+          }),
+        );
       }
 
       return throwError(() => error);

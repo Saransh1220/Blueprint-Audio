@@ -245,7 +245,13 @@
       >
       <a routerLink="/purchases" routerLinkActive="active" (click)="closeMobileMenu()">Purchases</a>
       <a routerLink="/settings" routerLinkActive="active" (click)="closeMobileMenu()">Settings</a>
-      <a (click)="authService.logout(); closeMobileMenu()" style="cursor: pointer">Logout</a>
+      <button
+        type="button"
+        class="mobile-logout-btn"
+        (click)="authService.logout(); closeMobileMenu()"
+      >
+        Logout
+      </button>
     } @else {
       <a routerLink="/login" (click)="closeMobileMenu()">Log in</a>
     }

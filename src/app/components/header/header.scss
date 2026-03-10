@@ -793,7 +793,8 @@ nav.fixed-navbar {
     align-items: center;
     width: 100%;
 
-    a {
+    a,
+    .mobile-logout-btn {
       font-family: 'Inter', sans-serif;
       font-size: 20px;
       font-weight: 700;
@@ -802,6 +803,10 @@ nav.fixed-navbar {
       color: rgba(var(--text-color-rgb), 0.6);
       text-decoration: none;
       transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      background: none;
+      border: 0;
+      padding: 0;
+      cursor: pointer;
 
       &:hover,
       &.active {

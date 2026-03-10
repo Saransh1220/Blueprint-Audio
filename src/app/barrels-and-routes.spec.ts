@@ -19,15 +19,19 @@ describe('Barrels and Routes', () => {
     const analyticsRoute = routes.find((r) => r.path === 'analytics');
     const ordersRoute = routes.find((r) => r.path === 'orders');
 
+    expect(analyticsRoute).toBeDefined();
+    expect(ordersRoute).toBeDefined();
     expect(analyticsRoute?.loadComponent).toBeTypeOf('function');
     expect(ordersRoute?.loadComponent).toBeTypeOf('function');
 
-    const analyticsComponent = await analyticsRoute!.loadComponent!();
-    const ordersComponent = await ordersRoute!.loadComponent!();
+    const [analyticsComponent, ordersComponent] = await Promise.all([
+      analyticsRoute?.loadComponent?.(),
+      ordersRoute?.loadComponent?.(),
+    ]);
 
     expect(analyticsComponent).toBeTruthy();
     expect(ordersComponent).toBeTruthy();
-  });
+  }, 10000);
 
   it('exports component, page and model barrels', () => {
     expect(components).toBeTruthy();

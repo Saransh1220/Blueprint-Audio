@@ -19,15 +19,17 @@ import { User, UserAdapter, Role } from '../models';
 import { ModalService } from './modal.service';
 import { AuthRequirementComponent } from '../components/modals/auth-requirement/auth-requirement.component';
 import { SocialAuthService } from '@abacritt/angularx-social-login';
+import { TokenRefreshService } from './token-refresh.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class AuthService {
-  private api = inject(ApiService);
-  private router = inject(Router);
-  private modalService = inject(ModalService);
-  private socialAuthService = inject(SocialAuthService);
+  private readonly api = inject(ApiService);
+  private readonly router = inject(Router);
+  private readonly modalService = inject(ModalService);
+  private readonly socialAuthService = inject(SocialAuthService);
+  private readonly tokenRefreshService = inject(TokenRefreshService);
 
   currentUser = signal<User | null>(null);
 
@@ -59,7 +61,8 @@ export class AuthService {
       this.getMe().subscribe();
     } else {
       // No access token; attempt a silent refresh using the HttpOnly refresh cookie
-      this.refreshToken()
+      this.tokenRefreshService
+        .refreshTokenWithQueue()
         .pipe(
           switchMap(() => this.getMe()),
           catchError(() => of(null)), // Refresh failed – user is not authenticated
@@ -72,8 +75,8 @@ export class AuthService {
     return this.api.execute(new LoginRequest(credentials)).pipe(
       tap((res) => {
         localStorage.setItem('token', res.token);
-        this.getMe().subscribe();
       }),
+      switchMap(() => this.getMe()),
     );
   }
 
@@ -81,8 +84,8 @@ export class AuthService {
     return this.api.execute(new GoogleLoginRequest({ token: idToken })).pipe(
       tap((res) => {
         localStorage.setItem('token', res.token);
-        this.getMe().subscribe();
       }),
+      switchMap(() => this.getMe()),
     );
   }
 

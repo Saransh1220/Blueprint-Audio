@@ -7,6 +7,7 @@ import { ApiService } from '../core/services/api.service';
 import { AuthService } from './auth.service';
 import { ModalService } from './modal.service';
 import { AuthRequirementComponent } from '../components/modals/auth-requirement/auth-requirement.component';
+import { TokenRefreshService } from './token-refresh.service';
 
 describe('AuthService', () => {
   beforeEach(() => {
@@ -17,6 +18,7 @@ describe('AuthService', () => {
     const navigate = vi.fn();
     const modalOpen = vi.fn();
     const signOut = vi.fn().mockResolvedValue(undefined);
+    const refreshTokenWithQueue = vi.fn().mockReturnValue(of({ token: 'fresh-token' }));
     const checkSessionSpy = skipInitialSessionCheck
       ? vi.spyOn(AuthService.prototype, 'checkSession').mockImplementation(() => undefined)
       : null;
@@ -28,13 +30,14 @@ describe('AuthService', () => {
         { provide: Router, useValue: { navigate } },
         { provide: ModalService, useValue: { open: modalOpen } },
         { provide: SocialAuthService, useValue: { signOut } },
+        { provide: TokenRefreshService, useValue: { refreshTokenWithQueue } },
       ],
     });
 
     const service = TestBed.inject(AuthService);
     checkSessionSpy?.mockRestore();
 
-    return { service, navigate, modalOpen, signOut };
+    return { service, navigate, modalOpen, signOut, refreshTokenWithQueue };
   }
 
   it('login stores token and triggers getMe', () => {
@@ -73,38 +76,33 @@ describe('AuthService', () => {
 
   it('checkSession only calls getMe when token exists', () => {
     const execute = vi.fn().mockReturnValue(of({}));
-    const { service } = setup(execute);
+    const { service, refreshTokenWithQueue } = setup(execute);
     const getMeSpy = vi.spyOn(service, 'getMe').mockReturnValue(of(null));
-    const refreshTokenSpy = vi
-      .spyOn(service, 'refreshToken')
-      .mockReturnValue(of({ token: 'fresh-token' }));
 
     localStorage.removeItem('token');
     service.checkSession();
-    expect(refreshTokenSpy).toHaveBeenCalledTimes(1);
+    expect(refreshTokenWithQueue).toHaveBeenCalledTimes(1);
     expect(getMeSpy).toHaveBeenCalledTimes(1);
 
     getMeSpy.mockClear();
-    refreshTokenSpy.mockClear();
+    refreshTokenWithQueue.mockClear();
 
     localStorage.setItem('token', 'jwt-token');
     service.checkSession();
     expect(getMeSpy).toHaveBeenCalledTimes(1);
-    expect(refreshTokenSpy).not.toHaveBeenCalled();
+    expect(refreshTokenWithQueue).not.toHaveBeenCalled();
   });
 
   it('checkSession ignores refresh failures when bootstrapping without a token', () => {
     const execute = vi.fn().mockReturnValue(of({}));
-    const { service } = setup(execute);
+    const { service, refreshTokenWithQueue } = setup(execute);
     const getMeSpy = vi.spyOn(service, 'getMe').mockReturnValue(of(null));
-    const refreshTokenSpy = vi
-      .spyOn(service, 'refreshToken')
-      .mockReturnValue(throwError(() => new Error('refresh failed')));
+    refreshTokenWithQueue.mockReturnValueOnce(throwError(() => new Error('refresh failed')));
 
     localStorage.removeItem('token');
     service.checkSession();
 
-    expect(refreshTokenSpy).toHaveBeenCalledTimes(1);
+    expect(refreshTokenWithQueue).toHaveBeenCalledTimes(1);
     expect(getMeSpy).not.toHaveBeenCalled();
     expect(localStorage.getItem('token')).toBeNull();
   });

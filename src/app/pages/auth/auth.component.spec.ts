@@ -96,7 +96,7 @@ describe('AuthComponent', () => {
     component.registerRole = 'producer';
     component.onRegisterSubmit();
     expect(register).toHaveBeenCalled();
-    expect(component.isLoginView).toBe(true);
+    expect(navigate).toHaveBeenCalledWith(['/dashboard']);
 
     register.mockReturnValueOnce(throwError(() => ({ error: { error: 'bad reg' } })));
     component.isLoginView = false;

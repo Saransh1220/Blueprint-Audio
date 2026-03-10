@@ -160,8 +160,7 @@ export class AuthComponent implements OnInit, OnDestroy {
         next: () => {
           this.isLoading.set(false);
           this.toastService.show('Account created successfully!', 'success');
-          // Switch to login view after successful registration
-          this.toggleView(true);
+          this.router.navigate(['/dashboard']);
         },
         error: (err) => {
           this.isLoading.set(false);
