@@ -1,0 +1,90 @@
+<div class="studio-layout">
+  <!-- SIDEBAR -->
+  <aside class="studio-sidebar" [class.mobile-open]="isMobileNavOpen()">
+    <!-- Studio Brand Header -->
+    <div class="sidebar-header">
+      <div class="studio-brand">
+        <i class="fas fa-sliders-h brand-icon"></i>
+        <span class="brand-label">Studio</span>
+      </div>
+    </div>
+
+    <!-- Producer Identity -->
+    <div class="producer-card">
+      <div class="avatar-ring">
+        @if (avatarUrl()) {
+          <img [src]="avatarUrl()" alt="Avatar" class="producer-avatar" />
+        } @else {
+          <div class="avatar-placeholder">
+            <i class="fas fa-user"></i>
+          </div>
+        }
+        <div class="status-dot"></div>
+      </div>
+      <div class="producer-meta">
+        <span class="producer-greeting">{{ greeting() }},</span>
+        <span class="producer-name">{{ displayName() }}</span>
+        <span class="producer-role-badge"> <i class="fas fa-microphone-alt"></i> Producer </span>
+      </div>
+    </div>
+
+    <!-- Divider -->
+    <div class="sidebar-divider"></div>
+
+    <!-- Main Navigation -->
+    <nav class="studio-nav">
+      <span class="nav-section-label">Workspace</span>
+      @for (item of navItems; track item.path) {
+        <a
+          [routerLink]="item.path"
+          routerLinkActive="active"
+          class="nav-item"
+          (click)="closeMobileNav()"
+        >
+          <i [class]="item.icon"></i>
+          <span>{{ item.label }}</span>
+          <div class="nav-active-bar"></div>
+        </a>
+      }
+    </nav>
+
+    <!-- Divider -->
+    <div class="sidebar-divider"></div>
+
+    <!-- Upload CTA -->
+    <div class="upload-cta-section">
+      <a
+        routerLink="upload"
+        routerLinkActive="active"
+        class="upload-cta-btn"
+        (click)="closeMobileNav()"
+      >
+        <i class="fas fa-cloud-upload-alt"></i>
+        <span>Upload Beat</span>
+      </a>
+    </div>
+
+    <!-- Divider -->
+    <div class="sidebar-divider"></div>
+
+    <!-- Bottom Nav -->
+    <nav class="studio-nav studio-nav--bottom">
+      <span class="nav-section-label">Account</span>
+      <a routerLink="profile" routerLinkActive="active" class="nav-item" (click)="closeMobileNav()">
+        <i class="fas fa-user-circle"></i>
+        <span>Profile Settings</span>
+        <div class="nav-active-bar"></div>
+      </a>
+    </nav>
+  </aside>
+
+  <!-- MOBILE OVERLAY -->
+  @if (isMobileNavOpen()) {
+    <div class="sidebar-overlay" (click)="closeMobileNav()"></div>
+  }
+
+  <!-- MAIN CONTENT AREA -->
+  <main class="studio-main">
+    <router-outlet />
+  </main>
+</div>

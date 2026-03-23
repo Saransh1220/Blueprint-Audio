@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { type AfterViewInit, Component, ElementRef, inject, ViewChild } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
+import { Router, RouterOutlet } from '@angular/router';
 import { gsap } from 'gsap';
 import { HeaderComponent } from './components';
 import { CartComponent } from './components/cart/cart.component';
@@ -29,6 +29,7 @@ import { LoadingBarComponent } from './components/loading-bar/loading-bar.compon
 })
 export class AppComponent implements AfterViewInit {
   private el = inject(ElementRef);
+  private router = inject(Router);
 
   @ViewChild(CartComponent) cart!: CartComponent;
 
@@ -76,5 +77,9 @@ export class AppComponent implements AfterViewInit {
     if (this.cart) {
       this.cart.toggle();
     }
+  }
+
+  isStudioRoute(): boolean {
+    return this.router.url.startsWith('/studio');
   }
 }

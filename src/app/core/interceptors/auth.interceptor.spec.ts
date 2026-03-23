@@ -1,7 +1,7 @@
 import { HttpErrorResponse, HttpRequest } from '@angular/common/http';
 import { TestBed } from '@angular/core/testing';
+import { Router } from '@angular/router';
 import { of, Subject, throwError } from 'rxjs';
-import { AuthService } from '../../services/auth.service';
 import { authInterceptor } from './auth.interceptor';
 import { TokenRefreshService } from '../../services/token-refresh.service';
 
@@ -12,8 +12,8 @@ describe('authInterceptor', () => {
   });
 
   function setup() {
-    const authService = {
-      logout: vi.fn(),
+    const router = {
+      navigate: vi.fn(),
     };
     const tokenRefreshService = {
       refreshTokenWithQueue: vi.fn(),
@@ -21,12 +21,12 @@ describe('authInterceptor', () => {
 
     TestBed.configureTestingModule({
       providers: [
-        { provide: AuthService, useValue: authService },
+        { provide: Router, useValue: router },
         { provide: TokenRefreshService, useValue: tokenRefreshService },
       ],
     });
 
-    return { authService, tokenRefreshService };
+    return { router, tokenRefreshService };
   }
 
   it('adds bearer token header when token exists', () => {
@@ -63,7 +63,7 @@ describe('authInterceptor', () => {
   });
 
   it('does not try to refresh auth endpoints after a 401', () => {
-    const { authService, tokenRefreshService } = setup();
+    const { router, tokenRefreshService } = setup();
     localStorage.setItem('token', 'expired-token');
     const req = new HttpRequest('POST', '/login');
     const next = vi.fn(() =>
@@ -80,7 +80,7 @@ describe('authInterceptor', () => {
     });
 
     expect(tokenRefreshService.refreshTokenWithQueue).not.toHaveBeenCalled();
-    expect(authService.logout).not.toHaveBeenCalled();
+    expect(router.navigate).not.toHaveBeenCalled();
     expect(receivedError?.status).toBe(401);
   });
 
@@ -113,7 +113,7 @@ describe('authInterceptor', () => {
   });
 
   it('logs out when token refresh fails', () => {
-    const { authService, tokenRefreshService } = setup();
+    const { router, tokenRefreshService } = setup();
     localStorage.setItem('token', 'expired-token');
     tokenRefreshService.refreshTokenWithQueue.mockReturnValue(
       throwError(() => new Error('refresh failed')),
@@ -134,7 +134,8 @@ describe('authInterceptor', () => {
     });
 
     expect(tokenRefreshService.refreshTokenWithQueue).toHaveBeenCalledTimes(1);
-    expect(authService.logout).toHaveBeenCalledTimes(1);
+    expect(localStorage.getItem('token')).toBeNull();
+    expect(router.navigate).toHaveBeenCalledWith(['/login']);
     expect(receivedError?.message).toBe('refresh failed');
   });
 
@@ -177,7 +178,7 @@ describe('authInterceptor', () => {
   });
 
   it('does not refresh logout failures', () => {
-    const { authService, tokenRefreshService } = setup();
+    const { router, tokenRefreshService } = setup();
     localStorage.setItem('token', 'expired-token');
     const req = new HttpRequest('POST', '/auth/logout');
     const next = vi.fn(() =>
@@ -191,6 +192,6 @@ describe('authInterceptor', () => {
     });
 
     expect(tokenRefreshService.refreshTokenWithQueue).not.toHaveBeenCalled();
-    expect(authService.logout).not.toHaveBeenCalled();
+    expect(router.navigate).not.toHaveBeenCalled();
   });
 });

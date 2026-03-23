@@ -1,9 +1,13 @@
 import { provideHttpClient } from '@angular/common/http';
+import { Component } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideAnimations } from '@angular/platform-browser/animations';
-import { provideRouter } from '@angular/router';
+import { provideRouter, Router } from '@angular/router';
 import { SocialAuthService } from '@abacritt/angularx-social-login';
 import { AppComponent } from './app';
+
+@Component({ template: '', standalone: true })
+class DummyRouteComponent {}
 
 describe('AppComponent', () => {
   let component: AppComponent;
@@ -29,7 +33,12 @@ describe('AppComponent', () => {
     await TestBed.configureTestingModule({
       imports: [AppComponent],
       providers: [
-        provideRouter([]),
+        provideRouter([
+          { path: '', component: DummyRouteComponent },
+          { path: 'studio', component: DummyRouteComponent },
+          { path: 'studio/:tab', component: DummyRouteComponent },
+          { path: 'dashboard', component: DummyRouteComponent },
+        ]),
         provideHttpClient(),
         provideAnimations(),
         { provide: SocialAuthService, useValue: { signOut: vi.fn().mockResolvedValue(undefined) } },
@@ -49,6 +58,28 @@ describe('AppComponent', () => {
     fixture.detectChanges();
     const compiled = fixture.nativeElement as HTMLElement;
     expect(compiled.querySelector('.loader')).toBeTruthy();
+  });
+
+  it('shows footer outside studio and hides it on studio routes', async () => {
+    const router = TestBed.inject(Router);
+
+    await router.navigateByUrl('/');
+    fixture.detectChanges();
+    expect((fixture.nativeElement as HTMLElement).querySelector('app-footer')).toBeTruthy();
+
+    await router.navigateByUrl('/studio');
+    fixture.detectChanges();
+    expect((fixture.nativeElement as HTMLElement).querySelector('app-footer')).toBeNull();
+  });
+
+  it('detects studio routes from the current url', async () => {
+    const router = TestBed.inject(Router);
+
+    await router.navigateByUrl('/studio/analytics');
+    expect(component.isStudioRoute()).toBe(true);
+
+    await router.navigateByUrl('/dashboard');
+    expect(component.isStudioRoute()).toBe(false);
   });
 
   it('toggles cart when cart view child exists', () => {

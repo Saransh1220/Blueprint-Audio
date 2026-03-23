@@ -97,9 +97,9 @@ $themes: (
 
 // --- Global Theme Application ---
 
-// Default (Vampire base theme)
+// Default (Onyx theme for clean minimal aesthetic)
 :root {
-  $c: map.get($themes, 'vampire');
+  $c: map.get($themes, 'onyx');
   @include theme-properties(
     list.nth($c, 1),
     list.nth($c, 2),

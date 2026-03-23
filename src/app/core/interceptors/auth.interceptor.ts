@@ -1,11 +1,15 @@
 import { HttpInterceptorFn, HttpErrorResponse } from '@angular/common/http';
 import { inject } from '@angular/core';
+import { Router } from '@angular/router';
 import { catchError, switchMap, throwError } from 'rxjs';
-import { AuthService } from '../../services/auth.service';
 import { TokenRefreshService } from '../../services/token-refresh.service';
 
+function clearLocalAuthState(): void {
+  localStorage.removeItem('token');
+}
+
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
-  const authService = inject(AuthService);
+  const router = inject(Router);
   const tokenRefreshService = inject(TokenRefreshService);
   const token = localStorage.getItem('token');
 
@@ -43,7 +47,8 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
             );
           }),
           catchError((err) => {
-            authService.logout();
+            clearLocalAuthState();
+            router.navigate(['/login']);
             return throwError(() => err);
           }),
         );

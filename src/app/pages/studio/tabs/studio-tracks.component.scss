@@ -1,0 +1,382 @@
+// Hide footer on studio pages
+app-footer {
+  display: none !important;
+}
+
+.tracks-page {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  width: 100%;
+}
+
+.page-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+
+  .page-title {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: var(--text-color);
+    margin: 0;
+  }
+
+  .page-subtitle {
+    font-size: 0.875rem;
+    color: rgba(var(--text-color-rgb), 0.45);
+    margin: 4px 0 0;
+  }
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  background: var(--brand-color);
+  color: var(--on-brand-color);
+  border-radius: 8px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  box-shadow: 0 2px 12px rgba(var(--brand-color-rgb), 0.3);
+
+  &:hover {
+    filter: brightness(1.1);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 20px rgba(var(--brand-color-rgb), 0.45);
+  }
+}
+
+.view-toggle {
+  display: flex;
+  background: var(--card-bg-color);
+  border: 1px solid var(--line-color);
+  border-radius: 6px;
+  padding: 3px;
+  gap: 2px;
+
+  button {
+    background: transparent;
+    border: none;
+    color: rgba(var(--text-color-rgb), 0.4);
+    width: 32px;
+    height: 32px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 0.8rem;
+    transition: all 0.18s ease;
+
+    &:hover {
+      color: var(--text-color);
+    }
+    &.active {
+      background: var(--brand-color);
+      color: var(--on-brand-color);
+    }
+  }
+}
+
+// ─── TRACKS GRID ─────────────────────────────────────────────────────────────
+.tracks-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 16px;
+
+  @media (max-width: 600px) {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+}
+
+.tracks-list {
+  grid-template-columns: 1fr;
+  gap: 8px;
+
+  .track-card {
+    flex-direction: row;
+    align-items: center;
+    gap: 16px;
+    padding: 10px 16px;
+    border-radius: 10px;
+
+    .track-cover {
+      width: 56px;
+      height: 56px;
+      flex-shrink: 0;
+      border-radius: 8px;
+    }
+
+    .track-info {
+      flex: 1;
+    }
+  }
+}
+
+.track-card {
+  display: flex;
+  flex-direction: column;
+  background: var(--card-bg-color);
+  border: 1px solid var(--line-color);
+  border-radius: 8px;
+  overflow: hidden;
+  transition:
+    box-shadow 0.2s ease,
+    border-color 0.2s ease;
+  cursor: pointer;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+
+  &:hover {
+    border-color: var(--brand-color);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+
+    .track-overlay {
+      opacity: 1;
+    }
+    .play-btn {
+      transform: scale(1);
+    }
+  }
+}
+
+.track-cover {
+  position: relative;
+  aspect-ratio: 1;
+  overflow: hidden;
+  background: var(--line-color);
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.3s ease;
+  }
+
+  &:hover img {
+    transform: scale(1.04);
+  }
+}
+
+.track-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.play-btn {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--brand-color);
+  border: none;
+  color: var(--on-brand-color);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  cursor: pointer;
+  transform: scale(0.8);
+  transition: transform 0.2s ease;
+  box-shadow: 0 4px 16px rgba(var(--brand-color-rgb), 0.5);
+}
+
+.track-info {
+  padding: 12px 14px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+
+  .track-title {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--text-color);
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .track-meta {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+
+    span {
+      font-size: 0.68rem;
+      color: rgba(var(--text-color-rgb), 0.38);
+      display: flex;
+      align-items: center;
+      gap: 3px;
+
+      i {
+        font-size: 0.6rem;
+      }
+    }
+  }
+
+  .track-price {
+    display: flex;
+    align-items: baseline;
+    gap: 4px;
+    margin-top: 2px;
+
+    .price-label {
+      font-size: 0.65rem;
+      color: rgba(var(--text-color-rgb), 0.35);
+    }
+
+    .price-value {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--brand-color);
+      font-family: 'Space Grotesk', sans-serif;
+    }
+  }
+}
+
+.track-actions {
+  display: flex;
+  gap: 4px;
+  padding: 8px 12px 10px;
+
+  .action-btn {
+    width: 30px;
+    height: 30px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75rem;
+    cursor: pointer;
+    text-decoration: none;
+    transition: all 0.18s ease;
+    background: rgba(var(--text-color-rgb), 0.05);
+    color: rgba(var(--text-color-rgb), 0.45);
+    border: 1px solid transparent;
+
+    &:hover {
+      background: rgba(var(--brand-color-rgb), 0.1);
+      color: var(--brand-color);
+      border-color: rgba(var(--brand-color-rgb), 0.2);
+    }
+  }
+}
+
+// ─── SKELETON ────────────────────────────────────────────────────────────────
+.tracks-skeleton {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 16px;
+}
+
+.skeleton-card {
+  background: var(--card-bg-color);
+  border: 1px solid var(--line-color);
+  border-radius: 8px;
+  overflow: hidden;
+
+  .skeleton-img {
+    aspect-ratio: 1;
+    background: linear-gradient(
+      90deg,
+      var(--line-color) 25%,
+      rgba(var(--text-color-rgb), 0.08) 50%,
+      var(--line-color) 75%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+  }
+
+  .skeleton-body {
+    padding: 12px 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+}
+
+.skeleton-line {
+  height: 12px;
+  background: linear-gradient(
+    90deg,
+    var(--line-color) 25%,
+    rgba(var(--text-color-rgb), 0.08) 50%,
+    var(--line-color) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: 6px;
+  width: 80%;
+
+  &--short {
+    width: 50%;
+    height: 10px;
+  }
+}
+
+// ─── EMPTY STATE ─────────────────────────────────────────────────────────────
+.empty-catalog {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  padding: 80px 20px;
+  text-align: center;
+
+  .empty-icon {
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    background: rgba(var(--brand-color-rgb), 0.08);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.75rem;
+    color: var(--brand-color);
+  }
+
+  h2 {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: var(--text-color);
+    margin: 0;
+  }
+
+  p {
+    font-size: 0.875rem;
+    color: rgba(var(--text-color-rgb), 0.4);
+    margin: 0;
+    max-width: 340px;
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}

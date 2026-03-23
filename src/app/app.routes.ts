@@ -13,6 +13,7 @@ import { UploadComponent } from './pages/upload/upload.component';
 import { ProfileComponent } from './pages/profile/profile.component';
 import { StoreComponent } from './pages/store/store.component';
 import { SearchPageComponent } from './pages/search/search.component';
+import { StudioComponent } from './pages/studio/studio.component';
 
 export const routes: Routes = [
   { path: '', component: HomeComponent },
@@ -22,6 +23,60 @@ export const routes: Routes = [
   { path: 'beats/:id', component: SpecDetailsComponent },
   { path: 'login', component: AuthComponent, canActivate: [guestGuard] },
   { path: 'register', component: AuthComponent, canActivate: [guestGuard] },
+
+  // ─── STUDIO (unified producer workspace) ─────────────────────────────────
+  {
+    path: 'studio',
+    component: StudioComponent,
+    canActivate: [authGuard],
+    children: [
+      { path: '', redirectTo: 'overview', pathMatch: 'full' },
+      {
+        path: 'overview',
+        loadComponent: () =>
+          import('./pages/studio/tabs/studio-overview.component').then(
+            (m) => m.StudioOverviewComponent,
+          ),
+      },
+      {
+        path: 'tracks',
+        loadComponent: () =>
+          import('./pages/studio/tabs/studio-tracks.component').then(
+            (m) => m.StudioTracksComponent,
+          ),
+      },
+      {
+        path: 'analytics',
+        loadComponent: () =>
+          import('./pages/studio/tabs/studio-analytics.component').then(
+            (m) => m.StudioAnalyticsComponent,
+          ),
+      },
+      {
+        path: 'orders',
+        loadComponent: () =>
+          import('./pages/studio/tabs/studio-orders.component').then(
+            (m) => m.StudioOrdersComponent,
+          ),
+      },
+      {
+        path: 'upload',
+        loadComponent: () =>
+          import('./pages/studio/tabs/studio-upload.component').then(
+            (m) => m.StudioUploadComponent,
+          ),
+      },
+      {
+        path: 'profile',
+        loadComponent: () =>
+          import('./pages/studio/tabs/studio-profile.component').then(
+            (m) => m.StudioProfileComponent,
+          ),
+      },
+    ],
+  },
+
+  // ─── Legacy routes (kept for backward compatibility) ───────────────────
   { path: 'dashboard', component: DashboardComponent, canActivate: [authGuard] },
   { path: 'upload', component: UploadComponent, canActivate: [authGuard] },
   { path: 'purchases', component: PurchasesComponent, canActivate: [authGuard] },

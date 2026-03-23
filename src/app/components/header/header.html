@@ -31,7 +31,11 @@
       >
       <a routerLink="/battles" routerLinkActive="active">Battles</a>
       @if (authService.currentUser()) {
-        <a routerLink="/dashboard" routerLinkActive="active">Dashboard</a>
+        @if (authService.currentUser()?.role === Role.PRODUCER) {
+          <a routerLink="/studio" routerLinkActive="active">Studio</a>
+        } @else {
+          <a routerLink="/dashboard" routerLinkActive="active">Dashboard</a>
+        }
       }
     </div>
 
@@ -235,7 +239,13 @@
     <a routerLink="/battles" routerLinkActive="active" (click)="closeMobileMenu()">Battles</a>
 
     @if (authService.currentUser()) {
-      <a routerLink="/dashboard" routerLinkActive="active" (click)="closeMobileMenu()">Dashboard</a>
+      @if (authService.currentUser()?.role === Role.PRODUCER) {
+        <a routerLink="/studio" routerLinkActive="active" (click)="closeMobileMenu()">Studio</a>
+      } @else {
+        <a routerLink="/dashboard" routerLinkActive="active" (click)="closeMobileMenu()"
+          >Dashboard</a
+        >
+      }
       <a routerLink="/profile" routerLinkActive="active" (click)="closeMobileMenu()">Profile</a>
       <a
         [routerLink]="['/store', authService.currentUser()?.id]"

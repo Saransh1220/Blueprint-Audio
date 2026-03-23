@@ -1,0 +1,89 @@
+<div class="tracks-page">
+  <div class="page-header">
+    <div class="header-left">
+      <h1 class="page-title">My Tracks</h1>
+      <p class="page-subtitle">
+        @if (!isLoading()) {
+          {{ trackCount() }} {{ trackCount() === 1 ? 'beat' : 'beats' }} in your catalog
+        } @else {
+          Loading your catalog...
+        }
+      </p>
+    </div>
+    <div class="header-actions">
+      <div class="view-toggle">
+        <button [class.active]="viewMode() === 'grid'" (click)="setView('grid')" title="Grid view">
+          <i class="fas fa-th"></i>
+        </button>
+        <button [class.active]="viewMode() === 'list'" (click)="setView('list')" title="List view">
+          <i class="fas fa-list"></i>
+        </button>
+      </div>
+      <a routerLink="../upload" class="btn-primary">
+        <i class="fas fa-cloud-upload-alt"></i>
+        Upload Beat
+      </a>
+    </div>
+  </div>
+
+  @if (isLoading()) {
+    <div class="tracks-skeleton">
+      @for (i of [1, 2, 3, 4, 5, 6]; track i) {
+        <div class="skeleton-card">
+          <div class="skeleton-img"></div>
+          <div class="skeleton-body">
+            <div class="skeleton-line"></div>
+            <div class="skeleton-line skeleton-line--short"></div>
+          </div>
+        </div>
+      }
+    </div>
+  } @else if (tracks().length === 0) {
+    <div class="empty-catalog">
+      <div class="empty-icon">
+        <i class="fas fa-headphones-alt"></i>
+      </div>
+      <h2>No beats yet</h2>
+      <p>Start building your catalog. Upload your first beat to get started.</p>
+      <a routerLink="../upload" class="btn-primary">
+        <i class="fas fa-cloud-upload-alt"></i>
+        Upload Your First Beat
+      </a>
+    </div>
+  } @else {
+    <div class="tracks-grid" [class.tracks-list]="viewMode() === 'list'">
+      @for (track of tracks(); track track.id) {
+        <div class="track-card">
+          <div class="track-cover">
+            <img [src]="track.imageUrl || 'assets/images/placeholder.jpg'" [alt]="track.title" />
+            <div class="track-overlay">
+              <button class="play-btn">
+                <i class="fas fa-play"></i>
+              </button>
+            </div>
+          </div>
+          <div class="track-info">
+            <span class="track-title">{{ track.title }}</span>
+            <div class="track-meta">
+              @if (track.bpm) {
+                <span><i class="fas fa-tachometer-alt"></i> {{ track.bpm }} BPM</span>
+              }
+              @if (track.key) {
+                <span><i class="fas fa-music"></i> {{ track.key }}</span>
+              }
+            </div>
+            <div class="track-price">
+              <span class="price-label">Starting at</span>
+              <span class="price-value">₹{{ track.price | number }}</span>
+            </div>
+          </div>
+          <div class="track-actions">
+            <a [routerLink]="['/beats', track.id]" class="action-btn" title="View">
+              <i class="fas fa-external-link-alt"></i>
+            </a>
+          </div>
+        </div>
+      }
+    </div>
+  }
+</div>

@@ -1,0 +1,188 @@
+<div class="overview-page">
+  <!-- PAGE HEADER -->
+  <div class="page-header">
+    <div class="header-left">
+      <h1 class="page-title">Overview</h1>
+      <p class="page-subtitle">Your studio at a glance — last 30 days</p>
+    </div>
+    <div class="header-actions">
+      <a routerLink="../upload" class="btn-primary">
+        <i class="fas fa-cloud-upload-alt"></i>
+        Upload Beat
+      </a>
+    </div>
+  </div>
+
+  <!-- KPI CARDS -->
+  <section class="kpi-section">
+    @for (card of kpiCards(); track card.label) {
+      <div class="kpi-card" [class]="'kpi-card--' + card.color">
+        <div class="kpi-icon-wrap">
+          <i [class]="card.icon"></i>
+        </div>
+        <div class="kpi-body">
+          <span class="kpi-label">{{ card.label }}</span>
+          @if (isLoadingAnalytics()) {
+            <span class="kpi-value kpi-value--loading">
+              <span class="skeleton-line"></span>
+            </span>
+          } @else {
+            <span class="kpi-value">{{ card.value }}</span>
+          }
+          <span class="kpi-delta">{{ card.delta }}</span>
+        </div>
+      </div>
+    }
+  </section>
+
+  <!-- QUICK ACTIONS -->
+  <section class="quick-actions-section">
+    <h2 class="section-title">Quick Actions</h2>
+    <div class="quick-actions-grid">
+      <a routerLink="../upload" class="action-card">
+        <div class="action-icon action-icon--upload">
+          <i class="fas fa-cloud-upload-alt"></i>
+        </div>
+        <div class="action-body">
+          <span class="action-label">Upload Beat</span>
+          <span class="action-desc">Add a new track to your catalog</span>
+        </div>
+        <i class="fas fa-chevron-right action-arrow"></i>
+      </a>
+      <a routerLink="../analytics" class="action-card">
+        <div class="action-icon action-icon--analytics">
+          <i class="fas fa-chart-line"></i>
+        </div>
+        <div class="action-body">
+          <span class="action-label">Full Analytics</span>
+          <span class="action-desc">Deep-dive into plays, revenue & downloads</span>
+        </div>
+        <i class="fas fa-chevron-right action-arrow"></i>
+      </a>
+      <a routerLink="../orders" class="action-card">
+        <div class="action-icon action-icon--orders">
+          <i class="fas fa-receipt"></i>
+        </div>
+        <div class="action-body">
+          <span class="action-label">View Orders</span>
+          <span class="action-desc">Track all your beat sales & licenses</span>
+        </div>
+        <i class="fas fa-chevron-right action-arrow"></i>
+      </a>
+      <a routerLink="../profile" class="action-card">
+        <div class="action-icon action-icon--profile">
+          <i class="fas fa-user-circle"></i>
+        </div>
+        <div class="action-body">
+          <span class="action-label">Edit Profile</span>
+          <span class="action-desc">Update bio, avatar & social links</span>
+        </div>
+        <i class="fas fa-chevron-right action-arrow"></i>
+      </a>
+    </div>
+  </section>
+
+  <!-- BOTTOM PANELS: Top Tracks + Recent Orders -->
+  <div class="bottom-panels">
+    <!-- TOP TRACKS -->
+    <section class="panel">
+      <div class="panel-header">
+        <h2 class="panel-title">
+          <i class="fas fa-fire-alt"></i>
+          Top Tracks
+        </h2>
+        <a routerLink="../analytics" class="panel-link"
+          >See Analytics <i class="fas fa-arrow-right"></i
+        ></a>
+      </div>
+      <div class="panel-body">
+        @if (isLoadingAnalytics()) {
+          @for (i of [1, 2, 3]; track i) {
+            <div class="track-row track-row--skeleton">
+              <div class="skeleton-block skeleton-block--sm"></div>
+              <div class="skeleton-lines">
+                <div class="skeleton-line"></div>
+                <div class="skeleton-line skeleton-line--short"></div>
+              </div>
+            </div>
+          }
+        } @else if (topSpecs().length === 0) {
+          <div class="empty-state">
+            <i class="fas fa-music"></i>
+            <p>No track data yet. Upload your first beat!</p>
+            <a routerLink="../upload" class="btn-primary btn-primary--sm">Upload</a>
+          </div>
+        } @else {
+          @for (spec of topSpecs(); track spec.spec_id; let i = $index) {
+            <div class="track-row">
+              <span class="track-rank">#{{ i + 1 }}</span>
+              <div class="track-info">
+                <span class="track-title">{{ spec.title }}</span>
+                <div class="track-stats">
+                  <span><i class="fas fa-play"></i> {{ spec.plays }}</span>
+                  <span><i class="fas fa-download"></i> {{ spec.downloads }}</span>
+                  <span><i class="fas fa-rupee-sign"></i> {{ spec.revenue }}</span>
+                </div>
+              </div>
+              <div class="track-bar-wrap">
+                <div
+                  class="track-bar"
+                  [style.width.%]="
+                    topSpecs().length ? (spec.plays / (topSpecs()[0].plays || 1)) * 100 : 0
+                  "
+                ></div>
+              </div>
+            </div>
+          }
+        }
+      </div>
+    </section>
+
+    <!-- RECENT ORDERS -->
+    <section class="panel">
+      <div class="panel-header">
+        <h2 class="panel-title">
+          <i class="fas fa-receipt"></i>
+          Recent Orders
+        </h2>
+        <a routerLink="../orders" class="panel-link">View All <i class="fas fa-arrow-right"></i></a>
+      </div>
+      <div class="panel-body">
+        @if (isLoadingOrders()) {
+          @for (i of [1, 2, 3]; track i) {
+            <div class="order-row order-row--skeleton">
+              <div class="skeleton-lines">
+                <div class="skeleton-line"></div>
+                <div class="skeleton-line skeleton-line--short"></div>
+              </div>
+              <div class="skeleton-block skeleton-block--xs"></div>
+            </div>
+          }
+        } @else if (recentOrders().length === 0) {
+          <div class="empty-state">
+            <i class="fas fa-box-open"></i>
+            <p>No orders yet. Keep promoting your beats!</p>
+          </div>
+        } @else {
+          @for (order of recentOrders(); track order.id) {
+            <div class="order-row">
+              <div class="order-info">
+                <span class="order-track">{{ order.spec_title }}</span>
+                <span class="order-meta">
+                  {{ order.buyer_name }} &middot; {{ order.license_type }} &middot;
+                  {{ order.created_at | date: 'mediumDate' }}
+                </span>
+              </div>
+              <div class="order-right">
+                <span class="order-amount">₹{{ order.amount | number }}</span>
+                <span class="order-status" [class]="'order-status--' + order.status">
+                  {{ order.status }}
+                </span>
+              </div>
+            </div>
+          }
+        }
+      </div>
+    </section>
+  </div>
+</div>

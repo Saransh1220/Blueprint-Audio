@@ -141,4 +141,6 @@
 <app-player></app-player>
 <app-modal></app-modal>
 <app-toast></app-toast>
-<app-footer></app-footer>
+@if (!isStudioRoute()) {
+  <app-footer></app-footer>
+}
