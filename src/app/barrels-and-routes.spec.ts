@@ -11,6 +11,9 @@ describe('Barrels and Routes', () => {
     expect(paths).toContain('search');
     expect(paths).toContain('studio');
     expect(paths).toContain('dashboard');
+    expect(paths).toContain('verify-email');
+    expect(paths).toContain('forgot-password');
+    expect(paths).toContain('reset-password');
     expect(paths).toContain('upload');
     expect(paths).toContain('analytics');
     expect(paths).toContain('**');

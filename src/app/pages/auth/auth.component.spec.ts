@@ -96,7 +96,9 @@ describe('AuthComponent', () => {
     component.registerRole = 'producer';
     component.onRegisterSubmit();
     expect(register).toHaveBeenCalled();
-    expect(navigate).toHaveBeenCalledWith(['/dashboard']);
+    expect(navigate).toHaveBeenCalledWith(['/verify-email'], {
+      queryParams: { email: 'a@b.com' },
+    });
 
     register.mockReturnValueOnce(throwError(() => ({ error: { error: 'bad reg' } })));
     component.isLoginView = false;
@@ -112,5 +114,22 @@ describe('AuthComponent', () => {
     expect(show).toHaveBeenCalledWith('Google Login failed: gfail', 'error');
 
     component.ngOnDestroy();
+  });
+
+  it('routes unverified logins into the verification screen and opens forgot-password flow', () => {
+    const component = create();
+    login.mockReturnValueOnce(throwError(() => ({ error: { error: 'email not verified' } })));
+    component.loginEmail = 'u@test.com';
+    component.loginPassword = 'secret';
+    component.onLoginSubmit();
+
+    expect(navigate).toHaveBeenCalledWith(['/verify-email'], {
+      queryParams: { email: 'u@test.com' },
+    });
+
+    component.goToForgotPassword();
+    expect(navigate).toHaveBeenCalledWith(['/forgot-password'], {
+      queryParams: { email: 'u@test.com' },
+    });
   });
 });

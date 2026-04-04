@@ -117,6 +117,13 @@ export class AuthComponent implements OnInit, OnDestroy {
         },
         error: (err) => {
           this.isLoading.set(false);
+          if (err.error?.error === 'email not verified') {
+            this.toastService.show('Verify your email before signing in.', 'error');
+            this.router.navigate(['/verify-email'], {
+              queryParams: { email: this.loginEmail },
+            });
+            return;
+          }
           this.toastService.show(
             'Login failed: ' + (err.error?.error || 'Invalid credentials'),
             'error',
@@ -159,8 +166,13 @@ export class AuthComponent implements OnInit, OnDestroy {
       .subscribe({
         next: () => {
           this.isLoading.set(false);
-          this.toastService.show('Account created successfully!', 'success');
-          this.router.navigate(['/dashboard']);
+          this.toastService.show(
+            'Account created. Check your inbox for the verification code.',
+            'success',
+          );
+          this.router.navigate(['/verify-email'], {
+            queryParams: { email: this.registerEmail },
+          });
         },
         error: (err) => {
           this.isLoading.set(false);
@@ -170,5 +182,11 @@ export class AuthComponent implements OnInit, OnDestroy {
           );
         },
       });
+  }
+
+  goToForgotPassword() {
+    this.router.navigate(['/forgot-password'], {
+      queryParams: { email: this.loginEmail || undefined },
+    });
   }
 }

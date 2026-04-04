@@ -15,6 +15,7 @@ export interface PublicUserResponse {
   name: string;
   display_name?: string;
   role: string;
+  email_verified?: boolean;
   bio?: string;
   avatar_url?: string;
   instagram_url?: string;
@@ -22,6 +23,7 @@ export interface PublicUserResponse {
   youtube_url?: string;
   spotify_url?: string;
   created_at: string;
+  updated_at?: string;
 }
 
 export class UpdateProfileRequest implements ApiRequest<PublicUserResponse> {

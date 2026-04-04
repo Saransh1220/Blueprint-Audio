@@ -1,0 +1,92 @@
+<section class="auth-flow-page">
+  <div class="auth-flow-shell">
+    <aside class="auth-flow-aside">
+      <div class="auth-flow-badge">Verification Relay</div>
+      <div class="auth-flow-aside-copy">
+        <h1>Seal the session before the first beat drops.</h1>
+        <p>
+          Enter the six-digit code from your inbox to unlock the dashboard, payments, and downloads.
+        </p>
+      </div>
+      <div class="auth-flow-code-ribbon">
+        <span>0</span>
+        <span>1</span>
+        <span>9</span>
+        <span>6</span>
+      </div>
+    </aside>
+
+    <div class="auth-flow-panel">
+      <div class="auth-flow-topline">
+        <span>Blueprint account security</span>
+        <a routerLink="/login">Back to login</a>
+      </div>
+
+      <div class="auth-flow-heading">
+        <h2>Verify your email</h2>
+        <p>
+          We emailed a short verification code. Paste it here, or request a fresh one if the first
+          message expired.
+        </p>
+      </div>
+
+      <div class="auth-flow-note">
+        If you clicked from the email link, the code may already be prefilled for you.
+      </div>
+
+      <form class="auth-flow-form" (ngSubmit)="onVerifySubmit()">
+        <div class="auth-flow-group">
+          <label for="verify-email">Email</label>
+          <input
+            id="verify-email"
+            type="email"
+            name="email"
+            [(ngModel)]="email"
+            placeholder="name@example.com"
+            required
+          />
+        </div>
+
+        <div class="auth-flow-group">
+          <label for="verify-code">Verification code</label>
+          <input
+            id="verify-code"
+            type="text"
+            name="code"
+            [(ngModel)]="code"
+            placeholder="123456"
+            maxlength="6"
+            required
+          />
+        </div>
+
+        <div class="auth-flow-actions">
+          <button class="auth-flow-primary" type="submit" [disabled]="isSubmitting()">
+            @if (isSubmitting()) {
+              <app-loading-spinner size="18px" color="var(--bg-color)" />
+            } @else {
+              Verify email
+            }
+          </button>
+          <button
+            class="auth-flow-secondary"
+            type="button"
+            (click)="onResendCode()"
+            [disabled]="isResending()"
+          >
+            @if (isResending()) {
+              Sending...
+            } @else {
+              Resend code
+            }
+          </button>
+        </div>
+      </form>
+
+      <div class="auth-flow-links">
+        <a routerLink="/register">Need a different account?</a>
+        <a routerLink="/forgot-password">Trying to reset a password instead?</a>
+      </div>
+    </div>
+  </div>
+</section>

@@ -9,6 +9,10 @@ import {
   GoogleLoginRequest,
   RefreshRequest,
   LogoutApiRequest,
+  VerifyEmailApiRequest,
+  ResendVerificationApiRequest,
+  ForgotPasswordApiRequest,
+  ResetPasswordApiRequest,
 } from '../core/api/auth.requests';
 import {
   UpdateProfileRequest,
@@ -96,12 +100,23 @@ export class AuthService {
     display_name?: string;
     role: string;
   }) {
-    return this.api.execute(new RegisterRequest(data)).pipe(
-      switchMap(() => {
-        // Automatically login and return the login observable
-        return this.login({ email: data.email, password: data.password });
-      }),
-    );
+    return this.api.execute(new RegisterRequest(data));
+  }
+
+  verifyEmail(payload: { email: string; code: string }) {
+    return this.api.execute(new VerifyEmailApiRequest(payload));
+  }
+
+  resendVerification(email: string) {
+    return this.api.execute(new ResendVerificationApiRequest({ email }));
+  }
+
+  forgotPassword(email: string) {
+    return this.api.execute(new ForgotPasswordApiRequest({ email }));
+  }
+
+  resetPassword(payload: { email: string; code: string; new_password: string }) {
+    return this.api.execute(new ResetPasswordApiRequest(payload));
   }
 
   updateProfile(data: {
@@ -134,6 +149,7 @@ export class AuthService {
       display_name: response.display_name || null,
       email: '', // Not included in public response
       role: response.role as Role,
+      email_verified: response.email_verified ?? true,
       bio: response.bio || null,
       avatar_url: response.avatar_url || null,
       instagram_url: response.instagram_url || null,
@@ -141,6 +157,7 @@ export class AuthService {
       youtube_url: response.youtube_url || null,
       spotify_url: response.spotify_url || null,
       created_at: response.created_at,
+      updated_at: response.updated_at,
     };
   }
 

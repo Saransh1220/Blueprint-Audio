@@ -14,6 +14,9 @@ import { ProfileComponent } from './pages/profile/profile.component';
 import { StoreComponent } from './pages/store/store.component';
 import { SearchPageComponent } from './pages/search/search.component';
 import { StudioComponent } from './pages/studio/studio.component';
+import { VerifyEmailComponent } from './pages/auth/verify-email/verify-email.component';
+import { ForgotPasswordComponent } from './pages/auth/forgot-password/forgot-password.component';
+import { ResetPasswordComponent } from './pages/auth/reset-password/reset-password.component';
 
 export const routes: Routes = [
   { path: '', component: HomeComponent },
@@ -23,6 +26,9 @@ export const routes: Routes = [
   { path: 'beats/:id', component: SpecDetailsComponent },
   { path: 'login', component: AuthComponent, canActivate: [guestGuard] },
   { path: 'register', component: AuthComponent, canActivate: [guestGuard] },
+  { path: 'verify-email', component: VerifyEmailComponent, canActivate: [guestGuard] },
+  { path: 'forgot-password', component: ForgotPasswordComponent, canActivate: [guestGuard] },
+  { path: 'reset-password', component: ResetPasswordComponent, canActivate: [guestGuard] },
 
   // ─── STUDIO (unified producer workspace) ─────────────────────────────────
   {
