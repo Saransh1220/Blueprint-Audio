@@ -6,6 +6,7 @@ export interface UserApiResponse {
   name: string;
   display_name?: string;
   role: Role;
+  email_verified?: boolean;
   bio?: string;
   avatar_url?: string;
   instagram_url?: string;

@@ -51,16 +51,29 @@ describe('AuthService', () => {
     expect(getMeSpy).toHaveBeenCalledTimes(1);
   });
 
-  it('register chains into login', () => {
+  it('register calls the api without auto-login', () => {
     const execute = vi.fn().mockReturnValue(of({}));
     const { service } = setup(execute);
-    const loginSpy = vi.spyOn(service, 'login').mockReturnValue(of({ token: 'x' } as never));
 
     service
       .register({ email: 'u@test.com', password: 'pw', name: 'User', role: Role.ARTIST })
       .subscribe();
 
-    expect(loginSpy).toHaveBeenCalledWith({ email: 'u@test.com', password: 'pw' });
+    expect(execute).toHaveBeenCalledTimes(1);
+  });
+
+  it('exposes verification and password recovery helpers', () => {
+    const execute = vi.fn().mockReturnValue(of({ message: 'ok' }));
+    const { service } = setup(execute);
+
+    service.verifyEmail({ email: 'u@test.com', code: '123456' }).subscribe();
+    service.resendVerification('u@test.com').subscribe();
+    service.forgotPassword('u@test.com').subscribe();
+    service
+      .resetPassword({ email: 'u@test.com', code: '123456', new_password: 'newpassword123' })
+      .subscribe();
+
+    expect(execute).toHaveBeenCalledTimes(4);
   });
 
   it('googleLogin stores token and triggers getMe', () => {

@@ -5,6 +5,10 @@ interface LoginResponse {
   token: string;
 }
 
+interface AuthMessageResponse {
+  message: string;
+}
+
 export class LoginRequest implements ApiRequest<LoginResponse> {
   readonly path = '/login';
   readonly method: HttpMethod = 'POST';
@@ -51,4 +55,42 @@ export class LogoutApiRequest implements ApiRequest<void> {
   readonly path = '/auth/logout';
   readonly method: HttpMethod = 'POST';
   readonly _responseType?: void;
+}
+
+export class VerifyEmailApiRequest implements ApiRequest<AuthMessageResponse> {
+  readonly path = '/auth/verify-email';
+  readonly method: HttpMethod = 'POST';
+  readonly _responseType?: AuthMessageResponse;
+
+  constructor(public body: { email: string; code: string }) {}
+}
+
+export class ResendVerificationApiRequest implements ApiRequest<AuthMessageResponse> {
+  readonly path = '/auth/resend-verification';
+  readonly method: HttpMethod = 'POST';
+  readonly _responseType?: AuthMessageResponse;
+
+  constructor(public body: { email: string }) {}
+}
+
+export class ForgotPasswordApiRequest implements ApiRequest<AuthMessageResponse> {
+  readonly path = '/auth/forgot-password';
+  readonly method: HttpMethod = 'POST';
+  readonly _responseType?: AuthMessageResponse;
+
+  constructor(public body: { email: string }) {}
+}
+
+export class ResetPasswordApiRequest implements ApiRequest<AuthMessageResponse> {
+  readonly path = '/auth/reset-password';
+  readonly method: HttpMethod = 'POST';
+  readonly _responseType?: AuthMessageResponse;
+
+  constructor(
+    public body: {
+      email: string;
+      code: string;
+      new_password: string;
+    },
+  ) {}
 }

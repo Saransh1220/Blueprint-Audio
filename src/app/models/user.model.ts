@@ -6,6 +6,7 @@ export interface User {
   name: string;
   display_name?: string | null;
   role: Role;
+  email_verified?: boolean;
   bio?: string | null;
   avatar_url?: string | null;
   instagram_url?: string | null;
@@ -13,4 +14,5 @@ export interface User {
   youtube_url?: string | null;
   spotify_url?: string | null;
   created_at: string;
+  updated_at?: string;
 }

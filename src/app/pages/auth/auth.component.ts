@@ -28,7 +28,10 @@ export class AuthComponent implements OnInit, OnDestroy {
 
   isLoginView = true;
   isLoading = signal(false);
+  showPassword = false;
 
+  readonly heroImageSrc =
+    'https://images.unsplash.com/photo-1642615835477-d303d7dc9ee9?w=2160&q=80';
   // Login Form Data
   loginEmail = '';
   loginPassword = '';
@@ -87,6 +90,20 @@ export class AuthComponent implements OnInit, OnDestroy {
     }
   }
 
+  get pageTitle() {
+    return this.isLoginView ? 'Welcome back' : 'Create your account';
+  }
+
+  get pageDescription() {
+    return this.isLoginView
+      ? 'Access your account and continue your journey with us.'
+      : 'Set up your account and start sharing your sound.';
+  }
+
+  get submitLabel() {
+    return this.isLoginView ? 'Sign In' : 'Create Account';
+  }
+
   toggleView(isLogin: boolean) {
     if (this.isLoginView === isLogin) return;
 
@@ -95,6 +112,10 @@ export class AuthComponent implements OnInit, OnDestroy {
     // Update URL without reloading
     const url = isLogin ? '/login' : '/register';
     this.location.go(url);
+  }
+
+  togglePasswordVisibility() {
+    this.showPassword = !this.showPassword;
   }
 
   onLoginSubmit() {
@@ -117,6 +138,13 @@ export class AuthComponent implements OnInit, OnDestroy {
         },
         error: (err) => {
           this.isLoading.set(false);
+          if (err.error?.error === 'email not verified') {
+            this.toastService.show('Verify your email before signing in.', 'error');
+            this.router.navigate(['/verify-email'], {
+              queryParams: { email: this.loginEmail },
+            });
+            return;
+          }
           this.toastService.show(
             'Login failed: ' + (err.error?.error || 'Invalid credentials'),
             'error',
@@ -159,8 +187,13 @@ export class AuthComponent implements OnInit, OnDestroy {
       .subscribe({
         next: () => {
           this.isLoading.set(false);
-          this.toastService.show('Account created successfully!', 'success');
-          this.router.navigate(['/dashboard']);
+          this.toastService.show(
+            'Account created. Check your inbox for the verification code.',
+            'success',
+          );
+          this.router.navigate(['/verify-email'], {
+            queryParams: { email: this.registerEmail },
+          });
         },
         error: (err) => {
           this.isLoading.set(false);
@@ -170,5 +203,11 @@ export class AuthComponent implements OnInit, OnDestroy {
           );
         },
       });
+  }
+
+  goToForgotPassword() {
+    this.router.navigate(['/forgot-password'], {
+      queryParams: { email: this.loginEmail || undefined },
+    });
   }
 }

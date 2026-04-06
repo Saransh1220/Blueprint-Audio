@@ -30,6 +30,10 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
         req.url.includes('/login') ||
         req.url.includes('/auth/google') ||
         req.url.includes('/register') ||
+        req.url.includes('/auth/verify-email') ||
+        req.url.includes('/auth/resend-verification') ||
+        req.url.includes('/auth/forgot-password') ||
+        req.url.includes('/auth/reset-password') ||
         req.url.includes('/auth/logout')
       ) {
         return throwError(() => error);
