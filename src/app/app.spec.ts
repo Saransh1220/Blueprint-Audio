@@ -35,6 +35,8 @@ describe('AppComponent', () => {
       providers: [
         provideRouter([
           { path: '', component: DummyRouteComponent },
+          { path: 'login', component: DummyRouteComponent },
+          { path: 'register', component: DummyRouteComponent },
           { path: 'studio', component: DummyRouteComponent },
           { path: 'studio/:tab', component: DummyRouteComponent },
           { path: 'dashboard', component: DummyRouteComponent },
@@ -60,12 +62,16 @@ describe('AppComponent', () => {
     expect(compiled.querySelector('.loader')).toBeTruthy();
   });
 
-  it('shows footer outside studio and hides it on studio routes', async () => {
+  it('shows footer on normal pages and hides it on studio/auth routes', async () => {
     const router = TestBed.inject(Router);
 
     await router.navigateByUrl('/');
     fixture.detectChanges();
     expect((fixture.nativeElement as HTMLElement).querySelector('app-footer')).toBeTruthy();
+
+    await router.navigateByUrl('/login');
+    fixture.detectChanges();
+    expect((fixture.nativeElement as HTMLElement).querySelector('app-footer')).toBeNull();
 
     await router.navigateByUrl('/studio');
     fixture.detectChanges();
@@ -80,6 +86,16 @@ describe('AppComponent', () => {
 
     await router.navigateByUrl('/dashboard');
     expect(component.isStudioRoute()).toBe(false);
+  });
+
+  it('detects auth routes from the current url', async () => {
+    const router = TestBed.inject(Router);
+
+    await router.navigateByUrl('/register');
+    expect(component.isAuthRoute()).toBe(true);
+
+    await router.navigateByUrl('/dashboard');
+    expect(component.isAuthRoute()).toBe(false);
   });
 
   it('toggles cart when cart view child exists', () => {

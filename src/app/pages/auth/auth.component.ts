@@ -28,7 +28,10 @@ export class AuthComponent implements OnInit, OnDestroy {
 
   isLoginView = true;
   isLoading = signal(false);
+  showPassword = false;
 
+  readonly heroImageSrc =
+    'https://images.unsplash.com/photo-1642615835477-d303d7dc9ee9?w=2160&q=80';
   // Login Form Data
   loginEmail = '';
   loginPassword = '';
@@ -87,6 +90,20 @@ export class AuthComponent implements OnInit, OnDestroy {
     }
   }
 
+  get pageTitle() {
+    return this.isLoginView ? 'Welcome back' : 'Create your account';
+  }
+
+  get pageDescription() {
+    return this.isLoginView
+      ? 'Access your account and continue your journey with us.'
+      : 'Set up your account and start sharing your sound.';
+  }
+
+  get submitLabel() {
+    return this.isLoginView ? 'Sign In' : 'Create Account';
+  }
+
   toggleView(isLogin: boolean) {
     if (this.isLoginView === isLogin) return;
 
@@ -95,6 +112,10 @@ export class AuthComponent implements OnInit, OnDestroy {
     // Update URL without reloading
     const url = isLogin ? '/login' : '/register';
     this.location.go(url);
+  }
+
+  togglePasswordVisibility() {
+    this.showPassword = !this.showPassword;
   }
 
   onLoginSubmit() {

@@ -82,4 +82,14 @@ export class AppComponent implements AfterViewInit {
   isStudioRoute(): boolean {
     return this.router.url.startsWith('/studio');
   }
+
+  isAuthRoute(): boolean {
+    return (
+      this.router.url.startsWith('/login') ||
+      this.router.url.startsWith('/register') ||
+      this.router.url.startsWith('/verify-email') ||
+      this.router.url.startsWith('/forgot-password') ||
+      this.router.url.startsWith('/reset-password')
+    );
+  }
 }
