@@ -101,19 +101,29 @@ export class StudioOrdersComponent {
   formatDate(dateStr: string): string {
     try {
       return new Date(dateStr).toLocaleDateString('en-IN', { month: 'short', day: 'numeric' });
-    } catch { return ''; }
+    } catch {
+      return '';
+    }
   }
 
   formatTime(dateStr: string): string {
     try {
       return new Date(dateStr).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' });
-    } catch { return ''; }
+    } catch {
+      return '';
+    }
   }
 
   buyerColor(name: string): string {
-    const colors = ['var(--hot)', 'var(--cobalt)', 'var(--lime)', 'var(--sun)', 'var(--lavender)', 'var(--tangerine)'];
+    const colors = [
+      'var(--hot)',
+      'var(--cobalt)',
+      'var(--lime)',
+      'var(--sun)',
+      'var(--lavender)',
+      'var(--tangerine)',
+    ];
     const idx = (name.charCodeAt(0) || 0) % colors.length;
     return colors[idx];
   }
 }
-

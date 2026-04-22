@@ -9,7 +9,12 @@
         <i class="fas fa-eye"></i>
         View public
       </button>
-      <button type="button" class="btn dark" (click)="saveProfile()" [disabled]="!profileForm.dirty || isSaving()">
+      <button
+        type="button"
+        class="btn dark"
+        (click)="saveProfile()"
+        [disabled]="!profileForm.dirty || isSaving()"
+      >
         @if (isSaving()) {
           Saving...
         } @else {
@@ -22,14 +27,34 @@
   <div class="completeness">
     <div class="cmp-ring">
       <svg viewBox="0 0 56 56">
-        <circle cx="28" cy="28" r="22" fill="none" stroke="rgba(245,241,232,0.2)" stroke-width="5"/>
-        <circle cx="28" cy="28" r="22" fill="none" stroke="var(--lime)" stroke-width="5" stroke-linecap="round" stroke-dasharray="138 138" stroke-dashoffset="28"/>
+        <circle
+          cx="28"
+          cy="28"
+          r="22"
+          fill="none"
+          stroke="rgba(245,241,232,0.2)"
+          stroke-width="5"
+        />
+        <circle
+          cx="28"
+          cy="28"
+          r="22"
+          fill="none"
+          stroke="var(--lime)"
+          stroke-width="5"
+          stroke-linecap="round"
+          stroke-dasharray="138 138"
+          stroke-dashoffset="28"
+        />
       </svg>
       <div class="cmp-pct">80%</div>
     </div>
     <div class="cmp-text">
       <h5>Profile <em>80%</em> complete</h5>
-      <p>Add a banner image and one more social link to hit 100%. Complete profiles get stronger discovery.</p>
+      <p>
+        Add a banner image and one more social link to hit 100%. Complete profiles get stronger
+        discovery.
+      </p>
     </div>
   </div>
 
@@ -47,17 +72,37 @@
           </div>
 
           <div class="id-zone">
-            <button type="button" class="avatar-drop" (click)="avatarInput.click()" [style.background-image]="avatarPreview() || currentUser()?.avatar_url ? 'url(' + (avatarPreview() || currentUser()?.avatar_url) + ')' : null">
+            <button
+              type="button"
+              class="avatar-drop"
+              (click)="avatarInput.click()"
+              [style.background-image]="
+                avatarPreview() || currentUser()?.avatar_url
+                  ? 'url(' + (avatarPreview() || currentUser()?.avatar_url) + ')'
+                  : null
+              "
+            >
               @if (!avatarPreview() && !currentUser()?.avatar_url) {
                 <span class="avatar-letter">{{ avatarLetter() }}</span>
               }
               <span class="avatar-overlay"><i class="fas fa-camera"></i> Change</span>
             </button>
-            <input type="file" #avatarInput (change)="onAvatarFileSelected($event)" accept="image/*" hidden />
+            <input
+              type="file"
+              #avatarInput
+              (change)="onAvatarFileSelected($event)"
+              accept="image/*"
+              hidden
+            />
             <div class="form-grid">
               <div class="form-group">
                 <label class="form-label">Full name <span class="required-dot">*</span></label>
-                <input class="form-input" type="text" formControlName="display_name" maxlength="50" />
+                <input
+                  class="form-input"
+                  type="text"
+                  formControlName="display_name"
+                  maxlength="50"
+                />
               </div>
               <div class="form-group">
                 <label class="form-label">Artist handle <em>this is your @</em></label>
@@ -72,7 +117,12 @@
           <div class="form-grid tagline-grid">
             <div class="form-group">
               <label class="form-label">Tagline <em>one line, max 80 chars</em></label>
-              <input class="form-input" type="text" value="Slow-burning beats from late-night sessions." maxlength="80" />
+              <input
+                class="form-input"
+                type="text"
+                value="Slow-burning beats from late-night sessions."
+                maxlength="80"
+              />
               <div class="form-help count">44 / 80</div>
             </div>
           </div>
@@ -86,8 +136,15 @@
           <div class="form-grid">
             <div class="form-group">
               <label class="form-label">About you <em>markdown supported</em></label>
-              <textarea class="form-textarea" formControlName="bio" maxlength="500" rows="5"></textarea>
-              <div class="form-help count">{{ profileForm.get('bio')?.value?.length || 0 }} / 500</div>
+              <textarea
+                class="form-textarea"
+                formControlName="bio"
+                maxlength="500"
+                rows="5"
+              ></textarea>
+              <div class="form-help count">
+                {{ profileForm.get('bio')?.value?.length || 0 }} / 500
+              </div>
             </div>
             <div class="form-grid two">
               <div class="form-group">
@@ -124,22 +181,61 @@
           <div class="social-list">
             <div class="social-row">
               <div class="social-ico instagram"><i class="fab fa-instagram"></i></div>
-              <div class="social-body"><div class="social-name">Instagram</div><input class="social-input" formControlName="instagram_url" placeholder="https://instagram.com/you" /></div>
-              <span class="social-status" [class.connected]="profileForm.get('instagram_url')?.value" [class.empty]="!profileForm.get('instagram_url')?.value">{{ profileForm.get('instagram_url')?.value ? 'linked' : 'empty' }}</span>
+              <div class="social-body">
+                <div class="social-name">Instagram</div>
+                <input
+                  class="social-input"
+                  formControlName="instagram_url"
+                  placeholder="https://instagram.com/you"
+                />
+              </div>
+              <span
+                class="social-status"
+                [class.connected]="profileForm.get('instagram_url')?.value"
+                [class.empty]="!profileForm.get('instagram_url')?.value"
+                >{{ profileForm.get('instagram_url')?.value ? 'linked' : 'empty' }}</span
+              >
             </div>
             <div class="social-row">
               <div class="social-ico spotify"><i class="fab fa-spotify"></i></div>
-              <div class="social-body"><div class="social-name">Spotify</div><input class="social-input" formControlName="spotify_url" placeholder="https://open.spotify.com/artist/..." /></div>
-              <span class="social-status" [class.connected]="profileForm.get('spotify_url')?.value" [class.empty]="!profileForm.get('spotify_url')?.value">{{ profileForm.get('spotify_url')?.value ? 'linked' : 'empty' }}</span>
+              <div class="social-body">
+                <div class="social-name">Spotify</div>
+                <input
+                  class="social-input"
+                  formControlName="spotify_url"
+                  placeholder="https://open.spotify.com/artist/..."
+                />
+              </div>
+              <span
+                class="social-status"
+                [class.connected]="profileForm.get('spotify_url')?.value"
+                [class.empty]="!profileForm.get('spotify_url')?.value"
+                >{{ profileForm.get('spotify_url')?.value ? 'linked' : 'empty' }}</span
+              >
             </div>
             <div class="social-row">
               <div class="social-ico youtube"><i class="fab fa-youtube"></i></div>
-              <div class="social-body"><div class="social-name">YouTube</div><input class="social-input" formControlName="youtube_url" placeholder="https://youtube.com/@you" /></div>
-              <span class="social-status" [class.connected]="profileForm.get('youtube_url')?.value" [class.empty]="!profileForm.get('youtube_url')?.value">{{ profileForm.get('youtube_url')?.value ? 'linked' : 'empty' }}</span>
+              <div class="social-body">
+                <div class="social-name">YouTube</div>
+                <input
+                  class="social-input"
+                  formControlName="youtube_url"
+                  placeholder="https://youtube.com/@you"
+                />
+              </div>
+              <span
+                class="social-status"
+                [class.connected]="profileForm.get('youtube_url')?.value"
+                [class.empty]="!profileForm.get('youtube_url')?.value"
+                >{{ profileForm.get('youtube_url')?.value ? 'linked' : 'empty' }}</span
+              >
             </div>
             <div class="social-row">
               <div class="social-ico tiktok"><i class="fab fa-tiktok"></i></div>
-              <div class="social-body"><div class="social-name">TikTok</div><input class="social-input" placeholder="add your handle" /></div>
+              <div class="social-body">
+                <div class="social-name">TikTok</div>
+                <input class="social-input" placeholder="add your handle" />
+              </div>
               <span class="social-status empty">empty</span>
             </div>
           </div>
@@ -150,7 +246,15 @@
             <h4><span class="sec-num">05</span> Producer <em>settings</em></h4>
             <div class="fc-sec-desc">control what others can see &amp; do.</div>
           </div>
-          @for (setting of ['Accept collab requests', 'Show play counts publicly', 'Allow direct messages', 'Show verified badge']; track setting) {
+          @for (
+            setting of [
+              'Accept collab requests',
+              'Show play counts publicly',
+              'Allow direct messages',
+              'Show verified badge',
+            ];
+            track setting
+          ) {
             <div class="toggle-row">
               <div class="toggle-info">
                 <h5>{{ setting }}</h5>
@@ -165,19 +269,35 @@
 
     <div class="preview-wrap">
       <div class="preview-card">
-        <div class="preview-head"><span><span class="pulse"></span>Live preview</span><em>updates as you type</em></div>
+        <div class="preview-head">
+          <span><span class="pulse"></span>Live preview</span><em>updates as you type</em>
+        </div>
         <div class="preview-banner"></div>
         <div class="preview-body">
-          <div class="preview-avatar" [style.background-image]="avatarPreview() || currentUser()?.avatar_url ? 'url(' + (avatarPreview() || currentUser()?.avatar_url) + ')' : null">
+          <div
+            class="preview-avatar"
+            [style.background-image]="
+              avatarPreview() || currentUser()?.avatar_url
+                ? 'url(' + (avatarPreview() || currentUser()?.avatar_url) + ')'
+                : null
+            "
+          >
             @if (!avatarPreview() && !currentUser()?.avatar_url) {
               {{ avatarLetter() }}
             }
           </div>
-          <div class="preview-name"><span>{{ displayName() }}</span><span class="verif">✓</span></div>
+          <div class="preview-name">
+            <span>{{ displayName() }}</span
+            ><span class="verif">✓</span>
+          </div>
           <div class="preview-handle">@{{ handle() }}</div>
           <div class="preview-tagline">"Slow-burning beats from late-night sessions."</div>
-          <div class="preview-bio">{{ profileForm.get('bio')?.value || 'Tell listeners about yourself.' }}</div>
-          <div class="preview-meta"><span>SF</span><span>24 beats</span><span>847 followers</span></div>
+          <div class="preview-bio">
+            {{ profileForm.get('bio')?.value || 'Tell listeners about yourself.' }}
+          </div>
+          <div class="preview-meta">
+            <span>SF</span><span>24 beats</span><span>847 followers</span>
+          </div>
           <div class="preview-tags">
             @for (tag of tags(); track tag) {
               <span class="pt">{{ tag }}</span>

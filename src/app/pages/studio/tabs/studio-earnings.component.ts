@@ -23,10 +23,34 @@ export class StudioEarningsComponent {
   lastPayout = signal({ amount: 194820, date: '2026-04-01' });
 
   payouts = signal([
-    { id: 'PY-2026-04-01-R', date: '2026-04-01', amount: 194820, status: 'paid', method: 'UPI · HDFC •••4829' },
-    { id: 'PY-2026-03-01-R', date: '2026-03-01', amount: 231200, status: 'paid', method: 'UPI · HDFC •••4829' },
-    { id: 'PY-2026-02-01-R', date: '2026-02-01', amount: 168475, status: 'paid', method: 'UPI · HDFC •••4829' },
-    { id: 'PY-2026-01-01-R', date: '2026-01-01', amount: 280250, status: 'paid', method: 'UPI · HDFC •••4829' },
+    {
+      id: 'PY-2026-04-01-R',
+      date: '2026-04-01',
+      amount: 194820,
+      status: 'paid',
+      method: 'UPI · HDFC •••4829',
+    },
+    {
+      id: 'PY-2026-03-01-R',
+      date: '2026-03-01',
+      amount: 231200,
+      status: 'paid',
+      method: 'UPI · HDFC •••4829',
+    },
+    {
+      id: 'PY-2026-02-01-R',
+      date: '2026-02-01',
+      amount: 168475,
+      status: 'paid',
+      method: 'UPI · HDFC •••4829',
+    },
+    {
+      id: 'PY-2026-01-01-R',
+      date: '2026-01-01',
+      amount: 280250,
+      status: 'paid',
+      method: 'UPI · HDFC •••4829',
+    },
   ]);
 
   lifetimeRevenue = computed(() => this.analytics()?.total_revenue ?? 2471800);
@@ -71,10 +95,25 @@ export class StudioEarningsComponent {
 
   monthlyBars = computed(() => {
     const rows = this.analytics()?.revenue_by_day ?? [];
-    const fallback = [82000, 115000, 94000, 138000, 162000, 142000, 175000, 189000, 158000, 218000, 194800, 218400];
+    const fallback = [
+      82000, 115000, 94000, 138000, 162000, 142000, 175000, 189000, 158000, 218000, 194800, 218400,
+    ];
     const values = rows.length ? rows.slice(-12).map((row) => row.revenue) : fallback;
     const max = Math.max(...values, 1);
-    const labels = ['May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec', 'Jan', 'Feb', 'Mar', 'Apr'];
+    const labels = [
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec',
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+    ];
     return values.map((value, index) => ({
       value,
       label: labels[index] || '',
@@ -88,7 +127,9 @@ export class StudioEarningsComponent {
       next: (res) => {
         this.analytics.set(res);
         this.balance.set(Math.round((res.total_revenue || 0) * 0.18) || this.balance());
-        this.pendingClearance.set(Math.round((res.total_revenue || 0) * 0.04) || this.pendingClearance());
+        this.pendingClearance.set(
+          Math.round((res.total_revenue || 0) * 0.04) || this.pendingClearance(),
+        );
         this.isLoading.set(false);
       },
       error: () => this.isLoading.set(false),
@@ -105,7 +146,11 @@ export class StudioEarningsComponent {
   }
 
   formatDate(dateStr: string): string {
-    return new Date(dateStr).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    return new Date(dateStr).toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric',
+    });
   }
 
   currency(value: number): string {

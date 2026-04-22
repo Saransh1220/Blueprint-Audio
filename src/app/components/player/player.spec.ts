@@ -26,7 +26,16 @@ describe('PlayerComponent', () => {
     duration: 200,
     genres: [{ id: 'g1', name: 'Trap', slug: 'trap' }],
     tags: ['dark'],
-    licenses: [{ id: 'l1', name: 'Basic Lease', type: 'Basic', price: 1000, features: [], fileTypes: ['mp3'] }],
+    licenses: [
+      {
+        id: 'l1',
+        name: 'Basic Lease',
+        type: 'Basic',
+        price: 1000,
+        features: [],
+        fileTypes: ['mp3'],
+      },
+    ],
     freeMp3Enabled: true,
     analytics: { isFavorited: false, favoriteCount: 1, playCount: 0, totalDownloadCount: 0 },
   };

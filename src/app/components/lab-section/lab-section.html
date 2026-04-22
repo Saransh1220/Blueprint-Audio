@@ -24,7 +24,9 @@
 
   <div class="toolbar">
     <div class="toolbar-left">
-      <span><strong>{{ specs().length }}</strong> featured {{ type }}s</span>
+      <span
+        ><strong>{{ specs().length }}</strong> featured {{ type }}s</span
+      >
       <select class="sort-select" [ngModel]="sortMode()" (ngModelChange)="sortMode.set($event)">
         <option>Sort: Newest</option>
         <option>Sort: Trending</option>
@@ -45,12 +47,15 @@
 
     <div class="toolbar-actions">
       <div class="view-switch">
-        <button
-          [class.on]="viewMode() === 'grid'"
-          (click)="setViewMode('grid')"
-          title="Grid View"
-        >
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+        <button [class.on]="viewMode() === 'grid'" (click)="setViewMode('grid')" title="Grid View">
+          <svg
+            width="12"
+            height="12"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2.5"
+          >
             <rect x="3" y="3" width="7" height="7"></rect>
             <rect x="14" y="3" width="7" height="7"></rect>
             <rect x="3" y="14" width="7" height="7"></rect>
@@ -58,12 +63,15 @@
           </svg>
           Grid
         </button>
-        <button
-          [class.on]="viewMode() === 'list'"
-          (click)="setViewMode('list')"
-          title="List View"
-        >
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+        <button [class.on]="viewMode() === 'list'" (click)="setViewMode('list')" title="List View">
+          <svg
+            width="12"
+            height="12"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2.5"
+          >
             <line x1="8" y1="6" x2="21" y2="6"></line>
             <line x1="8" y1="12" x2="21" y2="12"></line>
             <line x1="8" y1="18" x2="21" y2="18"></line>

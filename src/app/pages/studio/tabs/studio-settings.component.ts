@@ -14,7 +14,9 @@ export class StudioSettingsComponent {
 
   currentUser = this.authService.currentUser;
 
-  displayName = computed(() => this.currentUser()?.display_name || this.currentUser()?.name || 'Your Name');
+  displayName = computed(
+    () => this.currentUser()?.display_name || this.currentUser()?.name || 'Your Name',
+  );
   handle = computed(() => this.currentUser()?.name?.toLowerCase().replace(/\s+/g, '.') || 'handle');
   avatarLetter = computed(() => this.displayName().charAt(0).toLowerCase() || 'r');
   location = computed(() => 'India');

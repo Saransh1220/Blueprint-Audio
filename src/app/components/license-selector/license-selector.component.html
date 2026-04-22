@@ -75,8 +75,12 @@
 
             <div class="lic-top">
               <div>
-                <div class="lic-name">{{ license.name }} <em>{{ license.type }}</em></div>
-                <div class="lic-sub">{{ getLicenseSubtitle(license, i, spec.licenses.length) }}</div>
+                <div class="lic-name">
+                  {{ license.name }} <em>{{ license.type }}</em>
+                </div>
+                <div class="lic-sub">
+                  {{ getLicenseSubtitle(license, i, spec.licenses.length) }}
+                </div>
               </div>
 
               <div class="lic-price-col">
@@ -116,7 +120,11 @@
     </div>
 
     <div class="foot-actions">
-      <button class="action-btn ghost" (click)="addSelectedToCart()" [disabled]="!selectedLicense()">
+      <button
+        class="action-btn ghost"
+        (click)="addSelectedToCart()"
+        [disabled]="!selectedLicense()"
+      >
         <i class="fas fa-cart-plus"></i>
         Add to cart
       </button>

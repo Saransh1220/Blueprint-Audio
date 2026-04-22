@@ -108,7 +108,6 @@ export class GetSpecsRequest implements ApiRequest<PaginatedResponse<SpecDto>> {
   }
 }
 
-
 export class GetSpecRequest implements ApiRequest<SpecDto> {
   readonly method: HttpMethod = 'GET';
   readonly path: string;

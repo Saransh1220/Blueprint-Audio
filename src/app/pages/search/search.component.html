@@ -25,7 +25,14 @@
 
     <div class="search-bar">
       <div class="search-input-wrap">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3">
+        <svg
+          width="18"
+          height="18"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2.3"
+        >
           <circle cx="11" cy="11" r="8"></circle>
           <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
         </svg>
@@ -48,7 +55,14 @@
       </select>
 
       <button class="filter-toggle-mobile" (click)="toggleMobileFilters()">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+        <svg
+          width="14"
+          height="14"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2.5"
+        >
           <line x1="4" y1="6" x2="20" y2="6"></line>
           <line x1="7" y1="12" x2="17" y2="12"></line>
           <line x1="10" y1="18" x2="14" y2="18"></line>
@@ -87,7 +101,14 @@
         <div class="fg-head" [class.open]="isGroupOpen('genres')" (click)="toggleGroup('genres')">
           <div class="fg-title">Genres <span class="tiny">live filter</span></div>
           <div class="fg-toggle">
-            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+            <svg
+              width="10"
+              height="10"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="3"
+            >
               <polyline points="6 9 12 15 18 9"></polyline>
             </svg>
           </div>
@@ -114,7 +135,14 @@
         <div class="fg-head" [class.open]="isGroupOpen('bpm')" (click)="toggleGroup('bpm')">
           <div class="fg-title">BPM <span class="tiny">tempo range</span></div>
           <div class="fg-toggle">
-            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+            <svg
+              width="10"
+              height="10"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="3"
+            >
               <polyline points="6 9 12 15 18 9"></polyline>
             </svg>
           </div>
@@ -168,7 +196,14 @@
         <div class="fg-head" [class.open]="isGroupOpen('price')" (click)="toggleGroup('price')">
           <div class="fg-title">Price <span class="tiny">license range</span></div>
           <div class="fg-toggle">
-            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+            <svg
+              width="10"
+              height="10"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="3"
+            >
               <polyline points="6 9 12 15 18 9"></polyline>
             </svg>
           </div>
@@ -222,7 +257,14 @@
         <div class="fg-head" [class.open]="isGroupOpen('key')" (click)="toggleGroup('key')">
           <div class="fg-title">Key <span class="tiny">harmonic center</span></div>
           <div class="fg-toggle">
-            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+            <svg
+              width="10"
+              height="10"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="3"
+            >
               <polyline points="6 9 12 15 18 9"></polyline>
             </svg>
           </div>
@@ -259,10 +301,21 @@
       </div>
 
       <div class="filter-group inert">
-        <div class="fg-head" [class.open]="isGroupOpen('licenses')" (click)="toggleGroup('licenses')">
+        <div
+          class="fg-head"
+          [class.open]="isGroupOpen('licenses')"
+          (click)="toggleGroup('licenses')"
+        >
           <div class="fg-title">Licenses <span class="tiny">visual shell</span></div>
           <div class="fg-toggle">
-            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+            <svg
+              width="10"
+              height="10"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="3"
+            >
               <polyline points="6 9 12 15 18 9"></polyline>
             </svg>
           </div>
@@ -285,7 +338,14 @@
         <div class="fg-head" [class.open]="isGroupOpen('moods')" (click)="toggleGroup('moods')">
           <div class="fg-title">Moods <span class="tiny">visual shell</span></div>
           <div class="fg-toggle">
-            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+            <svg
+              width="10"
+              height="10"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="3"
+            >
               <polyline points="6 9 12 15 18 9"></polyline>
             </svg>
           </div>
@@ -305,7 +365,14 @@
         <div class="fg-head" [class.open]="isGroupOpen('extras')" (click)="toggleGroup('extras')">
           <div class="fg-title">Extras <span class="tiny">visual shell</span></div>
           <div class="fg-toggle">
-            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+            <svg
+              width="10"
+              height="10"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="3"
+            >
               <polyline points="6 9 12 15 18 9"></polyline>
             </svg>
           </div>
@@ -328,8 +395,17 @@
 
       <div class="apply-filters">
         <button class="apply-btn" (click)="toggleMobileFilters(false)">
-          <span>Show <strong>{{ resultCount() }}</strong> beats</span>
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <span
+            >Show <strong>{{ resultCount() }}</strong> beats</span
+          >
+          <svg
+            width="14"
+            height="14"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2.5"
+          >
             <line x1="5" y1="12" x2="19" y2="12"></line>
             <polyline points="12 5 19 12 12 19"></polyline>
           </svg>
@@ -341,7 +417,9 @@
       <div class="catalog-inner">
         <div class="catalog-toolbar">
           <div class="result-info">
-            <div class="big"><em>{{ resultCount() }}</em> beats match</div>
+            <div class="big">
+              <em>{{ resultCount() }}</em> beats match
+            </div>
             <div class="small">
               @if (pagination()) {
                 page {{ currentPage() }} of {{ totalPages() }}
@@ -372,7 +450,14 @@
                 Grid
               </button>
               <button [class.on]="viewMode() === 'list'" (click)="setViewMode('list')">
-                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <svg
+                  width="11"
+                  height="11"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2.5"
+                >
                   <line x1="3" y1="6" x2="21" y2="6"></line>
                   <line x1="3" y1="12" x2="21" y2="12"></line>
                   <line x1="3" y1="18" x2="21" y2="18"></line>
@@ -396,7 +481,11 @@
               </div>
             </div>
           } @else {
-            <div class="catalog-view" [class.v-grid]="viewMode() === 'grid'" [class.v-list]="viewMode() === 'list'">
+            <div
+              class="catalog-view"
+              [class.v-grid]="viewMode() === 'grid'"
+              [class.v-list]="viewMode() === 'list'"
+            >
               @if (viewMode() === 'grid') {
                 <div class="beat-grid">
                   @for (spec of specs(); track spec.id) {

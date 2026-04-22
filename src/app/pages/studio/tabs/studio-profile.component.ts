@@ -40,7 +40,13 @@ export class StudioProfileComponent implements OnInit {
     return fromForm || user?.display_name || user?.name || 'Producer';
   });
 
-  handle = computed(() => this.displayName().toLowerCase().replace(/[^a-z0-9]+/g, '.').replace(/^\.+|\.+$/g, '') || 'producer');
+  handle = computed(
+    () =>
+      this.displayName()
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '.')
+        .replace(/^\.+|\.+$/g, '') || 'producer',
+  );
 
   avatarLetter = computed(() => this.displayName().slice(0, 1).toLowerCase() || 'p');
 

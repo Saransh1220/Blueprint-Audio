@@ -31,7 +31,9 @@
           [disabled]="isFavoriting()"
           aria-label="Save to wishlist"
         >
-          <i [class]="track.analytics?.isFavorited ? 'fa-solid fa-heart' : 'fa-regular fa-heart'"></i>
+          <i
+            [class]="track.analytics?.isFavorited ? 'fa-solid fa-heart' : 'fa-regular fa-heart'"
+          ></i>
         </button>
       </div>
 
@@ -45,17 +47,29 @@
           >
             <i class="fa-solid fa-shuffle"></i>
           </button>
-          <button class="mp-ctrl" (click)="playerService.playPrevious()" [disabled]="!playerService.hasPrevious()">
+          <button
+            class="mp-ctrl"
+            (click)="playerService.playPrevious()"
+            [disabled]="!playerService.hasPrevious()"
+          >
             <i class="fa-solid fa-backward-step"></i>
           </button>
-          <button class="mp-ctrl play" (click)="playerService.togglePlay()" aria-label="Play or pause">
+          <button
+            class="mp-ctrl play"
+            (click)="playerService.togglePlay()"
+            aria-label="Play or pause"
+          >
             @if (playerService.isPlaying()) {
               <i class="fa-solid fa-pause"></i>
             } @else {
               <i class="fa-solid fa-play"></i>
             }
           </button>
-          <button class="mp-ctrl" (click)="playerService.playNext()" [disabled]="!playerService.hasNext()">
+          <button
+            class="mp-ctrl"
+            (click)="playerService.playNext()"
+            [disabled]="!playerService.hasNext()"
+          >
             <i class="fa-solid fa-forward-step"></i>
           </button>
           <button
@@ -110,7 +124,9 @@
             <i class="fa-solid" [class]="playerService.volumeIcon()"></i>
           </button>
           <div class="mp-volume-popover">
-            <div class="lbl"><span>Volume</span><span>{{ (playerService.volume() * 100) | number: '1.0-0' }}%</span></div>
+            <div class="lbl">
+              <span>Volume</span><span>{{ playerService.volume() * 100 | number: '1.0-0' }}%</span>
+            </div>
             <div class="volume-slider">
               <div class="volume-fill" [style.width.%]="playerService.volume() * 100"></div>
               <div class="volume-knob" [style.left.%]="playerService.volume() * 100"></div>
@@ -154,7 +170,10 @@
                 <span class="shortcut">MP3</span>
               </button>
             }
-            <button class="mp-menu-item" (click)="notifyApiNeeded('Playlist API needed for this action', $event)">
+            <button
+              class="mp-menu-item"
+              (click)="notifyApiNeeded('Playlist API needed for this action', $event)"
+            >
               <i class="fa-solid fa-plus"></i>
               Add to playlist
             </button>
@@ -176,12 +195,18 @@
               <i class="fa-regular fa-user"></i>
               View producer profile
             </button>
-            <button class="mp-menu-item" (click)="notifyApiNeeded('Not interested API needed for this action', $event)">
+            <button
+              class="mp-menu-item"
+              (click)="notifyApiNeeded('Not interested API needed for this action', $event)"
+            >
               <i class="fa-regular fa-circle-xmark"></i>
               Mark as not interested
             </button>
             <div class="mp-menu-divider"></div>
-            <button class="mp-menu-item danger" (click)="notifyApiNeeded('Report API needed for this action', $event)">
+            <button
+              class="mp-menu-item danger"
+              (click)="notifyApiNeeded('Report API needed for this action', $event)"
+            >
               <i class="fa-regular fa-flag"></i>
               Report a problem
             </button>
@@ -196,7 +221,11 @@
           <i class="fa-solid fa-chevron-up"></i>
         </button>
 
-        <button class="mp-icon-btn close-btn" (click)="playerService.hidePlayer()" aria-label="Close player">
+        <button
+          class="mp-icon-btn close-btn"
+          (click)="playerService.hidePlayer()"
+          aria-label="Close player"
+        >
           <i class="fa-solid fa-xmark"></i>
         </button>
       </div>
@@ -205,13 +234,19 @@
     <div class="mp-panel">
       <div class="panel-left">
         <div class="panel-header">
-          <span>Now playing <em>· #{{ (expandedTrackDetail() ?? track).id.replace('#', '') }}</em></span>
+          <span
+            >Now playing
+            <em>· #{{ (expandedTrackDetail() ?? track).id.replace('#', '') }}</em></span
+          >
           <span class="panel-header-note">active queue</span>
         </div>
 
         <div class="panel-beat-row">
           <div class="panel-art">
-            <img [src]="(expandedTrackDetail() ?? track).imageUrl" [alt]="(expandedTrackDetail() ?? track).title" />
+            <img
+              [src]="(expandedTrackDetail() ?? track).imageUrl"
+              [alt]="(expandedTrackDetail() ?? track).title"
+            />
           </div>
 
           <div class="panel-title-block">
@@ -238,7 +273,8 @@
           <div class="panel-spec">
             <div class="k">Key</div>
             <div class="v">
-              {{ formatPanelKey((expandedTrackDetail() ?? track).key).root }}<em *ngIf="formatPanelKey((expandedTrackDetail() ?? track).key).mode">{{
+              {{ formatPanelKey((expandedTrackDetail() ?? track).key).root
+              }}<em *ngIf="formatPanelKey((expandedTrackDetail() ?? track).key).mode">{{
                 formatPanelKey((expandedTrackDetail() ?? track).key).mode
               }}</em>
             </div>
@@ -249,7 +285,9 @@
           </div>
           <div class="panel-spec">
             <div class="k">License</div>
-            <div class="v"><span>from</span><em>₹{{ minimumLicensePrice() }}</em></div>
+            <div class="v">
+              <span>from</span><em>₹{{ minimumLicensePrice() }}</em>
+            </div>
           </div>
         </div>
 
@@ -301,7 +339,8 @@
               <div class="q-title-block">
                 <div class="q-title">{{ item.track.title }}</div>
                 <div class="q-sub">
-                  prod. {{ item.track.producerName || 'Unknown producer' }} · {{ item.track.bpm }} BPM · {{ item.track.key }}
+                  prod. {{ item.track.producerName || 'Unknown producer' }} ·
+                  {{ item.track.bpm }} BPM · {{ item.track.key }}
                 </div>
               </div>
               <div class="q-dur">{{ formatDuration(item.track.duration) }}</div>

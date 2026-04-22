@@ -34,53 +34,32 @@ nav.fixed-navbar {
   color: var(--text-color);
 }
 
-.brand-logo-img {
-  display: block;
-  width: 48px;
-  height: 48px;
-  object-fit: contain;
-}
-
-.desktop-logo,
-.mobile-logo,
-.mobile-logo-large span {
+.nav-brand {
   display: inline-flex;
-  align-items: baseline;
-  gap: 0;
-  font-family: $font-head;
-  font-weight: 800;
-  font-variation-settings: 'opsz' 96;
-  letter-spacing: -0.065em;
-  text-transform: none;
+  align-items: center;
+}
 
-  em {
-    font-family: 'Instrument Serif', serif;
-    font-style: italic;
-    font-weight: 400;
-    color: var(--brand-color);
-    letter-spacing: -0.035em;
-    margin-left: 1px;
+// Logo overrides for header context
+.header-brand .logo-mark {
+  width: 36px; // Match reference size (Image 1)
+  height: 36px;
+  box-shadow: 2.5px 2.5px 0 var(--hot); // Stronger brand shadow for visibility
+}
+
+.header-brand .logo-word {
+  gap: 4px;
+  .word-cult {
+    color: var(--ink) !important;
   }
-}
-
-.desktop-logo {
-  font-size: 26px;
-}
-
-.mobile-logo {
-  display: none;
-  font-size: 24px;
-}
-
-.brand-star {
-  color: var(--brand-color);
-  display: inline-block;
-  animation: spin 6s linear infinite;
-}
-
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
+  .word-beats {
+    color: var(--hot) !important;
+  }
+  .word-dot {
+    color: var(--hot) !important;
+  }
+  .word-star {
+    color: var(--hot) !important;
+    font-size: 14px;
   }
 }
 

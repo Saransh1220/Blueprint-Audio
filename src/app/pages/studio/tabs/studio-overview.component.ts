@@ -1,10 +1,4 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  inject,
-  signal,
-  computed,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, signal, computed } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { AnalyticsService } from '../../../services/analytics.service';
@@ -51,7 +45,11 @@ export class StudioOverviewComponent {
     return 'Evening';
   });
 
-  todayLabel = new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
+  todayLabel = new Date().toLocaleDateString('en-US', {
+    weekday: 'long',
+    month: 'long',
+    day: 'numeric',
+  });
 
   // KPI formatters
   formattedPlays = computed(() => {
@@ -96,7 +94,9 @@ export class StudioOverviewComponent {
   });
 
   liveBeatCount = computed(() => this.topSpecs().length || 24);
-  readyToWithdraw = computed(() => Math.round((this.analyticsData()?.total_revenue ?? 124700) * 0.18));
+  readyToWithdraw = computed(() =>
+    Math.round((this.analyticsData()?.total_revenue ?? 124700) * 0.18),
+  );
   recentOrderCount = computed(() => Math.max(this.recentOrders().length, 3));
 
   revenuePoints = computed(() => {
@@ -162,9 +162,19 @@ export class StudioOverviewComponent {
           : 'License sold. Premium WAV added to pending revenue.',
         time: '18m',
       },
-      { avatar: '*', colorClass: 'c3', text: 'Ghostwire was added to 3 carts in the last hour.', time: '1h' },
+      {
+        avatar: '*',
+        colorClass: 'c3',
+        text: 'Ghostwire was added to 3 carts in the last hour.',
+        time: '1h',
+      },
       { avatar: 'm', colorClass: 'c2', text: 'Meridian started following you.', time: '3h' },
-      { avatar: 'v', colorClass: 'icon', text: 'Your top beat was wishlisted 9 times today.', time: '6h' },
+      {
+        avatar: 'v',
+        colorClass: 'icon',
+        text: 'Your top beat was wishlisted 9 times today.',
+        time: '6h',
+      },
     ];
   });
 
@@ -224,14 +234,16 @@ export class StudioOverviewComponent {
 
   // Recent sales
   recentSales = computed(() =>
-    this.recentOrders().slice(0, 4).map((order) => ({
-      id: order.id,
-      title: order.spec_title || 'Untitled beat',
-      buyer: order.buyer_name || order.buyer_email || 'Customer',
-      license: order.license_type || 'License',
-      amount: order.amount,
-      createdAt: order.created_at,
-    })),
+    this.recentOrders()
+      .slice(0, 4)
+      .map((order) => ({
+        id: order.id,
+        title: order.spec_title || 'Untitled beat',
+        buyer: order.buyer_name || order.buyer_email || 'Customer',
+        license: order.license_type || 'License',
+        amount: order.amount,
+        createdAt: order.created_at,
+      })),
   );
 
   constructor() {
@@ -248,7 +260,9 @@ export class StudioOverviewComponent {
         this.topSpecs.set(res.top_specs?.slice(0, 5) || []);
         this.isLoadingAnalytics.set(false);
       },
-      error: () => { this.isLoadingAnalytics.set(false); },
+      error: () => {
+        this.isLoadingAnalytics.set(false);
+      },
     });
   }
 
@@ -259,7 +273,9 @@ export class StudioOverviewComponent {
         this.recentOrders.set(res.orders);
         this.isLoadingOrders.set(false);
       },
-      error: () => { this.isLoadingOrders.set(false); },
+      error: () => {
+        this.isLoadingOrders.set(false);
+      },
     });
   }
 
@@ -281,17 +297,28 @@ export class StudioOverviewComponent {
   shortDate(dateStr: string): string {
     try {
       return new Date(dateStr).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-    } catch { return dateStr.slice(5, 10); }
+    } catch {
+      return dateStr.slice(5, 10);
+    }
   }
 
   formatDate(dateStr: string): string {
     try {
       return new Date(dateStr).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-    } catch { return ''; }
+    } catch {
+      return '';
+    }
   }
 
   buyerColor(name: string): string {
-    const colors = ['var(--hot)', 'var(--cobalt)', 'var(--lime)', 'var(--sun)', 'var(--lavender)', 'var(--tangerine)'];
+    const colors = [
+      'var(--hot)',
+      'var(--cobalt)',
+      'var(--lime)',
+      'var(--sun)',
+      'var(--lavender)',
+      'var(--tangerine)',
+    ];
     const idx = (name.charCodeAt(0) || 0) % colors.length;
     return colors[idx];
   }

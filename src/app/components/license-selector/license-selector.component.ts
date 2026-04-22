@@ -36,7 +36,9 @@ export class LicenseSelectorComponent {
   selectedLicense = computed(() => {
     const licenses = this.spec?.licenses ?? [];
     const selectedId = this.selectedLicenseId();
-    return licenses.find((license) => license.id === selectedId) ?? licenses[1] ?? licenses[0] ?? null;
+    return (
+      licenses.find((license) => license.id === selectedId) ?? licenses[1] ?? licenses[0] ?? null
+    );
   });
 
   selectLicense(license: LicenseOption) {
@@ -158,14 +160,20 @@ export class LicenseSelectorComponent {
   detailTags() {
     const tags: Array<{ label: string; tone: 'hot' | 'default' | 'lime' }> = [
       { label: this.getPrimaryGenre(), tone: 'hot' as const },
-      ...((this.spec?.tags ?? []).slice(0, 2).map((tag) => ({ label: tag, tone: 'default' as const }))),
+      ...(this.spec?.tags ?? [])
+        .slice(0, 2)
+        .map((tag) => ({ label: tag, tone: 'default' as const })),
     ];
 
     if (this.spec?.freeMp3Enabled) {
       tags.push({ label: 'Free MP3', tone: 'lime' as const });
     }
 
-    if ((this.spec?.licenses ?? []).some((license) => license.fileTypes?.some((type) => /stem|zip|trackout/i.test(type)))) {
+    if (
+      (this.spec?.licenses ?? []).some((license) =>
+        license.fileTypes?.some((type) => /stem|zip|trackout/i.test(type)),
+      )
+    ) {
       tags.push({ label: '+ stems', tone: 'lime' as const });
     }
 
@@ -194,7 +202,8 @@ export class LicenseSelectorComponent {
     if (license.type === 'Basic') return 'for demos and rough drafts';
     if (license.type === 'Premium') return 'for proper releases';
     if (license.type === 'Trackout') return 'for sessions that need stems';
-    if (license.type === 'Unlimited') return total > 3 || index === total - 1 ? 'for bigger placements' : 'for wide release';
+    if (license.type === 'Unlimited')
+      return total > 3 || index === total - 1 ? 'for bigger placements' : 'for wide release';
     return 'one-time license';
   }
 

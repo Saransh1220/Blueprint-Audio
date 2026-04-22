@@ -1,8 +1,21 @@
-﻿<div class="upload-page-container">
+<div class="upload-page-container">
   <section class="upload-shell" [formGroup]="uploadForm">
     <header class="upload-header">
       <a class="upload-logo" routerLink="/">
-        <img src="/logo.png" alt="Cult Beats" />
+        <div class="logo">
+          <span class="logo-mark" aria-hidden="true">
+            <span class="mark-letters">
+              <span class="c">C</span>
+              <span class="b">B</span>
+            </span>
+          </span>
+          <span class="logo-word">
+            <span class="word-cult">cult</span>
+            <span class="word-dot">·</span>
+            <span class="word-beats">beats</span>
+            <span class="word-star">✦</span>
+          </span>
+        </div>
       </a>
       <div class="upload-header-title">Upload a <em>beat</em></div>
       <a class="close-btn" [routerLink]="closeRoute">
@@ -45,7 +58,8 @@
                 <h2 class="panel-title">the <em>details</em>.</h2>
               </div>
               <p class="panel-sub">
-                Title, tempo, key, genre, and mood. This is the metadata buyers search by and what shapes the public preview.
+                Title, tempo, key, genre, and mood. This is the metadata buyers search by and what
+                shapes the public preview.
               </p>
             </div>
 
@@ -176,7 +190,9 @@
                     [disabled]="tags.length >= 3"
                   />
                 </div>
-                <div class="form-help">These are the only search tags currently submitted to the API.</div>
+                <div class="form-help">
+                  These are the only search tags currently submitted to the API.
+                </div>
               </div>
 
               <div class="form-group span-full">
@@ -202,7 +218,8 @@
                 <h2 class="panel-title">drop your <em>files</em>.</h2>
               </div>
               <p class="panel-sub">
-                Cover art, audio preview, master, and optional stems. Accepted formats stay the same as the current uploader.
+                Cover art, audio preview, master, and optional stems. Accepted formats stay the same
+                as the current uploader.
               </p>
             </div>
 
@@ -224,7 +241,11 @@
 
                 @if (coverPreviewUrl()) {
                   <img class="cover-preview" [src]="coverPreviewUrl()" alt="Cover preview" />
-                  <button type="button" class="cover-replace" (click)="$event.stopPropagation(); coverInput.click()">
+                  <button
+                    type="button"
+                    class="cover-replace"
+                    (click)="$event.stopPropagation(); coverInput.click()"
+                  >
                     <i class="fa-solid fa-pen"></i>
                     Replace artwork
                   </button>
@@ -263,10 +284,17 @@
                   @if (previewFile()) {
                     <div class="file-status">
                       <div class="file-actions">
-                        <button type="button" (click)="previewInput.click(); $event.stopPropagation()">
+                        <button
+                          type="button"
+                          (click)="previewInput.click(); $event.stopPropagation()"
+                        >
                           <i class="fa-solid fa-pen"></i>
                         </button>
-                        <button type="button" class="delete" (click)="removeFile('preview'); $event.stopPropagation()">
+                        <button
+                          type="button"
+                          class="delete"
+                          (click)="removeFile('preview'); $event.stopPropagation()"
+                        >
                           <i class="fa-solid fa-trash"></i>
                         </button>
                       </div>
@@ -287,7 +315,13 @@
                   (click)="!wavFile() && wavInput.click()"
                   id="zonewav"
                 >
-                  <input #wavInput type="file" hidden accept=".wav,audio/wav" (change)="onFileSelected($event, 'wav')" />
+                  <input
+                    #wavInput
+                    type="file"
+                    hidden
+                    accept=".wav,audio/wav"
+                    (change)="onFileSelected($event, 'wav')"
+                  />
                   <div class="file-icon wav"><i class="fa-solid fa-wave-square"></i></div>
                   <div class="file-info">
                     <h5>Master <em>wav</em></h5>
@@ -300,7 +334,11 @@
                         <button type="button" (click)="wavInput.click(); $event.stopPropagation()">
                           <i class="fa-solid fa-pen"></i>
                         </button>
-                        <button type="button" class="delete" (click)="removeFile('wav'); $event.stopPropagation()">
+                        <button
+                          type="button"
+                          class="delete"
+                          (click)="removeFile('wav'); $event.stopPropagation()"
+                        >
                           <i class="fa-solid fa-trash"></i>
                         </button>
                       </div>
@@ -321,7 +359,13 @@
                   (click)="!stemsFile() && stemsInput.click()"
                   id="zonestems"
                 >
-                  <input #stemsInput type="file" hidden accept=".zip,.rar" (change)="onFileSelected($event, 'stems')" />
+                  <input
+                    #stemsInput
+                    type="file"
+                    hidden
+                    accept=".zip,.rar"
+                    (change)="onFileSelected($event, 'stems')"
+                  />
                   <div class="file-icon stems"><i class="fa-solid fa-layer-group"></i></div>
                   <div class="file-info">
                     <h5>Stems / <em>trackouts</em></h5>
@@ -331,10 +375,17 @@
                   @if (stemsFile()) {
                     <div class="file-status">
                       <div class="file-actions">
-                        <button type="button" (click)="stemsInput.click(); $event.stopPropagation()">
+                        <button
+                          type="button"
+                          (click)="stemsInput.click(); $event.stopPropagation()"
+                        >
                           <i class="fa-solid fa-pen"></i>
                         </button>
-                        <button type="button" class="delete" (click)="removeFile('stems'); $event.stopPropagation()">
+                        <button
+                          type="button"
+                          class="delete"
+                          (click)="removeFile('stems'); $event.stopPropagation()"
+                        >
                           <i class="fa-solid fa-trash"></i>
                         </button>
                       </div>
@@ -359,7 +410,8 @@
                 <h2 class="panel-title">set the <em>licenses</em>.</h2>
               </div>
               <p class="panel-sub">
-                Keep the current enabled/disabled license behavior, but present it with the same editorial card system and extra control shells from the reference.
+                Keep the current enabled/disabled license behavior, but present it with the same
+                editorial card system and extra control shells from the reference.
               </p>
             </div>
 
@@ -373,7 +425,8 @@
                   <div class="lc-top">
                     <div>
                       <div class="lc-name">
-                        {{ getLicenseSummaryName(license) }} <em>{{ getLicenseDisplayFormat(license) }}</em>
+                        {{ getLicenseSummaryName(license) }}
+                        <em>{{ getLicenseDisplayFormat(license) }}</em>
                       </div>
                       <p class="lc-sub">{{ license.get('type')?.value | lowercase }}</p>
                     </div>
@@ -424,7 +477,6 @@
                 </span>
               </span>
             </label>
-
           </section>
         }
 
@@ -436,7 +488,8 @@
                 <h2 class="panel-title">give it a <em>once-over</em>.</h2>
               </div>
               <p class="panel-sub">
-                Review the public-facing details, uploaded assets, and license setup before publishing.
+                Review the public-facing details, uploaded assets, and license setup before
+                publishing.
               </p>
             </div>
 
@@ -449,7 +502,12 @@
                 <p class="rc-sub">How buyers will see your beat.</p>
 
                 <div class="preview-beat">
-                  <div class="preview-art" [style.background-image]="coverPreviewUrl() ? 'url(' + coverPreviewUrl() + ')' : ''"></div>
+                  <div
+                    class="preview-art"
+                    [style.background-image]="
+                      coverPreviewUrl() ? 'url(' + coverPreviewUrl() + ')' : ''
+                    "
+                  ></div>
                   <div class="preview-info">
                     <div class="p-title">{{ f['title'].value || 'Untitled' }}</div>
                     <div class="p-by">prod. you Â· {{ currentScale() }}</div>
@@ -462,10 +520,27 @@
                 </div>
 
                 <div class="kv-list">
-                  <div class="kv-row"><span class="k">Tempo</span><span class="v">{{ f['bpm'].value || 'â€“' }} <span class="sub">BPM</span></span></div>
-                  <div class="kv-row"><span class="k">Key</span><span class="v">{{ getKeyPreview().root }} <span class="sub">{{ getKeyPreview().mode }}</span></span></div>
-                  <div class="kv-row"><span class="k">Genre</span><span class="v">{{ f['genre'].value || 'â€”' }}</span></div>
-                  <div class="kv-row"><span class="k">Starting at</span><span class="v price">{{ formatCurrency(minimumEnabledPrice()) }}</span></div>
+                  <div class="kv-row">
+                    <span class="k">Tempo</span
+                    ><span class="v"
+                      >{{ f['bpm'].value || 'â€“' }} <span class="sub">BPM</span></span
+                    >
+                  </div>
+                  <div class="kv-row">
+                    <span class="k">Key</span
+                    ><span class="v"
+                      >{{ getKeyPreview().root }}
+                      <span class="sub">{{ getKeyPreview().mode }}</span></span
+                    >
+                  </div>
+                  <div class="kv-row">
+                    <span class="k">Genre</span
+                    ><span class="v">{{ f['genre'].value || 'â€”' }}</span>
+                  </div>
+                  <div class="kv-row">
+                    <span class="k">Starting at</span
+                    ><span class="v price">{{ formatCurrency(minimumEnabledPrice()) }}</span>
+                  </div>
                 </div>
               </div>
 
@@ -481,27 +556,42 @@
                     <div class="fsum-icon cover"><i class="fa-regular fa-image"></i></div>
                     <div class="fsum-info">
                       <div class="t">Cover art</div>
-                      <div class="s">{{ coverSummary()?.name || 'Required â€” please upload' }}{{ coverSummary()?.detail ? ' Â· ' + coverSummary()?.detail : '' }}</div>
+                      <div class="s">
+                        {{ coverSummary()?.name || 'Required â€” please upload'
+                        }}{{ coverSummary()?.detail ? ' Â· ' + coverSummary()?.detail : '' }}
+                      </div>
                     </div>
-                    <span class="fsum-status" [class.warn]="!coverFile()">{{ coverFile() ? 'Uploaded' : 'Missing' }}</span>
+                    <span class="fsum-status" [class.warn]="!coverFile()">{{
+                      coverFile() ? 'Uploaded' : 'Missing'
+                    }}</span>
                   </div>
 
                   <div class="fsum" [class.missing]="!previewFile()">
                     <div class="fsum-icon mp3"><i class="fa-solid fa-music"></i></div>
                     <div class="fsum-info">
                       <div class="t">Tagged MP3 preview</div>
-                      <div class="s">{{ previewSummary()?.name || 'Required â€” please upload' }}{{ previewSummary()?.detail ? ' Â· ' + previewSummary()?.detail : '' }}</div>
+                      <div class="s">
+                        {{ previewSummary()?.name || 'Required â€” please upload'
+                        }}{{ previewSummary()?.detail ? ' Â· ' + previewSummary()?.detail : '' }}
+                      </div>
                     </div>
-                    <span class="fsum-status" [class.warn]="!previewFile()">{{ previewFile() ? 'Uploaded' : 'Missing' }}</span>
+                    <span class="fsum-status" [class.warn]="!previewFile()">{{
+                      previewFile() ? 'Uploaded' : 'Missing'
+                    }}</span>
                   </div>
 
                   <div class="fsum" [class.missing]="!wavFile()">
                     <div class="fsum-icon wav"><i class="fa-solid fa-wave-square"></i></div>
                     <div class="fsum-info">
                       <div class="t">Master WAV</div>
-                      <div class="s">{{ wavSummary()?.name || 'Optional â€” not uploaded' }}{{ wavSummary()?.detail ? ' Â· ' + wavSummary()?.detail : '' }}</div>
+                      <div class="s">
+                        {{ wavSummary()?.name || 'Optional â€” not uploaded'
+                        }}{{ wavSummary()?.detail ? ' Â· ' + wavSummary()?.detail : '' }}
+                      </div>
                     </div>
-                    <span class="fsum-status" [class.soft]="!wavFile()">{{ wavFile() ? 'Uploaded' : 'Skipped' }}</span>
+                    <span class="fsum-status" [class.soft]="!wavFile()">{{
+                      wavFile() ? 'Uploaded' : 'Skipped'
+                    }}</span>
                   </div>
 
                   <div class="fsum" [class.missing]="!stemsFile()">
@@ -510,7 +600,9 @@
                       <div class="t">Stems / trackouts</div>
                       <div class="s">{{ stemsSummary()?.name || 'Optional â€” not uploaded' }}</div>
                     </div>
-                    <span class="fsum-status" [class.soft]="!stemsFile()">{{ stemsFile() ? 'Uploaded' : 'Skipped' }}</span>
+                    <span class="fsum-status" [class.soft]="!stemsFile()">{{
+                      stemsFile() ? 'Uploaded' : 'Skipped'
+                    }}</span>
                   </div>
                 </div>
               </div>
@@ -523,11 +615,19 @@
                 <p class="rc-sub">Metadata buyers search by.</p>
 
                 <div class="kv-list">
-                  <div class="kv-row"><span class="k">Mood tags</span><span class="v">{{ selectedMoods().join(' Â· ') || 'â€”' }}</span></div>
-                  <div class="kv-row"><span class="k">Searchable tags</span><span class="v">{{ tags.length ? tags.value.join(', ') : 'â€”' }}</span></div>
+                  <div class="kv-row">
+                    <span class="k">Mood tags</span
+                    ><span class="v">{{ selectedMoods().join(' Â· ') || 'â€”' }}</span>
+                  </div>
+                  <div class="kv-row">
+                    <span class="k">Searchable tags</span
+                    ><span class="v">{{ tags.length ? tags.value.join(', ') : 'â€”' }}</span>
+                  </div>
                   <div class="kv-row">
                     <span class="k">Description</span>
-                    <span class="v review-description">{{ f['description'].value || 'No description yet.' }}</span>
+                    <span class="v review-description">{{
+                      f['description'].value || 'No description yet.'
+                    }}</span>
                   </div>
                 </div>
               </div>
@@ -558,7 +658,9 @@
                 <div class="publish-note">
                   <span class="pn-icon"><i class="fa-solid fa-circle-info"></i></span>
                   <div>
-                    Once published, your beat goes live <em>instantly</em>. Extra settings like royalty split, contract type, and territory are visual-only for now and are not yet sent to the API.
+                    Once published, your beat goes live <em>instantly</em>. Extra settings like
+                    royalty split, contract type, and territory are visual-only for now and are not
+                    yet sent to the API.
                   </div>
                 </div>
               </div>
@@ -570,15 +672,27 @@
 
     <div class="nav-footer">
       <div class="nav-info">
-        Step <strong>{{ currentStep() }}</strong> of <strong>{{ totalSteps }}</strong> Â· <span>{{ getStepHint() }}</span>
+        Step <strong>{{ currentStep() }}</strong> of <strong>{{ totalSteps }}</strong> Â·
+        <span>{{ getStepHint() }}</span>
       </div>
       <div class="nav-btns">
         <button type="button" class="save-draft" (click)="saveDraft()">Save draft</button>
-        <button type="button" class="nav-btn back" [disabled]="currentStep() === 1" (click)="prevStep()">
+        <button
+          type="button"
+          class="nav-btn back"
+          [disabled]="currentStep() === 1"
+          (click)="prevStep()"
+        >
           <i class="fa-solid fa-arrow-left"></i>
           Back
         </button>
-        <button type="button" class="nav-btn next" [class.publish]="currentStep() === totalSteps" (click)="nextStep()" [disabled]="isSubmitting()">
+        <button
+          type="button"
+          class="nav-btn next"
+          [class.publish]="currentStep() === totalSteps"
+          (click)="nextStep()"
+          [disabled]="isSubmitting()"
+        >
           @if (isSubmitting()) {
             <span class="processing-content">
               @if (uploadProgress() > 0 && uploadProgress() < 100) {

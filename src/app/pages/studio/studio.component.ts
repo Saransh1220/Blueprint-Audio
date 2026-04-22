@@ -55,7 +55,11 @@ export class StudioComponent {
   });
 
   todayDate = computed(() => {
-    return new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
+    return new Date().toLocaleDateString('en-US', {
+      weekday: 'long',
+      month: 'long',
+      day: 'numeric',
+    });
   });
 
   sidebarStats = computed(() => ({

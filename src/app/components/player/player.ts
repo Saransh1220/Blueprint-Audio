@@ -77,7 +77,10 @@ export class PlayerComponent implements OnDestroy {
     const track = this.expandedTrackDetail() ?? this.playerService.currentTrack();
     if (!track) return 0;
     if (!track.licenses?.length) return track.price;
-    return track.licenses.reduce((min, license) => Math.min(min, license.price), track.licenses[0].price);
+    return track.licenses.reduce(
+      (min, license) => Math.min(min, license.price),
+      track.licenses[0].price,
+    );
   });
 
   private lastVisibleState = false;
@@ -374,7 +377,11 @@ export class PlayerComponent implements OnDestroy {
 
   private startWaveformLoop() {
     this.tickWaveform();
-    if (this.playerService.isVisible() && this.playerService.currentTrack() && this.playerService.isPlaying()) {
+    if (
+      this.playerService.isVisible() &&
+      this.playerService.currentTrack() &&
+      this.playerService.isPlaying()
+    ) {
       this.waveformFrame = requestAnimationFrame(() => this.startWaveformLoop());
     }
   }

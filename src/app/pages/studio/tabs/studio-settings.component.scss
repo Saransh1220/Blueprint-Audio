@@ -1,1 +1,107 @@
 @use 'studio-shared' as *;
+
+.brand-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 14px;
+  margin-bottom: 18px;
+}
+
+.brand-preview {
+  padding: 24px 20px;
+  border: 2px solid var(--ink);
+  border-radius: 14px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  min-height: 150px;
+  position: relative;
+  overflow: hidden;
+
+  &.light {
+    background: var(--cream);
+  }
+  &.dark {
+    background: var(--ink);
+  }
+  &.medium {
+    background: var(--cream-2);
+  }
+
+  &.mega {
+    background: var(--ink);
+    align-items: flex-start;
+    justify-content: flex-start;
+    padding: 32px 24px;
+    grid-column: 1 / -1;
+  }
+}
+
+.brand-label {
+  font-family: $font-tech;
+  font-size: 9.5px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--ink-mute);
+
+  &.on-dark {
+    color: rgba(245, 241, 232, 0.6);
+  }
+}
+
+.brand-sub-header {
+  font-family: $font-tech;
+  font-size: 9.5px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: rgba(245, 241, 232, 0.55);
+}
+
+.brand-footer-info {
+  width: 100%;
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1.5px dashed rgba(245, 241, 232, 0.18);
+  font-family: $font-tech;
+  font-size: 10px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: rgba(245, 241, 232, 0.55);
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.usage-notes {
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px dashed var(--cream-3);
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 10px;
+  font-family: $font-tech;
+  font-size: 9.5px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-mute);
+}
+
+.usage-item {
+  padding: 8px 10px;
+  border: 1.5px solid var(--ink);
+  border-radius: 10px;
+
+  strong {
+    font-family: $font-head;
+    font-weight: 700;
+    color: var(--ink);
+    letter-spacing: -0.01em;
+    font-size: 13px;
+    text-transform: none;
+    display: block;
+    margin-bottom: 2px;
+  }
+}

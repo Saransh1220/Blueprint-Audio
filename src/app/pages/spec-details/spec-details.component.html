@@ -71,16 +71,18 @@
       </div>
 
       <div class="beat-desc">
-        <span class="lead">
-          Built for writers who want atmosphere first, then impact.
-        </span>
+        <span class="lead"> Built for writers who want atmosphere first, then impact. </span>
         {{ s.title }} sits in that late-night pocket: focused drums, open space, and enough
         character to spark a topline fast. The current license pick updates the price and files
         below without changing your existing cart flow.
       </div>
 
       <div class="hero-actions">
-        <button class="action-btn primary" (click)="addSelectedLicenseToCart()" [disabled]="!selectedLicense()">
+        <button
+          class="action-btn primary"
+          (click)="addSelectedLicenseToCart()"
+          [disabled]="!selectedLicense()"
+        >
           <span>Add {{ selectedLicense()?.name ?? 'license' }}</span>
           <strong>{{ displayPrice() | currency: currencyCode : 'symbol' : '1.0-0' }}</strong>
         </button>
@@ -97,11 +99,7 @@
         >
           <i [class]="s.analytics?.isFavorited ? 'fa-solid fa-heart' : 'fa-regular fa-heart'"></i>
         </button>
-        <button
-          *ngIf="s.freeMp3Enabled"
-          class="action-btn ghost"
-          (click)="downloadFreeMp3()"
-        >
+        <button *ngIf="s.freeMp3Enabled" class="action-btn ghost" (click)="downloadFreeMp3()">
           <i class="fa-solid fa-download"></i>
           Free MP3
         </button>
@@ -183,7 +181,9 @@
           ★ Most picked
         </span>
 
-        <div class="lc-name">{{ license.name }} <em>{{ getLicenseFormatLabel(license) }}</em></div>
+        <div class="lc-name">
+          {{ license.name }} <em>{{ getLicenseFormatLabel(license) }}</em>
+        </div>
         <div class="lc-sub">{{ getLicenseSubtitle(license, i, s.licenses.length) }}</div>
         <div
           class="lc-price"
@@ -198,15 +198,16 @@
             *ngFor="let feature of getLicenseFeatureRows(license, i, s.licenses.length)"
             [class.muted]="feature.muted"
           >
-            <i class="fa-solid" [class.fa-check]="!feature.muted" [class.fa-xmark]="feature.muted"></i>
+            <i
+              class="fa-solid"
+              [class.fa-check]="!feature.muted"
+              [class.fa-xmark]="feature.muted"
+            ></i>
             <span>{{ feature.text }}</span>
           </li>
         </ul>
         <div class="lc-cta">
-          <button
-            class="lc-btn buy"
-            (click)="addLicenseToCart(license); $event.stopPropagation()"
-          >
+          <button class="lc-btn buy" (click)="addLicenseToCart(license); $event.stopPropagation()">
             {{ getLicenseButtonLabel(license, i, s.licenses.length) }}
           </button>
           <button
@@ -245,9 +246,24 @@
     </div>
 
     <div class="included-grid">
-      <article class="included-card" *ngFor="let item of includedItems()" [class.off]="!item.active">
-        <div class="icon-box" [class.hot]="item.accent === 'hot'" [class.lime]="item.accent === 'lime'" [class.sun]="item.accent === 'sun'">
-          <i class="fa-solid" [class.fa-file-waveform]="item.title === 'Master WAV'" [class.fa-layer-group]="item.title === 'Trackouts / Stems'" [class.fa-music]="item.title === 'Tag-free MP3'" [class.fa-file-contract]="item.title === 'License PDF'"></i>
+      <article
+        class="included-card"
+        *ngFor="let item of includedItems()"
+        [class.off]="!item.active"
+      >
+        <div
+          class="icon-box"
+          [class.hot]="item.accent === 'hot'"
+          [class.lime]="item.accent === 'lime'"
+          [class.sun]="item.accent === 'sun'"
+        >
+          <i
+            class="fa-solid"
+            [class.fa-file-waveform]="item.title === 'Master WAV'"
+            [class.fa-layer-group]="item.title === 'Trackouts / Stems'"
+            [class.fa-music]="item.title === 'Tag-free MP3'"
+            [class.fa-file-contract]="item.title === 'License PDF'"
+          ></i>
         </div>
         <h4>{{ item.title }}</h4>
         <p>{{ item.description }}</p>
@@ -270,14 +286,18 @@
         <div class="pc-eyebrow">Producer · catalog artist</div>
         <div class="pc-name">{{ s.producerName }} <em>studio</em></div>
         <p class="pc-bio">
-          This page keeps your live producer and catalog data, but presents it in the editorial
-          Cult Beats direction. More from this producer and related beats continue to update from the
+          This page keeps your live producer and catalog data, but presents it in the editorial Cult
+          Beats direction. More from this producer and related beats continue to update from the
           same source below.
         </p>
         <div class="pc-stats">
           <div class="st">{{ producerStats().beatCount }} <span class="lbl">beats</span></div>
-          <div class="st">{{ formatCompactCount(producerStats().plays) }} <span class="lbl">plays</span></div>
-          <div class="st">{{ formatCompactCount(producerStats().likes) }} <span class="lbl">likes</span></div>
+          <div class="st">
+            {{ formatCompactCount(producerStats().plays) }} <span class="lbl">plays</span>
+          </div>
+          <div class="st">
+            {{ formatCompactCount(producerStats().likes) }} <span class="lbl">likes</span>
+          </div>
         </div>
       </div>
       <div class="pc-cta">
@@ -295,10 +315,18 @@
     </div>
 
     <div class="related-track">
-      <a class="related-card" *ngFor="let item of relatedDisplaySpecs()" [routerLink]="['/beats', item.id]">
+      <a
+        class="related-card"
+        *ngFor="let item of relatedDisplaySpecs()"
+        [routerLink]="['/beats', item.id]"
+      >
         <div class="rc-art">
           <img [src]="item.imageUrl" [alt]="item.title" />
-          <button class="rc-play" (click)="trackPlayFor(item, $event)" aria-label="Play {{ item.title }}">
+          <button
+            class="rc-play"
+            (click)="trackPlayFor(item, $event)"
+            aria-label="Play {{ item.title }}"
+          >
             <i class="fa-solid fa-play"></i>
           </button>
         </div>
@@ -307,7 +335,9 @@
           <div class="rc-producer">prod. {{ item.producerName }}</div>
           <div class="rc-footer">
             <span>{{ item.bpm }} BPM · {{ item.key }}</span>
-            <span class="rc-price">{{ item.price | currency: currencyCode : 'symbol' : '1.0-0' }}</span>
+            <span class="rc-price">{{
+              item.price | currency: currencyCode : 'symbol' : '1.0-0'
+            }}</span>
           </div>
         </div>
       </a>
@@ -329,7 +359,11 @@
       <button class="sb-btn ghost" (click)="playSpec()">
         <i class="fa-solid fa-play"></i>
       </button>
-      <button class="sb-btn primary" (click)="addSelectedLicenseToCart()" [disabled]="!selectedLicense()">
+      <button
+        class="sb-btn primary"
+        (click)="addSelectedLicenseToCart()"
+        [disabled]="!selectedLicense()"
+      >
         Add to cart
       </button>
     </div>

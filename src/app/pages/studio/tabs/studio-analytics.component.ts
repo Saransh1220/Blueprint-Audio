@@ -25,7 +25,14 @@ export class StudioAnalyticsComponent {
   revenueChartData = signal<any>({ labels: [], datasets: [] });
   doughnutChartData = signal<any>({ labels: [], datasets: [] });
   trackArtwork = signal<Record<string, string>>({});
-  hoveredBigPoint = signal<{ x: number; revenueY: number; playsY: number; revenue: number; plays: number; label: string } | null>(null);
+  hoveredBigPoint = signal<{
+    x: number;
+    revenueY: number;
+    playsY: number;
+    revenue: number;
+    plays: number;
+    label: string;
+  } | null>(null);
 
   currentDays = signal(30);
   sortBy = signal<'plays' | 'revenue' | 'downloads'>('plays');
@@ -37,10 +44,10 @@ export class StudioAnalyticsComponent {
     if (!d) return [];
     const plays = d.plays_by_day ?? [];
     const downloads = d.downloads_by_day ?? [];
-    const maxVal = Math.max(...plays.map(p => p.count), ...downloads.map(p => p.count), 1);
-    const downloadsMap = new Map(downloads.map(item => [item.date, item.count]));
+    const maxVal = Math.max(...plays.map((p) => p.count), ...downloads.map((p) => p.count), 1);
+    const downloadsMap = new Map(downloads.map((item) => [item.date, item.count]));
 
-    return plays.map(item => ({
+    return plays.map((item) => ({
       date: item.date,
       plays: item.count,
       downloads: downloadsMap.get(item.date) ?? 0,
@@ -82,8 +89,14 @@ export class StudioAnalyticsComponent {
     const revenue = data?.revenue_by_day ?? [];
     const plays = data?.plays_by_day ?? [];
     const len = Math.max(revenue.length, plays.length, 1);
-    const fallbackRevenue = Array.from({ length: len || 30 }, (_, i) => 1200 + i * 80 + Math.sin(i * 0.7) * 450);
-    const fallbackPlays = Array.from({ length: len || 30 }, (_, i) => 80 + i * 5 + Math.cos(i * 0.8) * 22);
+    const fallbackRevenue = Array.from(
+      { length: len || 30 },
+      (_, i) => 1200 + i * 80 + Math.sin(i * 0.7) * 450,
+    );
+    const fallbackPlays = Array.from(
+      { length: len || 30 },
+      (_, i) => 80 + i * 5 + Math.cos(i * 0.8) * 22,
+    );
     const revenueValues = revenue.length ? revenue.map((row) => row.revenue) : fallbackRevenue;
     const playValues = plays.length ? plays.map((row) => row.count) : fallbackPlays;
     const labels = (revenue.length ? revenue : plays).length
@@ -169,7 +182,9 @@ export class StudioAnalyticsComponent {
   });
 
   heatmapCells = Array.from({ length: 24 }, (_, i) => {
-    const intensity = Math.round(18 + Math.max(0, Math.sin((i - 13) / 3)) * 68 + (i >= 21 && i <= 23 ? 22 : 0));
+    const intensity = Math.round(
+      18 + Math.max(0, Math.sin((i - 13) / 3)) * 68 + (i >= 21 && i <= 23 ? 22 : 0),
+    );
     return { hour: i, color: `rgba(255, 61, 90, ${intensity / 100})` };
   });
 
@@ -194,11 +209,11 @@ export class StudioAnalyticsComponent {
     const d = this.data();
     if (!d || !d.revenue_by_day) return [];
     const revs = d.revenue_by_day;
-    const maxRev = Math.max(...revs.map(r => r.revenue), 1);
-    return revs.map(r => ({
+    const maxRev = Math.max(...revs.map((r) => r.revenue), 1);
+    return revs.map((r) => ({
       date: r.date,
       val: r.revenue,
-      h: Math.round((r.revenue / maxRev) * 100)
+      h: Math.round((r.revenue / maxRev) * 100),
     }));
   });
 
@@ -213,7 +228,9 @@ export class StudioAnalyticsComponent {
         label,
         value,
         share: Math.round((value / total) * 100),
-        color: ['var(--hot)', 'var(--cobalt)', 'var(--lime)', 'var(--sun)', 'var(--lavender)'][i % 5]
+        color: ['var(--hot)', 'var(--cobalt)', 'var(--lime)', 'var(--sun)', 'var(--lavender)'][
+          i % 5
+        ],
       }));
   });
 
@@ -273,9 +290,11 @@ export class StudioAnalyticsComponent {
     if (!series.revenue.length) return;
     const rect = (event.currentTarget as HTMLElement).getBoundingClientRect();
     const x = ((event.clientX - rect.left) / Math.max(rect.width, 1)) * series.width;
-    const nearestIndex = series.revenue.reduce((bestIndex, point, index) =>
-      Math.abs(point.x - x) < Math.abs(series.revenue[bestIndex].x - x) ? index : bestIndex,
-    0);
+    const nearestIndex = series.revenue.reduce(
+      (bestIndex, point, index) =>
+        Math.abs(point.x - x) < Math.abs(series.revenue[bestIndex].x - x) ? index : bestIndex,
+      0,
+    );
     const revenue = series.revenue[nearestIndex];
     const plays = series.plays[Math.min(nearestIndex, series.plays.length - 1)] ?? revenue;
     this.hoveredBigPoint.set({
@@ -295,11 +314,20 @@ export class StudioAnalyticsComponent {
   shortDate(dateStr: string): string {
     try {
       return new Date(dateStr).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-    } catch { return dateStr.slice(5, 10); }
+    } catch {
+      return dateStr.slice(5, 10);
+    }
   }
 
   buyerColor(name: string): string {
-    const colors = ['var(--hot)', 'var(--cobalt)', 'var(--lime)', 'var(--sun)', 'var(--lavender)', 'var(--tangerine)'];
+    const colors = [
+      'var(--hot)',
+      'var(--cobalt)',
+      'var(--lime)',
+      'var(--sun)',
+      'var(--lavender)',
+      'var(--tangerine)',
+    ];
     const idx = (name.charCodeAt(0) || 0) % colors.length;
     return colors[idx];
   }
@@ -322,7 +350,10 @@ export class StudioAnalyticsComponent {
   }
 
   totalLicenseCount(): number {
-    return this.licenseBreakdown().reduce((sum, item) => sum + Math.round(item.value / 1000), 0) || this.licenseBreakdown().length;
+    return (
+      this.licenseBreakdown().reduce((sum, item) => sum + Math.round(item.value / 1000), 0) ||
+      this.licenseBreakdown().length
+    );
   }
 
   currency(value: number): string {
@@ -362,14 +393,16 @@ export class StudioAnalyticsComponent {
   }
 
   private setChartCompatibilityData(data: AnalyticsOverviewResponse): void {
-    const gradient = (hot: string, cold: string) => ({ chart }: any) => {
-      const ctx = chart?.ctx;
-      if (!ctx?.createLinearGradient) return hot;
-      const fill = ctx.createLinearGradient(0, 0, 0, 280);
-      fill.addColorStop(0, hot);
-      fill.addColorStop(1, cold);
-      return fill;
-    };
+    const gradient =
+      (hot: string, cold: string) =>
+      ({ chart }: any) => {
+        const ctx = chart?.ctx;
+        if (!ctx?.createLinearGradient) return hot;
+        const fill = ctx.createLinearGradient(0, 0, 0, 280);
+        fill.addColorStop(0, hot);
+        fill.addColorStop(1, cold);
+        return fill;
+      };
 
     this.lineChartData.set({
       labels: (data.plays_by_day ?? []).map((row) => row.date),
@@ -399,7 +432,12 @@ export class StudioAnalyticsComponent {
     const entries = Object.entries(data.revenue_by_license ?? {});
     this.doughnutChartData.set({
       labels: entries.map(([label]) => label),
-      datasets: [{ data: entries.map(([, value]) => value), backgroundColor: colors.slice(0, entries.length) }],
+      datasets: [
+        {
+          data: entries.map(([, value]) => value),
+          backgroundColor: colors.slice(0, entries.length),
+        },
+      ],
     });
   }
 }

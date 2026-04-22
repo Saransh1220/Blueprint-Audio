@@ -2,18 +2,18 @@
 
 // ═══ CSS variable palette (scoped to studio) ═══
 :host {
-  --cream:     #f5f1e8;
-  --cream-2:   #ece5d3;
-  --cream-3:   #e0d7c0;
-  --ink:       #141310;
-  --ink-2:     #3a3630;
-  --ink-mute:  #6b635a;
-  --hot:       #ff3d5a;
+  --cream: #f5f1e8;
+  --cream-2: #ece5d3;
+  --cream-3: #e0d7c0;
+  --ink: #141310;
+  --ink-2: #3a3630;
+  --ink-mute: #6b635a;
+  --hot: #ff3d5a;
   --tangerine: #ff6b1a;
-  --lime:      #c8e84f;
-  --cobalt:    #2d4cff;
-  --lavender:  #c9b8ff;
-  --sun:       #ffc93c;
+  --lime: #c8e84f;
+  --cobalt: #2d4cff;
+  --lavender: #c9b8ff;
+  --sun: #ffc93c;
   --sidebar-w: 264px;
   display: block;
   background: var(--cream);
@@ -40,8 +40,13 @@
   scrollbar-color: var(--ink-mute) transparent;
   z-index: 50;
 
-  &::-webkit-scrollbar { width: 4px; }
-  &::-webkit-scrollbar-thumb { background: var(--ink-mute); border-radius: 3px; }
+  &::-webkit-scrollbar {
+    width: 4px;
+  }
+  &::-webkit-scrollbar-thumb {
+    background: var(--ink-mute);
+    border-radius: 3px;
+  }
 }
 
 .sidebar-backdrop {
@@ -102,7 +107,10 @@
   }
 }
 
-.prof-name-block { flex: 1; min-width: 0; }
+.prof-name-block {
+  flex: 1;
+  min-width: 0;
+}
 
 .prof-name {
   font-family: $font-head;
@@ -247,7 +255,9 @@
   transition: background 0.15s ease;
   border: 1.5px solid transparent;
 
-  &:hover { background: var(--cream-2); }
+  &:hover {
+    background: var(--cream-2);
+  }
 
   &.active {
     background: var(--ink);
@@ -265,7 +275,9 @@
     flex-shrink: 0;
   }
 
-  .sn-label { flex: 1; }
+  .sn-label {
+    flex: 1;
+  }
 
   .sn-count {
     font-family: $font-tech;
@@ -277,7 +289,10 @@
     border-radius: 100px;
   }
 
-  &.active .sn-count { background: var(--hot); color: var(--cream); }
+  &.active .sn-count {
+    background: var(--hot);
+    color: var(--cream);
+  }
 }
 
 .account-nav {
@@ -321,7 +336,9 @@
   letter-spacing: -0.01em;
   cursor: pointer;
   box-shadow: 3px 3px 0 var(--ink);
-  transition: transform 0.15s, box-shadow 0.15s;
+  transition:
+    transform 0.15s,
+    box-shadow 0.15s;
   margin-bottom: 10px;
   width: 100%;
   text-decoration: none;
@@ -332,7 +349,10 @@
     gap: 8px;
   }
 
-  &:hover { transform: translate(-1px, -1px); box-shadow: 4px 4px 0 var(--ink); }
+  &:hover {
+    transform: translate(-1px, -1px);
+    box-shadow: 4px 4px 0 var(--ink);
+  }
 }
 
 // ══ Tool links ══
@@ -354,7 +374,9 @@
   width: 100%;
   text-align: left;
 
-  &:hover { background: var(--cream-2); }
+  &:hover {
+    background: var(--cream-2);
+  }
 
   .tl-ico {
     width: 22px;
@@ -408,13 +430,23 @@
     letter-spacing: inherit;
     text-transform: inherit;
     cursor: pointer;
-    &:hover { color: var(--hot); border-color: var(--hot); }
+    &:hover {
+      color: var(--hot);
+      border-color: var(--hot);
+    }
   }
 }
 
 @keyframes pulse-dot {
-  0%, 100% { opacity: 1; transform: scale(1); }
-  50% { opacity: 0.5; transform: scale(1.3); }
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.5;
+    transform: scale(1.3);
+  }
 }
 
 // ═══ MAIN ═══
@@ -426,11 +458,15 @@
 
 // ═══ RESPONSIVE ═══
 @media (max-width: 1100px) {
-  :host { --sidebar-w: 220px; }
+  :host {
+    --sidebar-w: 220px;
+  }
 }
 
 @media (max-width: 760px) {
-  .studio-layout { grid-template-columns: 1fr; }
+  .studio-layout {
+    grid-template-columns: 1fr;
+  }
 
   .sidebar {
     position: fixed;
@@ -443,7 +479,9 @@
     transform: translateX(-100%);
     transition: transform 0.3s ease;
 
-    &.open { transform: translateX(0); }
+    &.open {
+      transform: translateX(0);
+    }
   }
 
   .sidebar-backdrop {
@@ -457,7 +495,10 @@
     pointer-events: none;
     transition: opacity 0.3s;
 
-    &.show { opacity: 1; pointer-events: auto; }
+    &.show {
+      opacity: 1;
+      pointer-events: auto;
+    }
   }
 
   .studio-main {
@@ -466,5 +507,7 @@
 }
 
 @media (max-width: 460px) {
-  .studio-main { padding: 20px 14px 40px; }
+  .studio-main {
+    padding: 20px 14px 40px;
+  }
 }

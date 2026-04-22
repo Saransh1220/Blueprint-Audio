@@ -29,9 +29,7 @@
         <span class="row-chip genre">{{ spec.genres[0].name }}</span>
       }
     </div>
-    <span class="p">
-      prod. {{ spec.producerName }}
-    </span>
+    <span class="p"> prod. {{ spec.producerName }} </span>
   </div>
 
   <div class="row-tags">
@@ -40,7 +38,9 @@
     }
   </div>
 
-  <div class="row-num row-priority row-bpm"><strong>{{ spec.bpm }}</strong></div>
+  <div class="row-num row-priority row-bpm">
+    <strong>{{ spec.bpm }}</strong>
+  </div>
   <div class="row-num row-key row-priority">{{ spec.key }}</div>
   <div class="row-num row-dur">
     @if (spec.duration) {

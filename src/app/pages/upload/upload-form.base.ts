@@ -47,7 +47,15 @@ export abstract class UploadFormBase implements OnInit {
   contractType = signal('Standard');
   territory = signal('Worldwide');
 
-  readonly moodOptions = ['Moody', 'Dark', 'Cinematic', 'Dreamy', 'Aggressive', 'Soulful', 'Melancholic'];
+  readonly moodOptions = [
+    'Moody',
+    'Dark',
+    'Cinematic',
+    'Dreamy',
+    'Aggressive',
+    'Soulful',
+    'Melancholic',
+  ];
   readonly royaltyOptions = ['50/50', '60/40', '70/30', 'None'];
   readonly contractOptions = ['Standard', 'Custom PDF'];
   readonly territoryOptions = ['Worldwide', 'US only', 'Custom'];
@@ -203,7 +211,10 @@ export abstract class UploadFormBase implements OnInit {
   }
 
   saveDraft() {
-    this.toastService.show('Draft saving will be wired later. Your progress is still on screen.', 'info');
+    this.toastService.show(
+      'Draft saving will be wired later. Your progress is still on screen.',
+      'info',
+    );
   }
 
   addTag(event: { target: { value: string } }) {
@@ -437,7 +448,9 @@ export abstract class UploadFormBase implements OnInit {
   formatFileState(type: UploadFileType) {
     const summary = this.getSummarySignal(type)();
     if (summary) {
-      return summary.detail ? `${summary.name} · ${summary.size} · ${summary.detail}` : `${summary.name} · ${summary.size}`;
+      return summary.detail
+        ? `${summary.name} · ${summary.size} · ${summary.detail}`
+        : `${summary.name} · ${summary.size}`;
     }
 
     if (type === 'cover') return 'Required — upload cover art';

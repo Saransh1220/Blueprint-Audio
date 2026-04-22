@@ -102,17 +102,42 @@ export class DashboardComponent implements OnInit {
 
   stats = computed(() => {
     const data = this.analyticsData();
-    if (!data) return [
-      { label: 'Total Plays', value: '—', delta: 'Loading...', deltaDir: 'flat', accent: 'c1' },
-      { label: 'Revenue', value: '—', delta: 'Loading...', deltaDir: 'flat', accent: 'c2' },
-      { label: 'Downloads', value: '—', delta: 'Loading...', deltaDir: 'flat', accent: 'c3' },
-      { label: 'Favorites', value: '—', delta: 'Loading...', deltaDir: 'flat', accent: 'c4' },
-    ];
+    if (!data)
+      return [
+        { label: 'Total Plays', value: '—', delta: 'Loading...', deltaDir: 'flat', accent: 'c1' },
+        { label: 'Revenue', value: '—', delta: 'Loading...', deltaDir: 'flat', accent: 'c2' },
+        { label: 'Downloads', value: '—', delta: 'Loading...', deltaDir: 'flat', accent: 'c3' },
+        { label: 'Favorites', value: '—', delta: 'Loading...', deltaDir: 'flat', accent: 'c4' },
+      ];
     return [
-      { label: 'Total Plays', value: data.total_plays.toLocaleString(), delta: 'Lifetime', deltaDir: 'up', accent: 'c1' },
-      { label: 'Revenue', value: '₹' + data.total_revenue.toLocaleString(), delta: 'Lifetime', deltaDir: 'up', accent: 'c2' },
-      { label: 'Downloads', value: data.total_downloads.toLocaleString(), delta: 'Lifetime', deltaDir: 'up', accent: 'c3' },
-      { label: 'Favorites', value: data.total_favorites.toLocaleString(), delta: 'Lifetime', deltaDir: 'up', accent: 'c4' },
+      {
+        label: 'Total Plays',
+        value: data.total_plays.toLocaleString(),
+        delta: 'Lifetime',
+        deltaDir: 'up',
+        accent: 'c1',
+      },
+      {
+        label: 'Revenue',
+        value: '₹' + data.total_revenue.toLocaleString(),
+        delta: 'Lifetime',
+        deltaDir: 'up',
+        accent: 'c2',
+      },
+      {
+        label: 'Downloads',
+        value: data.total_downloads.toLocaleString(),
+        delta: 'Lifetime',
+        deltaDir: 'up',
+        accent: 'c3',
+      },
+      {
+        label: 'Favorites',
+        value: data.total_favorites.toLocaleString(),
+        delta: 'Lifetime',
+        deltaDir: 'up',
+        accent: 'c4',
+      },
     ];
   });
 
@@ -130,30 +155,156 @@ export class DashboardComponent implements OnInit {
 
   listenerStats = signal([
     { label: 'Beats owned', value: '47', delta: '+3 this month', deltaDir: 'up', accent: 'c1' },
-    { label: 'Total spent', value: '$1,324', delta: 'avg $28 / beat', deltaDir: 'flat', accent: 'c2' },
-    { label: 'Listening hours', value: '68 hrs', delta: 'this month', deltaDir: 'up', accent: 'c3' },
-    { label: 'In your wishlist', value: '12', delta: '2 on sale now', deltaDir: 'up', accent: 'c4' },
+    {
+      label: 'Total spent',
+      value: '$1,324',
+      delta: 'avg $28 / beat',
+      deltaDir: 'flat',
+      accent: 'c2',
+    },
+    {
+      label: 'Listening hours',
+      value: '68 hrs',
+      delta: 'this month',
+      deltaDir: 'up',
+      accent: 'c3',
+    },
+    {
+      label: 'In your wishlist',
+      value: '12',
+      delta: '2 on sale now',
+      deltaDir: 'up',
+      accent: 'c4',
+    },
   ]);
 
   listenerDrops = signal([
-    { letter: 'v', gradient: 'linear-gradient(135deg,#ff3d5a,#ff6b1a)', titleEm: 'Violet', titleRest: ' Hour', meta: 'prod. Kita Sol · purchased 3 days ago', license: 'Premium WAV', downloads: '3 downloads', rev: '$79.99' },
-    { letter: 'p', gradient: 'linear-gradient(135deg,#c9b8ff,#ff3d5a)', titleEm: 'Paper', titleRest: ' Moon', meta: 'prod. Meridian · purchased 2 weeks ago', license: 'Basic MP3', downloads: '1 download', rev: '$24.99' },
-    { letter: 'g', gradient: 'linear-gradient(135deg,#c8e84f,#ffc93c)', titleEm: 'Ghostwire', titleRest: '', meta: 'prod. Rufio Ash · purchased 1 month ago', license: 'Unlimited Pro', downloads: '5 downloads', rev: '$199.99' },
-    { letter: 'i', gradient: 'linear-gradient(135deg,#2d4cff,#c9b8ff)', titleEm: 'Iron', titleRest: ' Lullaby', meta: 'prod. Rufio Ash · purchased 2 months ago', license: 'Premium WAV', downloads: '2 downloads', rev: '$79.99' },
+    {
+      letter: 'v',
+      gradient: 'linear-gradient(135deg,#ff3d5a,#ff6b1a)',
+      titleEm: 'Violet',
+      titleRest: ' Hour',
+      meta: 'prod. Kita Sol · purchased 3 days ago',
+      license: 'Premium WAV',
+      downloads: '3 downloads',
+      rev: '$79.99',
+    },
+    {
+      letter: 'p',
+      gradient: 'linear-gradient(135deg,#c9b8ff,#ff3d5a)',
+      titleEm: 'Paper',
+      titleRest: ' Moon',
+      meta: 'prod. Meridian · purchased 2 weeks ago',
+      license: 'Basic MP3',
+      downloads: '1 download',
+      rev: '$24.99',
+    },
+    {
+      letter: 'g',
+      gradient: 'linear-gradient(135deg,#c8e84f,#ffc93c)',
+      titleEm: 'Ghostwire',
+      titleRest: '',
+      meta: 'prod. Rufio Ash · purchased 1 month ago',
+      license: 'Unlimited Pro',
+      downloads: '5 downloads',
+      rev: '$199.99',
+    },
+    {
+      letter: 'i',
+      gradient: 'linear-gradient(135deg,#2d4cff,#c9b8ff)',
+      titleEm: 'Iron',
+      titleRest: ' Lullaby',
+      meta: 'prod. Rufio Ash · purchased 2 months ago',
+      license: 'Premium WAV',
+      downloads: '2 downloads',
+      rev: '$79.99',
+    },
   ]);
 
   activityItems = signal([
-    { avatarClass: 'c1', letter: 'j', producerText: 'left a 5★ review on your latest beat.', producerStrong: 'Jamie O.', listenerText: 'just dropped a new release.', listenerStrong: 'Kita Sol', listenerEm: '', time: '2m', isNew: true },
-    { avatarClass: 'c3', letter: '✦', producerText: 'was added to 3 carts.', producerStrong: 'Your beat', listenerText: 'on your wishlist are on sale.', listenerStrong: '2 beats', listenerEm: 'on sale', time: '14m', isNew: true },
-    { avatarClass: 'c2', letter: 'm', producerText: 'started following you.', producerStrong: 'Meridian', listenerText: 'released a new pack.', listenerStrong: 'Meridian', listenerEm: '', time: '1h', isNew: false },
-    { avatarClass: 'c4', letter: '$', producerText: 'License sold · Premium WAV.', producerStrong: '', producerEm: '', listenerText: 'for your purchase was received.', listenerStrong: 'Payment', listenerEm: '', time: '3h', isNew: false },
-    { avatarClass: 'c5', letter: 'r', producerText: 'commented on your mix.', producerStrong: 'A producer', listenerText: 'liked your playlist.', listenerStrong: 'Rufio Ash', listenerEm: '', time: '6h', isNew: false },
+    {
+      avatarClass: 'c1',
+      letter: 'j',
+      producerText: 'left a 5★ review on your latest beat.',
+      producerStrong: 'Jamie O.',
+      listenerText: 'just dropped a new release.',
+      listenerStrong: 'Kita Sol',
+      listenerEm: '',
+      time: '2m',
+      isNew: true,
+    },
+    {
+      avatarClass: 'c3',
+      letter: '✦',
+      producerText: 'was added to 3 carts.',
+      producerStrong: 'Your beat',
+      listenerText: 'on your wishlist are on sale.',
+      listenerStrong: '2 beats',
+      listenerEm: 'on sale',
+      time: '14m',
+      isNew: true,
+    },
+    {
+      avatarClass: 'c2',
+      letter: 'm',
+      producerText: 'started following you.',
+      producerStrong: 'Meridian',
+      listenerText: 'released a new pack.',
+      listenerStrong: 'Meridian',
+      listenerEm: '',
+      time: '1h',
+      isNew: false,
+    },
+    {
+      avatarClass: 'c4',
+      letter: '$',
+      producerText: 'License sold · Premium WAV.',
+      producerStrong: '',
+      producerEm: '',
+      listenerText: 'for your purchase was received.',
+      listenerStrong: 'Payment',
+      listenerEm: '',
+      time: '3h',
+      isNew: false,
+    },
+    {
+      avatarClass: 'c5',
+      letter: 'r',
+      producerText: 'commented on your mix.',
+      producerStrong: 'A producer',
+      listenerText: 'liked your playlist.',
+      listenerStrong: 'Rufio Ash',
+      listenerEm: '',
+      time: '6h',
+      isNew: false,
+    },
   ]);
 
   pulseRows = signal([
-    { letter: 'g', gradient: 'linear-gradient(135deg,#c8e84f,#ffc93c)', title: 'Ghostwire', meta: 'prod. Rufio Ash · 4,218 plays', rank: '#1', badgeClass: 'hot' },
-    { letter: 'v', gradient: 'linear-gradient(135deg,#ff3d5a,#ff6b1a)', title: 'Violet Hour', meta: 'prod. Kita Sol · 3,891 plays', rank: '#2', badgeClass: '' },
-    { letter: 'm', gradient: 'linear-gradient(135deg,#2d4cff,#c9b8ff)', title: 'Mint Smoke', meta: 'prod. Meridian · 2,674 plays', rank: '#3', badgeClass: '' },
+    {
+      letter: 'g',
+      gradient: 'linear-gradient(135deg,#c8e84f,#ffc93c)',
+      title: 'Ghostwire',
+      meta: 'prod. Rufio Ash · 4,218 plays',
+      rank: '#1',
+      badgeClass: 'hot',
+    },
+    {
+      letter: 'v',
+      gradient: 'linear-gradient(135deg,#ff3d5a,#ff6b1a)',
+      title: 'Violet Hour',
+      meta: 'prod. Kita Sol · 3,891 plays',
+      rank: '#2',
+      badgeClass: '',
+    },
+    {
+      letter: 'm',
+      gradient: 'linear-gradient(135deg,#2d4cff,#c9b8ff)',
+      title: 'Mint Smoke',
+      meta: 'prod. Meridian · 2,674 plays',
+      rank: '#3',
+      badgeClass: '',
+    },
   ]);
 
   // Colour palette cycling for generated cards
@@ -253,15 +404,18 @@ export class DashboardComponent implements OnInit {
       gradient: this.gradients[index % this.gradients.length],
       titleEm: spec.title.split(' ')[0],
       titleRest: spec.title.includes(' ') ? ' ' + spec.title.split(' ').slice(1).join(' ') : '',
-      meta: [
-        spec.bpm ? `${spec.bpm} BPM` : '',
-        spec.key || '',
-        spec.genres?.[0]?.name || '',
-      ].filter(Boolean).join(' · '),
+      meta: [spec.bpm ? `${spec.bpm} BPM` : '', spec.key || '', spec.genres?.[0]?.name || '']
+        .filter(Boolean)
+        .join(' · '),
       plays: spec.analytics?.playCount?.toLocaleString() || '—',
       downloads: spec.analytics?.totalDownloadCount?.toLocaleString() || '—',
       rev: spec.price != null ? `₹${spec.price.toLocaleString()}` : '—',
-      status: spec.processingStatus === 'completed' ? 'live' : spec.processingStatus === 'pending' ? 'draft' : 'review',
+      status:
+        spec.processingStatus === 'completed'
+          ? 'live'
+          : spec.processingStatus === 'pending'
+            ? 'draft'
+            : 'review',
     };
   }
 }

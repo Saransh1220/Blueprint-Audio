@@ -1,6 +1,11 @@
 import { Component } from '@angular/core';
 
-import { GenresSectionComponent, HeroComponent, LabSectionComponent, TickerComponent } from '../../components';
+import {
+  GenresSectionComponent,
+  HeroComponent,
+  LabSectionComponent,
+  TickerComponent,
+} from '../../components';
 
 @Component({
   selector: 'app-home',

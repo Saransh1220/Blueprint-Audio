@@ -40,14 +40,118 @@ export class StudioPurchasesComponent implements OnInit {
   pagination = this.paymentService.licensePagination;
 
   readonly fallbackRows: PurchaseRow[] = [
-    this.row('ref-1', 'Apr 19', '2026', 'Violet Hour', 'Kita Sol', '92 BPM · Em', 'Premium', 'WAV', '3 of unlimited', 7999, 'v', 'a1'),
-    this.row('ref-2', 'Apr 12', '2026', 'Paper Moon', 'Meridian', '74 BPM · F#m', 'Basic', 'MP3', '1 of 3 left', 2499, 'p', 'a4'),
-    this.row('ref-3', 'Mar 28', '2026', 'Ghostwire', 'Rufio Ash', '140 BPM · Bm', 'Unlimited', 'Pro', '5 of unlimited', 19999, 'g', 'a3'),
-    this.row('ref-4', 'Mar 15', '2026', 'Iron Lullaby', 'Rufio Ash', '68 BPM · Em', 'Premium', 'WAV', '2 of unlimited', 7999, 'i', 'a6'),
-    this.row('ref-5', 'Mar 03', '2026', 'Mint Smoke', 'Meridian', '102 BPM · Dm', 'Basic', 'MP3', '3 of 3 used', 3300, 'm', 'a2'),
-    this.row('ref-6', 'Feb 22', '2026', 'Lavender Static', 'Kita Sol', '110 BPM · F', 'Premium', 'WAV', '4 of unlimited', 7999, 'l', 'a5'),
-    this.row('ref-7', 'Feb 14', '2026', 'Copper Saints', 'Kita Sol', '86 BPM · Gm', 'Unlimited', 'Pro', '7 of unlimited', 19999, 'c', 'a4'),
-    this.row('ref-8', 'Feb 02', '2026', 'Rust Belt', 'Kita Sol', '88 BPM · Am', 'Basic', 'MP3', '2 of 3 left', 2499, 'r', 'a6'),
+    this.row(
+      'ref-1',
+      'Apr 19',
+      '2026',
+      'Violet Hour',
+      'Kita Sol',
+      '92 BPM · Em',
+      'Premium',
+      'WAV',
+      '3 of unlimited',
+      7999,
+      'v',
+      'a1',
+    ),
+    this.row(
+      'ref-2',
+      'Apr 12',
+      '2026',
+      'Paper Moon',
+      'Meridian',
+      '74 BPM · F#m',
+      'Basic',
+      'MP3',
+      '1 of 3 left',
+      2499,
+      'p',
+      'a4',
+    ),
+    this.row(
+      'ref-3',
+      'Mar 28',
+      '2026',
+      'Ghostwire',
+      'Rufio Ash',
+      '140 BPM · Bm',
+      'Unlimited',
+      'Pro',
+      '5 of unlimited',
+      19999,
+      'g',
+      'a3',
+    ),
+    this.row(
+      'ref-4',
+      'Mar 15',
+      '2026',
+      'Iron Lullaby',
+      'Rufio Ash',
+      '68 BPM · Em',
+      'Premium',
+      'WAV',
+      '2 of unlimited',
+      7999,
+      'i',
+      'a6',
+    ),
+    this.row(
+      'ref-5',
+      'Mar 03',
+      '2026',
+      'Mint Smoke',
+      'Meridian',
+      '102 BPM · Dm',
+      'Basic',
+      'MP3',
+      '3 of 3 used',
+      3300,
+      'm',
+      'a2',
+    ),
+    this.row(
+      'ref-6',
+      'Feb 22',
+      '2026',
+      'Lavender Static',
+      'Kita Sol',
+      '110 BPM · F',
+      'Premium',
+      'WAV',
+      '4 of unlimited',
+      7999,
+      'l',
+      'a5',
+    ),
+    this.row(
+      'ref-7',
+      'Feb 14',
+      '2026',
+      'Copper Saints',
+      'Kita Sol',
+      '86 BPM · Gm',
+      'Unlimited',
+      'Pro',
+      '7 of unlimited',
+      19999,
+      'c',
+      'a4',
+    ),
+    this.row(
+      'ref-8',
+      'Feb 02',
+      '2026',
+      'Rust Belt',
+      'Kita Sol',
+      '88 BPM · Am',
+      'Basic',
+      'MP3',
+      '2 of 3 left',
+      2499,
+      'r',
+      'a6',
+    ),
   ];
 
   rows = computed(() => {
@@ -70,19 +174,24 @@ export class StudioPurchasesComponent implements OnInit {
 
   loadPurchases(page = this.currentPage()) {
     this.isLoading.set(true);
-    const filter = this.licenseFilter() === 'All licenses' ? undefined : this.licenseFilter().toUpperCase().replace(' ', '_');
-    
-    this.paymentService.fetchUserLicenses(page, this.perPage(), this.searchQuery(), filter).subscribe({
-      next: (licenses) => {
-        this.licenses.set(licenses || []);
-        this.currentPage.set(page);
-        this.isLoading.set(false);
-      },
-      error: () => {
-        this.licenses.set([]);
-        this.isLoading.set(false);
-      },
-    });
+    const filter =
+      this.licenseFilter() === 'All licenses'
+        ? undefined
+        : this.licenseFilter().toUpperCase().replace(' ', '_');
+
+    this.paymentService
+      .fetchUserLicenses(page, this.perPage(), this.searchQuery(), filter)
+      .subscribe({
+        next: (licenses) => {
+          this.licenses.set(licenses || []);
+          this.currentPage.set(page);
+          this.isLoading.set(false);
+        },
+        error: () => {
+          this.licenses.set([]);
+          this.isLoading.set(false);
+        },
+      });
   }
 
   onSearch(event: Event) {
@@ -173,4 +282,3 @@ export class StudioPurchasesComponent implements OnInit {
     }).format(value / 100);
   }
 }
-

@@ -7,7 +7,16 @@ import { Role } from '../../models';
 import { ThemeToggleComponent } from '../theme-toggle/theme-toggle';
 import { StudioShellService } from '../../pages/studio/studio-shell.service';
 
-type NotificationKind = 'all' | 'unread' | 'sale' | 'message' | 'cart' | 'follow' | 'milestone' | 'wishlist' | 'system';
+type NotificationKind =
+  | 'all'
+  | 'unread'
+  | 'sale'
+  | 'message'
+  | 'cart'
+  | 'follow'
+  | 'milestone'
+  | 'wishlist'
+  | 'system';
 
 interface HeaderNotificationItem {
   id: string;

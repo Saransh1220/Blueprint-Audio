@@ -39,7 +39,11 @@
     height: 3px;
     border-radius: 4px;
     border: none;
-    &[style*="dashed"] { height: 2px; border-top: 2px solid; background: transparent !important; }
+    &[style*='dashed'] {
+      height: 2px;
+      border-top: 2px solid;
+      background: transparent !important;
+    }
   }
 }
 
@@ -65,10 +69,19 @@
   background: var(--lime);
   border: 1px solid var(--ink);
   border-radius: 4px 4px 0 0;
-  transition: opacity 0.2s, transform 0.2s;
+  transition:
+    opacity 0.2s,
+    transform 0.2s;
 
-  &.empty { background: var(--cream-2); border-color: var(--cream-3); height: 2px !important; }
-  &:hover:not(.empty) { transform: scaleX(1.4); background: var(--hot); }
+  &.empty {
+    background: var(--cream-2);
+    border-color: var(--cream-3);
+    height: 2px !important;
+  }
+  &:hover:not(.empty) {
+    transform: scaleX(1.4);
+    background: var(--hot);
+  }
 }
 
 // ── Horizontal Donut Fallback ──
@@ -90,7 +103,9 @@
 .df-segment {
   height: 100%;
   border-right: 1px solid var(--ink);
-  &:last-child { border-right: none; }
+  &:last-child {
+    border-right: none;
+  }
 }
 
 .df-legend {
@@ -99,9 +114,12 @@
   gap: 8px;
 }
 
-.text-mute { color: var(--ink-mute); }
+.text-mute {
+  color: var(--ink-mute);
+}
 
-.chart-loading, .chart-empty {
+.chart-loading,
+.chart-empty {
   height: 200px;
   display: flex;
   align-items: center;
@@ -113,6 +131,11 @@
 }
 
 @media (max-width: 600px) {
-  .main-svg { height: 140px; }
-  .track-row.head, .track-row { grid-template-columns: 30px 1fr 60px !important; }
+  .main-svg {
+    height: 140px;
+  }
+  .track-row.head,
+  .track-row {
+    grid-template-columns: 30px 1fr 60px !important;
+  }
 }

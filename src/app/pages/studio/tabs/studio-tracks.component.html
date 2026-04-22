@@ -5,14 +5,30 @@
   </div>
   <div style="display: flex; gap: 8px; flex-wrap: wrap">
     <button class="btn" type="button">
-      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
-        <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+      <svg
+        width="12"
+        height="12"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2.2"
+      >
+        <polygon
+          points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"
+        />
       </svg>
       Promote
     </button>
     <a class="btn dark" routerLink="../upload">
       Upload beat
-      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+      <svg
+        width="12"
+        height="12"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2.5"
+      >
         <line x1="12" y1="5" x2="12" y2="19" />
         <line x1="5" y1="12" x2="19" y2="12" />
       </svg>
@@ -24,15 +40,31 @@
   <div class="tb-left">
     <label class="search-mini search-field">
       <span class="smi">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <svg
+          width="14"
+          height="14"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+        >
           <circle cx="11" cy="11" r="8" />
           <line x1="21" y1="21" x2="16.65" y2="16.65" />
         </svg>
       </span>
-      <input type="text" placeholder="search your catalog..." [value]="searchTerm()" (input)="setSearch($any($event.target).value)" />
+      <input
+        type="text"
+        placeholder="search your catalog..."
+        [value]="searchTerm()"
+        (input)="setSearch($any($event.target).value)"
+      />
     </label>
 
-    <select class="filter-select" [value]="filterMode()" (change)="setFilter($any($event.target).value)">
+    <select
+      class="filter-select"
+      [value]="filterMode()"
+      (change)="setFilter($any($event.target).value)"
+    >
       <option value="all">All statuses</option>
       <option value="live">Live</option>
       <option value="drafts">Draft</option>
@@ -47,7 +79,11 @@
       <option value="drill">Drill</option>
     </select>
 
-    <select class="filter-select" [value]="sortMode()" (change)="setSortMode($any($event.target).value)">
+    <select
+      class="filter-select"
+      [value]="sortMode()"
+      (change)="setSortMode($any($event.target).value)"
+    >
       <option value="newest">Newest</option>
       <option value="plays">Most plays</option>
       <option value="revenue">Most revenue</option>
@@ -56,8 +92,20 @@
   </div>
 
   <div class="view-toggle">
-    <button [class.on]="viewMode() === 'list'" (click)="setView('list')" aria-label="List view" type="button">
-      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+    <button
+      [class.on]="viewMode() === 'list'"
+      (click)="setView('list')"
+      aria-label="List view"
+      type="button"
+    >
+      <svg
+        width="13"
+        height="13"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2.5"
+      >
         <line x1="8" y1="6" x2="21" y2="6" />
         <line x1="8" y1="12" x2="21" y2="12" />
         <line x1="8" y1="18" x2="21" y2="18" />
@@ -66,8 +114,20 @@
         <line x1="3" y1="18" x2="3.01" y2="18" />
       </svg>
     </button>
-    <button [class.on]="viewMode() === 'grid'" (click)="setView('grid')" aria-label="Grid view" type="button">
-      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+    <button
+      [class.on]="viewMode() === 'grid'"
+      (click)="setView('grid')"
+      aria-label="Grid view"
+      type="button"
+    >
+      <svg
+        width="13"
+        height="13"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2.5"
+      >
         <rect x="3" y="3" width="7" height="7" />
         <rect x="14" y="3" width="7" height="7" />
         <rect x="14" y="14" width="7" height="7" />
@@ -88,7 +148,7 @@
 
 @if (isLoading()) {
   <div class="tracks-skeleton">
-    @for (i of [1,2,3,4,5]; track i) {
+    @for (i of [1, 2, 3, 4, 5]; track i) {
       <div class="sk-row"></div>
     }
   </div>
@@ -120,8 +180,12 @@
           <div class="title-m">{{ track.title || 'Untitled' }}</div>
           <div class="meta-m">{{ releaseMeta(track) }}</div>
         </div>
-        <div class="hide-md stat-m">{{ getGenreLabel(track) }} · <em>{{ track.bpm || '—' }} BPM</em> · {{ track.key || '—' }}</div>
-        <div class="hide-sm stat-m">{{ getPlayCount(track).toLocaleString('en-IN') }} <em>plays</em></div>
+        <div class="hide-md stat-m">
+          {{ getGenreLabel(track) }} · <em>{{ track.bpm || '—' }} BPM</em> · {{ track.key || '—' }}
+        </div>
+        <div class="hide-sm stat-m">
+          {{ getPlayCount(track).toLocaleString('en-IN') }} <em>plays</em>
+        </div>
         <div class="hide-sm stat-m">{{ getSoldCount(track) }} <em>sold</em></div>
         <div class="hide-sm money-m">{{ currency(getEarned(track)) }}</div>
         <div class="hide-md">
@@ -135,17 +199,35 @@
         </div>
         <div class="row-actions">
           <button class="ra-btn" aria-label="Play" type="button">
-            <svg width="9" height="9" viewBox="0 0 24 24" fill="currentColor"><polygon points="6 3 20 12 6 21 6 3" /></svg>
+            <svg width="9" height="9" viewBox="0 0 24 24" fill="currentColor">
+              <polygon points="6 3 20 12 6 21 6 3" />
+            </svg>
           </button>
           <button class="ra-btn" aria-label="Edit" type="button">
-            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+            <svg
+              width="11"
+              height="11"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2.2"
+            >
               <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
               <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
             </svg>
           </button>
           <button class="ra-btn" aria-label="More" type="button">
-            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
-              <circle cx="12" cy="12" r="1" /><circle cx="12" cy="5" r="1" /><circle cx="12" cy="19" r="1" />
+            <svg
+              width="11"
+              height="11"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="3"
+            >
+              <circle cx="12" cy="12" r="1" />
+              <circle cx="12" cy="5" r="1" />
+              <circle cx="12" cy="19" r="1" />
             </svg>
           </button>
         </div>
@@ -155,7 +237,9 @@
     @if (filteredTracks().length === 0) {
       <div class="empty-state">
         <p>No tracks match your filters.</p>
-        <button class="btn sm" (click)="setFilter('all'); setSearch('')" type="button">Clear filters</button>
+        <button class="btn sm" (click)="setFilter('all'); setSearch('')" type="button">
+          Clear filters
+        </button>
       </div>
     }
   </div>
@@ -177,7 +261,9 @@
             <span class="badge draft tg-status">Draft</span>
           }
           <button class="tg-play" type="button" aria-label="Play">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><polygon points="6 3 20 12 6 21 6 3" /></svg>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+              <polygon points="6 3 20 12 6 21 6 3" />
+            </svg>
           </button>
           @if (!track.imageUrl) {
             <span class="tg-letter">{{ trackInitial(track) }}</span>
@@ -185,11 +271,22 @@
         </div>
         <div class="tg-body">
           <div class="tg-title">{{ track.title || 'Untitled' }}</div>
-          <div class="tg-meta">{{ track.bpm || '—' }} BPM · {{ track.key || '—' }} · {{ getGenreLabel(track) }}</div>
+          <div class="tg-meta">
+            {{ track.bpm || '—' }} BPM · {{ track.key || '—' }} · {{ getGenreLabel(track) }}
+          </div>
           <div class="tg-stats">
-            <div class="tg-stat"><div class="lbl">Plays</div><div class="val">{{ getPlayCount(track).toLocaleString('en-IN') }}</div></div>
-            <div class="tg-stat"><div class="lbl">Sold</div><div class="val">{{ getSoldCount(track) }}</div></div>
-            <div class="tg-stat"><div class="lbl">Earned</div><div class="val">{{ currency(getEarned(track)) }}</div></div>
+            <div class="tg-stat">
+              <div class="lbl">Plays</div>
+              <div class="val">{{ getPlayCount(track).toLocaleString('en-IN') }}</div>
+            </div>
+            <div class="tg-stat">
+              <div class="lbl">Sold</div>
+              <div class="val">{{ getSoldCount(track) }}</div>
+            </div>
+            <div class="tg-stat">
+              <div class="lbl">Earned</div>
+              <div class="val">{{ currency(getEarned(track)) }}</div>
+            </div>
           </div>
         </div>
       </div>
@@ -199,19 +296,61 @@
 
 @if (!isLoading()) {
   <div class="studio-pagination">
-    <div class="page-window">Showing {{ pageStart() }}-{{ pageEnd() }} of {{ trackCount() }} tracks</div>
+    <div class="page-window">
+      Showing {{ pageStart() }}-{{ pageEnd() }} of {{ trackCount() }} tracks
+    </div>
     <div class="page-controls">
-      <button class="ra-btn" type="button" aria-label="Previous page" [disabled]="currentPage() <= 1" (click)="previousPage()">
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+      <button
+        class="ra-btn"
+        type="button"
+        aria-label="Previous page"
+        [disabled]="currentPage() <= 1"
+        (click)="previousPage()"
+      >
+        <svg
+          width="12"
+          height="12"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2.5"
+        >
           <polyline points="15 18 9 12 15 6" />
         </svg>
       </button>
-      <button class="page-chip" type="button" [class.on]="currentPage() === 1" (click)="goToPage(1)">1</button>
+      <button
+        class="page-chip"
+        type="button"
+        [class.on]="currentPage() === 1"
+        (click)="goToPage(1)"
+      >
+        1
+      </button>
       @if (totalPages() > 1) {
-        <button class="page-chip" type="button" [class.on]="currentPage() === totalPages()" (click)="goToPage(totalPages())">{{ totalPages() }}</button>
+        <button
+          class="page-chip"
+          type="button"
+          [class.on]="currentPage() === totalPages()"
+          (click)="goToPage(totalPages())"
+        >
+          {{ totalPages() }}
+        </button>
       }
-      <button class="ra-btn" type="button" aria-label="Next page" [disabled]="currentPage() >= totalPages()" (click)="nextPage()">
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+      <button
+        class="ra-btn"
+        type="button"
+        aria-label="Next page"
+        [disabled]="currentPage() >= totalPages()"
+        (click)="nextPage()"
+      >
+        <svg
+          width="12"
+          height="12"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2.5"
+        >
           <polyline points="9 18 15 12 9 6" />
         </svg>
       </button>

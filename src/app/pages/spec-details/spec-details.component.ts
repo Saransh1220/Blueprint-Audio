@@ -69,7 +69,9 @@ export class SpecDetailsComponent {
     if (!current) return [];
 
     const pool = [...producer, ...related].filter((item) => item.id !== current.id);
-    const unique = pool.filter((item, index, array) => array.findIndex((x) => x.id === item.id) === index);
+    const unique = pool.filter(
+      (item, index, array) => array.findIndex((x) => x.id === item.id) === index,
+    );
     return unique.slice(0, 6);
   });
 
@@ -81,7 +83,10 @@ export class SpecDetailsComponent {
       return { beatCount: 0, plays: 0, likes: 0 };
     }
 
-    const allByProducer = [current, ...all.filter((item) => item.producerId === current.producerId)];
+    const allByProducer = [
+      current,
+      ...all.filter((item) => item.producerId === current.producerId),
+    ];
     return {
       beatCount: allByProducer.length,
       plays: allByProducer.reduce((sum, item) => sum + (item.analytics?.playCount ?? 0), 0),

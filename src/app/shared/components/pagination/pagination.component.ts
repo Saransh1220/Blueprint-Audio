@@ -14,7 +14,8 @@ import { CommonModule } from '@angular/common';
     >
       <div class="pagination-info">
         @if (variant() === 'studio') {
-          Showing <strong>{{ startItem() }}-{{ endItem() }}</strong> of <strong>{{ total() }}</strong>
+          Showing <strong>{{ startItem() }}-{{ endItem() }}</strong> of
+          <strong>{{ total() }}</strong>
         } @else {
           Showing <span>{{ startItem() }}</span> to <span>{{ endItem() }}</span> of
           <span>{{ total() }}</span> results
@@ -275,7 +276,7 @@ import { CommonModule } from '@angular/common';
         align-items: center;
         gap: 0.5rem;
       }
-      
+
       .pagination-container.studio .pages {
         gap: 4px;
       }
@@ -363,7 +364,7 @@ export class PaginationComponent {
     if (this.total() === 0) return 0;
     return (this.currentPage() - 1) * this.perPage() + 1;
   });
-  
+
   endItem = computed(() => Math.min(this.currentPage() * this.perPage(), this.total()));
 
   visiblePages = computed(() => {
@@ -408,4 +409,3 @@ export class PaginationComponent {
     this.perPageChange.emit(value);
   }
 }
-

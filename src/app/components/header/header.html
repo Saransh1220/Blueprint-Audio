@@ -14,8 +14,21 @@
           <span></span>
         </button>
       }
-      <div class="nav-brand" routerLink="/">
-      <img class="brand-logo-img" src="/logo.png" alt="Cult Beats" />
+      <div class="nav-brand header-brand">
+        <a class="logo" routerLink="/">
+          <span class="logo-mark" aria-hidden="true">
+            <span class="mark-letters">
+              <span class="c">C</span>
+              <span class="b">B</span>
+            </span>
+          </span>
+          <span class="logo-word">
+            <span class="word-cult">cult</span>
+            <span class="word-dot">·</span>
+            <span class="word-beats">beats</span>
+            <span class="word-star">✦</span>
+          </span>
+        </a>
       </div>
     </div>
 
@@ -30,8 +43,14 @@
           <div class="nav-link-wrap studio-nav-wrap">
             <a routerLink="/studio" routerLinkActive="active" class="studio-nav-link">
               Studio
-              <svg class="caret" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                <polyline points="6 9 12 15 18 9"/>
+              <svg
+                class="caret"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2.5"
+              >
+                <polyline points="6 9 12 15 18 9" />
               </svg>
             </a>
             <div class="studio-menu">
@@ -40,83 +59,207 @@
                 <span class="sm-kbd">CB</span>
               </div>
               <div class="sm-grid">
-                <a class="sm-item" routerLink="/studio/overview" [class.active]="isStudioSection('overview')">
+                <a
+                  class="sm-item"
+                  routerLink="/studio/overview"
+                  [class.active]="isStudioSection('overview')"
+                >
                   <div class="sm-ico c-hot">
-                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
-                      <rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/>
-                      <rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/>
+                    <svg
+                      width="15"
+                      height="15"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2.2"
+                    >
+                      <rect x="3" y="3" width="7" height="7" rx="1" />
+                      <rect x="14" y="3" width="7" height="7" rx="1" />
+                      <rect x="14" y="14" width="7" height="7" rx="1" />
+                      <rect x="3" y="14" width="7" height="7" rx="1" />
                     </svg>
                   </div>
-                  <div><div class="sm-label">Overview</div><div class="sm-desc">your command center</div></div>
+                  <div>
+                    <div class="sm-label">Overview</div>
+                    <div class="sm-desc">your command center</div>
+                  </div>
                   <span class="sm-count"></span>
                 </a>
-                <a class="sm-item" routerLink="/studio/analytics" [class.active]="isStudioSection('analytics')">
+                <a
+                  class="sm-item"
+                  routerLink="/studio/analytics"
+                  [class.active]="isStudioSection('analytics')"
+                >
                   <div class="sm-ico c-cobalt">
-                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
-                      <line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/>
+                    <svg
+                      width="15"
+                      height="15"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2.2"
+                    >
+                      <line x1="18" y1="20" x2="18" y2="10" />
+                      <line x1="12" y1="20" x2="12" y2="4" />
+                      <line x1="6" y1="20" x2="6" y2="14" />
                     </svg>
                   </div>
-                  <div><div class="sm-label">Analytics</div><div class="sm-desc">plays & revenue trends</div></div>
+                  <div>
+                    <div class="sm-label">Analytics</div>
+                    <div class="sm-desc">plays & revenue trends</div>
+                  </div>
                   <span class="sm-count"></span>
                 </a>
-                <a class="sm-item" routerLink="/studio/tracks" [class.active]="isStudioSection('tracks')">
+                <a
+                  class="sm-item"
+                  routerLink="/studio/tracks"
+                  [class.active]="isStudioSection('tracks')"
+                >
                   <div class="sm-ico c-lime">
-                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
-                      <circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/>
+                    <svg
+                      width="15"
+                      height="15"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2.2"
+                    >
+                      <circle cx="12" cy="12" r="10" />
+                      <circle cx="12" cy="12" r="3" />
                     </svg>
                   </div>
-                  <div><div class="sm-label">My tracks</div><div class="sm-desc">your catalog</div></div>
+                  <div>
+                    <div class="sm-label">My tracks</div>
+                    <div class="sm-desc">your catalog</div>
+                  </div>
                   <span class="sm-count">24</span>
                 </a>
-                <a class="sm-item" routerLink="/studio/orders" [class.active]="isStudioSection('orders')">
+                <a
+                  class="sm-item"
+                  routerLink="/studio/orders"
+                  [class.active]="isStudioSection('orders')"
+                >
                   <div class="sm-ico c-sun">
-                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
-                      <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/>
+                    <svg
+                      width="15"
+                      height="15"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2.2"
+                    >
+                      <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z" />
+                      <line x1="3" y1="6" x2="21" y2="6" />
+                      <path d="M16 10a4 4 0 0 1-8 0" />
                     </svg>
                   </div>
-                  <div><div class="sm-label">Orders</div><div class="sm-desc">incoming sales</div></div>
+                  <div>
+                    <div class="sm-label">Orders</div>
+                    <div class="sm-desc">incoming sales</div>
+                  </div>
                   <span class="sm-count alert">3</span>
                 </a>
-                <a class="sm-item" routerLink="/studio/purchases" [class.active]="isStudioSection('purchases')">
+                <a
+                  class="sm-item"
+                  routerLink="/studio/purchases"
+                  [class.active]="isStudioSection('purchases')"
+                >
                   <div class="sm-ico c-lavender">
-                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
-                      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-                      <polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
+                    <svg
+                      width="15"
+                      height="15"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2.2"
+                    >
+                      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                      <polyline points="7 10 12 15 17 10" />
+                      <line x1="12" y1="15" x2="12" y2="3" />
                     </svg>
                   </div>
-                  <div><div class="sm-label">Purchases</div><div class="sm-desc">beats you've bought</div></div>
+                  <div>
+                    <div class="sm-label">Purchases</div>
+                    <div class="sm-desc">beats you've bought</div>
+                  </div>
                   <span class="sm-count">47</span>
                 </a>
-                <a class="sm-item" routerLink="/studio/earnings" [class.active]="isStudioSection('earnings')">
+                <a
+                  class="sm-item"
+                  routerLink="/studio/earnings"
+                  [class.active]="isStudioSection('earnings')"
+                >
                   <div class="sm-ico c-ink">
-                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
-                      <line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+                    <svg
+                      width="15"
+                      height="15"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2.2"
+                    >
+                      <line x1="12" y1="1" x2="12" y2="23" />
+                      <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
                     </svg>
                   </div>
-                  <div><div class="sm-label">Earnings</div><div class="sm-desc">the money</div></div>
+                  <div>
+                    <div class="sm-label">Earnings</div>
+                    <div class="sm-desc">the money</div>
+                  </div>
                   <span class="sm-count"></span>
                 </a>
-                <a class="sm-item" routerLink="/studio/messages" [class.active]="isStudioSection('messages')">
+                <a
+                  class="sm-item"
+                  routerLink="/studio/messages"
+                  [class.active]="isStudioSection('messages')"
+                >
                   <div class="sm-ico c-cream">
-                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
-                      <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                    <svg
+                      width="15"
+                      height="15"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2.2"
+                    >
+                      <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
                     </svg>
                   </div>
-                  <div><div class="sm-label">Messages</div><div class="sm-desc">inbox & buyers</div></div>
+                  <div>
+                    <div class="sm-label">Messages</div>
+                    <div class="sm-desc">inbox & buyers</div>
+                  </div>
                   <span class="sm-count">5</span>
                 </a>
-                <a class="sm-item" routerLink="/studio/profile" [class.active]="isStudioSection('profile')">
+                <a
+                  class="sm-item"
+                  routerLink="/studio/profile"
+                  [class.active]="isStudioSection('profile')"
+                >
                   <div class="sm-ico c-cream">
-                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
-                      <path d="M20 21a8 8 0 0 0-16 0"/><circle cx="12" cy="7" r="4"/>
+                    <svg
+                      width="15"
+                      height="15"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2.2"
+                    >
+                      <path d="M20 21a8 8 0 0 0-16 0" />
+                      <circle cx="12" cy="7" r="4" />
                     </svg>
                   </div>
-                  <div><div class="sm-label">Profile</div><div class="sm-desc">your public page</div></div>
+                  <div>
+                    <div class="sm-label">Profile</div>
+                    <div class="sm-desc">your public page</div>
+                  </div>
                   <span class="sm-count"></span>
                 </a>
               </div>
               <div class="sm-foot">
-                <span class="sm-foot-meta">Pro · @{{ authService.currentUser()?.name || 'producer' }}</span>
+                <span class="sm-foot-meta"
+                  >Pro · @{{ authService.currentUser()?.name || 'producer' }}</span
+                >
                 <a class="sm-open-btn" routerLink="/studio/overview">
                   Open studio
                   <i class="fas fa-arrow-right"></i>
@@ -277,10 +420,7 @@
                   See all activity
                   <i class="fas fa-arrow-right"></i>
                 </a>
-                <a
-                  routerLink="/settings"
-                  class="settings-link"
-                  (click)="closeNotifications()"
+                <a routerLink="/settings" class="settings-link" (click)="closeNotifications()"
                   >configure</a
                 >
               </div>
@@ -291,68 +431,73 @@
 
         <!-- User Profile Dropdown -->
         @if (!isStudioRoute()) {
-        <div class="user-menu-wrap">
-          <button
-            class="icon-btn user-btn"
-            (click)="toggleUserMenu()"
-            [class.active]="isUserMenuOpen"
-          >
-            @if (authService.currentUser()?.avatar_url) {
-              <div
-                class="user-avatar"
-                [style.background-image]="'url(' + authService.currentUser()?.avatar_url + ')'"
-              ></div>
-            } @else {
-              <div class="user-avatar-fallback">
-                {{ authService.currentUser()?.name?.charAt(0) || 'U' }}
-              </div>
-            }
-          </button>
-
-          @if (isUserMenuOpen) {
-            <div class="dropdown-menu user-dropdown">
-              <div class="user-menu-header">
-                @if (authService.currentUser()?.avatar_url) {
-                  <div
-                    class="user-avatar-large"
-                    [style.background-image]="'url(' + authService.currentUser()?.avatar_url + ')'"
-                  ></div>
-                } @else {
-                  <div class="user-avatar-fallback-large">
-                    {{ authService.currentUser()?.name?.charAt(0) || 'U' }}
-                  </div>
-                }
-                <div class="user-info">
-                  <span class="user-name">{{
-                    authService.currentUser()?.display_name ||
-                      authService.currentUser()?.name ||
-                      'User'
-                  }}</span>
-                  <span class="user-email">{{ authService.currentUser()?.email }}</span>
-                  @if (authService.currentUser()?.role === Role.PRODUCER) {
-                    <span class="user-role badge-producer">PRODUCER</span>
-                  } @else {
-                    <span class="user-role badge-default">LISTENER</span>
-                  }
+          <div class="user-menu-wrap">
+            <button
+              class="icon-btn user-btn"
+              (click)="toggleUserMenu()"
+              [class.active]="isUserMenuOpen"
+            >
+              @if (authService.currentUser()?.avatar_url) {
+                <div
+                  class="user-avatar"
+                  [style.background-image]="'url(' + authService.currentUser()?.avatar_url + ')'"
+                ></div>
+              } @else {
+                <div class="user-avatar-fallback">
+                  {{ authService.currentUser()?.name?.charAt(0) || 'U' }}
                 </div>
+              }
+            </button>
+
+            @if (isUserMenuOpen) {
+              <div class="dropdown-menu user-dropdown">
+                <div class="user-menu-header">
+                  @if (authService.currentUser()?.avatar_url) {
+                    <div
+                      class="user-avatar-large"
+                      [style.background-image]="
+                        'url(' + authService.currentUser()?.avatar_url + ')'
+                      "
+                    ></div>
+                  } @else {
+                    <div class="user-avatar-fallback-large">
+                      {{ authService.currentUser()?.name?.charAt(0) || 'U' }}
+                    </div>
+                  }
+                  <div class="user-info">
+                    <span class="user-name">{{
+                      authService.currentUser()?.display_name ||
+                        authService.currentUser()?.name ||
+                        'User'
+                    }}</span>
+                    <span class="user-email">{{ authService.currentUser()?.email }}</span>
+                    @if (authService.currentUser()?.role === Role.PRODUCER) {
+                      <span class="user-role badge-producer">PRODUCER</span>
+                    } @else {
+                      <span class="user-role badge-default">LISTENER</span>
+                    }
+                  </div>
+                </div>
+
+                <a routerLink="/settings" (click)="closeUserMenu()" class="menu-item">
+                  <i class="fas fa-sliders-h"></i> Settings
+                </a>
+
+                <div class="menu-item theme-row">
+                  <span><i class="fas fa-palette"></i> Theme</span>
+                  <app-theme-toggle></app-theme-toggle>
+                </div>
+
+                <button
+                  (click)="authService.logout(); closeUserMenu()"
+                  class="menu-item logout-item"
+                >
+                  <i class="fas fa-power-off"></i> Logout
+                </button>
               </div>
-
-              <a routerLink="/settings" (click)="closeUserMenu()" class="menu-item">
-                <i class="fas fa-sliders-h"></i> Settings
-              </a>
-
-              <div class="menu-item theme-row">
-                <span><i class="fas fa-palette"></i> Theme</span>
-                <app-theme-toggle></app-theme-toggle>
-              </div>
-
-              <button (click)="authService.logout(); closeUserMenu()" class="menu-item logout-item">
-                <i class="fas fa-power-off"></i> Logout
-              </button>
-            </div>
-            <div class="backdrop" (click)="closeUserMenu()"></div>
-          }
-        </div>
+              <div class="backdrop" (click)="closeUserMenu()"></div>
+            }
+          </div>
         }
       } @else {
         <a routerLink="/login" class="login-btn">Log in</a>
@@ -360,11 +505,15 @@
       }
 
       @if (!isStudioRoute()) {
-      <button class="hamburger-btn" (click)="toggleMobileMenu()" [class.active]="isMobileMenuOpen">
-        <span></span>
-        <span></span>
-        <span></span>
-      </button>
+        <button
+          class="hamburger-btn"
+          (click)="toggleMobileMenu()"
+          [class.active]="isMobileMenuOpen"
+        >
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
       }
     </div>
   </div>
@@ -373,7 +522,20 @@
 <!-- Mobile Menu Overlay -->
 <div class="mobile-menu" [class.open]="isMobileMenuOpen">
   <div class="mobile-logo-large">
-    <img class="brand-logo-img" src="/logo.png" alt="Cult Beats" />
+    <a class="logo on-dark" routerLink="/" (click)="closeMobileMenu()">
+      <span class="logo-mark" aria-hidden="true">
+        <span class="mark-letters">
+          <span class="c">C</span>
+          <span class="b">B</span>
+        </span>
+      </span>
+      <span class="logo-word">
+        <span class="word-cult">cult</span>
+        <span class="word-dot">·</span>
+        <span class="word-beats">beats</span>
+        <span class="word-star">✦</span>
+      </span>
+    </a>
   </div>
   <div class="mobile-links">
     <a

@@ -16,13 +16,17 @@
 }
 
 @keyframes shimmer {
-  0% { background-position: 200%; }
-  100% { background-position: -200%; }
+  0% {
+    background-position: 200%;
+  }
+  100% {
+    background-position: -200%;
+  }
 }
 
 // Reference table layout override for track rows
 :host .tracks-table .track-row {
-  grid-template-columns: 36px 1fr minmax(0,1.1fr) 80px 80px 90px 90px 100px;
+  grid-template-columns: 36px 1fr minmax(0, 1.1fr) 80px 80px 90px 90px 100px;
 }
 
 .search-field {
@@ -60,10 +64,15 @@
   border: 2px solid var(--ink);
   border-radius: 16px;
   overflow: hidden;
-  box-shadow: 3px 3px 0 rgba(20,19,16,0.08);
-  transition: transform 0.15s, box-shadow 0.15s;
+  box-shadow: 3px 3px 0 rgba(20, 19, 16, 0.08);
+  transition:
+    transform 0.15s,
+    box-shadow 0.15s;
 
-  &:hover { transform: translate(-2px, -2px); box-shadow: 5px 5px 0 rgba(20,19,16,0.15); }
+  &:hover {
+    transform: translate(-2px, -2px);
+    box-shadow: 5px 5px 0 rgba(20, 19, 16, 0.15);
+  }
 }
 
 .tg-art {
@@ -75,12 +84,24 @@
   justify-content: center;
   border-bottom: 2px solid var(--ink);
 
-  &.a1 { background: linear-gradient(135deg, var(--hot), var(--tangerine)); }
-  &.a2 { background: linear-gradient(135deg, var(--cobalt), var(--lavender)); }
-  &.a3 { background: linear-gradient(135deg, var(--sun), var(--hot)); }
-  &.a4 { background: linear-gradient(135deg, var(--lavender), var(--hot)); }
-  &.a5 { background: linear-gradient(135deg, var(--sun), var(--lime)); }
-  &.a6 { background: linear-gradient(135deg, var(--cobalt), var(--lime)); }
+  &.a1 {
+    background: linear-gradient(135deg, var(--hot), var(--tangerine));
+  }
+  &.a2 {
+    background: linear-gradient(135deg, var(--cobalt), var(--lavender));
+  }
+  &.a3 {
+    background: linear-gradient(135deg, var(--sun), var(--hot));
+  }
+  &.a4 {
+    background: linear-gradient(135deg, var(--lavender), var(--hot));
+  }
+  &.a5 {
+    background: linear-gradient(135deg, var(--sun), var(--lime));
+  }
+  &.a6 {
+    background: linear-gradient(135deg, var(--cobalt), var(--lime));
+  }
 }
 
 .tg-status {
@@ -94,16 +115,21 @@
   height: 36px;
   border-radius: 50%;
   border: 2px solid var(--cream);
-  background: rgba(245,241,232,0.2);
+  background: rgba(245, 241, 232, 0.2);
   backdrop-filter: blur(4px);
   color: var(--cream);
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: background 0.15s, transform 0.15s;
+  transition:
+    background 0.15s,
+    transform 0.15s;
 
-  &:hover { background: rgba(245,241,232,0.4); transform: scale(1.1); }
+  &:hover {
+    background: rgba(245, 241, 232, 0.4);
+    transform: scale(1.1);
+  }
 }
 
 .tg-letter {
@@ -113,12 +139,14 @@
   font-family: 'Instrument Serif', serif;
   font-style: italic;
   font-size: 36px;
-  color: rgba(245,241,232,0.3);
+  color: rgba(245, 241, 232, 0.3);
   pointer-events: none;
   line-height: 1;
 }
 
-.tg-body { padding: 12px; }
+.tg-body {
+  padding: 12px;
+}
 
 .tg-title {
   font-family: $font-head;
@@ -139,7 +167,7 @@
 
 .tg-stats {
   display: grid;
-  grid-template-columns: repeat(3,1fr);
+  grid-template-columns: repeat(3, 1fr);
   gap: 6px;
   padding-top: 10px;
   border-top: 1px dashed var(--cream-3);
@@ -182,11 +210,22 @@
   padding: 40px 20px;
   color: var(--ink-mute);
 
-  .empty-icon { opacity: 0.4; }
-  p { font-family: 'Instrument Serif', serif; font-style: italic; font-size: 15px; margin: 0; }
+  .empty-icon {
+    opacity: 0.4;
+  }
+  p {
+    font-family: 'Instrument Serif', serif;
+    font-style: italic;
+    font-size: 15px;
+    margin: 0;
+  }
 }
 
 @media (max-width: 600px) {
-  :host .tracks-table .track-row { grid-template-columns: 34px 1fr auto auto !important; }
-  .search-field { width: 100%; }
+  :host .tracks-table .track-row {
+    grid-template-columns: 34px 1fr auto auto !important;
+  }
+  .search-field {
+    width: 100%;
+  }
 }

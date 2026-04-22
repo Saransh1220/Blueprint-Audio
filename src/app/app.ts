@@ -37,9 +37,7 @@ export class AppComponent implements AfterViewInit {
   @ViewChild(CartComponent) cart!: CartComponent;
 
   constructor() {
-    this.router.events.pipe(
-      filter(event => event instanceof NavigationEnd)
-    ).subscribe(() => {
+    this.router.events.pipe(filter((event) => event instanceof NavigationEnd)).subscribe(() => {
       setTimeout(() => {
         window.scrollTo({ top: 0, behavior: 'auto' });
       }, 0);

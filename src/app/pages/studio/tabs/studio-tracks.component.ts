@@ -37,7 +37,9 @@ export class StudioTracksComponent {
   draftCount = computed(() => this.tracks().filter((track) => !track.price).length);
   selectedCount = computed(() => this.selectedTracks().size);
   totalPages = computed(() => Math.max(1, Math.ceil(this.trackCount() / this.perPage())));
-  pageStart = computed(() => (this.trackCount() ? (this.currentPage() - 1) * this.perPage() + 1 : 0));
+  pageStart = computed(() =>
+    this.trackCount() ? (this.currentPage() - 1) * this.perPage() + 1 : 0,
+  );
   pageEnd = computed(() => Math.min(this.currentPage() * this.perPage(), this.trackCount()));
 
   filteredTracks = computed(() => {
@@ -88,9 +90,13 @@ export class StudioTracksComponent {
     });
   }
 
-  setView(mode: 'grid' | 'list') { this.viewMode.set(mode); }
+  setView(mode: 'grid' | 'list') {
+    this.viewMode.set(mode);
+  }
 
-  setFilter(mode: 'all' | 'live' | 'drafts' | 'sold') { this.filterMode.set(mode); }
+  setFilter(mode: 'all' | 'live' | 'drafts' | 'sold') {
+    this.filterMode.set(mode);
+  }
 
   setSearch(term: string) {
     this.searchTerm.set(term);
@@ -158,7 +164,8 @@ export class StudioTracksComponent {
 
   getStatus(track: Spec): 'live' | 'review' | 'draft' {
     if (!track.price) return 'draft';
-    if (track.processingStatus === 'pending' || track.processingStatus === 'processing') return 'review';
+    if (track.processingStatus === 'pending' || track.processingStatus === 'processing')
+      return 'review';
     return 'live';
   }
 

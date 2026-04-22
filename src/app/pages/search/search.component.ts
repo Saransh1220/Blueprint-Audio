@@ -123,9 +123,7 @@ export class SearchPageComponent implements OnInit, OnDestroy {
   bpmFillLeft = computed(() => ((this.bpmRange()[0] - 60) / (200 - 60)) * 100);
   bpmFillWidth = computed(() => ((this.bpmRange()[1] - this.bpmRange()[0]) / (200 - 60)) * 100);
   priceFillLeft = computed(() => (this.priceRange()[0] / 50000) * 100);
-  priceFillWidth = computed(
-    () => ((this.priceRange()[1] - this.priceRange()[0]) / 50000) * 100,
-  );
+  priceFillWidth = computed(() => ((this.priceRange()[1] - this.priceRange()[0]) / 50000) * 100);
 
   visibleKeys = computed(() => {
     const mode = this.keyMode();

@@ -1,4 +1,4 @@
-// Theme Definitions
+// Theme Definitions (Updated)
 // We now support multiple themes via data-theme attribute on <body>
 @use 'sass:color';
 @use 'sass:list';
@@ -29,6 +29,12 @@
   --on-brand-color: #{$on-brand};
 
   --line-color: #{$line};
+
+  // Brand Mapping
+  --ink: #{$text};
+  --cream: #{$bg};
+  --hot: #ff3d5a;
+  --lime: #c8e84f;
   --line-color-rgb:
     #{color.channel($line, 'red', $space: rgb)}, #{color.channel($line, 'green', $space: rgb)},
     #{color.channel($line, 'blue', $space: rgb)};

@@ -30,7 +30,7 @@ export class HeroComponent implements AfterViewInit, OnInit, OnDestroy {
   searchQuery = signal('');
   isSearchFocused = signal(false);
   activeChips = signal<string[]>(['Trap']);
-  
+
   // Rotating headline
   useCases = [
     'your next single',
@@ -126,13 +126,13 @@ export class HeroComponent implements AfterViewInit, OnInit, OnDestroy {
     const searchTerms: string[] = [];
 
     // Separate active chips into valid genres vs free-text search strings
-    const allGenres = Object.values(Genre).map(g => g.toLowerCase());
-    
+    const allGenres = Object.values(Genre).map((g) => g.toLowerCase());
+
     for (const chip of this.activeChips()) {
       const lowerChip = chip.toLowerCase();
       // Handle the case where the enum has R&B but the chip might be R&B or Rnb etc.
       // We will look for a direct match in the values.
-      const exactGenreMatch = Object.values(Genre).find(g => g.toLowerCase() === lowerChip);
+      const exactGenreMatch = Object.values(Genre).find((g) => g.toLowerCase() === lowerChip);
       if (exactGenreMatch) {
         matchedGenres.push(exactGenreMatch);
       } else {
@@ -147,7 +147,7 @@ export class HeroComponent implements AfterViewInit, OnInit, OnDestroy {
     if (matchedGenres.length > 0) {
       queryParams['genres'] = matchedGenres.join(',');
     }
-    
+
     if (searchTerms.length > 0) {
       queryParams['search'] = searchTerms.join(' ');
     }
