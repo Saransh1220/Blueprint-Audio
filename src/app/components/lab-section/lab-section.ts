@@ -38,12 +38,28 @@ export class LabSectionComponent implements OnInit, AfterViewInit {
   specs = signal<Spec[]>([]);
   isLoading = signal(true);
   viewMode = signal<'grid' | 'list'>('grid');
+  readonly filterChips = [
+    'All beats',
+    'New this week',
+    'Trending',
+    'Under $30',
+    'Exclusive rights',
+    'With stems',
+    'Sub 90 BPM',
+    '140+ BPM',
+  ];
+  activeChip = signal(this.filterChips[0]);
+  sortMode = signal('Sort: Newest');
 
   // Search State
   searchTerm = signal('');
 
   setViewMode(mode: 'grid' | 'list') {
     this.viewMode.set(mode);
+  }
+
+  setActiveChip(chip: string) {
+    this.activeChip.set(chip);
   }
 
   ngOnInit(): void {

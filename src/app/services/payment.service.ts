@@ -112,7 +112,7 @@ export class PaymentService {
           // Refresh user licenses
           this.fetchUserLicenses().subscribe();
           // Navigate to purchases page
-          this.router.navigate(['/purchases']);
+          this.router.navigate(['/dashboard']);
         }),
         catchError((error) => {
           this.toast.show('Payment verification failed. Please contact support.', 'error');
@@ -131,10 +131,11 @@ export class PaymentService {
    */
   fetchUserLicenses(
     page: number = 1,
+    limit: number = 8,
     search?: string,
     licenseType?: string,
   ): Observable<License[]> {
-    const params: any = { page };
+    const params: any = { page, limit };
     if (search) params.q = search;
     if (licenseType && licenseType !== 'ALL') params.type = licenseType; // Handle 'ALL' case
 

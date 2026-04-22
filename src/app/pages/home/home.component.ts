@@ -1,14 +1,15 @@
 import { Component } from '@angular/core';
 
-import { HeroComponent, LabSectionComponent, TickerComponent } from '../../components';
+import { GenresSectionComponent, HeroComponent, LabSectionComponent, TickerComponent } from '../../components';
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [HeroComponent, TickerComponent, LabSectionComponent],
+  imports: [HeroComponent, TickerComponent, GenresSectionComponent, LabSectionComponent],
   template: `
     <app-hero></app-hero>
     <app-ticker></app-ticker>
+    <app-genres-section></app-genres-section>
     <app-lab-section></app-lab-section>
   `,
 })

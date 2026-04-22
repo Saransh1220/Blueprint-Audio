@@ -1,12 +1,14 @@
 import { CommonModule } from '@angular/common';
 import { type AfterViewInit, Component, ElementRef, inject, ViewChild } from '@angular/core';
-import { Router, RouterOutlet } from '@angular/router';
+import { NavigationEnd, Router, RouterOutlet } from '@angular/router';
+import { filter } from 'rxjs/operators';
 import { gsap } from 'gsap';
 import { HeaderComponent } from './components';
 import { CartComponent } from './components/cart/cart.component';
 import { FooterComponent } from './components/footer/footer';
 import { ModalComponent } from './components/modal/modal.component';
 import { PlayerComponent } from './components/player/player';
+import { PlayerService } from './services/player.service';
 import { ToastComponent } from './components/toast/toast.component';
 import { LoadingBarComponent } from './components/loading-bar/loading-bar.component';
 
@@ -30,8 +32,19 @@ import { LoadingBarComponent } from './components/loading-bar/loading-bar.compon
 export class AppComponent implements AfterViewInit {
   private el = inject(ElementRef);
   private router = inject(Router);
+  playerService = inject(PlayerService);
 
   @ViewChild(CartComponent) cart!: CartComponent;
+
+  constructor() {
+    this.router.events.pipe(
+      filter(event => event instanceof NavigationEnd)
+    ).subscribe(() => {
+      setTimeout(() => {
+        window.scrollTo({ top: 0, behavior: 'auto' });
+      }, 0);
+    });
+  }
 
   ngAfterViewInit(): void {
     const grid = this.el.nativeElement.querySelector('.grid-overlay');
@@ -83,6 +96,10 @@ export class AppComponent implements AfterViewInit {
     return this.router.url.startsWith('/studio');
   }
 
+  isUploadRoute(): boolean {
+    return this.router.url === '/upload' || this.router.url.startsWith('/studio/upload');
+  }
+
   isAuthRoute(): boolean {
     return (
       this.router.url.startsWith('/login') ||
@@ -91,5 +108,18 @@ export class AppComponent implements AfterViewInit {
       this.router.url.startsWith('/forgot-password') ||
       this.router.url.startsWith('/reset-password')
     );
+  }
+
+  shouldReservePlayerSpace(): boolean {
+    return (
+      this.playerService.isVisible() &&
+      !this.isStudioRoute() &&
+      !this.isAuthRoute() &&
+      !this.isUploadRoute()
+    );
+  }
+
+  shouldReserveExpandedPlayerSpace(): boolean {
+    return this.shouldReservePlayerSpace() && this.playerService.isExpanded();
   }
 }

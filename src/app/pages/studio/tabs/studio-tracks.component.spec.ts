@@ -31,7 +31,7 @@ describe('StudioTracksComponent', () => {
   it('loads the producer catalog on construction', () => {
     const component = create();
 
-    expect(getSpecs).toHaveBeenCalledWith({ category: 'beat' });
+    expect(getSpecs).toHaveBeenCalledWith({ category: 'beat', page: 1, per_page: 12, sort: 'newest' });
     expect(component.tracks()).toEqual(specs);
     expect(component.trackCount()).toBe(2);
     expect(component.isLoading()).toBe(false);

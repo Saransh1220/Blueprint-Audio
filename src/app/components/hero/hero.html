@@ -1,51 +1,225 @@
-<section class="hero" (mousemove)="onMouseMove($event)">
-  <!-- Elegant minimal background -->
-  <div class="hero-bg" aria-hidden="true">
-    <div class="ambient-glow"></div>
-  </div>
+<section class="hero">
+  <!-- Background decor -->
+  <div class="hero-bg-word">Cult <em>Beats</em></div>
 
-  <canvas class="hero-canvas" #heroCanvas></canvas>
-
-  <div class="hero-inner">
-    <!-- Left: Content -->
+  <div class="hero-grid hero-inner">
     <div class="hero-content">
-      <div class="hero-collection-label gs-reveal">
-        <span class="dot"></span>
-        <span class="label-text">The Signature Collection</span>
-      </div>
-
-      <h1 class="hero-title gs-reveal">
-        Sonic<br />
-        <span class="title-accent">Architecture.</span>
+      <h1 class="hero-headline gs-reveal">
+        find your <em>next</em> beat.<br/>
+        press record tonight.
       </h1>
 
-      <p class="hero-desc gs-reveal">
-        Exclusive instrumentals, loops, and custom sound design. Meticulously crafted, cleared, and
-        ready for your next project.
-      </p>
+      <div class="hero-rotator gs-reveal">
+        <span class="prefix">the right sound for</span>
+        <span class="word" [style.opacity]="useCaseOpacity()">{{ currentUseCase() }}</span>
+      </div>
 
-      <div class="hero-actions gs-reveal">
-        <a routerLink="/search" class="btn btn-solid">
-          <span>Explore the Vault</span>
+      <!-- SEARCH -->
+      <div class="search-wrap gs-reveal">
+        <div class="search-bar" [class.focused]="isSearchFocused()" (click)="searchInput.focus()">
+          <div class="search-icon" aria-hidden="true">✦</div>
+
+          <div class="search-chips">
+            @for (chip of activeChips(); track chip) {
+              <span class="search-chip">
+                {{ chip }}
+                <span class="rm" (click)="removeChip(chip); searchInput.focus(); $event.stopPropagation()" aria-label="Remove filter">
+                  <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                    <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+                  </svg>
+                </span>
+              </span>
+            }
+          </div>
+
+          <input 
+            #searchInput
+            type="text" 
+            class="search-input" 
+            [(ngModel)]="searchQuery"
+            (focus)="onSearchFocus()"
+            (blur)="onSearchBlur()"
+            (keydown.enter)="doSearch()"
+            [placeholder]="currentPlaceholder()" 
+            autocomplete="off" 
+          />
+
+          <span class="search-kbd">⌘K</span>
+
+          <button class="search-go" (click)="doSearch(); $event.stopPropagation()">
+            <span class="go-text">Search</span>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <line x1="5" y1="12" x2="19" y2="12"/>
+              <polyline points="12 5 19 12 12 19"/>
+            </svg>
+          </button>
+        </div>
+
+        <!-- Search suggestions dropdown -->
+        <div class="search-suggest" [class.show]="isSearchFocused()">
+          <div class="suggest-group">
+            <div class="suggest-label"><span class="dot"></span> Trending searches</div>
+            <button class="suggest-item" (click)="pickSuggest('dark piano trap'); $event.stopPropagation()">
+              <div class="suggest-ico c4">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                  <path d="M12 2v20M2 12h20"/>
+                </svg>
+              </div>
+              <div class="suggest-text">
+                <div class="suggest-main">dark <em>piano trap</em></div>
+                <div class="suggest-sub">182 beats · most searched this week</div>
+              </div>
+              <span class="suggest-meta">↗ 24%</span>
+            </button>
+            <button class="suggest-item" (click)="pickSuggest('afrobeats 108 bpm'); $event.stopPropagation()">
+              <div class="suggest-ico c4">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                  <path d="M12 2v20M2 12h20"/>
+                </svg>
+              </div>
+              <div class="suggest-text">
+                <div class="suggest-main">afrobeats <em>108 bpm</em></div>
+                <div class="suggest-sub">91 beats · +12 new this week</div>
+              </div>
+              <span class="suggest-meta">↗ 18%</span>
+            </button>
+          </div>
+
+          <div class="suggest-group">
+            <div class="suggest-label"><span class="dot" style="background:var(--lemon)"></span> Try these beats</div>
+            <button class="suggest-item" (click)="pickSuggest('Violet Hour'); $event.stopPropagation()">
+              <div class="suggest-ico c1">v</div>
+              <div class="suggest-text">
+                <div class="suggest-main"><em>Violet</em> Hour</div>
+                <div class="suggest-sub">prod. Kita Sol · 92 BPM · Em</div>
+              </div>
+              <span class="suggest-meta">from ₹999</span>
+            </button>
+            <button class="suggest-item" (click)="pickSuggest('Ghostwire'); $event.stopPropagation()">
+              <div class="suggest-ico c3">g</div>
+              <div class="suggest-text">
+                <div class="suggest-main">Ghostwire</div>
+                <div class="suggest-sub">prod. Rufio Ash · 140 BPM · Bm</div>
+              </div>
+              <span class="suggest-meta">from ₹1499</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick filter rows -->
+      <div class="quick-rows gs-reveal">
+        <div class="quick-row">
+          <span class="quick-label">genre →</span>
+          <button class="quick-chip" (click)="addChip('Trap')">Trap</button>
+          <button class="quick-chip" (click)="addChip('Lo-fi')">Lo-fi</button>
+          <button class="quick-chip" (click)="addChip('R&B')">R&amp;B</button>
+          <button class="quick-chip" (click)="addChip('Drill')">Drill</button>
+          <button class="quick-chip" (click)="addChip('Afrobeats')">Afrobeats</button>
+          <button class="quick-chip" (click)="addChip('Boom Bap')">Boom Bap</button>
+        </div>
+        <div class="quick-row">
+          <span class="quick-label">vibe →</span>
+          <button class="quick-chip vibe" (click)="addChip('moody')">moody</button>
+          <button class="quick-chip vibe" (click)="addChip('cinematic')">cinematic</button>
+          <button class="quick-chip vibe" (click)="addChip('uplifting')">uplifting</button>
+          <button class="quick-chip vibe" (click)="addChip('dark')">dark</button>
+        </div>
+      </div>
+
+      <!-- Smart shortcuts -->
+      <div class="shortcuts gs-reveal">
+        <a href="#" class="shortcut" (click)="$event.preventDefault();doQuick('under-30')">
+          <div class="shortcut-ico c1">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+              <line x1="12" y1="1" x2="12" y2="23"/>
+              <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+            </svg>
+          </div>
+          <div class="shortcut-title">Beats under <em>₹999</em></div>
+          <div class="shortcut-sub">demos, drafts, loose ideas</div>
         </a>
-        <a routerLink="/upload" class="btn btn-outline">
-          <span>License a Track</span>
+        <a href="#" class="shortcut" (click)="$event.preventDefault();doQuick('new')">
+          <div class="shortcut-ico c2">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+              <circle cx="12" cy="12" r="10"/>
+              <polyline points="12 6 12 12 16 14"/>
+            </svg>
+          </div>
+          <div class="shortcut-title">This <em>week's</em> drops</div>
+          <div class="shortcut-sub">freshest first · 47 new</div>
+        </a>
+        <a href="#" class="shortcut" (click)="$event.preventDefault();doQuick('stems')">
+          <div class="shortcut-ico c3">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+              <rect x="3" y="4" width="4" height="16" rx="1"/>
+              <rect x="10" y="8" width="4" height="12" rx="1"/>
+              <rect x="17" y="2" width="4" height="18" rx="1"/>
+            </svg>
+          </div>
+          <div class="shortcut-title">With <em>stems</em></div>
+          <div class="shortcut-sub">mix-ready trackouts included</div>
+        </a>
+        <a href="#" class="shortcut" (click)="$event.preventDefault();doQuick('sync')">
+          <div class="shortcut-ico c4">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+              <rect x="2" y="6" width="20" height="12" rx="2"/>
+              <polygon points="10 9 15 12 10 15 10 9" fill="currentColor"/>
+            </svg>
+          </div>
+          <div class="shortcut-title"><em>Sync-ready</em></div>
+          <div class="shortcut-sub">for film, TV, ads</div>
         </a>
       </div>
 
-      <div class="hero-credits gs-reveal">
-        <div class="credit-item">
-          <span class="credit-num">01</span>
-          <span class="credit-label">Original Compositions</span>
-        </div>
-        <div class="credit-item">
-          <span class="credit-num">02</span>
-          <span class="credit-label">Royalty Free Masters</span>
-        </div>
-      </div>
     </div>
 
-    <!-- Right: 3D Scene Container -->
-    <div class="hero-visual" aria-hidden="true"></div>
+    <div class="hero-bottom">
+      <div class="player-card gs-reveal">
+        <div class="player-art">
+          <div class="player-badge">featured</div>
+        </div>
+        <div class="player-copy">
+          <div class="eyebrow">Now playing &#183; #001</div>
+          <h2 class="player-title">Browse the <em>whole</em> rack.</h2>
+          <p class="player-artist">
+            Filters, genres, BPM, key and licensing are all here. Preview, collect, and keep
+            moving.
+          </p>
+          <div class="hero-actions">
+            <a routerLink="/search" class="btn btn-solid">
+              <span>Browse Catalog</span>
+            </a>
+            <a routerLink="/upload" class="btn btn-outline">
+              <span>Upload to Studio</span>
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <div class="stat-stack gs-reveal">
+        <div class="stat-card">
+          <div class="stat-num">1,241<span class="unit">+</span></div>
+          <div class="stat-lbl">Beats in rotation</div>
+        </div>
+        <div class="stat-card v2">
+          <div class="stat-num">40<span class="unit">k</span></div>
+          <div class="stat-lbl">Artists &#183; worldwide</div>
+        </div>
+      </div>
+
+      <a routerLink="/battles" class="cta-card gs-reveal">
+        <div>
+          <h3>Browse the <em>whole</em> rack</h3>
+          <p>Filters, genres, BPM, key, battle energy and studio access. Scroll on.</p>
+        </div>
+        <div class="arrow-big">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <line x1="7" y1="17" x2="17" y2="7" />
+            <polyline points="7 7 17 7 17 17" />
+          </svg>
+        </div>
+      </a>
+    </div>
   </div>
 </section>

@@ -1,52 +1,88 @@
-<section class="lab-section container">
+<section class="lab-section container block catalog-block">
   <div class="section-head">
-    {{ type === 'beat' ? 'Featured Beats' : 'Featured Samples' }}<br />
-    <span class="catalog-subtitle">LATEST DROPS</span>
+    <div>
+      <div class="section-num"><span class="dot"></span> 02 &#183; Catalog</div>
+      <h2 class="section-h">
+        the <em>{{ type === 'beat' ? 'whole' : 'sample' }}</em> rack.
+      </h2>
+    </div>
+    <div class="head-meta">
+      <p>Filter, sort, preview, collect. Grid or list &#8212; your call.</p>
+      <button class="btn-view-all btn-view-all-top" (click)="navigateToSearch()">
+        View catalog <i class="fas fa-long-arrow-alt-right"></i>
+      </button>
+    </div>
   </div>
 
-  <!-- TOOLBAR: SEARCH ONLY -->
+  <div class="chip-row">
+    @for (chip of filterChips; track chip) {
+      <button class="chip" [class.on]="activeChip() === chip" (click)="setActiveChip(chip)">
+        {{ chip }}
+      </button>
+    }
+  </div>
+
   <div class="toolbar">
-    <div class="search-bar">
-      <i class="fas fa-search"></i>
-      <input
-        type="text"
-        placeholder="SEARCH_DATABASE..."
-        [ngModel]="searchTerm()"
-        (ngModelChange)="searchTerm.set($event)"
-        (keydown.enter)="onSearch()"
-      />
+    <div class="toolbar-left">
+      <span><strong>{{ specs().length }}</strong> featured {{ type }}s</span>
+      <select class="sort-select" [ngModel]="sortMode()" (ngModelChange)="sortMode.set($event)">
+        <option>Sort: Newest</option>
+        <option>Sort: Trending</option>
+        <option>Sort: Price ↑</option>
+        <option>Sort: Price ↓</option>
+      </select>
+      <div class="search-bar">
+        <i class="fas fa-search"></i>
+        <input
+          type="text"
+          placeholder="Search the rack..."
+          [ngModel]="searchTerm()"
+          (ngModelChange)="searchTerm.set($event)"
+          (keydown.enter)="onSearch()"
+        />
+      </div>
     </div>
 
     <div class="toolbar-actions">
-      <div class="view-controls">
+      <div class="view-switch">
         <button
-          class="btn-view"
-          [class.active]="viewMode() === 'grid'"
+          [class.on]="viewMode() === 'grid'"
           (click)="setViewMode('grid')"
           title="Grid View"
         >
-          <i class="fas fa-th-large"></i>
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <rect x="3" y="3" width="7" height="7"></rect>
+            <rect x="14" y="3" width="7" height="7"></rect>
+            <rect x="3" y="14" width="7" height="7"></rect>
+            <rect x="14" y="14" width="7" height="7"></rect>
+          </svg>
+          Grid
         </button>
         <button
-          class="btn-view"
-          [class.active]="viewMode() === 'list'"
+          [class.on]="viewMode() === 'list'"
           (click)="setViewMode('list')"
           title="List View"
         >
-          <i class="fas fa-list"></i>
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <line x1="8" y1="6" x2="21" y2="6"></line>
+            <line x1="8" y1="12" x2="21" y2="12"></line>
+            <line x1="8" y1="18" x2="21" y2="18"></line>
+            <line x1="3" y1="6" x2="3.01" y2="6"></line>
+            <line x1="3" y1="12" x2="3.01" y2="12"></line>
+            <line x1="3" y1="18" x2="3.01" y2="18"></line>
+          </svg>
+          List
         </button>
       </div>
     </div>
   </div>
 
-  <!-- LOADING STATE -->
   @if (isLoading()) {
     <div class="loading-container">
       <app-loading-spinner size="60px"></app-loading-spinner>
       <div class="loading-text">Loading...</div>
     </div>
   } @else {
-    <!-- GRID VIEW -->
     @if (viewMode() === 'grid') {
       <div class="spec-grid">
         @for (spec of specs(); track spec.id; let i = $index) {
@@ -55,9 +91,17 @@
       </div>
     }
 
-    <!-- LIST VIEW -->
     @if (viewMode() === 'list') {
       <div class="list-container">
+        <div class="list-head">
+          <span></span>
+          <span>Title / Producer</span>
+          <span class="c-tags">Tags</span>
+          <span>BPM</span>
+          <span class="c-key">Key</span>
+          <span class="c-dur">Length</span>
+          <span style="text-align: right">Price</span>
+        </div>
         @for (spec of specs(); track spec.id; let i = $index) {
           <app-spec-list-item [spec]="spec" [priority]="i < 6"></app-spec-list-item>
         }
@@ -65,15 +109,7 @@
     }
 
     @if (specs().length === 0) {
-      <div style="text-align: center; padding: 60px; color: var(--line-color)">
-        NO DATA AVAILABLE.
-      </div>
+      <div class="empty-copy">NO DATA AVAILABLE.</div>
     }
-
-    <div class="view-all-container">
-      <button class="btn-view-all" (click)="navigateToSearch()">
-        VIEW FULL CATALOG <i class="fas fa-long-arrow-alt-right"></i>
-      </button>
-    </div>
   }
 </section>

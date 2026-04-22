@@ -1,0 +1,81 @@
+<div class="page-head">
+  <div>
+    <div class="page-num"><span class="dot"></span> 07 · Settings</div>
+    <h1 class="page-h">your <em>setup</em>.</h1>
+  </div>
+</div>
+
+<div class="ov-two">
+  <div class="card">
+    <div class="card-head"><h4>Profile</h4><button class="btn sm" type="button">Edit</button></div>
+    <div style="padding: 4px 0">
+      <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 14px">
+        <div class="settings-avatar">{{ avatarLetter() }}</div>
+        <div>
+          <div class="title-m" style="font-size: 16px">{{ displayName() }}</div>
+          <div class="meta-m">@{{ handle() }} · {{ location() }}</div>
+        </div>
+      </div>
+      <div class="settings-bio">"Slow-burning beats from late-night sessions. Piano, subs, and plate reverb."</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head"><h4>Plan · <em>Pro</em></h4><button class="btn sm" type="button">Manage</button></div>
+    <div style="padding: 4px 0">
+      <div class="eh-mini" style="border-color: var(--cream-3)">
+        <span class="eh-mini-lbl" style="color: var(--ink-mute)">Subscription</span>
+        <span class="eh-mini-val" style="color: var(--ink); font-size: 16px">Redwave Pro</span>
+      </div>
+      <div class="eh-mini" style="border-color: var(--cream-3)">
+        <span class="eh-mini-lbl" style="color: var(--ink-mute)">Renews</span>
+        <span class="eh-mini-val" style="color: var(--ink); font-size: 16px">May 14, 2026</span>
+      </div>
+      <div class="eh-mini" style="border: none; padding: 0">
+        <span class="eh-mini-lbl" style="color: var(--ink-mute)">Rate</span>
+        <span class="eh-mini-val" style="color: var(--ink); font-size: 16px">₹1,500<em style="font-family: 'Instrument Serif', serif; font-style: italic; color: var(--hot); font-size: 13px; font-weight: 400">/mo</em></span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="ov-two" style="margin-top: 20px">
+  <div class="card">
+    <div class="card-head"><h4>Notifications</h4></div>
+    <div style="display: flex; flex-direction: column; gap: 14px; padding: 4px 0">
+      @for (n of notifications; track n.label) {
+        <div style="display: flex; justify-content: space-between; align-items: center; gap: 12px">
+          <div><div class="title-m">{{ n.label }}</div><div class="meta-m">{{ n.desc }}</div></div>
+          <button class="toggle" [class.on]="n.on" type="button"><span class="toggle-knob"></span></button>
+        </div>
+      }
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head"><h4>Linked <em>accounts</em></h4></div>
+    <div style="display: flex; flex-direction: column; gap: 10px; padding: 4px 0">
+      <div style="display: flex; justify-content: space-between; align-items: center; gap: 12px">
+        <div style="display: flex; align-items: center; gap: 10px">
+          <div class="platform-ico">G</div>
+          <div><div class="title-m">Google</div><div class="meta-m">Connected</div></div>
+        </div>
+        <span class="badge paid">Active</span>
+      </div>
+      <div style="display: flex; justify-content: space-between; align-items: center; gap: 12px">
+        <div style="display: flex; align-items: center; gap: 10px">
+          <div class="platform-ico" style="background: var(--ink); color: var(--cream)">SC</div>
+          <div><div class="title-m">SoundCloud</div><div class="meta-m">Not connected</div></div>
+        </div>
+        <button class="btn sm" type="button">Connect</button>
+      </div>
+      <div style="display: flex; justify-content: space-between; align-items: center; gap: 12px">
+        <div style="display: flex; align-items: center; gap: 10px">
+          <div class="platform-ico" style="background: var(--cobalt); color: var(--cream)">Sp</div>
+          <div><div class="title-m">Spotify for Artists</div><div class="meta-m">Not connected</div></div>
+        </div>
+        <button class="btn sm" type="button">Connect</button>
+      </div>
+    </div>
+  </div>
+</div>

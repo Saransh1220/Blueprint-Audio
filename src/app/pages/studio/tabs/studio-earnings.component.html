@@ -1,0 +1,132 @@
+<div class="page-head">
+  <div>
+    <div class="page-num"><span class="dot"></span> 05 · Earnings</div>
+    <h1 class="page-h">the <em>money</em>.</h1>
+  </div>
+  <p class="page-sub">Withdraw anytime after clearance. Transfers arrive in <em>1-2 business days</em>.</p>
+</div>
+
+<div class="earn-hero">
+  <div>
+    <div class="eh-eyebrow">Available to withdraw</div>
+    <div class="eh-amount"><span class="cur">₹</span>{{ formattedBalance() }}<em style="font-size: 28px">.00</em></div>
+    <p class="eh-sub">
+      From {{ orderTotal() }} license sales. Lifetime earnings to date:
+      <strong>{{ currency(lifetimeRevenue()) }}</strong>.
+    </p>
+    <div class="eh-actions">
+      <button class="btn primary" type="button" (click)="requestPayout()">
+        Withdraw now
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <line x1="5" y1="12" x2="19" y2="12" />
+          <polyline points="12 5 19 12 12 19" />
+        </svg>
+      </button>
+      <button class="btn ghost" type="button">Payout · UPI HDFC</button>
+    </div>
+  </div>
+  <div class="eh-right">
+    <div class="eh-mini"><span class="eh-mini-lbl">This month</span><span class="eh-mini-val">{{ currency(thisMonthRevenue()) }}</span></div>
+    <div class="eh-mini"><span class="eh-mini-lbl">Last payout</span><span class="eh-mini-val">{{ currency(lastPayout().amount) }}</span></div>
+    <div class="eh-mini"><span class="eh-mini-lbl">On hold · 48h</span><span class="eh-mini-val" style="color: var(--sun)">{{ currency(pendingClearance()) }}</span></div>
+    <div class="eh-mini"><span class="eh-mini-lbl">Lifetime</span><span class="eh-mini-val">{{ currency(lifetimeRevenue()) }}</span></div>
+  </div>
+</div>
+
+<div class="ov-two">
+  <div class="card">
+    <div class="card-head"><h4>Earnings by <em>license</em></h4><span class="cnum">this year</span></div>
+    <div class="donut-wrap">
+      <svg class="donut-svg" viewBox="0 0 120 120">
+        <circle cx="60" cy="60" r="48" fill="none" stroke="var(--cream-3)" stroke-width="18" />
+        @for (item of donutSegments(); track item.label) {
+          <circle
+            cx="60"
+            cy="60"
+            r="48"
+            fill="none"
+            [attr.stroke]="item.color"
+            stroke-width="18"
+            [attr.stroke-dasharray]="item.dash"
+            [attr.stroke-dashoffset]="item.offset"
+            transform="rotate(-90 60 60)"
+          />
+        }
+        <text x="60" y="54" text-anchor="middle" font-family="Bricolage Grotesque" font-weight="800" font-size="16" fill="#141310" letter-spacing="-0.04em">{{ compactCurrency(lifetimeRevenue()) }}</text>
+        <text x="60" y="72" text-anchor="middle" font-family="DM Mono" font-size="7" fill="#6b635a" letter-spacing="1">LIFETIME</text>
+      </svg>
+      <div class="donut-legend">
+        @for (item of licenseBreakdown(); track item.label) {
+          <div class="dl-item">
+            <span class="dl-swatch" [style.background]="item.color"></span>
+            <span class="dl-lbl">{{ item.label }}</span>
+            <span class="dl-pct">{{ item.share }}%</span>
+            <span class="dl-val">{{ currency(item.value) }}</span>
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head"><h4>Monthly <em>trend</em></h4><span class="cnum">12 months</span></div>
+    <div class="monthly-bars">
+      @for (bar of monthlyBars(); track bar.label + bar.value) {
+        <div class="monthly-bar" [class.active]="bar.active" [style.height.%]="bar.height" [attr.title]="bar.label + ': ' + currency(bar.value)"></div>
+      }
+    </div>
+    <div style="display: flex; justify-content: space-between; font-family: var(--mono); font-size: 9.5px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-mute); margin-top: 8px">
+      <span>May</span><span>Jul</span><span>Sep</span><span>Nov</span><span>Jan</span><span>Apr</span>
+    </div>
+  </div>
+</div>
+
+<div class="card" style="margin-top: 20px; padding: 0">
+  <div class="card-head" style="padding: 16px 20px; margin-bottom: 0">
+    <h4>Payout <em>history</em></h4>
+    <button class="btn sm" type="button">Download all</button>
+  </div>
+  <div class="tracks-table" style="border-radius: 0; border: none; border-top: 1.5px dashed var(--ink)">
+    <div class="track-row head" style="grid-template-columns: 120px 1fr 160px 1fr 100px; border-radius: 0">
+      <div>Date</div><div>Method</div><div>Reference</div><div style="text-align: right">Amount</div><div>Status</div>
+    </div>
+    @for (payout of payouts(); track payout.id) {
+      <div class="track-row" style="grid-template-columns: 120px 1fr 160px 1fr 100px">
+        <div class="stat-m">{{ formatDate(payout.date) }}</div>
+        <div class="stat-m">{{ payout.method }}</div>
+        <div class="stat-m ref">{{ payout.id }}</div>
+        <div class="money-m" style="text-align: right">{{ currency(payout.amount) }}</div>
+        <div><span class="badge paid">Paid</span></div>
+      </div>
+    }
+  </div>
+</div>
+
+<div class="ov-two" style="margin-top: 20px">
+  <div class="card">
+    <div class="card-head"><h4>Payout <em>method</em></h4><button class="btn sm" type="button">Edit</button></div>
+    <div style="padding: 6px 0">
+      <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 10px">
+        <div class="bank-logo">UPI</div>
+        <div><div class="title-m">HDFC Bank</div><div class="meta-m">Primary account ••••4829</div></div>
+      </div>
+      <div class="payout-note">
+        Next auto-payout: <strong>May 1, 2026</strong>. Transfers take 1-2 business days.
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head"><h4>Tax <em>documents</em></h4><button class="btn sm" type="button">Update</button></div>
+    <div style="padding: 6px 0">
+      <div style="display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 8px 0; border-bottom: 1px dashed var(--cream-3)">
+        <div><div class="title-m">FY 2025-26 statement</div><div class="meta-m">Available for download</div></div>
+        <button class="btn sm" type="button">Download</button>
+      </div>
+      <div style="display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 8px 0">
+        <div><div class="title-m">PAN details on file</div><div class="meta-m">Submitted · Jan 2025</div></div>
+        <span class="badge paid">Verified</span>
+      </div>
+    </div>
+  </div>
+</div>

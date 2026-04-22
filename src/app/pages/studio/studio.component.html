@@ -1,90 +1,183 @@
 <div class="studio-layout">
-  <!-- SIDEBAR -->
-  <aside class="studio-sidebar" [class.mobile-open]="isMobileNavOpen()">
-    <!-- Studio Brand Header -->
-    <div class="sidebar-header">
-      <div class="studio-brand">
-        <i class="fas fa-sliders-h brand-icon"></i>
-        <span class="brand-label">Studio</span>
-      </div>
-    </div>
 
-    <!-- Producer Identity -->
-    <div class="producer-card">
-      <div class="avatar-ring">
-        @if (avatarUrl()) {
-          <img [src]="avatarUrl()" alt="Avatar" class="producer-avatar" />
-        } @else {
-          <div class="avatar-placeholder">
-            <i class="fas fa-user"></i>
+  <!-- Mobile sidebar backdrop -->
+  <div class="sidebar-backdrop" [class.show]="isMobileNavOpen()" (click)="closeMobileNav()"></div>
+
+  <!-- ═══════════════ SIDEBAR ═══════════════ -->
+  <aside class="sidebar" [class.open]="isMobileNavOpen()">
+
+    <!-- Profile card -->
+    <div class="prof-card">
+      <div class="prof-top">
+        <div class="prof-avatar">
+          @if (avatarUrl()) {
+            <img [src]="avatarUrl()" [alt]="displayName()" />
+          } @else {
+            {{ displayName().slice(0, 1).toLowerCase() }}
+          }
+        </div>
+        <div class="prof-name-block">
+          <div class="prof-name">
+            {{ firstName() }}<em> {{ lastName() }}</em>
+            <span class="verified">✓</span>
           </div>
-        }
-        <div class="status-dot"></div>
+          <div class="prof-handle">@{{ handle() }}</div>
+        </div>
       </div>
-      <div class="producer-meta">
-        <span class="producer-greeting">{{ greeting() }},</span>
-        <span class="producer-name">{{ displayName() }}</span>
-        <span class="producer-role-badge"> <i class="fas fa-microphone-alt"></i> Producer </span>
+      <span class="prof-pro">★ Pro</span>
+      <div class="prof-stats">
+        <div class="prof-stat">
+          <div class="lbl">Beats</div>
+          <div class="val">{{ sidebarStats().beats }}<em>live</em></div>
+        </div>
+        <div class="prof-stat">
+          <div class="lbl">Followers</div>
+          <div class="val">{{ sidebarStats().followers }}</div>
+        </div>
       </div>
     </div>
 
-    <!-- Divider -->
-    <div class="sidebar-divider"></div>
-
-    <!-- Main Navigation -->
-    <nav class="studio-nav">
-      <span class="nav-section-label">Workspace</span>
-      @for (item of navItems; track item.path) {
-        <a
-          [routerLink]="item.path"
-          routerLinkActive="active"
-          class="nav-item"
-          (click)="closeMobileNav()"
-        >
-          <i [class]="item.icon"></i>
-          <span>{{ item.label }}</span>
-          <div class="nav-active-bar"></div>
-        </a>
-      }
-    </nav>
-
-    <!-- Divider -->
-    <div class="sidebar-divider"></div>
-
-    <!-- Upload CTA -->
-    <div class="upload-cta-section">
-      <a
-        routerLink="upload"
-        routerLinkActive="active"
-        class="upload-cta-btn"
-        (click)="closeMobileNav()"
-      >
-        <i class="fas fa-cloud-upload-alt"></i>
-        <span>Upload Beat</span>
+    <!-- Main nav -->
+    <div class="side-section-head">Studio</div>
+    <div class="side-nav">
+      <a class="side-nav-item" routerLink="overview" routerLinkActive="active" (click)="closeMobileNav()">
+        <span class="sn-ico">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+            <rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/>
+            <rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/>
+          </svg>
+        </span>
+        <span class="sn-label">Overview</span>
+      </a>
+      <a class="side-nav-item" routerLink="analytics" routerLinkActive="active" (click)="closeMobileNav()">
+        <span class="sn-ico">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+            <line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/>
+          </svg>
+        </span>
+        <span class="sn-label">Analytics</span>
+      </a>
+      <a class="side-nav-item" routerLink="tracks" routerLinkActive="active" (click)="closeMobileNav()">
+        <span class="sn-ico">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+            <circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/>
+          </svg>
+        </span>
+        <span class="sn-label">My Tracks</span>
+        <span class="sn-count">{{ sidebarStats().beats }}</span>
+      </a>
+      <a class="side-nav-item" routerLink="orders" routerLinkActive="active" (click)="closeMobileNav()">
+        <span class="sn-ico">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+            <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/>
+          </svg>
+        </span>
+        <span class="sn-label">Orders</span>
+      </a>
+      <a class="side-nav-item" routerLink="purchases" routerLinkActive="active" (click)="closeMobileNav()">
+        <span class="sn-ico">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+            <polyline points="7 10 12 15 17 10"/>
+            <line x1="12" y1="15" x2="12" y2="3"/>
+          </svg>
+        </span>
+        <span class="sn-label">Purchases</span>
+        <span class="sn-count">47</span>
+      </a>
+      <a class="side-nav-item" routerLink="earnings" routerLinkActive="active" (click)="closeMobileNav()">
+        <span class="sn-ico">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+            <line x1="12" y1="1" x2="12" y2="23"/>
+            <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+          </svg>
+        </span>
+        <span class="sn-label">Earnings</span>
+      </a>
+      <a class="side-nav-item" routerLink="messages" routerLinkActive="active" (click)="closeMobileNav()">
+        <span class="sn-ico">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+          </svg>
+        </span>
+        <span class="sn-label">Messages</span>
+        <span class="sn-count">5</span>
+      </a>
+      <a class="side-nav-item" routerLink="profile" routerLinkActive="active" (click)="closeMobileNav()">
+        <span class="sn-ico">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+            <path d="M20 21a8 8 0 0 0-16 0"/>
+            <circle cx="12" cy="7" r="4"/>
+          </svg>
+        </span>
+        <span class="sn-label">Profile</span>
+      </a>
+      <a class="side-nav-item" routerLink="settings-studio" routerLinkActive="active" (click)="closeMobileNav()">
+        <span class="sn-ico">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+            <circle cx="12" cy="12" r="3"/>
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+          </svg>
+        </span>
+        <span class="sn-label">Settings</span>
       </a>
     </div>
 
-    <!-- Divider -->
-    <div class="sidebar-divider"></div>
+    <div class="side-divider"></div>
 
-    <!-- Bottom Nav -->
-    <nav class="studio-nav studio-nav--bottom">
-      <span class="nav-section-label">Account</span>
-      <a routerLink="profile" routerLinkActive="active" class="nav-item" (click)="closeMobileNav()">
-        <i class="fas fa-user-circle"></i>
-        <span>Profile Settings</span>
-        <div class="nav-active-bar"></div>
-      </a>
-    </nav>
+    <!-- Tools -->
+    <div class="side-section-head">Tools</div>
+    <a class="upload-cta" routerLink="upload" (click)="closeMobileNav()">
+      <span class="upload-cta-inner">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+        </svg>
+        Upload beat
+      </span>
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+        <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>
+      </svg>
+    </a>
+    <button class="tool-link" type="button">
+      <span class="tl-ico">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+          <rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/>
+        </svg>
+      </span>
+      AI cover art
+    </button>
+    <button class="tool-link" type="button">
+      <span class="tl-ico">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+          <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
+          <polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/>
+        </svg>
+      </span>
+      Beat packs
+    </button>
+    <button class="tool-link" type="button">
+      <span class="tl-ico">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+          <circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/>
+          <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
+        </svg>
+      </span>
+      Share profile
+    </button>
+
+
+    <div class="side-bottom">
+      <div class="signed-as">signed in · @{{ handle() }}</div>
+      <div>
+        <button type="button" class="side-bottom-btn" (click)="logout()">sign out</button> ·
+        <a routerLink="/">help</a>
+      </div>
+    </div>
   </aside>
 
-  <!-- MOBILE OVERLAY -->
-  @if (isMobileNavOpen()) {
-    <div class="sidebar-overlay" (click)="closeMobileNav()"></div>
-  }
-
-  <!-- MAIN CONTENT AREA -->
+  <!-- ═══════════════ MAIN ═══════════════ -->
   <main class="studio-main">
     <router-outlet />
   </main>
+
 </div>

@@ -117,9 +117,7 @@
     .mini-logo-icon {
       width: 18px;
       height: 18px;
-      background: var(--p-brand);
-      mask: url('/assets/logo.svg') no-repeat center/contain;
-      -webkit-mask: url('/assets/logo.svg') no-repeat center/contain;
+      background: url('/logo.png') no-repeat center/contain;
     }
 
     .skeleton-link {

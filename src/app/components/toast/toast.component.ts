@@ -17,7 +17,7 @@ import { ToastService } from '../../services';
         ),
       ]),
       transition(':leave', [
-        animate('300ms ease-out', style({ opacity: 0, transform: 'translateY(-10px)' })),
+        animate('300ms ease-out', style({ opacity: 0, transform: 'translateY(12px)' })),
       ]),
     ]),
   ],

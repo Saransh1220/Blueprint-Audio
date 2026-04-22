@@ -1,142 +1,596 @@
-<div class="dashboard-container">
-  <!-- HERO SEARCH SECTION -->
-  <section class="hero-search">
-    <div class="hero-content container">
-      <div class="hero-label">Welcome back, User</div>
-      <h1 class="hero-title">Find Your <span class="highlight">Perfect Sound</span></h1>
-      <div class="search-wrapper">
-        <div class="search-prefix"><i class="fas fa-search"></i></div>
-        <input type="text" placeholder="Search for beats, kits, and more..." />
-        <button class="btn-search">Search</button>
-      </div>
-      <div class="hero-tags">
-        <span>Trending:</span>
-        <a href="#" class="hero-tag">Drill</a>
-        <a href="#" class="hero-tag">Lo-Fi</a>
-        <a href="#" class="hero-tag">Afrobeat</a>
-      </div>
-    </div>
-  </section>
+<div class="lc-dashboard" [class.producer-view]="activeRole() === 'producer'" [class.listener-view]="activeRole() === 'listener'">
 
-  <div class="dashboard-content container">
-    <!-- QUICK STATS -->
-    @if (currentUser()?.role === Role.PRODUCER) {
-      <div
-        class="section-header"
-        style="
-          margin-bottom: 20px;
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-        "
-      >
-        <h2
-          style="
-            font-family: 'Space Grotesk', sans-serif;
-            font-size: 1.5rem;
-            color: var(--text-color);
-          "
-        >
-          Quick Stats
-        </h2>
-        <a
-          routerLink="/analytics"
-          class="btn-text"
-          style="
-            color: var(--brand-color);
-            text-decoration: none;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-          "
-        >
-          View Full Analytics <i class="fas fa-arrow-right"></i>
-        </a>
-      </div>
-      <section class="stats-section">
-        @for (stat of stats(); track stat.label) {
-          <div class="stat-card">
-            <div class="stat-header">
-              <span class="stat-label">{{ stat.label }}</span>
-              <i [class]="stat.icon"></i>
-            </div>
-            <div class="stat-body">
-              <span class="stat-value">{{ stat.value }}</span>
-              <span class="stat-trend">{{ stat.trend }}</span>
-            </div>
+  <!-- ═══ SUB-NAV ═══ -->
+  <div class="lc-sub-nav">
+    <div class="lc-sub-tabs">
+      <button class="lc-sub-tab" [class.active]="activeTab() === 'overview'" (click)="setTab('overview')">Overview</button>
+      @if (activeRole() === 'producer') {
+        <button class="lc-sub-tab" [class.active]="activeTab() === 'beats'" (click)="setTab('beats')">
+          My beats
+          @if (producerSpecs().length) { <span class="lc-count">{{ producerSpecs().length }}</span> }
+        </button>
+      }
+      @if (activeRole() === 'listener') {
+        <button class="lc-sub-tab" [class.active]="activeTab() === 'library'" (click)="setTab('library')">
+          Library <span class="lc-count">47</span>
+        </button>
+      }
+      <button class="lc-sub-tab" [class.active]="activeTab() === 'activity'" (click)="setTab('activity')">
+        Activity <span class="lc-count">12</span>
+      </button>
+      @if (activeRole() === 'producer') {
+        <button class="lc-sub-tab" [class.active]="activeTab() === 'earnings'" (click)="setTab('earnings')" [routerLink]="['/studio/analytics']">Earnings</button>
+      }
+      @if (activeRole() === 'listener') {
+        <button class="lc-sub-tab" [class.active]="activeTab() === 'wishlist'" (click)="setTab('wishlist')">Wishlist</button>
+      }
+      <button class="lc-sub-tab" [class.active]="activeTab() === 'messages'" (click)="setTab('messages')">
+        Messages <span class="lc-count">3</span>
+      </button>
+      <button class="lc-sub-tab" [class.active]="activeTab() === 'settings'" (click)="setTab('settings')" [routerLink]="['/settings']">Settings</button>
+    </div>
+    <div class="lc-sub-spacer"></div>
+    <div class="lc-role-switch">
+      <button type="button" [class.active-role]="activeRole() === 'producer'" (click)="setRole('producer')">Producer</button>
+      <button type="button" [class.active-role]="activeRole() === 'listener'" (click)="setRole('listener')">Listener</button>
+    </div>
+  </div>
+
+  <!-- ═══ MAIN ═══ -->
+  <main class="lc-main">
+
+    <!-- ─── HERO ─── -->
+    <section class="lc-hero">
+
+      <!-- Hero Main -->
+      <div class="lc-hero-main">
+        <div class="lc-hero-eyebrow">
+          <span class="lc-live-dot"></span>
+          <span class="lc-dateline">{{ dateLine() }}</span>
+        </div>
+        <h1 class="lc-hero-greet">{{ greeting() }}, <em>{{ displayName() }}</em>.</h1>
+
+        @if (activeRole() === 'producer') {
+          <p class="lc-hero-sub">
+            Your music is live and earning. Check your latest stats, manage your catalog, and keep the momentum going.
+          </p>
+          <div class="lc-hero-actions">
+            <a routerLink="/upload" class="lc-action-btn primary">
+              Upload a beat
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>
+              </svg>
+            </a>
+            <a routerLink="/studio/analytics" class="lc-action-btn ghost">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+              </svg>
+              View analytics
+            </a>
           </div>
         }
+
+        @if (activeRole() === 'listener') {
+          <p class="lc-hero-sub">
+            Discover fresh beats, revisit your favorites, and add to your collection.
+          </p>
+          <div class="lc-hero-actions">
+            <a routerLink="/search" class="lc-action-btn primary">
+              Browse the store
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>
+              </svg>
+            </a>
+          </div>
+        }
+      </div>
+
+      <!-- Hero Side — real earnings data -->
+      <div class="lc-hero-side">
+        <div>
+          @if (activeRole() === 'producer') {
+            <div class="lc-hs-eyebrow">Your earnings</div>
+            <h3 class="lc-hs-title">Total <em>revenue</em> at a glance.</h3>
+            @if (analyticsLoading()) {
+              <div class="lc-hs-big lc-loading-shimmer" style="width:130px;height:52px;border-radius:8px;"></div>
+            } @else if (totalRevenue() !== null) {
+              <div class="lc-hs-big">
+                <span class="lc-cur">₹</span>{{ totalRevenue()!.toLocaleString() }}
+              </div>
+            } @else {
+              <div class="lc-hs-big">—</div>
+            }
+            <p class="lc-hs-sub">Lifetime revenue from all license sales across your catalog.</p>
+          }
+          @if (activeRole() === 'listener') {
+            <div class="lc-hs-eyebrow">Store credit</div>
+            <h3 class="lc-hs-title">You've got <em>credit</em> to spend.</h3>
+            <div class="lc-hs-big"><span class="lc-cur">$</span>48<span class="lc-cents">.00</span></div>
+            <p class="lc-hs-sub">From your referral bonus &amp; last month's deals. Use it on anything in the store.</p>
+          }
+        </div>
+        @if (activeRole() === 'producer') {
+          <a routerLink="/studio/analytics" class="lc-hs-cta">
+            View all earnings
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>
+            </svg>
+          </a>
+        }
+        @if (activeRole() === 'listener') {
+          <a routerLink="/search" class="lc-hs-cta">
+            Browse the store
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>
+            </svg>
+          </a>
+        }
+      </div>
+
+    </section>
+
+    <!-- ─── STATS STRIP ─── -->
+    <section class="lc-stats-strip">
+      @if (activeRole() === 'producer') {
+        @for (stat of stats(); track stat.label) {
+          <div class="lc-stat-cell {{ stat.accent }}" [routerLink]="['/studio/analytics']">
+            <div class="lc-stat-lbl">{{ stat.label }}</div>
+            <div class="lc-stat-val">{{ stat.value }}</div>
+            <div class="lc-stat-delta {{ stat.deltaDir }}">{{ stat.delta }}</div>
+          </div>
+        }
+      }
+      @if (activeRole() === 'listener') {
+        @for (stat of listenerStats(); track stat.label) {
+          <div class="lc-stat-cell {{ stat.accent }}">
+            <div class="lc-stat-lbl">{{ stat.label }}</div>
+            <div class="lc-stat-val">{{ stat.value }}</div>
+            <div class="lc-stat-delta {{ stat.deltaDir }}">{{ stat.delta }}</div>
+          </div>
+        }
+      }
+    </section>
+
+    <!-- ─── BENTO GRID ─── -->
+    <section class="lc-bento">
+
+      <!-- LEFT COL -->
+      <div class="lc-left-col">
+
+        <!-- § 01 Crate scroll — top beats from API with real art + real playback -->
+        <div class="lc-section-head">
+          <div>
+            <div class="lc-section-num"><span class="lc-dot"></span>
+              @if (activeRole() === 'producer') { 01 · Top beats }
+              @if (activeRole() === 'listener') { 01 · Your crate }
+            </div>
+            @if (activeRole() === 'producer') {
+              <h2 class="lc-section-h">your <em>top beats</em> this week.</h2>
+            }
+            @if (activeRole() === 'listener') {
+              <h2 class="lc-section-h">recently <em>played</em>.</h2>
+            }
+          </div>
+          <a routerLink="/search" class="lc-section-link">
+            See all
+            <span class="lc-arrow">
+              <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>
+              </svg>
+            </span>
+          </a>
+        </div>
+
+        <!-- Producer: top specs from analytics (with real imageUrl + real play) -->
+        @if (activeRole() === 'producer') {
+          @if (producerSpecs().length > 0) {
+          <div class="lc-crate-scroll">
+              @for (spec of producerSpecs().slice(0, 5); track spec.id) {
+                <div class="lc-beat-card" [routerLink]="['/beats', spec.id]">
+                  <!-- Real cover art -->
+                  <div class="lc-bc-art">
+                    <img
+                      [src]="spec.imageUrl || 'assets/images/placeholder.jpg'"
+                      [alt]="spec.title"
+                      class="lc-bc-img"
+                      loading="lazy"
+                    />
+                    <!-- Play/pause overlay button — real player -->
+                    <button
+                      class="lc-bc-play"
+                      [class.lc-bc-play--paused]="!isPlaying(spec)"
+                      [class.lc-bc-play--playing]="isPlaying(spec)"
+                      aria-label="Play"
+                      (click)="$event.preventDefault(); playSong($event, spec)"
+                    >
+                      @if (isPlaying(spec)) {
+                        <!-- Pause icon -->
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+                          <rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/>
+                        </svg>
+                      } @else {
+                        <!-- Play icon -->
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+                          <polygon points="6 3 20 12 6 21 6 3"/>
+                        </svg>
+                      }
+                    </button>
+                  </div>
+                  <div class="lc-bc-body">
+                    <div class="lc-bc-title">{{ spec.title }}</div>
+                    <div class="lc-bc-prod">{{ spec.genres?.[0]?.name || '' }}</div>
+                    <div class="lc-bc-foot">
+                      <span>{{ spec.bpm ? spec.bpm + ' BPM' : '' }}{{ spec.key ? ' · ' + spec.key : '' }}</span>
+                      <span class="lc-bc-price">{{ spec.price != null ? '₹' + spec.price : '' }}</span>
+                    </div>
+                  </div>
+                </div>
+              }
+            </div>
+          } @else if (!analyticsLoading()) {
+            <div class="lc-empty-state">
+              <p>No beats yet. <a routerLink="/upload">Upload your first beat →</a></p>
+            </div>
+          } @else {
+            <div class="lc-crate-scroll">
+              @for (i of [1,2,3,4]; track i) {
+                <div class="lc-beat-card lc-beat-card--skeleton">
+                  <div class="lc-bc-art lc-loading-shimmer"></div>
+                  <div class="lc-bc-body">
+                    <div class="lc-loading-shimmer" style="height:14px;border-radius:4px;width:80%;margin-bottom:6px;"></div>
+                    <div class="lc-loading-shimmer" style="height:11px;border-radius:4px;width:55%;"></div>
+                  </div>
+                </div>
+              }
+            </div>
+          }
+        }
+
+        @if (activeRole() === 'listener') {
+          <div class="lc-empty-state">
+            <p>Your recently played tracks will appear here. <a routerLink="/search">Browse beats →</a></p>
+          </div>
+        }
+
+        <!-- § 02 Catalog / Drops table — real data with real art + real play -->
+        <div class="lc-section-head" style="margin-top: 32px;">
+          <div>
+            <div class="lc-section-num">
+              <span class="lc-dot"></span> 02 ·
+              @if (activeRole() === 'producer') { Your catalog }
+              @if (activeRole() === 'listener') { Your library }
+            </div>
+            @if (activeRole() === 'producer') {
+              <h2 class="lc-section-h">your <em>catalog</em>.</h2>
+            }
+            @if (activeRole() === 'listener') {
+              <h2 class="lc-section-h">your <em>collection</em>.</h2>
+            }
+          </div>
+          @if (activeRole() === 'producer') {
+            <a routerLink="/upload" class="lc-section-link">
+              + Upload
+              <span class="lc-arrow">
+                <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                  <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>
+                </svg>
+              </span>
+            </a>
+          }
+        </div>
+
+        <div class="lc-drops-card">
+          <div class="lc-drops-head">
+            @if (activeRole() === 'producer') {
+              <h4>Recent <em>uploads</em></h4>
+            }
+            @if (activeRole() === 'listener') {
+              <h4>Recent <em>purchases</em></h4>
+            }
+            <div class="lc-filters">
+              <button class="on">All</button>
+              @if (activeRole() === 'producer') {
+                <button>Live</button>
+                <button>Drafts</button>
+              }
+            </div>
+          </div>
+
+          <!-- Producer rows — real Spec data, real cover art, real playback -->
+          @if (activeRole() === 'producer') {
+            @if (producerSpecs().length > 0) {
+              @for (spec of producerSpecs().slice(0, 8); track spec.id) {
+                <div class="lc-drop-row" [routerLink]="['/beats', spec.id]">
+                  <!-- Real cover art thumbnail -->
+                  <div class="lc-drop-art-wrap">
+                    <img
+                      [src]="spec.imageUrl || 'assets/images/placeholder.jpg'"
+                      [alt]="spec.title"
+                      class="lc-drop-art-img"
+                      loading="lazy"
+                    />
+                    <!-- Play button overlay -->
+                    <button
+                      class="lc-drop-play"
+                      [class.lc-drop-play--playing]="isPlaying(spec)"
+                      aria-label="Play"
+                      (click)="$event.preventDefault(); playSong($event, spec)"
+                    >
+                      @if (isPlaying(spec)) {
+                        <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor">
+                          <rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/>
+                        </svg>
+                      } @else {
+                        <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor">
+                          <polygon points="6 3 20 12 6 21 6 3"/>
+                        </svg>
+                      }
+                    </button>
+                  </div>
+                  <div>
+                    <div class="lc-drop-title">{{ spec.title }}</div>
+                    <div class="lc-drop-meta">
+                      {{ spec.bpm ? spec.bpm + ' BPM' : '' }}
+                      {{ spec.key ? '· ' + spec.key : '' }}
+                      {{ spec.genres?.[0]?.name ? '· ' + spec.genres[0].name : '' }}
+                    </div>
+                  </div>
+                  <div class="lc-drop-stat hide-mobile">
+                    {{ spec.analytics?.playCount ?? '—' }} <em>plays</em>
+                  </div>
+                  <div class="lc-drop-stat hide-mobile">
+                    {{ spec.analytics?.totalDownloadCount ?? '—' }} <em>dl</em>
+                  </div>
+                  <div class="lc-drop-rev hide-mobile">
+                    {{ spec.price != null ? '₹' + spec.price : '—' }}
+                  </div>
+                  <div class="lc-drop-actions">
+                    <span class="lc-drop-status"
+                      [class.live]="spec.processingStatus === 'completed'"
+                      [class.draft]="spec.processingStatus === 'pending'"
+                      [class.review]="spec.processingStatus === 'processing'">
+                      @if (spec.processingStatus === 'completed') { Live }
+                      @if (spec.processingStatus === 'pending') { Draft }
+                      @if (spec.processingStatus === 'processing') { Processing }
+                      @if (spec.processingStatus === 'failed') { Failed }
+                    </span>
+                  </div>
+                </div>
+              }
+            } @else if (!analyticsLoading()) {
+              <div class="lc-empty-state" style="padding: 24px 20px;">
+                <p>No beats yet. <a routerLink="/upload">Upload your first beat →</a></p>
+              </div>
+            } @else {
+              <div class="lc-empty-state" style="padding: 24px 20px;"><p>Loading your catalog...</p></div>
+            }
+          }
+
+          <!-- Listener rows -->
+          @if (activeRole() === 'listener') {
+            @for (drop of listenerDrops(); track drop.titleEm) {
+              <div class="lc-drop-row">
+                <div class="lc-drop-art-wrap">
+                  <div class="lc-drop-art-fallback" [attr.data-letter]="drop.letter" [style.background]="drop.gradient"></div>
+                </div>
+                <div>
+                  <div class="lc-drop-title"><em>{{ drop.titleEm }}</em>{{ drop.titleRest }}</div>
+                  <div class="lc-drop-meta">{{ drop.meta }}</div>
+                </div>
+                <div class="lc-drop-stat hide-mobile">{{ drop.license }}</div>
+                <div class="lc-drop-stat hide-mobile">{{ drop.downloads }}</div>
+                <div class="lc-drop-rev hide-mobile">{{ drop.rev }}</div>
+                <div class="lc-drop-actions">
+                  <button class="lc-drop-action-btn" aria-label="Download" (click)="$event.stopPropagation(); showToast('Downloading...')">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                      <polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
+                    </svg>
+                  </button>
+                </div>
+              </div>
+            }
+          }
+        </div>
+
+      </div>
+
+      <!-- RIGHT COL -->
+      <aside class="lc-side-col">
+
+        <!-- Activity feed -->
+        <div class="lc-side-card">
+          <div class="lc-side-head">
+            <h4>Recent <em>activity</em></h4>
+            <span class="lc-count-pill">new</span>
+          </div>
+          <div class="lc-activity-list">
+            @for (item of activityItems(); track item.time) {
+              <div class="lc-activity-item" [class.act-new]="item.isNew">
+                <div class="lc-act-avatar {{ item.avatarClass }}">{{ item.letter }}</div>
+                <div class="lc-act-text">
+                  @if (activeRole() === 'producer') {
+                    <strong>{{ item.producerStrong }}</strong> {{ item.producerText }}
+                  }
+                  @if (activeRole() === 'listener') {
+                    <strong>{{ item.listenerStrong }}</strong>
+                    @if (item.listenerEm) { <em>{{ item.listenerEm }}</em> }
+                    {{ item.listenerText }}
+                  }
+                </div>
+                <div class="lc-act-time">{{ item.time }}</div>
+              </div>
+            }
+          </div>
+        </div>
+
+        <!-- Community pulse -->
+        <div class="lc-pulse-card">
+          <div class="lc-pulse-kicker">Community pulse · this week</div>
+          @for (row of pulseRows(); track row.title) {
+            <div class="lc-pulse-row">
+              <div class="lc-pulse-art" [attr.data-letter]="row.letter" [style.background]="row.gradient"></div>
+              <div class="lc-pulse-info">
+                <div class="lc-pulse-title">{{ row.title }}</div>
+                <div class="lc-pulse-meta">{{ row.meta }}</div>
+              </div>
+              <span class="lc-pulse-badge" [class.hot]="row.badgeClass === 'hot'">{{ row.rank }}</span>
+            </div>
+          }
+        </div>
+
+        <!-- Up Next card -->
+        <div class="lc-side-card dark">
+          <div class="lc-side-head">
+            <h4>Up <em>next</em></h4>
+            <span class="lc-count-pill lime">Fri</span>
+          </div>
+          <div class="lc-upcoming">
+            <div class="lc-upcoming-when">Friday drop · 11:59 pm</div>
+            <div class="lc-upcoming-title"><em>6</em> new drops from producers you follow</div>
+            <p class="lc-upcoming-sub">Producers are dropping this Friday. Get notified.</p>
+            <button class="lc-upcoming-btn" (click)="showToast('Reminder set!')">Set a reminder →</button>
+          </div>
+        </div>
+
+      </aside>
+
+    </section><!-- /bento -->
+
+    <!-- ─── QUICK ACTIONS DOCK ─── -->
+    <div class="lc-section-head">
+      <div>
+        <div class="lc-section-num"><span class="lc-dot"></span> Quick actions</div>
+        <h2 class="lc-section-h">jump <em>straight in</em>.</h2>
+      </div>
+    </div>
+    <div class="lc-dock">
+      @if (activeRole() === 'producer') {
+        <a routerLink="/upload" class="lc-dock-item">
+          <div class="lc-dock-icon c1">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+            </svg>
+          </div>
+          <div class="lc-dock-label">Upload beat</div>
+        </a>
+      }
+      @if (activeRole() === 'listener') {
+        <a routerLink="/search" class="lc-dock-item">
+          <div class="lc-dock-icon c1">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+            </svg>
+          </div>
+          <div class="lc-dock-label">Find beats</div>
+        </a>
+      }
+      <a routerLink="/search" class="lc-dock-item">
+        <div class="lc-dock-icon c2">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+            <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+          </svg>
+        </div>
+        @if (activeRole() === 'producer') { <div class="lc-dock-label">My drops</div> }
+        @if (activeRole() === 'listener') { <div class="lc-dock-label">Library</div> }
+      </a>
+      <button class="lc-dock-item" (click)="showToast('Messages coming soon')">
+        <div class="lc-dock-icon c3">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+          </svg>
+        </div>
+        <div class="lc-dock-label">Messages</div>
+      </button>
+      @if (activeRole() === 'producer') {
+        <a routerLink="/studio/analytics" class="lc-dock-item">
+          <div class="lc-dock-icon c4">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+              <line x1="12" y1="1" x2="12" y2="23"/>
+              <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+            </svg>
+          </div>
+          <div class="lc-dock-label">Earnings</div>
+        </a>
+      }
+      @if (activeRole() === 'listener') {
+        <button class="lc-dock-item" (click)="showToast('Wishlist coming soon')">
+          <div class="lc-dock-icon c4">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+              <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+            </svg>
+          </div>
+          <div class="lc-dock-label">Wishlist</div>
+        </button>
+      }
+      <button class="lc-dock-item" (click)="showToast('Invite link copied!')">
+        <div class="lc-dock-icon c5">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+            <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+            <circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/>
+          </svg>
+        </div>
+        <div class="lc-dock-label">Invite</div>
+      </button>
+      <a routerLink="/settings" class="lc-dock-item">
+        <div class="lc-dock-icon c6">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+            <circle cx="12" cy="12" r="3"/>
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+          </svg>
+        </div>
+        <div class="lc-dock-label">Settings</div>
+      </a>
+    </div>
+
+    <!-- ─── CTA BANNER (Producer) ─── -->
+    @if (activeRole() === 'producer') {
+      <section class="lc-cta-banner">
+        <div class="lc-cta-text">
+          <div class="lc-cta-kicker">✦ New for producers</div>
+          <h3 class="lc-cta-title">Your next drop deserves <em>better cover art</em>.</h3>
+          <p class="lc-cta-sub">Try our AI cover art generator — trained on vinyl design and modern editorial. Free for your first 10 covers.</p>
+        </div>
+        <div class="lc-cta-actions">
+          <button class="lc-cta-btn primary" (click)="showToast('Opening AI art generator')">
+            Try it free
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>
+            </svg>
+          </button>
+          <button class="lc-cta-btn ghost" (click)="showToast('Learn more')">Learn more</button>
+        </div>
       </section>
     }
 
-    <div class="modern-divider"></div>
-
-    <!-- SPOTLIGHT SECTION -->
-    <section class="spotlight-section">
-      <div class="spotlight-card">
-        <div class="spotlight-content">
-          <div class="spotlight-meta">
-            <span class="spotlight-tag">Featured Drop</span>
-            <span class="spotlight-date">{{ currentDate() | date: 'mediumDate' }}</span>
-          </div>
-          <h2>{{ spotlight().artist }}</h2>
-          <h3>{{ spotlight().title }}</h3>
-          <p>{{ spotlight().description }}</p>
-          <button class="btn-spotlight">
-            <span>View Details</span>
-            <i class="fas fa-arrow-right"></i>
+    <!-- ─── CTA BANNER (Listener) ─── -->
+    @if (activeRole() === 'listener') {
+      <section class="lc-cta-banner">
+        <div class="lc-cta-text">
+          <div class="lc-cta-kicker">✦ Save more with Cult Beats+</div>
+          <h3 class="lc-cta-title">Unlock <em>unlimited streams</em> on every beat you buy.</h3>
+          <p class="lc-cta-sub">Members get 15% off every license, early access to Friday drops, and first dibs on exclusives.</p>
+        </div>
+        <div class="lc-cta-actions">
+          <button class="lc-cta-btn primary" (click)="showToast('Going Cult Beats+!')">
+            Go Cult Beats+
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>
+            </svg>
           </button>
+          <button class="lc-cta-btn ghost" (click)="showToast('Comparing plans')">Compare plans</button>
         </div>
-        <div class="spotlight-visual">
-          <img src="metro_boomin_spotlight_1764326397840.png" alt="Metro Boomin Studio Session" />
-        </div>
-      </div>
-    </section>
+      </section>
+    }
 
-    <div class="modern-divider"></div>
+  </main>
 
-    <!-- RECOMMENDED SECTION -->
-    <section class="content-section">
-      <div class="section-header">
-        <h2>Recommended for You</h2>
-        <div class="section-controls">
-          <button class="btn-icon"><i class="fas fa-chevron-left"></i></button>
-          <button class="btn-icon"><i class="fas fa-chevron-right"></i></button>
-        </div>
-      </div>
-      <app-spec-row title="" type="beat" filterTag="TRAP"></app-spec-row>
-    </section>
-
-    <!-- BROWSE BY GENRE (UNIFORM GRID) -->
-    <section class="content-section section-variant">
-      <div class="section-header">
-        <h2>Browse Genres</h2>
-      </div>
-      <div class="genre-grid">
-        @for (genre of genres(); track genre) {
-          <div
-            class="genre-tile"
-            [class.active]="selectedGenres().includes(genre)"
-            (click)="toggleGenre(genre)"
-            [style.background-image]="'url(' + getGenreImage(genre) + ')'"
-          >
-            <div class="overlay"></div>
-            <span class="genre-name">{{ genre }}</span>
-            @if (selectedGenres().includes(genre)) {
-              <div class="check-mark"><i class="fas fa-check"></i></div>
-            }
-          </div>
-        }
-      </div>
-    </section>
-
-    <!-- NEW ARRIVALS / BROWSE LIST -->
-    <section class="content-section">
-      <div class="section-header">
-        <h2>{{ selectedGenres().length ? 'Filtered Results' : 'New Arrivals' }}</h2>
-      </div>
-      <app-spec-row title="" type="beat" [specsInput]="filteredSpecs()"></app-spec-row>
-    </section>
+  <!-- ═══ TOAST ═══ -->
+  <div class="lc-toast" [class.show]="toastVisible()">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#c8e84f" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+      <polyline points="20 6 9 17 4 12"/>
+    </svg>
+    <span>{{ toastMessage() }}</span>
   </div>
+
 </div>

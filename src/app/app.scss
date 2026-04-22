@@ -1,0 +1,33 @@
+:host {
+  display: block;
+}
+
+.app-shell {
+  --player-dock-space: 0px;
+  min-height: 100vh;
+  transition: padding-bottom 0.32s ease;
+}
+
+.app-shell.player-docked {
+  --player-dock-space: 110px;
+  padding-bottom: calc(var(--player-dock-space) + 20px);
+}
+
+.app-shell.player-docked.player-expanded {
+  --player-dock-space: 418px;
+}
+
+.app-route-layer {
+  min-height: 0;
+}
+
+@media (max-width: 720px) {
+  .app-shell.player-docked {
+    --player-dock-space: 156px;
+    padding-bottom: calc(var(--player-dock-space) + 12px);
+  }
+
+  .app-shell.player-docked.player-expanded {
+    --player-dock-space: 650px;
+  }
+}

@@ -1,188 +1,189 @@
-<div class="overview-page">
-  <!-- PAGE HEADER -->
-  <div class="page-header">
-    <div class="header-left">
-      <h1 class="page-title">Overview</h1>
-      <p class="page-subtitle">Your studio at a glance — last 30 days</p>
+<div class="welcome-strip">
+  <div class="ws-left">
+    <div class="ws-eyebrow">
+      <span class="ws-dot"></span>
+      <span>{{ todayLabel }}</span> · studio
     </div>
-    <div class="header-actions">
-      <a routerLink="../upload" class="btn-primary">
-        <i class="fas fa-cloud-upload-alt"></i>
-        Upload Beat
+    <h1 class="ws-title">Good {{ greeting() }}, <em>{{ firstName() }}</em>.</h1>
+    <p class="ws-status">
+      <strong>{{ liveBeatCount() }} beats live</strong>,
+      <strong>{{ recentOrderCount() }} new orders</strong> waiting, and
+      <strong>{{ currency(readyToWithdraw()) }}</strong> ready to withdraw. Your next drop is sitting at
+      <em>80% complete</em> and needs cover art.
+    </p>
+    <div class="ws-actions">
+      <a routerLink="../orders" class="btn primary">
+        Review {{ recentOrderCount() }} orders
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <line x1="5" y1="12" x2="19" y2="12" />
+          <polyline points="12 5 19 12 12 19" />
+        </svg>
       </a>
+      <a routerLink="../earnings" class="btn">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+          <line x1="12" y1="1" x2="12" y2="23" />
+          <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+        </svg>
+        Withdraw {{ currency(readyToWithdraw()) }}
+      </a>
+      <a routerLink="../upload" class="btn">Continue draft</a>
     </div>
   </div>
+</div>
 
-  <!-- KPI CARDS -->
-  <section class="kpi-section">
-    @for (card of kpiCards(); track card.label) {
-      <div class="kpi-card" [class]="'kpi-card--' + card.color">
-        <div class="kpi-icon-wrap">
-          <i [class]="card.icon"></i>
-        </div>
-        <div class="kpi-body">
-          <span class="kpi-label">{{ card.label }}</span>
-          @if (isLoadingAnalytics()) {
-            <span class="kpi-value kpi-value--loading">
-              <span class="skeleton-line"></span>
-            </span>
-          } @else {
-            <span class="kpi-value">{{ card.value }}</span>
+<div class="stats-grid">
+  <div class="stat-cell c1">
+    <div class="stat-top">
+      <span class="stat-lbl">Plays · 30d</span>
+      <span class="stat-ic">
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><polygon points="6 3 20 12 6 21 6 3" /></svg>
+      </span>
+    </div>
+    <div class="stat-val">{{ formattedPlays() }}</div>
+    <div class="stat-foot">
+      <span class="stat-delta up">+18%</span>
+      <svg class="spark" viewBox="0 0 80 22" preserveAspectRatio="none">
+        <polyline points="0,18 10,14 20,16 30,10 40,12 50,8 60,10 70,4 80,6" fill="none" stroke="rgba(245,241,232,0.85)" stroke-width="1.5" />
+      </svg>
+    </div>
+  </div>
+  <div class="stat-cell c2">
+    <div class="stat-top"><span class="stat-lbl">Revenue · 30d</span><span class="stat-ic">₹</span></div>
+    <div class="stat-val">{{ revenueTotalLabel() }}</div>
+    <div class="stat-foot">
+      <span class="stat-delta up">+12%</span>
+      <svg class="spark" viewBox="0 0 80 22" preserveAspectRatio="none">
+        <polyline points="0,16 10,14 20,11 30,13 40,8 50,10 60,6 70,7 80,3" fill="none" stroke="rgba(20,19,16,0.65)" stroke-width="1.5" />
+      </svg>
+    </div>
+  </div>
+  <div class="stat-cell c3">
+    <div class="stat-top"><span class="stat-lbl">New followers</span><span class="stat-ic">+</span></div>
+    <div class="stat-val">+147</div>
+    <div class="stat-foot">
+      <span class="stat-delta up">best week</span>
+      <svg class="spark" viewBox="0 0 80 22" preserveAspectRatio="none">
+        <polyline points="0,20 10,18 20,15 30,16 40,12 50,9 60,10 70,6 80,4" fill="none" stroke="rgba(20,19,16,0.65)" stroke-width="1.5" />
+      </svg>
+    </div>
+  </div>
+  <div class="stat-cell c4">
+    <div class="stat-top"><span class="stat-lbl">Conversion</span><span class="stat-ic">%</span></div>
+    <div class="stat-val">4.2<span class="unit">%</span></div>
+    <div class="stat-foot">
+      <span class="stat-delta down">-0.3%</span>
+      <svg class="spark" viewBox="0 0 80 22" preserveAspectRatio="none">
+        <polyline points="0,8 10,6 20,10 30,8 40,12 50,11 60,14 70,13 80,15" fill="none" stroke="rgba(20,19,16,0.65)" stroke-width="1.5" />
+      </svg>
+    </div>
+  </div>
+</div>
+
+<div class="ov-two">
+  <div class="card">
+    <div class="card-head">
+      <h4>Revenue · <em>last 30 days</em></h4>
+      <span class="cnum">live</span>
+    </div>
+    @if (isLoadingAnalytics()) {
+      <div class="chart-loading">Loading revenue...</div>
+    } @else {
+      <div class="chart-wrap chart-interactive" (mousemove)="onRevenueChartMove($event)" (mouseleave)="clearRevenueHover()">
+        <svg viewBox="0 0 600 240" preserveAspectRatio="none">
+          <defs>
+            <linearGradient id="ovGradNg" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#ff3d5a" stop-opacity="0.3" />
+              <stop offset="100%" stop-color="#ff3d5a" stop-opacity="0" />
+            </linearGradient>
+          </defs>
+          <line x1="0" y1="40" x2="600" y2="40" stroke="#e0d7c0" stroke-width="1" stroke-dasharray="3 3" />
+          <line x1="0" y1="100" x2="600" y2="100" stroke="#e0d7c0" stroke-width="1" stroke-dasharray="3 3" />
+          <line x1="0" y1="160" x2="600" y2="160" stroke="#e0d7c0" stroke-width="1" stroke-dasharray="3 3" />
+          <line x1="0" y1="220" x2="600" y2="220" stroke="#141310" stroke-width="1.5" />
+          <path [attr.d]="revenueAreaPath()" fill="url(#ovGradNg)" />
+          <path [attr.d]="revenueLinePath()" fill="none" stroke="#ff3d5a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+          @if (hoveredRevenuePoint(); as point) {
+            <line class="chart-hover-line" [attr.x1]="point.x" y1="22" [attr.x2]="point.x" y2="220" />
+            <circle class="chart-hover-dot" [attr.cx]="point.x" [attr.cy]="point.y" r="5" />
           }
-          <span class="kpi-delta">{{ card.delta }}</span>
+        </svg>
+        @if (hoveredRevenuePoint(); as point) {
+          <div class="chart-tooltip visible" [style.left.%]="(point.x / 600) * 100" [style.top.%]="(point.y / 240) * 100">
+            <span>{{ point.label }}</span>
+            <strong>{{ currency(point.value) }}</strong>
+          </div>
+        }
+      </div>
+      <div class="chart-legend">
+        <div class="lg-item"><span class="lg-dot" style="background: var(--hot)"></span>Revenue (INR)</div>
+        <div class="lg-item" style="margin-left: auto; color: var(--ink)">
+          <strong>{{ revenueTotalLabel() }} <em>+12%</em></strong>
         </div>
       </div>
     }
-  </section>
+  </div>
 
-  <!-- QUICK ACTIONS -->
-  <section class="quick-actions-section">
-    <h2 class="section-title">Quick Actions</h2>
-    <div class="quick-actions-grid">
-      <a routerLink="../upload" class="action-card">
-        <div class="action-icon action-icon--upload">
-          <i class="fas fa-cloud-upload-alt"></i>
-        </div>
-        <div class="action-body">
-          <span class="action-label">Upload Beat</span>
-          <span class="action-desc">Add a new track to your catalog</span>
-        </div>
-        <i class="fas fa-chevron-right action-arrow"></i>
-      </a>
-      <a routerLink="../analytics" class="action-card">
-        <div class="action-icon action-icon--analytics">
-          <i class="fas fa-chart-line"></i>
-        </div>
-        <div class="action-body">
-          <span class="action-label">Full Analytics</span>
-          <span class="action-desc">Deep-dive into plays, revenue & downloads</span>
-        </div>
-        <i class="fas fa-chevron-right action-arrow"></i>
-      </a>
-      <a routerLink="../orders" class="action-card">
-        <div class="action-icon action-icon--orders">
-          <i class="fas fa-receipt"></i>
-        </div>
-        <div class="action-body">
-          <span class="action-label">View Orders</span>
-          <span class="action-desc">Track all your beat sales & licenses</span>
-        </div>
-        <i class="fas fa-chevron-right action-arrow"></i>
-      </a>
-      <a routerLink="../profile" class="action-card">
-        <div class="action-icon action-icon--profile">
-          <i class="fas fa-user-circle"></i>
-        </div>
-        <div class="action-body">
-          <span class="action-label">Edit Profile</span>
-          <span class="action-desc">Update bio, avatar & social links</span>
-        </div>
-        <i class="fas fa-chevron-right action-arrow"></i>
-      </a>
+  <div class="card">
+    <div class="card-head">
+      <h4>Top <em>beats</em> · 30d</h4>
+      <a routerLink="../analytics" class="cnum" style="text-decoration: none">all -></a>
     </div>
-  </section>
-
-  <!-- BOTTOM PANELS: Top Tracks + Recent Orders -->
-  <div class="bottom-panels">
-    <!-- TOP TRACKS -->
-    <section class="panel">
-      <div class="panel-header">
-        <h2 class="panel-title">
-          <i class="fas fa-fire-alt"></i>
-          Top Tracks
-        </h2>
-        <a routerLink="../analytics" class="panel-link"
-          >See Analytics <i class="fas fa-arrow-right"></i
-        ></a>
-      </div>
-      <div class="panel-body">
-        @if (isLoadingAnalytics()) {
-          @for (i of [1, 2, 3]; track i) {
-            <div class="track-row track-row--skeleton">
-              <div class="skeleton-block skeleton-block--sm"></div>
-              <div class="skeleton-lines">
-                <div class="skeleton-line"></div>
-                <div class="skeleton-line skeleton-line--short"></div>
-              </div>
-            </div>
-          }
-        } @else if (topSpecs().length === 0) {
-          <div class="empty-state">
-            <i class="fas fa-music"></i>
-            <p>No track data yet. Upload your first beat!</p>
-            <a routerLink="../upload" class="btn-primary btn-primary--sm">Upload</a>
+    @if (topBeatRows().length) {
+      @for (spec of topBeatRows(); track spec.spec_id; let i = $index) {
+        <div class="topbeat-row">
+          <div class="tb-rank" [class.top]="i < 2">{{ spec.rank }}</div>
+          <div class="track-cover small">
+            @if (spec.imageUrl) {
+              <img [src]="spec.imageUrl" [alt]="spec.title || 'Beat cover'" loading="lazy" />
+            } @else {
+              <div class="mini-art" [class]="'a' + ((i % 6) + 1)">{{ spec.letter }}</div>
+            }
           </div>
-        } @else {
-          @for (spec of topSpecs(); track spec.spec_id; let i = $index) {
-            <div class="track-row">
-              <span class="track-rank">#{{ i + 1 }}</span>
-              <div class="track-info">
-                <span class="track-title">{{ spec.title }}</span>
-                <div class="track-stats">
-                  <span><i class="fas fa-play"></i> {{ spec.plays }}</span>
-                  <span><i class="fas fa-download"></i> {{ spec.downloads }}</span>
-                  <span><i class="fas fa-rupee-sign"></i> {{ spec.revenue }}</span>
-                </div>
-              </div>
-              <div class="track-bar-wrap">
-                <div
-                  class="track-bar"
-                  [style.width.%]="
-                    topSpecs().length ? (spec.plays / (topSpecs()[0].plays || 1)) * 100 : 0
-                  "
-                ></div>
-              </div>
-            </div>
-          }
-        }
-      </div>
-    </section>
-
-    <!-- RECENT ORDERS -->
-    <section class="panel">
-      <div class="panel-header">
-        <h2 class="panel-title">
-          <i class="fas fa-receipt"></i>
-          Recent Orders
-        </h2>
-        <a routerLink="../orders" class="panel-link">View All <i class="fas fa-arrow-right"></i></a>
-      </div>
-      <div class="panel-body">
-        @if (isLoadingOrders()) {
-          @for (i of [1, 2, 3]; track i) {
-            <div class="order-row order-row--skeleton">
-              <div class="skeleton-lines">
-                <div class="skeleton-line"></div>
-                <div class="skeleton-line skeleton-line--short"></div>
-              </div>
-              <div class="skeleton-block skeleton-block--xs"></div>
-            </div>
-          }
-        } @else if (recentOrders().length === 0) {
-          <div class="empty-state">
-            <i class="fas fa-box-open"></i>
-            <p>No orders yet. Keep promoting your beats!</p>
+          <div class="tb-info">
+            <div class="tb-name"><em>{{ spec.title.split(' ')[0] }}</em> {{ spec.title.split(' ').slice(1).join(' ') }}</div>
+            <div class="tb-bar"><div class="tb-bar-fill" [style.width.%]="spec.share"></div></div>
           </div>
-        } @else {
-          @for (order of recentOrders(); track order.id) {
-            <div class="order-row">
-              <div class="order-info">
-                <span class="order-track">{{ order.spec_title }}</span>
-                <span class="order-meta">
-                  {{ order.buyer_name }} &middot; {{ order.license_type }} &middot;
-                  {{ order.created_at | date: 'mediumDate' }}
-                </span>
-              </div>
-              <div class="order-right">
-                <span class="order-amount">₹{{ order.amount | number }}</span>
-                <span class="order-status" [class]="'order-status--' + order.status">
-                  {{ order.status }}
-                </span>
-              </div>
-            </div>
-          }
-        }
+          <div class="tb-count">{{ spec.plays.toLocaleString() }} <em>plays</em></div>
+        </div>
+      }
+    } @else {
+      <div class="chart-empty">Upload beats to see top performers.</div>
+    }
+  </div>
+</div>
+
+<div class="ov-two">
+  <div class="card">
+    <div class="card-head">
+      <h4>Recent <em>activity</em></h4>
+      <span class="cnum">12 new</span>
+    </div>
+    @for (item of activityItems(); track item.text) {
+      <div class="activity-item">
+        <div class="act-avatar" [class]="item.colorClass">{{ item.avatar }}</div>
+        <div class="act-text">{{ item.text }}</div>
+        <div class="act-time">{{ item.time }}</div>
       </div>
-    </section>
+    }
+  </div>
+
+  <div class="card dark" style="display: flex; flex-direction: column; gap: 14px">
+    <div>
+      <div class="cta-eyebrow">* Studio boost</div>
+      <div class="cta-h">Your next drop deserves <em>better cover art</em>.</div>
+      <div class="cta-sub">
+        Try the cover art generator for draft polish, launch assets, and promo crops.
+      </div>
+    </div>
+    <div style="display: flex; gap: 8px; flex-wrap: wrap">
+      <a class="btn primary" routerLink="../upload" style="background: var(--lime); color: var(--ink); border-color: var(--lime); box-shadow: 2px 2px 0 var(--cream)">
+        Try it free
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <line x1="5" y1="12" x2="19" y2="12" />
+          <polyline points="12 5 19 12 12 19" />
+        </svg>
+      </a>
+      <button class="btn" type="button" style="background: transparent; color: var(--cream); border-color: var(--cream)">Learn more</button>
+    </div>
   </div>
 </div>

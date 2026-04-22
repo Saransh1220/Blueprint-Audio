@@ -1,7 +1,7 @@
-import { ChangeDetectionStrategy, Component, inject, signal, computed } from '@angular/core';
-import { RouterLink, RouterLinkActive, RouterOutlet, Router } from '@angular/router';
+import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
+import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { AuthService } from '../../services';
-import { Role } from '../../models';
+import { StudioShellService } from './studio-shell.service';
 
 @Component({
   selector: 'app-studio',
@@ -11,17 +11,38 @@ import { Role } from '../../models';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class StudioComponent {
-  private authService = inject(AuthService);
-  private router = inject(Router);
+  authService = inject(AuthService);
+  private studioShell = inject(StudioShellService);
 
   currentUser = this.authService.currentUser;
-  readonly Role = Role;
-
-  isMobileNavOpen = signal(false);
+  isMobileNavOpen = this.studioShell.isMobileNavOpen;
+  navItems = [
+    { path: 'overview', label: 'Overview' },
+    { path: 'tracks', label: 'My Tracks' },
+    { path: 'analytics', label: 'Analytics' },
+    { path: 'orders', label: 'Orders' },
+    { path: 'purchases', label: 'Purchases' },
+    { path: 'profile', label: 'Profile' },
+  ];
 
   displayName = computed(() => {
     const user = this.currentUser();
     return user?.display_name || user?.name || 'Producer';
+  });
+
+  firstName = computed(() => {
+    const parts = this.displayName().split(' ');
+    return parts[0] || 'Producer';
+  });
+
+  lastName = computed(() => {
+    const parts = this.displayName().split(' ');
+    return parts.slice(1).join(' ') || '';
+  });
+
+  handle = computed(() => {
+    const user = this.currentUser();
+    return user?.name?.toLowerCase().replace(/\s+/g, '.') || 'producer';
   });
 
   avatarUrl = computed(() => this.currentUser()?.avatar_url || null);
@@ -33,18 +54,25 @@ export class StudioComponent {
     return 'Good evening';
   });
 
-  navItems = [
-    { label: 'Overview', icon: 'fas fa-chart-pie', path: 'overview' },
-    { label: 'My Tracks', icon: 'fas fa-music', path: 'tracks' },
-    { label: 'Analytics', icon: 'fas fa-chart-line', path: 'analytics' },
-    { label: 'Orders', icon: 'fas fa-receipt', path: 'orders' },
-  ];
+  todayDate = computed(() => {
+    return new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
+  });
+
+  sidebarStats = computed(() => ({
+    beats: 24,
+    followers: 847,
+  }));
 
   toggleMobileNav() {
-    this.isMobileNavOpen.update((v) => !v);
+    this.studioShell.toggleMobileNav();
   }
 
   closeMobileNav() {
-    this.isMobileNavOpen.set(false);
+    this.studioShell.closeMobileNav();
+  }
+
+  logout() {
+    this.closeMobileNav();
+    this.authService.logout();
   }
 }

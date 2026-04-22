@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal, effect, ViewChild } from '@angular/core';
+import { Component, OnInit, computed, effect, inject, signal, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -32,6 +32,17 @@ export class StudioProfileComponent implements OnInit {
   selectedAvatarFile = signal<File | null>(null);
   avatarPreview = signal<string | null>(null);
   activeTab = signal<'profile' | 'social'>('profile');
+  tags = signal(['Trap', 'Lo-fi', 'Cinematic', 'Moody']);
+
+  displayName = computed(() => {
+    const fromForm = this.profileForm?.get('display_name')?.value;
+    const user = this.currentUser();
+    return fromForm || user?.display_name || user?.name || 'Producer';
+  });
+
+  handle = computed(() => this.displayName().toLowerCase().replace(/[^a-z0-9]+/g, '.').replace(/^\.+|\.+$/g, '') || 'producer');
+
+  avatarLetter = computed(() => this.displayName().slice(0, 1).toLowerCase() || 'p');
 
   constructor() {
     effect(() => {
@@ -96,9 +107,8 @@ export class StudioProfileComponent implements OnInit {
     });
   }
 
-  navigateToStore() {
-    const userId = this.currentUser()?.id;
-    if (userId) this.router.navigate(['/store', userId]);
+  navigateToCatalog() {
+    this.router.navigate(['/search']);
   }
 
   onAvatarFileSelected(event: Event) {

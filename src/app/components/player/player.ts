@@ -1,41 +1,49 @@
+import { CommonModule } from '@angular/common';
 import {
-  type AfterViewInit,
+  ChangeDetectorRef,
   Component,
   computed,
-  type ElementRef,
+  HostListener,
   effect,
   inject,
   OnDestroy,
-  ViewChild,
-  ChangeDetectorRef,
   signal,
 } from '@angular/core';
-import { gsap } from 'gsap';
+import { Router, RouterLink } from '@angular/router';
 import { PlayerService } from '../../services/player.service';
-import { VisualizerService } from '../../services/visualizer.service';
 import { AuthService } from '../../services/auth.service';
 import { ModalService } from '../../services/modal.service';
 import { AnalyticsService } from '../../services/analytics.service';
+import { LabService } from '../../services/lab';
+import { ToastService } from '../../services/toast.service';
 import { LicenseSelectorComponent } from '../license-selector/license-selector.component';
 import type { Spec } from '../../models';
-import { RouterLink } from '@angular/router';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-player',
   standalone: true,
-  imports: [RouterLink],
+  imports: [CommonModule, RouterLink],
   templateUrl: './player.html',
   styleUrls: ['./player.scss'],
 })
-export class PlayerComponent implements AfterViewInit, OnDestroy {
+export class PlayerComponent implements OnDestroy {
   playerService = inject(PlayerService);
-  visualizerService = inject(VisualizerService);
   authService = inject(AuthService);
   modalService = inject(ModalService);
   analyticsService = inject(AnalyticsService);
+  labService = inject(LabService);
+  toastService = inject(ToastService);
+  router = inject(Router);
   cdr = inject(ChangeDetectorRef);
 
   isFavoriting = signal(false);
+  isMenuOpen = signal(false);
+  expandedTrackDetail = signal<Spec | null>(null);
+  waveformBars = signal<number[]>(this.createIdleWaveform());
+  displayTrack = signal<Spec | null>(null);
+  isDockActive = signal(false);
+  speedOptions = [0.75, 1, 1.25, 1.5];
 
   progress = computed(() => {
     const duration = this.playerService.duration();
@@ -43,105 +51,136 @@ export class PlayerComponent implements AfterViewInit, OnDestroy {
     return duration > 0 ? current / duration : 0;
   });
 
-  @ViewChild('controlDeck') controlDeck!: ElementRef;
-  @ViewChild('waveformCanvas') canvasRef!: ElementRef<HTMLCanvasElement>;
+  queueItems = computed(() =>
+    this.playerService.queue().map((item, index) => ({
+      track: item,
+      index,
+      isActive: index === this.playerService.queueIndex(),
+    })),
+  );
 
-  // Animation Frame ID
-  private animationId: number | null = null;
-  private brandColor = '#ffffff';
+  displayGenres = computed(() => {
+    const track = this.expandedTrackDetail() ?? this.playerService.currentTrack();
+    return track?.genres?.slice(0, 3) ?? [];
+  });
+
+  detailTags = computed(() => {
+    const track = this.expandedTrackDetail() ?? this.playerService.currentTrack();
+    const tags = track?.tags?.slice(0, 3) ?? [];
+    if (track?.freeMp3Enabled) {
+      return [...tags, 'Free MP3'];
+    }
+    return tags;
+  });
+
+  minimumLicensePrice = computed(() => {
+    const track = this.expandedTrackDetail() ?? this.playerService.currentTrack();
+    if (!track) return 0;
+    if (!track.licenses?.length) return track.price;
+    return track.licenses.reduce((min, license) => Math.min(min, license.price), track.licenses[0].price);
+  });
+
+  private lastVisibleState = false;
+  private hideTimer: ReturnType<typeof setTimeout> | null = null;
+  private activateFrame: number | null = null;
+
+  private detailSub?: Subscription;
+  private waveformFrame: number | null = null;
 
   constructor() {
-    // Use effect to react to changes in the isVisible signal
     effect(() => {
       const isVisible = this.playerService.isVisible();
-      if (this.controlDeck?.nativeElement) {
-        const el = this.controlDeck.nativeElement;
-        if (isVisible) {
-          gsap.to(el, { y: 0, opacity: 1, duration: 0.5, ease: 'power2.out' });
+      const track = this.playerService.currentTrack();
+      const wasVisible = this.lastVisibleState;
+      this.lastVisibleState = isVisible;
+
+      if (isVisible && track) {
+        this.clearHideTimer();
+        this.displayTrack.set(track);
+
+        if (!wasVisible) {
+          this.isDockActive.set(false);
+          this.scheduleActivate();
         } else {
-          gsap.to(el, { y: 100, opacity: 0, duration: 0.5, ease: 'power2.in' });
+          this.isDockActive.set(true);
         }
+        return;
+      }
+
+      if (!isVisible && wasVisible && this.displayTrack()) {
+        this.cancelActivateFrame();
+        this.isDockActive.set(false);
+        this.hideTimer = setTimeout(() => {
+          if (!this.playerService.isVisible()) {
+            this.displayTrack.set(null);
+            this.expandedTrackDetail.set(null);
+          }
+        }, 320);
+      }
+    });
+
+    effect(() => {
+      const track = this.playerService.currentTrack();
+      const expanded = this.playerService.isExpanded();
+
+      this.expandedTrackDetail.set(track);
+      this.detailSub?.unsubscribe();
+
+      if (!track || !expanded) return;
+
+      this.detailSub = this.labService.getSpecById(track.id).subscribe({
+        next: (spec) => {
+          if (spec) {
+            this.expandedTrackDetail.set(spec);
+            this.cdr.markForCheck();
+          }
+        },
+        error: () => {
+          this.expandedTrackDetail.set(track);
+          this.cdr.markForCheck();
+        },
+      });
+    });
+
+    effect(() => {
+      const visible = this.playerService.isVisible();
+      const track = this.playerService.currentTrack();
+      const playing = this.playerService.isPlaying();
+
+      this.stopWaveformLoop();
+
+      if (!visible || !track) {
+        this.waveformBars.set(this.createIdleWaveform());
+        return;
+      }
+
+      this.tickWaveform();
+
+      if (playing) {
+        this.waveformFrame = requestAnimationFrame(() => this.startWaveformLoop());
       }
     });
   }
 
-  ngAfterViewInit(): void {
-    // Set initial state
-    if (this.controlDeck?.nativeElement && !this.playerService.isVisible()) {
-      gsap.set(this.controlDeck.nativeElement, { y: 100, opacity: 0 });
-    }
-
-    // Initialize Canvas
-    if (this.canvasRef?.nativeElement) {
-      this.initCanvas();
-    }
-  }
-
   ngOnDestroy() {
-    if (this.animationId) {
-      cancelAnimationFrame(this.animationId);
-    }
+    this.detailSub?.unsubscribe();
+    this.stopWaveformLoop();
+    this.clearHideTimer();
+    this.cancelActivateFrame();
   }
 
-  private initCanvas() {
-    this.updateCanvasSize();
-
-    // Get theme color
-    const style = getComputedStyle(document.documentElement);
-    this.brandColor = style.getPropertyValue('--brand-color').trim() || '#ffffff';
-
-    // Handle Resize
-    window.addEventListener('resize', () => {
-      this.updateCanvasSize();
-      this.drawWaveform();
-    });
-
-    // Start Animation Loop
-    this.animateWaveform();
+  @HostListener('document:click')
+  handleDocumentClick() {
+    this.isMenuOpen.set(false);
   }
 
-  private animateWaveform() {
-    this.drawWaveform();
-    this.animationId = requestAnimationFrame(() => this.animateWaveform());
+  toggleMenu(event: MouseEvent) {
+    event.stopPropagation();
+    this.isMenuOpen.update((open) => !open);
   }
 
-  private updateCanvasSize() {
-    if (!this.canvasRef?.nativeElement) return;
-    const canvas = this.canvasRef.nativeElement;
-    const rect = canvas.getBoundingClientRect();
-    canvas.width = rect.width * window.devicePixelRatio;
-    canvas.height = rect.height * window.devicePixelRatio;
-  }
-
-  private drawWaveform() {
-    if (!this.canvasRef?.nativeElement) return;
-    const canvas = this.canvasRef.nativeElement;
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
-
-    const currentTime = this.playerService.currentTime();
-    const duration = this.playerService.duration();
-    const progressPercent = duration > 0 ? currentTime / duration : 0;
-
-    this.visualizerService.drawWaveform(
-      ctx,
-      canvas.width,
-      canvas.height,
-      this.playerService.getWaveformData(),
-      this.playerService.isPlaying(),
-      progressPercent,
-      this.brandColor,
-    );
-  }
-
-  onSeek(event: MouseEvent) {
-    const canvas = this.canvasRef.nativeElement;
-    const rect = canvas.getBoundingClientRect();
-    const x = event.clientX - rect.left;
-    const percentage = Math.max(0, Math.min(1, x / rect.width));
-
-    const duration = this.playerService.duration() || 1;
-    this.playerService.seekTo(percentage * duration);
+  stopBubble(event: Event) {
+    event.stopPropagation();
   }
 
   onSeekSlider(event: Event) {
@@ -151,6 +190,24 @@ export class PlayerComponent implements AfterViewInit, OnDestroy {
     this.playerService.seekTo(percentage * duration);
   }
 
+  onSeek(event: MouseEvent) {
+    const rail = event.currentTarget as HTMLElement | null;
+    if (!rail) return;
+    const rect = rail.getBoundingClientRect();
+    const percentage = Math.max(0, Math.min(1, (event.clientX - rect.left) / rect.width));
+    const duration = this.playerService.duration() || 1;
+    this.playerService.seekTo(percentage * duration);
+  }
+
+  onVolumeChange(event: Event) {
+    const input = event.target as HTMLInputElement;
+    this.playerService.setVolume(parseFloat(input.value));
+  }
+
+  setPlaybackRate(rate: number) {
+    this.playerService.setPlaybackRate(rate);
+  }
+
   addToCart(event: MouseEvent) {
     event.stopPropagation();
     const track = this.playerService.currentTrack();
@@ -158,14 +215,9 @@ export class PlayerComponent implements AfterViewInit, OnDestroy {
 
     this.authService.requireAuth(() => {
       this.modalService.open(LicenseSelectorComponent, 'Select License', {
-        spec: track,
+        spec: this.expandedTrackDetail() ?? track,
       });
     });
-  }
-
-  onVolumeChange(event: Event) {
-    const input = event.target as HTMLInputElement;
-    this.playerService.setVolume(parseFloat(input.value));
   }
 
   toggleFavorite(event: MouseEvent, track: Spec) {
@@ -184,18 +236,16 @@ export class PlayerComponent implements AfterViewInit, OnDestroy {
               isFavorited: false,
             };
           }
-          if (track.analytics) {
-            track.analytics.isFavorited = response.is_favorited;
-            if (response.total_count !== undefined) {
-              track.analytics.favoriteCount = response.total_count;
-            } else {
-              if (response.is_favorited) {
-                track.analytics.favoriteCount++;
-              } else {
-                track.analytics.favoriteCount = Math.max(0, track.analytics.favoriteCount - 1);
-              }
-            }
+
+          track.analytics.isFavorited = response.is_favorited;
+          if (response.total_count !== undefined) {
+            track.analytics.favoriteCount = response.total_count;
+          } else if (response.is_favorited) {
+            track.analytics.favoriteCount++;
+          } else {
+            track.analytics.favoriteCount = Math.max(0, track.analytics.favoriteCount - 1);
           }
+
           this.isFavoriting.set(false);
           this.cdr.markForCheck();
         },
@@ -222,5 +272,164 @@ export class PlayerComponent implements AfterViewInit, OnDestroy {
         console.error('Failed to download free MP3:', err);
       },
     });
+  }
+
+  openBeatPage(event?: Event) {
+    event?.stopPropagation();
+    const track = this.playerService.currentTrack();
+    if (!track) return;
+    void this.router.navigate(['/beats', track.id.replace('#', '')]);
+    this.isMenuOpen.set(false);
+  }
+
+  openProducerProfile(event?: Event) {
+    event?.stopPropagation();
+    const track = this.playerService.currentTrack();
+    if (!track?.producerId) return;
+    void this.router.navigate(['/search']);
+    this.isMenuOpen.set(false);
+  }
+
+  async copyBeatLink(event?: Event) {
+    event?.stopPropagation();
+    const track = this.playerService.currentTrack();
+    if (!track) return;
+
+    const url = `${window.location.origin}/beats/${track.id.replace('#', '')}`;
+    if (navigator.clipboard?.writeText) {
+      await navigator.clipboard.writeText(url);
+      this.toastService.success('Beat link copied');
+    } else {
+      this.toastService.info('Clipboard support is unavailable here');
+    }
+    this.isMenuOpen.set(false);
+  }
+
+  async shareBeat(event?: Event) {
+    event?.stopPropagation();
+    const track = this.playerService.currentTrack();
+    if (!track) return;
+
+    const url = `${window.location.origin}/beats/${track.id.replace('#', '')}`;
+    if (navigator.share) {
+      await navigator.share({ title: track.title, url });
+      this.toastService.success('Shared successfully');
+    } else {
+      await this.copyBeatLink();
+    }
+    this.isMenuOpen.set(false);
+  }
+
+  notifyApiNeeded(message: string, event?: Event) {
+    event?.stopPropagation();
+    this.toastService.info(message);
+    this.isMenuOpen.set(false);
+  }
+
+  formatDuration(seconds?: number): string {
+    if (!seconds || Number.isNaN(seconds)) return '0:00';
+    const mins = Math.floor(seconds / 60);
+    const secs = Math.floor(seconds % 60);
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
+  }
+
+  formatPanelKey(key?: string): { root: string; mode: string } {
+    if (!key) {
+      return { root: '--', mode: '' };
+    }
+
+    const normalized = key.replace(/\s+/g, ' ').trim();
+    const compactMinor = normalized.match(/^([A-G](?:#|b)?)(?:\s*)(m|min|minor)$/i);
+    if (compactMinor) {
+      return { root: compactMinor[1].toUpperCase(), mode: 'min' };
+    }
+
+    const compactMajor = normalized.match(/^([A-G](?:#|b)?)(?:\s*)(maj|major)$/i);
+    if (compactMajor) {
+      return { root: compactMajor[1].toUpperCase(), mode: 'maj' };
+    }
+
+    const parts = normalized.split(' ');
+    const root = parts.shift() ?? normalized;
+    const mode = parts.join(' ').toLowerCase();
+
+    if (mode.includes('minor')) {
+      return { root: root.toUpperCase(), mode: 'min' };
+    }
+
+    if (mode.includes('major')) {
+      return { root: root.toUpperCase(), mode: 'maj' };
+    }
+
+    if (mode === 'm') {
+      return { root: root.toUpperCase(), mode: 'min' };
+    }
+
+    return { root: root.toUpperCase(), mode: mode ? mode.slice(0, 3) : '' };
+  }
+
+  isBarPlayed(index: number): boolean {
+    return index / this.waveformBars().length < this.progress();
+  }
+
+  private startWaveformLoop() {
+    this.tickWaveform();
+    if (this.playerService.isVisible() && this.playerService.currentTrack() && this.playerService.isPlaying()) {
+      this.waveformFrame = requestAnimationFrame(() => this.startWaveformLoop());
+    }
+  }
+
+  private stopWaveformLoop() {
+    if (this.waveformFrame !== null) {
+      cancelAnimationFrame(this.waveformFrame);
+      this.waveformFrame = null;
+    }
+  }
+
+  private tickWaveform() {
+    const data = this.playerService.getWaveformData();
+    if (!data?.length) {
+      this.waveformBars.set(this.createIdleWaveform());
+      return;
+    }
+
+    const bars = 60;
+    const nextBars = Array.from({ length: bars }, (_, index) => {
+      const sourceIndex = Math.floor((index / bars) * data.length);
+      const value = data[sourceIndex] ?? 0;
+      return Math.max(12, Math.min(100, 10 + (value / 255) * 90));
+    });
+
+    this.waveformBars.set(nextBars);
+  }
+
+  private createIdleWaveform() {
+    return Array.from({ length: 60 }, (_, i) => 16 + ((i * 17) % 34));
+  }
+
+  private scheduleActivate() {
+    this.cancelActivateFrame();
+    this.activateFrame = requestAnimationFrame(() => {
+      this.activateFrame = requestAnimationFrame(() => {
+        if (this.playerService.isVisible()) {
+          this.isDockActive.set(true);
+        }
+        this.activateFrame = null;
+      });
+    });
+  }
+
+  private clearHideTimer() {
+    if (this.hideTimer !== null) {
+      clearTimeout(this.hideTimer);
+      this.hideTimer = null;
+    }
+  }
+
+  private cancelActivateFrame() {
+    if (this.activateFrame !== null) {
+      cancelAnimationFrame(this.activateFrame);
+      this.activateFrame = null;
+    }
   }
 }

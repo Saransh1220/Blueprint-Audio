@@ -122,7 +122,7 @@ describe('PaymentService', () => {
     expect(execute.mock.calls[0][0]).toBeInstanceOf(VerifyPaymentRequest);
     expect(fetchSpy).toHaveBeenCalled();
     expect(show).toHaveBeenCalledWith('Payment verified', 'success');
-    expect(navigate).toHaveBeenCalledWith(['/purchases']);
+    expect(navigate).toHaveBeenCalledWith(['/dashboard']);
   });
 
   it('handlePaymentSuccess shows error toast when verification fails', () => {

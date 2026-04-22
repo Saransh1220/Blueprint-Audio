@@ -15,24 +15,20 @@ describe('Barrels and Routes', () => {
     expect(paths).toContain('forgot-password');
     expect(paths).toContain('reset-password');
     expect(paths).toContain('upload');
-    expect(paths).toContain('analytics');
     expect(paths).toContain('**');
   });
 
   it('resolves lazy route components', async () => {
-    const analyticsRoute = routes.find((r) => r.path === 'analytics');
-    const ordersRoute = routes.find((r) => r.path === 'orders');
     const studioRoute = routes.find((r) => r.path === 'studio');
     const studioChildren = studioRoute?.children ?? [];
     const overviewChild = studioChildren.find((r) => r.path === 'overview');
     const tracksChild = studioChildren.find((r) => r.path === 'tracks');
     const studioAnalyticsChild = studioChildren.find((r) => r.path === 'analytics');
     const studioOrdersChild = studioChildren.find((r) => r.path === 'orders');
+    const studioPurchasesChild = studioChildren.find((r) => r.path === 'purchases');
     const studioUploadChild = studioChildren.find((r) => r.path === 'upload');
     const studioProfileChild = studioChildren.find((r) => r.path === 'profile');
 
-    expect(analyticsRoute).toBeDefined();
-    expect(ordersRoute).toBeDefined();
     expect(studioRoute).toBeDefined();
     expect(studioRoute?.component).toBeDefined();
     expect((studioRoute?.component as any)?.name).toContain('StudioComponent');
@@ -42,44 +38,44 @@ describe('Barrels and Routes', () => {
       'tracks',
       'analytics',
       'orders',
+      'purchases',
       'upload',
       'profile',
+      'earnings',
+      'messages',
+      'settings-studio',
     ]);
-    expect(analyticsRoute?.loadComponent).toBeTypeOf('function');
-    expect(ordersRoute?.loadComponent).toBeTypeOf('function');
     expect(overviewChild?.loadComponent).toBeTypeOf('function');
     expect(tracksChild?.loadComponent).toBeTypeOf('function');
     expect(studioAnalyticsChild?.loadComponent).toBeTypeOf('function');
     expect(studioOrdersChild?.loadComponent).toBeTypeOf('function');
+    expect(studioPurchasesChild?.loadComponent).toBeTypeOf('function');
     expect(studioUploadChild?.loadComponent).toBeTypeOf('function');
     expect(studioProfileChild?.loadComponent).toBeTypeOf('function');
 
     const [
-      analyticsComponent,
-      ordersComponent,
       overviewComponent,
       tracksComponent,
       studioAnalyticsComponent,
       studioOrdersComponent,
+      studioPurchasesComponent,
       studioUploadComponent,
       studioProfileComponent,
     ] = await Promise.all([
-      analyticsRoute?.loadComponent?.(),
-      ordersRoute?.loadComponent?.(),
       overviewChild?.loadComponent?.(),
       tracksChild?.loadComponent?.(),
       studioAnalyticsChild?.loadComponent?.(),
       studioOrdersChild?.loadComponent?.(),
+      studioPurchasesChild?.loadComponent?.(),
       studioUploadChild?.loadComponent?.(),
       studioProfileChild?.loadComponent?.(),
     ]);
 
-    expect(analyticsComponent).toBeTruthy();
-    expect(ordersComponent).toBeTruthy();
     expect(overviewComponent).toBeTruthy();
     expect(tracksComponent).toBeTruthy();
     expect(studioAnalyticsComponent).toBeTruthy();
     expect(studioOrdersComponent).toBeTruthy();
+    expect(studioPurchasesComponent).toBeTruthy();
     expect(studioUploadComponent).toBeTruthy();
     expect(studioProfileComponent).toBeTruthy();
   }, 10000);

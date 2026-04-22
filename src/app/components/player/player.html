@@ -1,119 +1,321 @@
-<div class="player-wrapper" #controlDeck>
-  @if (playerService.currentTrack(); as track) {
-    <!-- EDGE-TO-EDGE TOP SEEKBAR -->
-    <div class="top-seek-container">
-      <div class="custom-slider-container">
-        <!-- Visual Track Background -->
-        <div class="slider-track"></div>
-        <!-- Filled Colored Progress -->
-        <div class="slider-progress" [style.width.%]="progress() * 100"></div>
-        <!-- The interactive hidden native input -->
-        <input
-          type="range"
-          class="slider-input"
-          min="0"
-          max="1"
-          step="0.001"
-          [value]="progress()"
-          (input)="onSeekSlider($event)"
-        />
-      </div>
-    </div>
+@if (displayTrack(); as track) {
+  <div
+    class="mini-player"
+    [class.is-active]="isDockActive()"
+    [class.expanded]="playerService.isExpanded()"
+  >
+    <div class="mp-row">
+      <div class="mp-left">
+        <a
+          class="mp-art"
+          [class.playing]="playerService.isPlaying()"
+          [routerLink]="['/beats', track.id.replace('#', '')]"
+          [style.background-image]="'url(' + track.imageUrl + ')'"
+          aria-label="Open beat page"
+        ></a>
 
-    <div class="player-inner">
-      <!-- LEFT: Art & Info -->
-      <div class="p-left">
-        <div class="art">
-          <img [src]="track.imageUrl" alt="" />
+        <div class="mp-info">
+          <a class="mp-title" [routerLink]="['/beats', track.id.replace('#', '')]">
+            {{ track.title }}
+          </a>
+          <div class="mp-sub">
+            prod. {{ track.producerName || 'Unknown producer' }}
+            <span class="tag">{{ track.genres[0]?.name || 'Beat' }}</span>
+          </div>
         </div>
-        <div class="info">
-          <a class="title" [routerLink]="['/beats', track.id.replace('#', '')]" tabindex="0">{{
-            track.title
-          }}</a>
-          <div class="meta-row">
-            <span class="meta">{{ track.bpm }} BPM • {{ track.key }}</span>
-            <div class="track-actions">
-              <button
-                class="action-btn"
-                [class.active]="track.analytics?.isFavorited"
-                (click)="toggleFavorite($event, track)"
-                [disabled]="isFavoriting()"
-                title="Favorite"
-              >
-                <i [class]="track.analytics?.isFavorited ? 'fas fa-heart' : 'far fa-heart'"></i>
-              </button>
-              @if (track.freeMp3Enabled) {
+
+        <button
+          class="mp-save-btn"
+          [class.saved]="track.analytics?.isFavorited"
+          (click)="toggleFavorite($event, track)"
+          [disabled]="isFavoriting()"
+          aria-label="Save to wishlist"
+        >
+          <i [class]="track.analytics?.isFavorited ? 'fa-solid fa-heart' : 'fa-regular fa-heart'"></i>
+        </button>
+      </div>
+
+      <div class="mp-center">
+        <div class="mp-controls">
+          <button
+            class="mp-ctrl"
+            [class.mode-on]="playerService.shuffleEnabled()"
+            (click)="playerService.toggleShuffle()"
+            title="Shuffle"
+          >
+            <i class="fa-solid fa-shuffle"></i>
+          </button>
+          <button class="mp-ctrl" (click)="playerService.playPrevious()" [disabled]="!playerService.hasPrevious()">
+            <i class="fa-solid fa-backward-step"></i>
+          </button>
+          <button class="mp-ctrl play" (click)="playerService.togglePlay()" aria-label="Play or pause">
+            @if (playerService.isPlaying()) {
+              <i class="fa-solid fa-pause"></i>
+            } @else {
+              <i class="fa-solid fa-play"></i>
+            }
+          </button>
+          <button class="mp-ctrl" (click)="playerService.playNext()" [disabled]="!playerService.hasNext()">
+            <i class="fa-solid fa-forward-step"></i>
+          </button>
+          <button
+            class="mp-ctrl"
+            [class.mode-on]="playerService.repeatEnabled()"
+            (click)="playerService.toggleRepeat()"
+            title="Repeat"
+          >
+            <i class="fa-solid fa-repeat"></i>
+          </button>
+        </div>
+
+        <div class="mp-wave-row">
+          <span class="mp-time">{{ playerService.currentTimeFormatted() }}</span>
+          <div class="waveform">
+            @for (height of waveformBars(); track $index) {
+              <span
+                class="bar"
+                [class.played]="$index / waveformBars().length < progress()"
+                [style.height.%]="height"
+              ></span>
+            }
+
+            <input
+              type="range"
+              class="wave-input"
+              min="0"
+              max="1"
+              step="0.001"
+              [value]="progress()"
+              (input)="onSeekSlider($event)"
+              aria-label="Seek player"
+            />
+          </div>
+          <span class="mp-time right">{{ playerService.durationFormatted() }}</span>
+        </div>
+      </div>
+
+      <div class="mp-right">
+        <div class="mp-price-block">
+          <div class="mp-price-lbl">from</div>
+          <div class="mp-price"><span class="cur">₹</span>{{ minimumLicensePrice() }}</div>
+        </div>
+
+        <button class="mp-buy-btn" (click)="addToCart($event)">
+          <i class="fa-solid fa-cart-shopping"></i>
+          Buy
+        </button>
+
+        <div class="mp-volume-wrap" (click)="stopBubble($event)">
+          <button class="mp-icon-btn" title="Volume">
+            <i class="fa-solid" [class]="playerService.volumeIcon()"></i>
+          </button>
+          <div class="mp-volume-popover">
+            <div class="lbl"><span>Volume</span><span>{{ (playerService.volume() * 100) | number: '1.0-0' }}%</span></div>
+            <div class="volume-slider">
+              <div class="volume-fill" [style.width.%]="playerService.volume() * 100"></div>
+              <div class="volume-knob" [style.left.%]="playerService.volume() * 100"></div>
+              <input
+                type="range"
+                class="volume-input"
+                min="0"
+                max="1"
+                step="0.01"
+                [value]="playerService.volume()"
+                (input)="onVolumeChange($event)"
+                aria-label="Volume"
+              />
+            </div>
+            <div class="lbl muted-top"><span>Speed</span></div>
+            <div class="speed-row">
+              @for (speed of speedOptions; track speed) {
                 <button
-                  class="action-btn"
-                  (click)="downloadFreeMp3($event, track)"
-                  title="Download Free MP3"
+                  class="speed-chip"
+                  [class.on]="playerService.playbackRate() === speed"
+                  (click)="setPlaybackRate(speed)"
                 >
-                  <i class="fas fa-download"></i>
+                  {{ speed }}×
                 </button>
               }
             </div>
           </div>
         </div>
-      </div>
 
-      <!-- CENTER: Playback Controls and Time -->
-      <div class="p-center">
-        <span class="time-val left">{{ playerService.currentTimeFormatted() }}</span>
-
-        <div class="controls">
-          <button class="btn-icon" title="Previous" disabled>
-            <i class="fa-solid fa-backward-step"></i>
+        <div class="mp-menu-wrap" (click)="stopBubble($event)">
+          <button class="mp-icon-btn" (click)="toggleMenu($event)" title="More options">
+            <i class="fa-solid fa-ellipsis"></i>
           </button>
-          <button class="btn-icon play" (click)="playerService.togglePlay()">
-            @if (playerService.isPlaying()) {
-              <i class="fa-solid fa-pause"></i>
-            } @else {
-              <i class="fa-solid fa-play" style="padding-left: 2px"></i>
+
+          <div class="mp-menu" [class.open]="isMenuOpen()">
+            <div class="mp-menu-header">Now playing</div>
+            @if (track.freeMp3Enabled) {
+              <button class="mp-menu-item" (click)="downloadFreeMp3($event, track)">
+                <i class="fa-solid fa-download"></i>
+                Download preview
+                <span class="shortcut">MP3</span>
+              </button>
             }
-          </button>
-          <button class="btn-icon" title="Next" disabled>
-            <i class="fa-solid fa-forward-step"></i>
-          </button>
-        </div>
-
-        <span class="time-val right">{{ playerService.durationFormatted() }}</span>
-      </div>
-
-      <!-- RIGHT: Cart & Volume -->
-      <div class="p-right">
-        <div class="vol-group">
-          <button class="btn-icon vol" title="Mute/Unmute" (click)="playerService.toggleMute()">
-            <i class="fa-solid" [class]="playerService.volumeIcon()"></i>
-          </button>
-          <div class="custom-slider-container vol-slider">
-            <div class="slider-track"></div>
-            <div class="slider-progress" [style.width.%]="playerService.volume() * 100"></div>
-            <input
-              type="range"
-              min="0"
-              max="1"
-              step="0.01"
-              [value]="playerService.volume()"
-              (input)="onVolumeChange($event)"
-              class="slider-input"
-            />
+            <button class="mp-menu-item" (click)="notifyApiNeeded('Playlist API needed for this action', $event)">
+              <i class="fa-solid fa-plus"></i>
+              Add to playlist
+            </button>
+            <button class="mp-menu-item" (click)="shareBeat($event)">
+              <i class="fa-solid fa-share-nodes"></i>
+              Share beat
+            </button>
+            <button class="mp-menu-item" (click)="copyBeatLink($event)">
+              <i class="fa-regular fa-copy"></i>
+              Copy beat link
+            </button>
+            <div class="mp-menu-divider"></div>
+            <div class="mp-menu-header">Beat</div>
+            <button class="mp-menu-item" (click)="openBeatPage($event)">
+              <i class="fa-solid fa-arrow-up-right-from-square"></i>
+              Open beat page
+            </button>
+            <button class="mp-menu-item" (click)="openProducerProfile($event)">
+              <i class="fa-regular fa-user"></i>
+              View producer profile
+            </button>
+            <button class="mp-menu-item" (click)="notifyApiNeeded('Not interested API needed for this action', $event)">
+              <i class="fa-regular fa-circle-xmark"></i>
+              Mark as not interested
+            </button>
+            <div class="mp-menu-divider"></div>
+            <button class="mp-menu-item danger" (click)="notifyApiNeeded('Report API needed for this action', $event)">
+              <i class="fa-regular fa-flag"></i>
+              Report a problem
+            </button>
           </div>
         </div>
 
-        <!-- Buy button on far right -->
-        <button class="btn-cart" (click)="addToCart($event)">
-          <i class="fa-solid fa-cart-arrow-down"></i>
-          <span>₹{{ track.price }}</span>
+        <button
+          class="mp-icon-btn mp-expand-btn"
+          (click)="playerService.toggleExpanded()"
+          aria-label="Expand queue"
+        >
+          <i class="fa-solid fa-chevron-up"></i>
         </button>
 
-        <button class="btn-icon close-btn" (click)="playerService.hidePlayer()">
+        <button class="mp-icon-btn close-btn" (click)="playerService.hidePlayer()" aria-label="Close player">
           <i class="fa-solid fa-xmark"></i>
         </button>
       </div>
     </div>
-  } @else {
-    <div class="player-empty">
-      <i class="fa-solid fa-compact-disc"></i>
+
+    <div class="mp-panel">
+      <div class="panel-left">
+        <div class="panel-header">
+          <span>Now playing <em>· #{{ (expandedTrackDetail() ?? track).id.replace('#', '') }}</em></span>
+          <span class="panel-header-note">active queue</span>
+        </div>
+
+        <div class="panel-beat-row">
+          <div class="panel-art">
+            <img [src]="(expandedTrackDetail() ?? track).imageUrl" [alt]="(expandedTrackDetail() ?? track).title" />
+          </div>
+
+          <div class="panel-title-block">
+            <div class="t">{{ (expandedTrackDetail() ?? track).title }}</div>
+            <div class="by">
+              prod. {{ (expandedTrackDetail() ?? track).producerName || 'Unknown producer' }}
+            </div>
+            <div class="tags">
+              @for (genre of displayGenres(); track genre.id) {
+                <span class="t-chip hot">{{ genre.name }}</span>
+              }
+              @for (tag of detailTags(); track tag) {
+                <span class="t-chip">{{ tag }}</span>
+              }
+            </div>
+          </div>
+        </div>
+
+        <div class="panel-specs">
+          <div class="panel-spec">
+            <div class="k">Tempo</div>
+            <div class="v">{{ (expandedTrackDetail() ?? track).bpm }}<em>bpm</em></div>
+          </div>
+          <div class="panel-spec">
+            <div class="k">Key</div>
+            <div class="v">
+              {{ formatPanelKey((expandedTrackDetail() ?? track).key).root }}<em *ngIf="formatPanelKey((expandedTrackDetail() ?? track).key).mode">{{
+                formatPanelKey((expandedTrackDetail() ?? track).key).mode
+              }}</em>
+            </div>
+          </div>
+          <div class="panel-spec">
+            <div class="k">Length</div>
+            <div class="v">{{ formatDuration((expandedTrackDetail() ?? track).duration) }}</div>
+          </div>
+          <div class="panel-spec">
+            <div class="k">License</div>
+            <div class="v"><span>from</span><em>₹{{ minimumLicensePrice() }}</em></div>
+          </div>
+        </div>
+
+        <div class="panel-action-row">
+          <button class="pa-btn primary" (click)="addToCart($event)">
+            <i class="fa-solid fa-cart-shopping"></i>
+            Buy beat
+          </button>
+          @if (track.freeMp3Enabled) {
+            <button class="pa-btn" (click)="downloadFreeMp3($event, track)">
+              <i class="fa-solid fa-download"></i>
+              Download preview
+            </button>
+          }
+          <button class="pa-btn" (click)="openBeatPage($event)">
+            <i class="fa-solid fa-arrow-up-right-from-square"></i>
+            Open page
+          </button>
+        </div>
+      </div>
+
+      <div class="panel-right">
+        <div class="queue-head">
+          <div class="queue-title">
+            <span>Up next</span>
+            <strong>{{ playerService.queue().length }}</strong>
+            <em>in queue</em>
+          </div>
+          <button class="queue-clear" (click)="playerService.clearQueue()">Clear queue</button>
+        </div>
+
+        <div class="queue-list">
+          @for (item of queueItems(); track item.track.id) {
+            <button
+              class="queue-item"
+              [class.now-playing]="item.isActive"
+              (click)="playerService.playTrackAt(item.index)"
+            >
+              <div class="q-pos">
+                @if (item.isActive && playerService.isPlaying()) {
+                  <span></span><span></span><span></span>
+                } @else {
+                  {{ item.index + 1 < 10 ? '0' + (item.index + 1) : item.index + 1 }}
+                }
+              </div>
+              <div class="q-art">
+                <img [src]="item.track.imageUrl" [alt]="item.track.title" />
+              </div>
+              <div class="q-title-block">
+                <div class="q-title">{{ item.track.title }}</div>
+                <div class="q-sub">
+                  prod. {{ item.track.producerName || 'Unknown producer' }} · {{ item.track.bpm }} BPM · {{ item.track.key }}
+                </div>
+              </div>
+              <div class="q-dur">{{ formatDuration(item.track.duration) }}</div>
+              <span
+                class="q-remove"
+                (click)="playerService.removeFromQueue(item.index); stopBubble($event)"
+                aria-label="Remove from queue"
+              >
+                <i class="fa-solid fa-xmark"></i>
+              </span>
+            </button>
+          }
+        </div>
+      </div>
     </div>
-  }
-</div>
+  </div>
+}

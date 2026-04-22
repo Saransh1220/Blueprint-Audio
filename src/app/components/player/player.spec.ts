@@ -3,10 +3,11 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { of, throwError } from 'rxjs';
 import { PlayerService } from '../../services/player.service';
-import { VisualizerService } from '../../services/visualizer.service';
 import { AuthService } from '../../services/auth.service';
 import { ModalService } from '../../services/modal.service';
 import { AnalyticsService } from '../../services/analytics.service';
+import { LabService } from '../../services/lab';
+import { ToastService } from '../../services/toast.service';
 import { PlayerComponent } from './player';
 
 describe('PlayerComponent', () => {
@@ -15,38 +16,62 @@ describe('PlayerComponent', () => {
 
   const track: any = {
     id: 's1',
+    producerId: 'p1',
+    producerName: 'Blaze',
     title: 'Song',
     imageUrl: 'x.jpg',
     bpm: 120,
     key: 'A MINOR',
     price: 1000,
+    duration: 200,
+    genres: [{ id: 'g1', name: 'Trap', slug: 'trap' }],
+    tags: ['dark'],
+    licenses: [{ id: 'l1', name: 'Basic Lease', type: 'Basic', price: 1000, features: [], fileTypes: ['mp3'] }],
     freeMp3Enabled: true,
     analytics: { isFavorited: false, favoriteCount: 1, playCount: 0, totalDownloadCount: 0 },
   };
 
   const playerService = {
     isVisible: signal(true),
+    isExpanded: signal(false),
     currentTrack: signal(track),
     duration: signal(200),
     currentTime: signal(50),
     isPlaying: signal(false),
     volume: signal(0.5),
-    getWaveformData: vi.fn(() => new Float32Array([0.1, 0.2])),
+    queue: signal([track]),
+    queueIndex: signal(0),
+    shuffleEnabled: signal(false),
+    repeatEnabled: signal(false),
+    playbackRate: signal(1),
     seekTo: vi.fn(),
     setVolume: vi.fn(),
     showPlayer: vi.fn(),
     hidePlayer: vi.fn(),
     togglePlay: vi.fn(),
     toggleMute: vi.fn(),
-    volumeIcon: vi.fn(() => 'fa-volume-up'),
+    toggleShuffle: vi.fn(),
+    toggleRepeat: vi.fn(),
+    playPrevious: vi.fn(),
+    playNext: vi.fn(),
+    playTrackAt: vi.fn(),
+    clearQueue: vi.fn(),
+    removeFromQueue: vi.fn(),
+    setPlaybackRate: vi.fn(),
+    hasPrevious: vi.fn(() => true),
+    hasNext: vi.fn(() => true),
+    volumeIcon: vi.fn(() => 'fa-volume-high'),
     currentTimeFormatted: vi.fn(() => '0:50'),
     durationFormatted: vi.fn(() => '3:20'),
+    getWaveformData: vi.fn(() => new Uint8Array([32, 64, 128, 255])),
   };
-  const drawWaveform = vi.fn();
   const requireAuth = vi.fn((cb) => cb());
   const open = vi.fn();
+  const success = vi.fn();
+  const info = vi.fn();
   const toggleFavorite = vi.fn(() => of({ is_favorited: true, total_count: 4 }));
   const downloadFreeMp3 = vi.fn(() => of({ url: 'https://example.com/file.mp3' }));
+  const getSpecById = vi.fn(() => of(track));
 
   beforeEach(async () => {
     vi.clearAllMocks();
@@ -55,9 +80,10 @@ describe('PlayerComponent', () => {
       providers: [
         provideRouter([]),
         { provide: PlayerService, useValue: playerService },
-        { provide: VisualizerService, useValue: { drawWaveform } },
         { provide: AuthService, useValue: { requireAuth } },
         { provide: ModalService, useValue: { open } },
+        { provide: ToastService, useValue: { success, info } },
+        { provide: LabService, useValue: { getSpecById } },
         {
           provide: AnalyticsService,
           useValue: { trackPlay: vi.fn(() => of({})), toggleFavorite, downloadFreeMp3 },
@@ -72,12 +98,11 @@ describe('PlayerComponent', () => {
 
   it('seeks, adjusts volume, and opens license modal through auth gate', () => {
     const stopPropagation = vi.fn();
-    const seekCanvas = {
+    const seekRail = {
       getBoundingClientRect: () => ({ left: 10, width: 100 }),
     } as any;
-    (component as any).canvasRef = { nativeElement: seekCanvas };
 
-    component.onSeek({ clientX: 60 } as any);
+    component.onSeek({ clientX: 60, currentTarget: seekRail } as any);
     expect(playerService.seekTo).toHaveBeenCalledWith(100);
 
     component.onSeekSlider({ target: { value: '0.5' } } as any);
@@ -93,6 +118,7 @@ describe('PlayerComponent', () => {
     playerService.currentTrack.set(null as any);
     component.addToCart({ stopPropagation } as any);
     expect(open).toHaveBeenCalledTimes(1);
+    playerService.currentTrack.set(track);
   });
 
   it('toggles favorites and handles download flows', () => {
@@ -109,7 +135,7 @@ describe('PlayerComponent', () => {
     expect(toggleFavorite).toHaveBeenCalledTimes(1);
     component.isFavoriting.set(false);
 
-    const noAnalyticsTrack: any = { id: 's2', title: 'No Analytics' };
+    const noAnalyticsTrack: any = { ...track, id: 's2', analytics: undefined };
     toggleFavorite.mockReturnValueOnce(of({ is_favorited: true }));
     component.toggleFavorite({ stopPropagation } as any, noAnalyticsTrack);
     expect(noAnalyticsTrack.analytics.favoriteCount).toBe(1);
@@ -135,25 +161,16 @@ describe('PlayerComponent', () => {
     expect(logSpy).toHaveBeenCalled();
   });
 
-  it('draws waveform and cleans up animation frame', () => {
-    const cancelSpy = vi.spyOn(window, 'cancelAnimationFrame').mockImplementation(() => undefined);
-    const ctx = {} as any;
-    const canvas = {
-      width: 100,
-      height: 20,
-      getContext: () => ctx,
-      getBoundingClientRect: () => ({ width: 100, height: 20 }),
-    } as any;
-    (component as any).canvasRef = { nativeElement: canvas };
+  it('marks played waveform bars and supports local player interactions', () => {
+    expect(component.isBarPlayed(0)).toBe(true);
+    expect(component.isBarPlayed(59)).toBe(false);
 
-    (component as any).drawWaveform();
-    expect(drawWaveform).toHaveBeenCalled();
+    component.setPlaybackRate(1.25);
+    expect(playerService.setPlaybackRate).toHaveBeenCalledWith(1.25);
 
-    (component as any).animationId = 1;
-    component.ngOnDestroy();
-    expect(cancelSpy).toHaveBeenCalledWith(1);
+    component.notifyApiNeeded('Playlist API needed');
+    expect(info).toHaveBeenCalledWith('Playlist API needed');
 
-    (component as any).animationId = null;
     component.ngOnDestroy();
   });
 });
