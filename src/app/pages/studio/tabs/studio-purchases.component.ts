@@ -220,6 +220,21 @@ export class StudioPurchasesComponent implements OnInit {
 
   download(row: PurchaseRow, event: Event) {
     event.stopPropagation();
+    
+    this.paymentService.getLicenseDownloads(row.id).subscribe({
+      next: (res) => {
+        if (res.stems_url) setTimeout(() => window.open(res.stems_url, '_blank'), 200);
+        if (res.wav_url) setTimeout(() => window.open(res.wav_url, '_blank'), 100);
+        if (res.mp3_url) window.open(res.mp3_url, '_blank');
+        
+        if (!res.stems_url && !res.wav_url && !res.mp3_url) {
+          console.warn('No download links available for this license');
+        }
+      },
+      error: (err) => {
+        console.error('Failed to fetch download links', err);
+      }
+    });
   }
 
   private mapLicense(license: License, index: number): PurchaseRow {

@@ -1,95 +1,188 @@
-<div class="battles-container">
-  <!-- HERO SECTION -->
-  <div class="battles-hero">
-    <div class="hero-content">
-      <div class="hero-label">Competitive Zone</div>
-      <h1 class="hero-title">Battle <span class="highlight">Arena</span></h1>
-      <p class="hero-subtitle">Prove your worth. Dominate the leaderboard. Win exclusive prizes.</p>
-    </div>
-  </div>
-
-  <div class="battles-grid">
-    <!-- ACTIVE TOURNAMENTS -->
-    <div class="section-column">
-      <div class="section-header">
-        <h2>Active Tournaments</h2>
-        <div class="live-indicator"><span class="dot"></span> LIVE</div>
+<div class="battle-dashboard">
+  <main class="bd-shell">
+    <section class="bd-hero">
+      <div>
+        <div class="bd-kicker"><span></span> Battle rooms</div>
+        <h1>Compete without the confusion.</h1>
+        <p>
+          Pick the lane that matches how you create: perform over beats as an artist, or flip
+          packs and stems as a producer.
+        </p>
       </div>
+      <div class="bd-hero-actions">
+        <a routerLink="/battles/weekly-fire-42" class="bd-btn primary">Join next battle</a>
+        <button type="button" class="bd-btn">Create room</button>
+      </div>
+    </section>
 
-      <div class="tournament-list">
-        @for (tourney of tournaments; track tourney) {
-          <div class="tournament-card">
-            <div class="card-glow"></div>
-            <div class="card-content">
-              <div class="tourney-header">
-                <span class="badge">Weekly Challenge</span>
-                <span class="time-left"><i class="far fa-clock"></i> {{ tourney.endsIn }}</span>
-              </div>
-              <h3>{{ tourney.name }}</h3>
-              <div class="prize-pool">
-                <span class="label">Prize Pool</span>
-                <span class="value">{{ tourney.prize }}</span>
-              </div>
-              <div class="tourney-footer">
-                <div class="participants">
-                  <div class="avatars">
-                    <span><i class="fas fa-user"></i></span>
-                    <span><i class="fas fa-user"></i></span>
-                    <span><i class="fas fa-user"></i></span>
-                  </div>
-                  <span>{{ tourney.participants }} Producers Joined</span>
-                </div>
-                <button class="btn-join">Enter Arena <i class="fas fa-arrow-right"></i></button>
-              </div>
+    <nav class="bd-tabs" aria-label="Battle dashboard tabs">
+      @for (tab of tabs; track tab.value) {
+        <button
+          type="button"
+          [class.active]="activeTab() === tab.value"
+          (click)="setTab(tab.value)"
+        >
+          {{ tab.label }}
+        </button>
+      }
+    </nav>
+
+    @if (activeTab() === 'overview') {
+      <section class="bd-overview">
+        <a class="bd-featured" [routerLink]="['/battles', featuredBattle.id]">
+          <div class="bd-card-label">Next up</div>
+          <div class="bd-featured-body">
+            <div>
+              <h2>{{ featuredBattle.title }}</h2>
+              <p>{{ featuredBattle.format }} / {{ featuredBattle.status }}</p>
+            </div>
+            <div class="bd-featured-meta">
+              <span>{{ featuredBattle.deadline }}</span>
+              <strong>{{ featuredBattle.reward }}</strong>
             </div>
           </div>
-        }
-      </div>
-    </div>
+        </a>
 
-    <!-- LEADERBOARD -->
-    <div class="section-column">
-      <div class="section-header">
-        <h2>Leaderboard</h2>
-        <div class="tabs-header">
-          <button class="tab-btn active">Weekly</button>
-          <button class="tab-btn">Monthly</button>
-          <button class="tab-btn">All Time</button>
+        <div class="bd-lanes">
+          <button type="button" class="bd-lane artist" (click)="setTab('artist')">
+            <span>Artist Battles</span>
+            <strong>Rap, sing, record.</strong>
+            <em>Random beats, themes, countdowns, blind voting.</em>
+          </button>
+          <button type="button" class="bd-lane producer" (click)="setTab('producer')">
+            <span>Producer Battles</span>
+            <strong>Flip, remix, arrange.</strong>
+            <em>Samples, stems, BPM rules, restriction modes.</em>
+          </button>
         </div>
-      </div>
 
-      <div class="leaderboard-panel">
-        <div class="leaderboard-header">
-          <span>Rank</span>
-          <span>Artist</span>
-          <span class="text-right">Points</span>
-        </div>
-        <div class="leaderboard-list">
-          @for (user of leaderboard; track user; let i = $index) {
-            <div class="leaderboard-item" [style.animation-delay]="i * 0.1 + 's'">
-              <div
-                class="rank"
-                [class.top-3]="i < 3"
-                [class.rank-1]="i === 0"
-                [class.rank-2]="i === 1"
-                [class.rank-3]="i === 2"
-              >
-                @if (i < 3) {
-                  <span><i class="fas fa-crown"></i></span>
-                }
-                @if (i >= 3) {
-                  <span>#{{ i + 1 }}</span>
-                }
-              </div>
-              <div class="artist-info">
-                <div class="avatar-placeholder">{{ user.name.charAt(0) }}</div>
-                <span class="name">{{ user.name }}</span>
-              </div>
-              <div class="points">{{ user.points | number }}</div>
+        <div class="bd-how">
+          @for (step of ['Join', 'Create', 'Submit', 'Vote']; track step) {
+            <div>
+              <span>{{ step }}</span>
             </div>
           }
         </div>
-      </div>
-    </div>
-  </div>
+
+        <aside class="bd-preview-grid">
+          <div class="bd-panel">
+            <div class="bd-panel-head">
+              <h3>Leaderboard</h3>
+              <span>Season</span>
+            </div>
+            @for (user of leaderboardPreview; track user.name; let i = $index) {
+              <div class="bd-preview-row">
+                <strong>#{{ i + 1 }} {{ user.name }}</strong>
+                <span>{{ user.role }} / {{ user.points | number }} XP</span>
+              </div>
+            }
+          </div>
+          <div class="bd-panel">
+            <div class="bd-panel-head">
+              <h3>Activity</h3>
+              <span>Live</span>
+            </div>
+            @for (item of activityPreview; track item) {
+              <div class="bd-preview-row">
+                <strong>{{ item }}</strong>
+              </div>
+            }
+          </div>
+        </aside>
+      </section>
+    }
+
+    @if (activeTab() === 'artist' || activeTab() === 'producer') {
+      <section class="bd-list-view" [class.producer-view]="activeTab() === 'producer'">
+        <div class="bd-list-head">
+          <div>
+            <div class="bd-kicker">
+              <span></span>
+              {{ activeTab() === 'artist' ? 'Artist lane' : 'Producer lane' }}
+            </div>
+            <h2>
+              {{
+                activeTab() === 'artist'
+                  ? 'Battles for vocals and verses.'
+                  : 'Battles for beats and flips.'
+              }}
+            </h2>
+          </div>
+          <p>
+            {{
+              activeTab() === 'artist'
+                ? 'Choose by beat, theme, deadline, and voting type.'
+                : 'Choose by pack, stems, BPM range, and production restriction.'
+            }}
+          </p>
+        </div>
+
+        <div class="bd-battle-list">
+          @for (battle of activeList(); track battle.id) {
+            <a class="bd-battle-row" [routerLink]="['/battles', battle.id]">
+              <div class="bd-row-main">
+                <span>{{ battle.format }}</span>
+                <strong>{{ battle.title }}</strong>
+              </div>
+              <div class="bd-row-detail">
+                <span>{{ battle.primaryLabel }}</span>
+                <strong>{{ battle.primaryValue }}</strong>
+              </div>
+              <div class="bd-row-detail">
+                <span>{{ battle.secondaryLabel }}</span>
+                <strong>{{ battle.secondaryValue }}</strong>
+              </div>
+              <div class="bd-row-detail">
+                <span>Deadline</span>
+                <strong>{{ battle.deadline }}</strong>
+              </div>
+              <div class="bd-row-status">
+                <span>{{ battle.status }}</span>
+                <em>{{ battle.participants }}</em>
+              </div>
+            </a>
+          }
+        </div>
+      </section>
+    }
+
+    @if (activeTab() === 'rooms') {
+      <section class="bd-rooms">
+        <div class="bd-list-head">
+          <div>
+            <div class="bd-kicker"><span></span> My rooms</div>
+            <h2>Your active battle rooms.</h2>
+          </div>
+          <p>Private and public rooms you created or joined.</p>
+        </div>
+
+        <div class="bd-room-grid">
+          @for (room of myRooms; track room.id) {
+            <a class="bd-room-card" [routerLink]="['/battles', room.id]">
+              <span>{{ room.type }}</span>
+              <h3>{{ room.title }}</h3>
+              <dl>
+                <div>
+                  <dt>Owner</dt>
+                  <dd>{{ room.owner }}</dd>
+                </div>
+                <div>
+                  <dt>Privacy</dt>
+                  <dd>{{ room.privacy }}</dd>
+                </div>
+                <div>
+                  <dt>Joined</dt>
+                  <dd>{{ room.participants }}</dd>
+                </div>
+                <div>
+                  <dt>Limit</dt>
+                  <dd>{{ room.deadline }}</dd>
+                </div>
+              </dl>
+            </a>
+          }
+        </div>
+      </section>
+    }
+  </main>
 </div>

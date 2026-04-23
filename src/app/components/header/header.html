@@ -39,26 +39,26 @@
       >
       <a routerLink="/battles" routerLinkActive="active">Battles</a>
       @if (authService.currentUser()) {
-        @if (authService.currentUser()?.role === Role.PRODUCER) {
-          <div class="nav-link-wrap studio-nav-wrap">
-            <a routerLink="/studio" routerLinkActive="active" class="studio-nav-link">
-              Studio
-              <svg
-                class="caret"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2.5"
-              >
-                <polyline points="6 9 12 15 18 9" />
-              </svg>
-            </a>
-            <div class="studio-menu">
-              <div class="sm-head">
-                <h5>Jump to <em>Studio</em></h5>
-                <span class="sm-kbd">CB</span>
-              </div>
-              <div class="sm-grid">
+        <div class="nav-link-wrap studio-nav-wrap">
+          <a [routerLink]="authService.currentUser()?.role === Role.PRODUCER ? '/studio/overview' : '/studio/purchases'" routerLinkActive="active" class="studio-nav-link">
+            Studio
+            <svg
+              class="caret"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2.5"
+            >
+              <polyline points="6 9 12 15 18 9" />
+            </svg>
+          </a>
+          <div class="studio-menu">
+            <div class="sm-head">
+              <h5>Jump to <em>Studio</em></h5>
+              <span class="sm-kbd">CB</span>
+            </div>
+            <div class="sm-grid">
+              @if (authService.currentUser()?.role === Role.PRODUCER) {
                 <a
                   class="sm-item"
                   routerLink="/studio/overview"
@@ -159,31 +159,33 @@
                   </div>
                   <span class="sm-count alert">3</span>
                 </a>
-                <a
-                  class="sm-item"
-                  routerLink="/studio/purchases"
-                  [class.active]="isStudioSection('purchases')"
-                >
-                  <div class="sm-ico c-lavender">
-                    <svg
-                      width="15"
-                      height="15"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      stroke-width="2.2"
-                    >
-                      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                      <polyline points="7 10 12 15 17 10" />
-                      <line x1="12" y1="15" x2="12" y2="3" />
-                    </svg>
-                  </div>
-                  <div>
-                    <div class="sm-label">Purchases</div>
-                    <div class="sm-desc">beats you've bought</div>
-                  </div>
-                  <span class="sm-count">47</span>
-                </a>
+              }
+              <a
+                class="sm-item"
+                routerLink="/studio/purchases"
+                [class.active]="isStudioSection('purchases')"
+              >
+                <div class="sm-ico c-lavender">
+                  <svg
+                    width="15"
+                    height="15"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2.2"
+                  >
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                    <polyline points="7 10 12 15 17 10" />
+                    <line x1="12" y1="15" x2="12" y2="3" />
+                  </svg>
+                </div>
+                <div>
+                  <div class="sm-label">Purchases</div>
+                  <div class="sm-desc">beats you've bought</div>
+                </div>
+                <span class="sm-count">47</span>
+              </a>
+              @if (authService.currentUser()?.role === Role.PRODUCER) {
                 <a
                   class="sm-item"
                   routerLink="/studio/earnings"
@@ -208,6 +210,7 @@
                   </div>
                   <span class="sm-count"></span>
                 </a>
+              }
                 <a
                   class="sm-item"
                   routerLink="/studio/messages"
@@ -258,18 +261,15 @@
               </div>
               <div class="sm-foot">
                 <span class="sm-foot-meta"
-                  >Pro · @{{ authService.currentUser()?.name || 'producer' }}</span
+                  >{{ authService.currentUser()?.role === Role.PRODUCER ? 'Pro · ' : '' }}@{{ authService.currentUser()?.name || 'user' }}</span
                 >
-                <a class="sm-open-btn" routerLink="/studio/overview">
+                <a class="sm-open-btn" [routerLink]="authService.currentUser()?.role === Role.PRODUCER ? '/studio/overview' : '/studio/purchases'">
                   Open studio
                   <i class="fas fa-arrow-right"></i>
                 </a>
               </div>
             </div>
           </div>
-        } @else {
-          <a routerLink="/dashboard" routerLinkActive="active">Dashboard</a>
-        }
       }
     </div>
 
@@ -450,8 +450,8 @@
             </button>
 
             @if (isUserMenuOpen) {
-              <div class="dropdown-menu user-dropdown">
-                <div class="user-menu-header">
+              <div class="dropdown-menu notifications-menu user-menu-neo" role="dialog" aria-label="User menu">
+                <div class="notif-head" style="gap: 14px;">
                   @if (authService.currentUser()?.avatar_url) {
                     <div
                       class="user-avatar-large"
@@ -464,36 +464,73 @@
                       {{ authService.currentUser()?.name?.charAt(0) || 'U' }}
                     </div>
                   }
-                  <div class="user-info">
-                    <span class="user-name">{{
+                  <div class="user-info" style="gap: 2px;">
+                    <span class="user-name" style="font-size: 18px; letter-spacing: -0.02em; line-height: 1;">{{
                       authService.currentUser()?.display_name ||
                         authService.currentUser()?.name ||
                         'User'
                     }}</span>
-                    <span class="user-email">{{ authService.currentUser()?.email }}</span>
-                    @if (authService.currentUser()?.role === Role.PRODUCER) {
-                      <span class="user-role badge-producer">PRODUCER</span>
-                    } @else {
-                      <span class="user-role badge-default">LISTENER</span>
-                    }
+                    <span class="user-email" style="font-family: 'Instrument Serif', serif; font-style: italic; font-size: 15px; color: rgba(var(--text-color-rgb), 0.7); margin-top: 2px;">
+                      @{{ authService.currentUser()?.name }}
+                    </span>
+                    <div style="margin-top: 4px;">
+                      @if (authService.currentUser()?.role === Role.PRODUCER) {
+                        <span class="user-role badge-producer">PRODUCER</span>
+                      } @else {
+                        <span class="user-role badge-default">LISTENER</span>
+                      }
+                    </div>
                   </div>
                 </div>
 
-                <a routerLink="/settings" (click)="closeUserMenu()" class="menu-item">
-                  <i class="fas fa-sliders-h"></i> Settings
-                </a>
+                <div class="notif-list">
+                  @if (authService.currentUser()?.role === Role.PRODUCER) {
+                    <a routerLink="/studio/overview" (click)="closeUserMenu()" class="notif-item" style="text-decoration: none;">
+                      <div class="ni-avatar c-hot"><i class="fas fa-layer-group" style="font-size: 13px;"></i></div>
+                      <div class="ni-body">
+                        <div class="ni-row1">
+                          <div class="ni-text" style="font-family: 'Bricolage Grotesque', sans-serif; font-weight: 700; font-size: 14px; color: var(--text-color);">Studio Overview</div>
+                        </div>
+                      </div>
+                    </a>
+                    <a routerLink="/upload" (click)="closeUserMenu()" class="notif-item" style="text-decoration: none;">
+                      <div class="ni-avatar c-lime"><i class="fas fa-upload" style="font-size: 13px;"></i></div>
+                      <div class="ni-body">
+                        <div class="ni-row1">
+                          <div class="ni-text" style="font-family: 'Bricolage Grotesque', sans-serif; font-weight: 700; font-size: 14px; color: var(--text-color);">Upload Beat</div>
+                        </div>
+                      </div>
+                    </a>
+                  }
 
-                <div class="menu-item theme-row">
-                  <span><i class="fas fa-palette"></i> Theme</span>
-                  <app-theme-toggle></app-theme-toggle>
+                  <a routerLink="/studio/purchases" (click)="closeUserMenu()" class="notif-item" style="text-decoration: none;">
+                    <div class="ni-avatar c-lavender"><i class="fas fa-shopping-bag" style="font-size: 13px;"></i></div>
+                    <div class="ni-body">
+                      <div class="ni-row1">
+                        <div class="ni-text" style="font-family: 'Bricolage Grotesque', sans-serif; font-weight: 700; font-size: 14px; color: var(--text-color);">My Purchases</div>
+                      </div>
+                    </div>
+                  </a>
+
+                  <a routerLink="/settings" (click)="closeUserMenu()" class="notif-item" style="text-decoration: none;">
+                    <div class="ni-avatar c-cream"><i class="fas fa-sliders-h" style="font-size: 13px;"></i></div>
+                    <div class="ni-body">
+                      <div class="ni-row1">
+                        <div class="ni-text" style="font-family: 'Bricolage Grotesque', sans-serif; font-weight: 700; font-size: 14px; color: var(--text-color);">Settings</div>
+                      </div>
+                    </div>
+                  </a>
                 </div>
 
-                <button
-                  (click)="authService.logout(); closeUserMenu()"
-                  class="menu-item logout-item"
-                >
-                  <i class="fas fa-power-off"></i> Logout
-                </button>
+                <div class="notif-foot" style="justify-content: space-between;">
+                  <div style="display: flex; align-items: center; gap: 8px; font-weight: 600; font-family: 'Space Grotesk', monospace; font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase;">
+                    <i class="fas fa-palette" style="opacity: 0.6;"></i> Theme 
+                    <app-theme-toggle></app-theme-toggle>
+                  </div>
+                  <button (click)="authService.logout(); closeUserMenu()" style="background: none; border: none; font-family: 'Space Grotesk', monospace; font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: #ef4444; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 5px; padding: 0; border-bottom: 1.5px dashed #ef4444;">
+                    Logout <i class="fas fa-power-off"></i>
+                  </button>
+                </div>
               </div>
               <div class="backdrop" (click)="closeUserMenu()"></div>
             }

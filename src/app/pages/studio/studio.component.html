@@ -22,7 +22,9 @@
           <div class="prof-handle">@{{ handle() }}</div>
         </div>
       </div>
+      @if (currentUser()?.role === Role.PRODUCER) {
       <span class="prof-pro">★ Pro</span>
+      }
       <div class="prof-stats">
         <div class="prof-stat">
           <div class="lbl">Beats</div>
@@ -38,6 +40,7 @@
     <!-- Main nav -->
     <div class="side-section-head">Studio</div>
     <div class="side-nav">
+      @if (currentUser()?.role === Role.PRODUCER) {
       <a
         class="side-nav-item"
         routerLink="overview"
@@ -127,6 +130,7 @@
         </span>
         <span class="sn-label">Orders</span>
       </a>
+      }
       <a
         class="side-nav-item"
         routerLink="purchases"
@@ -150,6 +154,7 @@
         <span class="sn-label">Purchases</span>
         <span class="sn-count">47</span>
       </a>
+      @if (currentUser()?.role === Role.PRODUCER) {
       <a
         class="side-nav-item"
         routerLink="earnings"
@@ -171,6 +176,7 @@
         </span>
         <span class="sn-label">Earnings</span>
       </a>
+      }
       <a
         class="side-nav-item"
         routerLink="messages"
@@ -238,6 +244,7 @@
       </a>
     </div>
 
+    @if (currentUser()?.role === Role.PRODUCER) {
     <div class="side-divider"></div>
 
     <!-- Tools -->
@@ -324,6 +331,7 @@
       </span>
       Share profile
     </button>
+    }
 
     <div class="side-bottom">
       <div class="signed-as">signed in · @{{ handle() }}</div>

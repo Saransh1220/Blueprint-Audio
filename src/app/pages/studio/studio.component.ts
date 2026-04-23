@@ -2,6 +2,7 @@ import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/c
 import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { AuthService } from '../../services';
 import { StudioShellService } from './studio-shell.service';
+import { Role } from '../../models';
 
 @Component({
   selector: 'app-studio',
@@ -13,6 +14,7 @@ import { StudioShellService } from './studio-shell.service';
 export class StudioComponent {
   authService = inject(AuthService);
   private studioShell = inject(StudioShellService);
+  readonly Role = Role;
 
   currentUser = this.authService.currentUser;
   isMobileNavOpen = this.studioShell.isMobileNavOpen;

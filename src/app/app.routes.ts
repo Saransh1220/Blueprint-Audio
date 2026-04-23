@@ -1,4 +1,5 @@
 import type { Routes } from '@angular/router';
+import { inject } from '@angular/core';
 import { authGuard } from './guards/auth.guard';
 import { guestGuard } from './guards/guest.guard';
 import { AuthComponent } from './pages/auth/auth.component';
@@ -13,6 +14,8 @@ import { StudioComponent } from './pages/studio/studio.component';
 import { VerifyEmailComponent } from './pages/auth/verify-email/verify-email.component';
 import { ForgotPasswordComponent } from './pages/auth/forgot-password/forgot-password.component';
 import { ResetPasswordComponent } from './pages/auth/reset-password/reset-password.component';
+import { AuthService } from './services';
+import { Role } from './models';
 
 export const routes: Routes = [
   { path: '', component: HomeComponent },
@@ -36,7 +39,7 @@ export const routes: Routes = [
     component: StudioComponent,
     canActivate: [authGuard],
     children: [
-      { path: '', redirectTo: 'overview', pathMatch: 'full' },
+      { path: '', redirectTo: () => inject(AuthService).currentUser()?.role === Role.PRODUCER ? 'overview' : 'purchases', pathMatch: 'full' },
       {
         path: 'overview',
         loadComponent: () =>

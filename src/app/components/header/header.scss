@@ -1231,3 +1231,9 @@ nav.fixed-navbar {
     display: inline-flex;
   }
 }
+
+.user-menu-neo {
+  &::before {
+    right: 20px !important;
+  }
+}
