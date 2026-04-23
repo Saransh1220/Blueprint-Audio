@@ -39,7 +39,12 @@ export const routes: Routes = [
     component: StudioComponent,
     canActivate: [authGuard],
     children: [
-      { path: '', redirectTo: () => inject(AuthService).currentUser()?.role === Role.PRODUCER ? 'overview' : 'purchases', pathMatch: 'full' },
+      {
+        path: '',
+        redirectTo: () =>
+          inject(AuthService).currentUser()?.role === Role.PRODUCER ? 'overview' : 'purchases',
+        pathMatch: 'full',
+      },
       {
         path: 'overview',
         loadComponent: () =>

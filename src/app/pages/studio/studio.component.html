@@ -23,7 +23,7 @@
         </div>
       </div>
       @if (currentUser()?.role === Role.PRODUCER) {
-      <span class="prof-pro">★ Pro</span>
+        <span class="prof-pro">★ Pro</span>
       }
       <div class="prof-stats">
         <div class="prof-stat">
@@ -41,95 +41,95 @@
     <div class="side-section-head">Studio</div>
     <div class="side-nav">
       @if (currentUser()?.role === Role.PRODUCER) {
-      <a
-        class="side-nav-item"
-        routerLink="overview"
-        routerLinkActive="active"
-        (click)="closeMobileNav()"
-      >
-        <span class="sn-ico">
-          <svg
-            width="15"
-            height="15"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2.2"
-          >
-            <rect x="3" y="3" width="7" height="7" rx="1" />
-            <rect x="14" y="3" width="7" height="7" rx="1" />
-            <rect x="14" y="14" width="7" height="7" rx="1" />
-            <rect x="3" y="14" width="7" height="7" rx="1" />
-          </svg>
-        </span>
-        <span class="sn-label">Overview</span>
-      </a>
-      <a
-        class="side-nav-item"
-        routerLink="analytics"
-        routerLinkActive="active"
-        (click)="closeMobileNav()"
-      >
-        <span class="sn-ico">
-          <svg
-            width="15"
-            height="15"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2.2"
-          >
-            <line x1="18" y1="20" x2="18" y2="10" />
-            <line x1="12" y1="20" x2="12" y2="4" />
-            <line x1="6" y1="20" x2="6" y2="14" />
-          </svg>
-        </span>
-        <span class="sn-label">Analytics</span>
-      </a>
-      <a
-        class="side-nav-item"
-        routerLink="tracks"
-        routerLinkActive="active"
-        (click)="closeMobileNav()"
-      >
-        <span class="sn-ico">
-          <svg
-            width="15"
-            height="15"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2.2"
-          >
-            <circle cx="12" cy="12" r="10" />
-            <circle cx="12" cy="12" r="3" />
-          </svg>
-        </span>
-        <span class="sn-label">My Tracks</span>
-        <span class="sn-count">{{ sidebarStats().beats }}</span>
-      </a>
-      <a
-        class="side-nav-item"
-        routerLink="orders"
-        routerLinkActive="active"
-        (click)="closeMobileNav()"
-      >
-        <span class="sn-ico">
-          <svg
-            width="15"
-            height="15"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2.2"
-          >
-            <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z" />
-            <line x1="3" y1="6" x2="21" y2="6" />
-            <path d="M16 10a4 4 0 0 1-8 0" />
-          </svg>
-        </span>
-        <span class="sn-label">Orders</span>
-      </a>
+        <a
+          class="side-nav-item"
+          routerLink="overview"
+          routerLinkActive="active"
+          (click)="closeMobileNav()"
+        >
+          <span class="sn-ico">
+            <svg
+              width="15"
+              height="15"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2.2"
+            >
+              <rect x="3" y="3" width="7" height="7" rx="1" />
+              <rect x="14" y="3" width="7" height="7" rx="1" />
+              <rect x="14" y="14" width="7" height="7" rx="1" />
+              <rect x="3" y="14" width="7" height="7" rx="1" />
+            </svg>
+          </span>
+          <span class="sn-label">Overview</span>
+        </a>
+        <a
+          class="side-nav-item"
+          routerLink="analytics"
+          routerLinkActive="active"
+          (click)="closeMobileNav()"
+        >
+          <span class="sn-ico">
+            <svg
+              width="15"
+              height="15"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2.2"
+            >
+              <line x1="18" y1="20" x2="18" y2="10" />
+              <line x1="12" y1="20" x2="12" y2="4" />
+              <line x1="6" y1="20" x2="6" y2="14" />
+            </svg>
+          </span>
+          <span class="sn-label">Analytics</span>
+        </a>
+        <a
+          class="side-nav-item"
+          routerLink="tracks"
+          routerLinkActive="active"
+          (click)="closeMobileNav()"
+        >
+          <span class="sn-ico">
+            <svg
+              width="15"
+              height="15"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2.2"
+            >
+              <circle cx="12" cy="12" r="10" />
+              <circle cx="12" cy="12" r="3" />
+            </svg>
+          </span>
+          <span class="sn-label">My Tracks</span>
+          <span class="sn-count">{{ sidebarStats().beats }}</span>
+        </a>
+        <a
+          class="side-nav-item"
+          routerLink="orders"
+          routerLinkActive="active"
+          (click)="closeMobileNav()"
+        >
+          <span class="sn-ico">
+            <svg
+              width="15"
+              height="15"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2.2"
+            >
+              <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z" />
+              <line x1="3" y1="6" x2="21" y2="6" />
+              <path d="M16 10a4 4 0 0 1-8 0" />
+            </svg>
+          </span>
+          <span class="sn-label">Orders</span>
+        </a>
       }
       <a
         class="side-nav-item"
@@ -155,27 +155,27 @@
         <span class="sn-count">47</span>
       </a>
       @if (currentUser()?.role === Role.PRODUCER) {
-      <a
-        class="side-nav-item"
-        routerLink="earnings"
-        routerLinkActive="active"
-        (click)="closeMobileNav()"
-      >
-        <span class="sn-ico">
-          <svg
-            width="15"
-            height="15"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2.2"
-          >
-            <line x1="12" y1="1" x2="12" y2="23" />
-            <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
-          </svg>
-        </span>
-        <span class="sn-label">Earnings</span>
-      </a>
+        <a
+          class="side-nav-item"
+          routerLink="earnings"
+          routerLinkActive="active"
+          (click)="closeMobileNav()"
+        >
+          <span class="sn-ico">
+            <svg
+              width="15"
+              height="15"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2.2"
+            >
+              <line x1="12" y1="1" x2="12" y2="23" />
+              <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+            </svg>
+          </span>
+          <span class="sn-label">Earnings</span>
+        </a>
       }
       <a
         class="side-nav-item"
@@ -245,12 +245,25 @@
     </div>
 
     @if (currentUser()?.role === Role.PRODUCER) {
-    <div class="side-divider"></div>
+      <div class="side-divider"></div>
 
-    <!-- Tools -->
-    <div class="side-section-head">Tools</div>
-    <a class="upload-cta" routerLink="upload" (click)="closeMobileNav()">
-      <span class="upload-cta-inner">
+      <!-- Tools -->
+      <div class="side-section-head">Tools</div>
+      <a class="upload-cta" routerLink="upload" (click)="closeMobileNav()">
+        <span class="upload-cta-inner">
+          <svg
+            width="13"
+            height="13"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2.5"
+          >
+            <line x1="12" y1="5" x2="12" y2="19" />
+            <line x1="5" y1="12" x2="19" y2="12" />
+          </svg>
+          Upload beat
+        </span>
         <svg
           width="13"
           height="13"
@@ -259,78 +272,65 @@
           stroke="currentColor"
           stroke-width="2.5"
         >
-          <line x1="12" y1="5" x2="12" y2="19" />
           <line x1="5" y1="12" x2="19" y2="12" />
+          <polyline points="12 5 19 12 12 19" />
         </svg>
-        Upload beat
-      </span>
-      <svg
-        width="13"
-        height="13"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="2.5"
-      >
-        <line x1="5" y1="12" x2="19" y2="12" />
-        <polyline points="12 5 19 12 12 19" />
-      </svg>
-    </a>
-    <button class="tool-link" type="button">
-      <span class="tl-ico">
-        <svg
-          width="15"
-          height="15"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2.2"
-        >
-          <rect x="3" y="3" width="18" height="18" rx="2" />
-          <circle cx="8.5" cy="8.5" r="1.5" />
-          <polyline points="21 15 16 10 5 21" />
-        </svg>
-      </span>
-      AI cover art
-    </button>
-    <button class="tool-link" type="button">
-      <span class="tl-ico">
-        <svg
-          width="15"
-          height="15"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2.2"
-        >
-          <path
-            d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"
-          />
-          <polyline points="3.27 6.96 12 12.01 20.73 6.96" />
-          <line x1="12" y1="22.08" x2="12" y2="12" />
-        </svg>
-      </span>
-      Beat packs
-    </button>
-    <button class="tool-link" type="button">
-      <span class="tl-ico">
-        <svg
-          width="15"
-          height="15"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2.2"
-        >
-          <circle cx="18" cy="5" r="3" />
-          <circle cx="6" cy="12" r="3" />
-          <circle cx="18" cy="19" r="3" />
-          <line x1="8.59" y1="13.51" x2="15.42" y2="17.49" />
-          <line x1="15.41" y1="6.51" x2="8.59" y2="10.49" />
-        </svg>
-      </span>
-      Share profile
-    </button>
+      </a>
+      <button class="tool-link" type="button">
+        <span class="tl-ico">
+          <svg
+            width="15"
+            height="15"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2.2"
+          >
+            <rect x="3" y="3" width="18" height="18" rx="2" />
+            <circle cx="8.5" cy="8.5" r="1.5" />
+            <polyline points="21 15 16 10 5 21" />
+          </svg>
+        </span>
+        AI cover art
+      </button>
+      <button class="tool-link" type="button">
+        <span class="tl-ico">
+          <svg
+            width="15"
+            height="15"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2.2"
+          >
+            <path
+              d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"
+            />
+            <polyline points="3.27 6.96 12 12.01 20.73 6.96" />
+            <line x1="12" y1="22.08" x2="12" y2="12" />
+          </svg>
+        </span>
+        Beat packs
+      </button>
+      <button class="tool-link" type="button">
+        <span class="tl-ico">
+          <svg
+            width="15"
+            height="15"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2.2"
+          >
+            <circle cx="18" cy="5" r="3" />
+            <circle cx="6" cy="12" r="3" />
+            <circle cx="18" cy="19" r="3" />
+            <line x1="8.59" y1="13.51" x2="15.42" y2="17.49" />
+            <line x1="15.41" y1="6.51" x2="8.59" y2="10.49" />
+          </svg>
+        </span>
+        Share profile
+      </button>
     }
 
     <div class="side-bottom">

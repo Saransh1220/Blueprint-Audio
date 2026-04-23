@@ -36,6 +36,12 @@ export class StudioPurchasesComponent implements OnInit {
   searchQuery = signal('');
   licenseFilter = signal('All licenses');
 
+  // Popup state
+  showDownloadPopup = signal(false);
+  downloadLinks = signal<{ type: string; url: string }[]>([]);
+  downloadTitle = signal('');
+  isDownloading = signal(false);
+
   // Pagination metadata from service
   pagination = this.paymentService.licensePagination;
 
@@ -220,21 +226,31 @@ export class StudioPurchasesComponent implements OnInit {
 
   download(row: PurchaseRow, event: Event) {
     event.stopPropagation();
-    
+
+    this.downloadTitle.set(row.title);
+    this.showDownloadPopup.set(true);
+    this.isDownloading.set(true);
+    this.downloadLinks.set([]);
+
     this.paymentService.getLicenseDownloads(row.id).subscribe({
       next: (res) => {
-        if (res.stems_url) setTimeout(() => window.open(res.stems_url, '_blank'), 200);
-        if (res.wav_url) setTimeout(() => window.open(res.wav_url, '_blank'), 100);
-        if (res.mp3_url) window.open(res.mp3_url, '_blank');
-        
-        if (!res.stems_url && !res.wav_url && !res.mp3_url) {
-          console.warn('No download links available for this license');
-        }
+        const links: { type: string; url: string }[] = [];
+        if (res.stems_url) links.push({ type: 'Stems (ZIP)', url: res.stems_url });
+        if (res.wav_url) links.push({ type: 'WAV', url: res.wav_url });
+        if (res.mp3_url) links.push({ type: 'MP3', url: res.mp3_url });
+
+        this.downloadLinks.set(links);
+        this.isDownloading.set(false);
       },
       error: (err) => {
         console.error('Failed to fetch download links', err);
-      }
+        this.isDownloading.set(false);
+      },
     });
+  }
+
+  closeDownloadPopup() {
+    this.showDownloadPopup.set(false);
   }
 
   private mapLicense(license: License, index: number): PurchaseRow {
