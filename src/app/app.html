@@ -135,12 +135,22 @@
   }
 </style>
 
-<app-header (cartClick)="toggleCart()"></app-header>
+@if (!isUploadRoute()) {
+  <app-header (cartClick)="toggleCart()"></app-header>
+}
 <app-cart></app-cart>
-<router-outlet></router-outlet>
+<div
+  class="app-shell"
+  [class.player-docked]="shouldReservePlayerSpace()"
+  [class.player-expanded]="shouldReserveExpandedPlayerSpace()"
+>
+  <div class="app-route-layer">
+    <router-outlet></router-outlet>
+  </div>
+  @if (!isStudioRoute() && !isAuthRoute() && !isUploadRoute()) {
+    <app-footer></app-footer>
+  }
+</div>
 <app-player></app-player>
 <app-modal></app-modal>
 <app-toast></app-toast>
-@if (!isStudioRoute()) {
-  <app-footer></app-footer>
-}

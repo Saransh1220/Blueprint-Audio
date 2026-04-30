@@ -1,4 +1,13 @@
-import { GetMeRequest, GoogleLoginRequest, LoginRequest, RegisterRequest } from './auth.requests';
+import {
+  ForgotPasswordApiRequest,
+  GetMeRequest,
+  GoogleLoginRequest,
+  LoginRequest,
+  RegisterRequest,
+  ResendVerificationApiRequest,
+  ResetPasswordApiRequest,
+  VerifyEmailApiRequest,
+} from './auth.requests';
 
 describe('auth requests', () => {
   it('creates login request', () => {
@@ -32,5 +41,21 @@ describe('auth requests', () => {
     expect(req.method).toBe('POST');
     expect(req.path).toBe('/auth/google');
     expect(req.body).toEqual({ token: 'google-id-token' });
+  });
+
+  it('creates email verification and recovery requests', () => {
+    const verifyReq = new VerifyEmailApiRequest({ email: 'u@test.com', code: '123456' });
+    const resendReq = new ResendVerificationApiRequest({ email: 'u@test.com' });
+    const forgotReq = new ForgotPasswordApiRequest({ email: 'u@test.com' });
+    const resetReq = new ResetPasswordApiRequest({
+      email: 'u@test.com',
+      code: '123456',
+      new_password: 'newpassword123',
+    });
+
+    expect(verifyReq.path).toBe('/auth/verify-email');
+    expect(resendReq.path).toBe('/auth/resend-verification');
+    expect(forgotReq.path).toBe('/auth/forgot-password');
+    expect(resetReq.path).toBe('/auth/reset-password');
   });
 });

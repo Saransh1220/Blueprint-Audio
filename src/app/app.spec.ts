@@ -35,6 +35,9 @@ describe('AppComponent', () => {
       providers: [
         provideRouter([
           { path: '', component: DummyRouteComponent },
+          { path: 'login', component: DummyRouteComponent },
+          { path: 'register', component: DummyRouteComponent },
+          { path: 'upload', component: DummyRouteComponent },
           { path: 'studio', component: DummyRouteComponent },
           { path: 'studio/:tab', component: DummyRouteComponent },
           { path: 'dashboard', component: DummyRouteComponent },
@@ -60,16 +63,26 @@ describe('AppComponent', () => {
     expect(compiled.querySelector('.loader')).toBeTruthy();
   });
 
-  it('shows footer outside studio and hides it on studio routes', async () => {
+  it('shows footer on normal pages and hides it on studio/auth/upload routes', async () => {
     const router = TestBed.inject(Router);
 
     await router.navigateByUrl('/');
     fixture.detectChanges();
     expect((fixture.nativeElement as HTMLElement).querySelector('app-footer')).toBeTruthy();
+    expect((fixture.nativeElement as HTMLElement).querySelector('app-header')).toBeTruthy();
+
+    await router.navigateByUrl('/login');
+    fixture.detectChanges();
+    expect((fixture.nativeElement as HTMLElement).querySelector('app-footer')).toBeNull();
 
     await router.navigateByUrl('/studio');
     fixture.detectChanges();
     expect((fixture.nativeElement as HTMLElement).querySelector('app-footer')).toBeNull();
+
+    await router.navigateByUrl('/upload');
+    fixture.detectChanges();
+    expect((fixture.nativeElement as HTMLElement).querySelector('app-footer')).toBeNull();
+    expect((fixture.nativeElement as HTMLElement).querySelector('app-header')).toBeNull();
   });
 
   it('detects studio routes from the current url', async () => {
@@ -80,6 +93,29 @@ describe('AppComponent', () => {
 
     await router.navigateByUrl('/dashboard');
     expect(component.isStudioRoute()).toBe(false);
+  });
+
+  it('detects auth routes from the current url', async () => {
+    const router = TestBed.inject(Router);
+
+    await router.navigateByUrl('/register');
+    expect(component.isAuthRoute()).toBe(true);
+
+    await router.navigateByUrl('/dashboard');
+    expect(component.isAuthRoute()).toBe(false);
+  });
+
+  it('detects upload routes from the current url', async () => {
+    const router = TestBed.inject(Router);
+
+    await router.navigateByUrl('/upload');
+    expect(component.isUploadRoute()).toBe(true);
+
+    await router.navigateByUrl('/studio/upload');
+    expect(component.isUploadRoute()).toBe(true);
+
+    await router.navigateByUrl('/dashboard');
+    expect(component.isUploadRoute()).toBe(false);
   });
 
   it('toggles cart when cart view child exists', () => {

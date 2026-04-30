@@ -114,8 +114,9 @@ describe('SearchPageComponent', () => {
     vi.advanceTimersByTime(401);
     expect(navigate).toHaveBeenCalled();
 
+    navigate.mockClear();
     component.setSortOption('newest');
-    expect(getSpecs).toHaveBeenCalled();
+    expect(navigate).toHaveBeenCalled();
     component.setViewMode('grid');
     expect(component.viewMode()).toBe('grid');
 

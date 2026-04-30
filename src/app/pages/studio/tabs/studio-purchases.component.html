@@ -1,0 +1,226 @@
+<div class="studio-page">
+  <div class="page-head">
+    <div>
+      <div class="page-num"><span class="dot"></span> 09 · Purchases</div>
+      <h1 class="page-h">your <em>crate</em>.</h1>
+    </div>
+    <p class="page-sub">
+      Every beat you've bought, ready to download. Licenses and stems live
+      <em>forever</em>.
+    </p>
+  </div>
+
+  <div class="purchase-stats">
+    <div class="stat-cell c1">
+      <div class="stat-top">
+        <span class="stat-lbl">Total spent</span><span class="stat-ic">$</span>
+      </div>
+      <div class="stat-val">{{ totalSpent() }}</div>
+      <div class="stat-foot">across your license library</div>
+    </div>
+    <div class="stat-cell c2">
+      <div class="stat-top">
+        <span class="stat-lbl">Purchases</span><span class="stat-ic">↓</span>
+      </div>
+      <div class="stat-val">{{ rows().length || 47 }}</div>
+      <div class="stat-foot">beats in your crate</div>
+    </div>
+    <div class="stat-cell c3">
+      <div class="stat-top">
+        <span class="stat-lbl">Downloads</span><span class="stat-ic">↧</span>
+      </div>
+      <div class="stat-val">86</div>
+      <div class="stat-foot">files pulled all time</div>
+    </div>
+    <div class="stat-cell c4">
+      <div class="stat-top"><span class="stat-lbl">Stems</span><span class="stat-ic">+</span></div>
+      <div class="stat-val">19</div>
+      <div class="stat-foot">premium packs owned</div>
+    </div>
+  </div>
+
+  <div class="tracks-toolbar">
+    <div class="tb-left">
+      <div class="search-mini">
+        <span>
+          <svg
+            width="13"
+            height="13"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2.2"
+          >
+            <circle cx="11" cy="11" r="8" />
+            <line x1="21" y1="21" x2="16.65" y2="16.65" />
+          </svg>
+        </span>
+        <input
+          type="text"
+          placeholder="search your purchases..."
+          (input)="onSearch($event)"
+          [value]="searchQuery()"
+        />
+      </div>
+      <select class="filter-select" (change)="onFilterChange($event)">
+        <option>All licenses</option>
+        <option>Basic MP3</option>
+        <option>Premium WAV</option>
+        <option>Unlimited Pro</option>
+        <option>Exclusive</option>
+      </select>
+      <select class="filter-select">
+        <option>All time</option>
+        <option>This week</option>
+        <option>This month</option>
+        <option>This year</option>
+      </select>
+      <select class="filter-select">
+        <option>Newest first</option>
+        <option>Oldest first</option>
+        <option>Highest price</option>
+        <option>By producer</option>
+      </select>
+    </div>
+    <button class="btn dark" type="button">
+      <svg
+        width="12"
+        height="12"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2.2"
+      >
+        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+        <polyline points="7 10 12 15 17 10" />
+        <line x1="12" y1="15" x2="12" y2="3" />
+      </svg>
+      Download all
+    </button>
+  </div>
+
+  <div class="tracks-table">
+    <div class="track-row head purchase-row">
+      <div>Date</div>
+      <div></div>
+      <div>Beat</div>
+      <div>License</div>
+      <div>Downloads</div>
+      <div style="text-align: right">Paid</div>
+      <div></div>
+    </div>
+
+    @for (row of rows(); track row.id) {
+      <div class="track-row purchase-row">
+        <div class="stat-m">
+          {{ row.date }}<br /><em>{{ row.year }}</em>
+        </div>
+        <div class="mini-art {{ row.artClass }}" [attr.data-letter]="row.letter"></div>
+        <div>
+          <div class="title-m">
+            <em>{{ row.title.split(' ')[0] }}</em> {{ row.title.split(' ').slice(1).join(' ') }}
+          </div>
+          <div class="meta-m">prod. {{ row.producer }} · {{ row.meta }}</div>
+        </div>
+        <div class="stat-m">
+          <strong>{{ row.license }}</strong> <em>{{ row.format }}</em>
+        </div>
+        <div class="dl-status">
+          <span class="dl-dot"></span><strong>{{ row.downloads.split(' ')[0] }}</strong>
+          {{ row.downloads.split(' ').slice(1).join(' ') }}
+        </div>
+        <div class="money-m" style="text-align: right">{{ row.paid }}</div>
+        <div class="row-actions">
+          <button
+            class="ra-btn"
+            type="button"
+            aria-label="Download"
+            (click)="download(row, $event)"
+          >
+            <svg
+              width="11"
+              height="11"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2.2"
+            >
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+              <polyline points="7 10 12 15 17 10" />
+              <line x1="12" y1="15" x2="12" y2="3" />
+            </svg>
+          </button>
+          <button class="ra-btn" type="button" aria-label="Play">
+            <svg width="9" height="9" viewBox="0 0 24 24" fill="currentColor">
+              <polygon points="6 3 20 12 6 21 6 3" />
+            </svg>
+          </button>
+          <button class="ra-btn" type="button" aria-label="More">
+            <svg
+              width="11"
+              height="11"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="3"
+            >
+              <circle cx="12" cy="12" r="1" />
+              <circle cx="12" cy="5" r="1" />
+              <circle cx="12" cy="19" r="1" />
+            </svg>
+          </button>
+        </div>
+      </div>
+    }
+  </div>
+
+  <app-pagination
+    variant="studio"
+    [currentPage]="currentPage()"
+    [total]="pagination()?.total || rows().length"
+    [perPage]="perPage()"
+    [showPerPage]="true"
+    (pageChange)="onPageChange($event)"
+    (perPageChange)="onPerPageChange($event)"
+  />
+
+  @if (showDownloadPopup()) {
+    <div class="dl-modal-overlay" (click)="closeDownloadPopup()">
+      <div class="dl-modal" (click)="$event.stopPropagation()">
+        <div class="dl-modal-head">
+          <h3>
+            Downloads for <em>{{ downloadTitle() }}</em>
+          </h3>
+          <button (click)="closeDownloadPopup()">✕</button>
+        </div>
+        <div class="dl-modal-body">
+          @if (isDownloading()) {
+            <div class="dl-loading">Fetching secure links...</div>
+          } @else if (downloadLinks().length === 0) {
+            <div class="dl-empty">No files available for this license.</div>
+          } @else {
+            <div class="dl-list">
+              @for (link of downloadLinks(); track link.type) {
+                <a [href]="link.url" target="_blank" class="dl-btn">
+                  <span class="dl-format">{{ link.type }}</span>
+                  <svg
+                    width="14"
+                    height="14"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2.2"
+                  >
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                    <polyline points="7 10 12 15 17 10" />
+                    <line x1="12" y1="15" x2="12" y2="3" />
+                  </svg>
+                </a>
+              }
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+  }
+</div>

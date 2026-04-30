@@ -3,41 +3,114 @@
 footer {
   background: var(--bg-color);
   color: var(--text-color);
-  border-top: 1px solid var(--line-color);
-  padding: 80px 40px;
+  border-top: 2px solid var(--text-color);
+  padding: 48px 24px 24px;
+}
+
+:host-context(body.search-page-active) footer {
+  margin-left: 300px;
+}
+
+.foot-mega {
+  margin-bottom: 24px;
+
+  .logo-mega {
+    font-size: clamp(42px, 8vw, 96px);
+    letter-spacing: -0.06em;
+  }
+
+  em {
+    font-family: 'Instrument Serif', serif;
+    font-style: italic;
+    font-weight: 400;
+  }
+}
+
+.foot-star {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 0.72em;
+  height: 0.72em;
+  margin-left: 0.08em;
+  border: 0.018em solid currentColor;
+  border-radius: 50%;
+  color: var(--brand-color);
   font-family: $font-tech;
-  position: relative;
-  z-index: 10;
+  font-size: 0.26em;
+  letter-spacing: -0.04em;
+  vertical-align: middle;
 }
 
 .footer-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 60px;
+  grid-template-columns: 1.5fr 1fr 1fr;
+  gap: 32px;
+  margin-top: 24px;
+  align-items: start;
 }
 
-.f-large {
+.foot-brand p {
+  max-width: 420px;
   font-family: $font-head;
-  font-size: 3rem;
-  line-height: 1.1;
+  font-size: 17px;
+  line-height: 1.45;
+  color: rgba(var(--text-color-rgb), 0.74);
+  margin: 0;
+}
+
+.f-title {
+  margin-bottom: 12px;
+  font-family: $font-tech;
+  font-size: 12px;
+  letter-spacing: 0.16em;
   text-transform: uppercase;
-  color: var(--text-color); // Uses theme text color for max contrast
 }
 
 .f-links a {
   display: block;
-  margin-bottom: 10px;
+  width: fit-content;
+  margin-bottom: 8px;
+  font-family: $font-head;
+  font-size: 16px;
   color: var(--text-color);
-  opacity: 0.6; // Subtle but readable
+  text-decoration: none;
 }
 
-.f-links a:hover {
-  color: var(--brand-color);
-  text-decoration: underline;
+.foot-bottom {
+  margin-top: 36px;
+  padding-top: 18px;
+  border-top: 1.5px solid rgba(var(--text-color-rgb), 0.16);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+  font-family: $font-tech;
+  font-size: 12px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(var(--text-color-rgb), 0.62);
 }
 
 @media (max-width: 900px) {
+  :host-context(body.search-page-active) footer {
+    margin-left: 0;
+  }
+
   .footer-grid {
     grid-template-columns: 1fr;
+    gap: 24px;
+  }
+
+  .foot-bottom {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+@media (max-width: 1100px) and (min-width: 901px) {
+  :host-context(body.search-page-active) footer {
+    margin-left: 280px;
   }
 }

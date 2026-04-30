@@ -1,5 +1,6 @@
 export * from './cart/cart.component';
 export * from './footer/footer';
+export * from './genres-section/genres-section.component';
 export * from './header/header';
 export * from './hero/hero';
 export * from './lab-section/lab-section';

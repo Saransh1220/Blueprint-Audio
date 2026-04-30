@@ -81,10 +81,11 @@ export class GetUserLicensesRequest implements ApiRequest<PaginatedResponse<Lice
   readonly _responseType?: PaginatedResponse<License>;
   readonly params?: HttpParams;
 
-  constructor(queryParams?: { page?: number; q?: string; type?: string }) {
+  constructor(queryParams?: { page?: number; limit?: number; q?: string; type?: string }) {
     if (queryParams) {
       let params = new HttpParams();
       if (queryParams.page) params = params.set('page', queryParams.page);
+      if (queryParams.limit) params = params.set('limit', queryParams.limit);
       if (queryParams.q) params = params.set('q', queryParams.q);
       if (queryParams.type) params = params.set('type', queryParams.type);
       this.params = params;

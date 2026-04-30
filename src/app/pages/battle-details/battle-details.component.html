@@ -1,66 +1,88 @@
-<div class="battle-details-container">
-  <div class="container">
-    <!-- Header Section -->
-    <div class="battle-header">
-      <div class="status-badge" [class.voting]="battle().status === 'VOTING'">
-        {{ battle().status }}
-      </div>
-      <h1>{{ battle().title }}</h1>
-      <div class="meta-info">
-        <div class="meta-item">
-          <i class="fas fa-trophy"></i>
-          <span>{{ battle().prize }}</span>
-        </div>
-        <div class="meta-item">
-          <i class="fas fa-clock"></i>
-          <span>{{ battle().deadline }}</span>
-        </div>
-      </div>
-    </div>
+<div class="battle-detail">
+  <main class="bdt-shell">
+    <a routerLink="/battles" class="bdt-back">Back to battles</a>
 
-    <div class="content-grid">
-      <!-- Left Column: Info -->
-      <div class="info-col">
-        <div class="card">
-          <h3>Overview</h3>
-          <p>{{ battle().description }}</p>
-        </div>
+    <section class="bdt-header">
+      <div>
+        <div class="bdt-kicker"><span></span> {{ battle().type }} / {{ battle().status }}</div>
+        <h1>{{ battle().title }}</h1>
+        <p>{{ battle().description }}</p>
+      </div>
+      <aside>
+        <span>Deadline</span>
+        <strong>{{ battle().deadline }}</strong>
+        <button type="button">{{ battle().action }}</button>
+      </aside>
+    </section>
 
-        <div class="card">
-          <h3>Rules</h3>
-          <ul>
+    <section class="bdt-brief">
+      @for (item of battle().brief; track item.label) {
+        <div>
+          <span>{{ item.label }}</span>
+          <strong>{{ item.value }}</strong>
+        </div>
+      }
+    </section>
+
+    <section class="bdt-layout">
+      <div class="bdt-main">
+        <section class="bdt-card">
+          <div class="bdt-section-head">
+            <h2>Submissions</h2>
+            <span>Blind voting</span>
+          </div>
+          <div class="bdt-submissions">
+            @for (sub of submissions(); track sub.id; let i = $index) {
+              <div class="bdt-submission">
+                <div class="bdt-rank">#{{ i + 1 }}</div>
+                <div>
+                  <strong>{{ sub.title }}</strong>
+                  <span>{{ sub.artist }} / {{ sub.note }}</span>
+                </div>
+                <em>{{ sub.score }}</em>
+                <button type="button" (click)="vote(sub.id)">Rank</button>
+              </div>
+            }
+          </div>
+        </section>
+
+        <section class="bdt-card">
+          <div class="bdt-section-head">
+            <h2>Rules</h2>
+            <span>Room brief</span>
+          </div>
+          <ul class="bdt-rules">
             @for (rule of battle().rules; track rule) {
               <li>{{ rule }}</li>
             }
           </ul>
-        </div>
-
-        @if (battle().status === 'OPEN') {
-          <button class="btn-submit">Submit Track</button>
-        }
+        </section>
       </div>
 
-      <!-- Right Column: Submissions -->
-      <div class="submissions-col">
-        <h3>Submissions</h3>
-        <div class="submission-list">
-          @for (sub of submissions(); track sub; let i = $index) {
-            <div class="submission-card">
-              <div class="rank">#{{ i + 1 }}</div>
-              <div class="track-info">
-                <h4>{{ sub.title }}</h4>
-                <span>{{ sub.artist }}</span>
-              </div>
-              <div class="vote-section">
-                <span class="score">{{ sub.score }}</span>
-                <button class="btn-vote" (click)="vote(sub.id)">
-                  <i class="fas fa-arrow-up"></i>
-                </button>
-              </div>
+      <aside class="bdt-side">
+        <section class="bdt-card">
+          <div class="bdt-section-head">
+            <h2>Settings</h2>
+            <span>#{{ battleId() }}</span>
+          </div>
+          @for (setting of battle().settings; track setting.label) {
+            <div class="bdt-side-row">
+              <span>{{ setting.label }}</span>
+              <strong>{{ setting.value }}</strong>
             </div>
           }
-        </div>
-      </div>
-    </div>
-  </div>
+        </section>
+
+        <section class="bdt-card reward">
+          <div class="bdt-section-head">
+            <h2>Rewards</h2>
+            <span>Winner</span>
+          </div>
+          @for (reward of battle().rewards; track reward) {
+            <div class="bdt-reward">{{ reward }}</div>
+          }
+        </section>
+      </aside>
+    </section>
+  </main>
 </div>

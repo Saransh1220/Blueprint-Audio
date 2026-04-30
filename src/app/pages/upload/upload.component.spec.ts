@@ -49,8 +49,22 @@ describe('UploadComponent', () => {
     expect(component.tags.length).toBe(2);
   });
 
-  it('prevents next step when required files are missing and advances when valid', () => {
+  it('validates step progression across files, details, and licenses', () => {
     const component = create();
+
+    component.nextStep();
+    expect(toast.show).toHaveBeenCalledWith('Please upload cover art and preview audio.', 'error');
+    expect(component.currentStep()).toBe(1);
+
+    component.coverFile.set(new File(['a'], 'cover.png', { type: 'image/png' }));
+    component.nextStep();
+    expect(toast.show).toHaveBeenCalledWith('Please upload cover art and preview audio.', 'error');
+    expect(component.currentStep()).toBe(1);
+
+    component.previewFile.set(new File(['a'], 'preview.mp3', { type: 'audio/mpeg' }));
+    component.nextStep();
+    expect(component.currentStep()).toBe(2);
+
     component.uploadForm.patchValue({
       title: 'Song',
       category: 'beat',
@@ -60,16 +74,12 @@ describe('UploadComponent', () => {
     });
 
     component.nextStep();
-    expect(toast.show).toHaveBeenCalledWith('Please upload cover art and preview audio.', 'error');
-    expect(component.currentStep()).toBe(1);
+    expect(component.currentStep()).toBe(3);
 
-    component.coverFile.set(new File(['a'], 'cover.png', { type: 'image/png' }));
-    component.previewFile.set(new File(['a'], 'preview.mp3', { type: 'audio/mpeg' }));
     component.nextStep();
-
-    expect(component.currentStep()).toBe(2);
+    expect(component.currentStep()).toBe(4);
     component.prevStep();
-    expect(component.currentStep()).toBe(1);
+    expect(component.currentStep()).toBe(3);
   });
 
   it('validates files by type and size', () => {
@@ -151,5 +161,11 @@ describe('UploadComponent', () => {
     component.submitUpload();
     expect(component.isSubmitting()).toBe(false);
     expect(component.uploadProgress()).toBe(0);
+  });
+
+  it('formats sharp keys for the picker label', () => {
+    const component = create();
+    expect(component.getKeyRootLabel('C#')).toBe('C♯');
+    expect(component.getKeyRootLabel('A')).toBe('A');
   });
 });

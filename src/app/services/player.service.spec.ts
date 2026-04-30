@@ -33,6 +33,8 @@ class FakeAudio {
 describe('PlayerService', () => {
   const track: Spec = {
     id: 'spec-1',
+    producerId: 'producer-1',
+    producerName: 'Producer',
     type: 'beat',
     category: 'beat',
     imageUrl: 'cover.jpg',
@@ -43,6 +45,7 @@ describe('PlayerService', () => {
     price: 20,
     genres: [],
     licenses: [],
+    processingStatus: 'completed',
     audioUrl: 'track.mp3',
   };
 

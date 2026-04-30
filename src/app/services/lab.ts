@@ -38,6 +38,7 @@ export class LabService {
     max_price?: number;
     key?: string;
     page?: number;
+    per_page?: number;
     sort?: string;
   }): Observable<Spec[]> {
     return this.api.execute(new GetSpecsRequest(filters)).pipe(

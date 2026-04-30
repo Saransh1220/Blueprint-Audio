@@ -1,105 +1,93 @@
-<div class="spec-card" (click)="openDetails()">
-  <div class="spec-img-box">
-    <img
-      [ngSrc]="imageUrl"
-      fill
-      [priority]="priority"
-      class="card-img"
-      alt="{{ spec.title }} Cover"
-    />
-    <div class="overlay-gradient"></div>
+@if (appearance === 'explore') {
+  <div class="spec-card explore-card gs-item" (click)="openDetails()">
+    <div class="beat-artwork">
+      <img
+        [ngSrc]="imageUrl"
+        fill
+        [priority]="priority"
+        class="beat-art"
+        alt="{{ spec.title }} Cover"
+      />
 
-    <div class="play-btn-neon" (click)="playSong($event)">
-      <i [class]="isCurrentlyPlaying() ? 'fa-solid fa-pause' : 'fa-solid fa-play'"></i>
-    </div>
+      <div class="beat-overlay">
+        <div class="beat-top">
+          <div class="beat-badges">
+            @if (spec.genres && spec.genres.length > 0) {
+              <span class="beat-tag">{{ spec.genres[0].name }}</span>
+            }
+          </div>
 
-    <!-- Free MP3 badge (Overlay) -->
-    @if (spec.freeMp3Enabled) {
-      <div class="free-tag-overlay"><i class="fas fa-gift"></i> FREE</div>
-    }
+          @if (spec.analytics) {
+            <div class="beat-side-stats">
+              <span class="analytics-stat">
+                <i class="fa-solid fa-play"></i>
+                {{ spec.analytics.playCount }}
+              </span>
+              <span class="analytics-stat">
+                <i class="fa-solid fa-heart"></i>
+                {{ spec.analytics.favoriteCount }}
+              </span>
+            </div>
+          }
+        </div>
 
-    <!-- Analytics overlay -->
-    @if (spec.analytics) {
-      <div class="analytics-overlay">
-        <span class="analytics-stat">
-          <i class="fa-solid fa-play"></i>
-          {{ spec.analytics.playCount }}
-        </span>
-        <span class="analytics-stat">
-          <i class="fa-solid fa-heart"></i>
-          {{ spec.analytics.favoriteCount }}
-        </span>
-      </div>
-    }
+        <div class="beat-bottom">
+          <button
+            class="beat-wishlist"
+            [class.saved]="spec.analytics?.isFavorited"
+            [disabled]="isFavoriting()"
+            (click)="toggleFavorite($event)"
+            aria-label="Save to wishlist"
+          >
+            <i
+              [class]="spec.analytics?.isFavorited ? 'fa-solid fa-heart' : 'fa-regular fa-heart'"
+            ></i>
+          </button>
 
-    <!-- Processing Overlay -->
-    @if (spec.processingStatus === 'processing' || spec.processingStatus === 'pending') {
-      <div class="processing-overlay">
-        <div class="p-content">
-          <i class="fas fa-circle-notch fa-spin"></i>
-          <span>PROCESSING</span>
+          <button class="beat-play" (click)="playSong($event)" aria-label="Play {{ spec.title }}">
+            <i [class]="isCurrentlyPlaying() ? 'fa-solid fa-pause' : 'fa-solid fa-play'"></i>
+          </button>
         </div>
       </div>
-    }
-    @if (spec.processingStatus === 'failed') {
-      <div class="processing-overlay error">
-        <div class="p-content">
-          <i class="fas fa-exclamation-triangle"></i>
-          <span>FAILED</span>
+
+      @if (spec.processingStatus === 'processing' || spec.processingStatus === 'pending') {
+        <div class="processing-overlay">
+          <div class="p-content">
+            <i class="fas fa-circle-notch fa-spin"></i>
+            <span>PROCESSING</span>
+          </div>
+        </div>
+      }
+      @if (spec.processingStatus === 'failed') {
+        <div class="processing-overlay error">
+          <div class="p-content">
+            <i class="fas fa-exclamation-triangle"></i>
+            <span>FAILED</span>
+          </div>
+        </div>
+      }
+    </div>
+
+    <div class="beat-body">
+      <div class="beat-title">{{ spec.title }}</div>
+
+      <div class="producer-info">
+        <span class="beat-producer"> prod. {{ spec.producerName }} </span>
+      </div>
+
+      <div class="beat-meta-row">
+        <div class="card-meta">
+          <span class="tag-glass tag-priority tag-bpm">{{ spec.bpm }} BPM</span>
+          <span class="tag-glass tag-priority tag-key">{{ spec.key }}</span>
         </div>
       </div>
-    }
-  </div>
 
-  <div class="card-content">
-    <div class="spec-header-mini">
-      @if (spec.genres && spec.genres.length > 0) {
-        <span class="genre-badge">{{ spec.genres[0].name }}</span>
-      }
-    </div>
+      <div class="beat-footer">
+        <div class="beat-stats"></div>
+        <div class="beat-price">₹{{ spec.price }}</div>
+      </div>
 
-    <div class="spec-title">{{ spec.title }}</div>
-
-    <div class="producer-info">
-      <a
-        [routerLink]="['/store', spec.producerId]"
-        (click)="$event.stopPropagation()"
-        class="producer-link"
-      >
-        <i class="fas fa-user-music"></i> {{ spec.producerName }}
-      </a>
-    </div>
-
-    <div class="card-meta">
-      <span class="tag-glass">{{ spec.bpm }} BPM</span>
-      <span class="tag-glass">{{ spec.key }}</span>
-      @if (spec.duration) {
-        <span class="tag-glass">{{ formatDuration(spec.duration) }}</span>
-      }
-      <!-- Limit tags to 2 if duration exists, else 3 -->
-      @for (tag of spec.tags.slice(0, spec.duration ? 2 : 3); track tag) {
-        <span class="tag-glass">#{{ tag }}</span>
-      }
-    </div>
-
-    <div class="spec-footer">
-      <div class="spec-price">₹{{ spec.price }}</div>
-
-      <div class="action-buttons">
-        <!-- Favorite button (auth required in service) -->
-        <button
-          class="icon-btn favorite-btn"
-          [class.favorited]="spec.analytics?.isFavorited"
-          [disabled]="isFavoriting()"
-          (click)="toggleFavorite($event)"
-          title="Favorite"
-        >
-          <i
-            [class]="spec.analytics?.isFavorited ? 'fa-solid fa-heart' : 'fa-regular fa-heart'"
-          ></i>
-        </button>
-
-        <!-- Free download button -->
+      <div class="custom-actions-row explore-actions">
         @if (spec.freeMp3Enabled) {
           <button
             class="icon-btn download-btn"
@@ -109,10 +97,118 @@
             <i class="fa-solid fa-download"></i>
           </button>
         }
-
-        <!-- Cart button -->
-        <i class="fa-solid fa-cart-plus cart-btn" (click)="addToCart($event)"></i>
+        <button class="purchase-pill compact" (click)="addToCart($event)" title="Add to cart">
+          <span class="beat-price">₹{{ spec.price }}</span>
+          <span class="purchase-icon"><i class="fa-solid fa-cart-plus"></i></span>
+        </button>
       </div>
     </div>
   </div>
-</div>
+} @else {
+  <div class="spec-card gs-item" (click)="openDetails()">
+    <div class="beat-artwork">
+      <img
+        [ngSrc]="imageUrl"
+        fill
+        [priority]="priority"
+        class="beat-art"
+        alt="{{ spec.title }} Cover"
+      />
+
+      <div class="beat-overlay">
+        <div class="beat-top">
+          <div class="beat-badges">
+            @if (spec.genres && spec.genres.length > 0) {
+              <span class="beat-tag">{{ spec.genres[0].name }}</span>
+            }
+          </div>
+        </div>
+
+        @if (spec.analytics) {
+          <div class="beat-side-stats">
+            <span class="analytics-stat">
+              <i class="fa-solid fa-play"></i>
+              {{ spec.analytics.playCount }}
+            </span>
+            <span class="analytics-stat">
+              <i class="fa-solid fa-heart"></i>
+              {{ spec.analytics.favoriteCount }}
+            </span>
+          </div>
+        }
+
+        <button class="beat-play" (click)="playSong($event)" aria-label="Play {{ spec.title }}">
+          <i [class]="isCurrentlyPlaying() ? 'fa-solid fa-pause' : 'fa-solid fa-play'"></i>
+        </button>
+      </div>
+
+      @if (spec.processingStatus === 'processing' || spec.processingStatus === 'pending') {
+        <div class="processing-overlay">
+          <div class="p-content">
+            <i class="fas fa-circle-notch fa-spin"></i>
+            <span>PROCESSING</span>
+          </div>
+        </div>
+      }
+      @if (spec.processingStatus === 'failed') {
+        <div class="processing-overlay error">
+          <div class="p-content">
+            <i class="fas fa-exclamation-triangle"></i>
+            <span>FAILED</span>
+          </div>
+        </div>
+      }
+    </div>
+
+    <div class="beat-body">
+      <div class="beat-title">{{ spec.title }}</div>
+
+      <div class="producer-info">
+        <span class="beat-producer"> prod. {{ spec.producerName }} </span>
+      </div>
+
+      <div class="beat-meta-row">
+        <div class="card-meta">
+          <span class="tag-glass tag-priority tag-bpm">{{ spec.bpm }} BPM</span>
+          <span class="tag-glass tag-priority tag-key">{{ spec.key }}</span>
+        </div>
+      </div>
+
+      <div class="beat-footer">
+        <div class="beat-stats"></div>
+      </div>
+
+      <div class="custom-actions-row">
+        <div class="action-buttons secondary-actions">
+          <button
+            class="icon-btn favorite-btn"
+            [class.favorited]="spec.analytics?.isFavorited"
+            [disabled]="isFavoriting()"
+            (click)="toggleFavorite($event)"
+            title="Favorite"
+          >
+            <i
+              [class]="spec.analytics?.isFavorited ? 'fa-solid fa-heart' : 'fa-regular fa-heart'"
+            ></i>
+          </button>
+
+          @if (spec.freeMp3Enabled) {
+            <button
+              class="icon-btn download-btn"
+              (click)="downloadFreeMp3($event)"
+              title="Download Free MP3"
+            >
+              <i class="fa-solid fa-download"></i>
+            </button>
+          }
+        </div>
+
+        <button class="purchase-pill" (click)="addToCart($event)" title="Add to cart">
+          <span class="beat-price">₹{{ spec.price }}</span>
+          <span class="purchase-divider"></span>
+          <span class="purchase-icon"><i class="fa-solid fa-cart-plus"></i></span>
+        </button>
+      </div>
+    </div>
+  </div>
+}

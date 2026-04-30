@@ -10,7 +10,6 @@ import {
   OnDestroy,
 } from '@angular/core';
 import { Subscription } from 'rxjs';
-import { RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 
 import { NgOptimizedImage } from '@angular/common';
@@ -20,7 +19,7 @@ import { SpecActionService } from '../../services/spec-action.service';
 
 @Component({
   selector: 'app-spec-card',
-  imports: [CommonModule, NgOptimizedImage, RouterLink],
+  imports: [CommonModule, NgOptimizedImage],
   templateUrl: './spec-card.html',
   styleUrls: ['./spec-card.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -28,6 +27,7 @@ import { SpecActionService } from '../../services/spec-action.service';
 export class SpecCardComponent implements OnInit, OnDestroy {
   @Input() spec!: Spec;
   @Input() priority = false;
+  @Input() appearance: 'default' | 'explore' = 'default';
 
   actionService = inject(SpecActionService);
   cdr = inject(ChangeDetectorRef);

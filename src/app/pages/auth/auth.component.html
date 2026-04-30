@@ -1,251 +1,529 @@
-<div class="auth-page-wrapper">
-  <div class="auth-card-asymmetric fade-in-up">
-    <!-- Left: Feature Pane (40%) -->
-    <div class="feature-pane">
-      <div class="brand-header">
-        <div class="logo-mark">BA</div>
-        <h2>Blueprint Audio</h2>
-      </div>
-
-      <div class="feature-content">
-        <h3>Shape Your Sound</h3>
-        <p>
-          Join the definitive marketplace for premium beats, samples, and elite production tools.
-        </p>
-
-        <ul class="feature-list">
-          <li>
-            <svg
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            >
-              <polyline points="20 6 9 17 4 12"></polyline>
-            </svg>
-            <span>Exclusive Premium Catalog</span>
-          </li>
-          <li>
-            <svg
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            >
-              <polyline points="20 6 9 17 4 12"></polyline>
-            </svg>
-            <span>100% Royalty-Free Licensing</span>
-          </li>
-          <li>
-            <svg
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            >
-              <polyline points="20 6 9 17 4 12"></polyline>
-            </svg>
-            <span>Instant Stem Delivery</span>
-          </li>
-        </ul>
-      </div>
-
-      <div class="pane-footer">
-        <span>© 2026 Blueprint Audio</span>
+<div class="auth-wrap" [attr.data-mode]="isLoginView ? 'login' : 'signup'">
+  <aside class="brand-panel">
+    <div class="brand-ticker">
+      <div class="ticker-track">
+        @for (item of tickerItems; track item) {
+          <span>{{ item }}</span>
+        }
+        @for (item of tickerItems; track 'dup-' + item) {
+          <span>{{ item }}</span>
+        }
       </div>
     </div>
 
-    <!-- Right: Form Pane (60%) -->
-    <div class="form-pane">
-      <div class="pane-header-actions">
+    <a class="brand-logo" routerLink="/">
+      <div class="logo">
+        <span class="logo-mark" aria-hidden="true">
+          <span class="mark-letters">
+            <span class="c">C</span>
+            <span class="b">B</span>
+          </span>
+        </span>
+        <span class="logo-word">
+          <span class="word-cult">cult</span>
+          <span class="word-dot">·</span>
+          <span class="word-beats">beats</span>
+          <span class="word-star">✦</span>
+        </span>
+      </div>
+    </a>
+
+    <div class="brand-center">
+      <h1 class="brand-headline">
         @if (isLoginView) {
-          <p>
-            New to Blueprint?
-            <button type="button" class="text-btn" (click)="toggleView(false)">
-              Create an account
-            </button>
-          </p>
+          sign<br /><em>in</em>.
         } @else {
-          <p>
-            Already a member?
-            <button type="button" class="text-btn" (click)="toggleView(true)">Log in</button>
-          </p>
+          join the<br /><em>cult</em>.
+        }
+      </h1>
+
+      <p class="brand-sub">
+        @if (isLoginView) {
+          Welcome back to the crate. Your beats, carts, and late-night sessions are
+          <strong>still here</strong>.
+        } @else {
+          Claim your handle. Get access to <strong>3,412+ beats</strong>, stems, sync licenses, and
+          the freshest drops every Friday.
+        }
+      </p>
+
+      <div class="brand-chips">
+        @for (chip of brandChips(); track chip.number + chip.text) {
+          <div class="brand-chip">
+            <span class="chip-num">{{ chip.number }}</span>
+            <span
+              >{{ chip.text }} <em>{{ chip.emphasis }}</em></span
+            >
+          </div>
         }
       </div>
+    </div>
 
-      <div class="form-scroll-container">
-        <div class="form-content-inner">
-          <div class="form-title-area">
-            @if (isLoginView) {
-              <h2>Welcome back</h2>
-              <p>Enter your details to access your dashboard.</p>
-            } @else {
-              <h2>Get started for free</h2>
-              <p>Setup your account in seconds.</p>
-            }
-          </div>
+    <div class="vinyl">
+      <div class="vinyl-label">
+        <span>{{ isLoginView ? 'A' : 'B' }}</span>
+      </div>
+    </div>
 
-          <!-- Universal Google Button -->
-          <div class="custom-google-btn">
-            <div class="btn-content">
-              <svg viewBox="0 0 24 24" fill="currentColor">
+    <div class="brand-foot">
+      <span>Â© 2026 Cult Beats</span>
+    </div>
+  </aside>
+
+  <main class="form-panel">
+    <div class="form-topbar">
+      <div class="side-switch" role="tablist">
+        <button type="button" data-mode="login" (click)="toggleView(true)">
+          Side <span class="letter">A</span> Â· sign in
+        </button>
+        <button type="button" data-mode="signup" (click)="toggleView(false)">
+          Side <span class="letter">B</span> Â· sign up
+        </button>
+      </div>
+
+      <a routerLink="/" class="help-link">
+        Back home
+        <span class="arrow">
+          <svg
+            width="9"
+            height="9"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2.5"
+          >
+            <line x1="5" y1="12" x2="19" y2="12" />
+            <polyline points="12 5 19 12 12 19" />
+          </svg>
+        </span>
+      </a>
+    </div>
+
+    <div class="form-inner">
+      @if (isLoginView) {
+        <form class="form active" (ngSubmit)="onLoginSubmit()">
+          <h2 class="form-title">welcome <em>back</em>.</h2>
+          <p class="form-sub">Sign in to your crate. Pick up where you left off.</p>
+
+          <button type="button" class="google-btn">
+            <div class="google-btn-shell">
+              <svg viewBox="0 0 48 48" aria-hidden="true">
                 <path
-                  d="M12.545,10.239v3.821h5.445c-0.712,2.315-2.647,3.972-5.445,3.972c-3.332,0-6.033-2.701-6.033-6.032 s2.701-6.032,6.033-6.032c1.498,0,2.866,0.549,3.921,1.453l2.814-2.814C17.503,2.988,15.139,2,12.545,2 C7.021,2,2.543,6.477,2.543,12s4.478,10,10.002,10c8.396,0,10.249-7.85,9.426-11.748L12.545,10.239z"
+                  fill="#FFC107"
+                  d="M43.611 20.083H42V20H24v8h11.303c-1.649 4.657-6.08 8-11.303 8-6.627 0-12-5.373-12-12s5.4-12 12-12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4 12.955 4 4 12.955 4 24s8.955 20 20 20 20-8.955 20-20c0-2.641-.21-5.236-.611-7.743z"
+                />
+                <path
+                  fill="#FF3D00"
+                  d="M6.306 14.691l6.571 4.819C14.655 15.108 18.961 12 24 12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4 16.318 4 9.656 8.337 6.306 14.691z"
+                />
+                <path
+                  fill="#4CAF50"
+                  d="M24 44c5.166 0 9.86-1.977 13.409-5.192l-6.19-5.238C29.211 35.091 26.715 36 24 36c-5.202 0-9.619-3.317-11.283-7.946l-6.522 5.025C9.505 39.556 16.227 44 24 44z"
+                />
+                <path
+                  fill="#1976D2"
+                  d="M43.611 20.083H42V20H24v8h11.303c-.792 2.237-2.231 4.166-4.087 5.571l6.19 5.238C42.022 35.026 44 30.038 44 24c0-2.641-.21-5.236-.611-7.743z"
                 />
               </svg>
               <span>Continue with Google</span>
             </div>
             <div class="google-invisible-wrapper">
-              <asl-google-signin-button
-                type="standard"
-                size="large"
-                [width]="400"
-              ></asl-google-signin-button>
+              <asl-google-signin-button type="standard" size="large" [width]="400" />
+            </div>
+          </button>
+
+          <div class="divider"><em>or with email</em></div>
+
+          <div class="form-group">
+            <label class="form-label" for="login-email">
+              Email <span class="required-dot">*</span>
+            </label>
+            <input
+              type="email"
+              class="form-input"
+              id="login-email"
+              name="email"
+              [(ngModel)]="loginEmail"
+              placeholder="you@after-hours.fm"
+              required
+              autocomplete="email"
+            />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="login-password">
+              Password <span class="required-dot">*</span>
+              <button type="button" class="forgot" (click)="goToForgotPassword()">forgot?</button>
+            </label>
+            <div class="input-with-eye">
+              <input
+                [type]="showLoginPassword ? 'text' : 'password'"
+                class="form-input"
+                id="login-password"
+                name="password"
+                [(ngModel)]="loginPassword"
+                placeholder="your secret"
+                required
+                autocomplete="current-password"
+              />
+              <button
+                type="button"
+                class="eye-btn"
+                (click)="showLoginPassword = !showLoginPassword"
+                aria-label="Toggle password visibility"
+              >
+                @if (showLoginPassword) {
+                  <svg
+                    width="18"
+                    height="18"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  >
+                    <path
+                      d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"
+                    ></path>
+                    <line x1="1" y1="1" x2="23" y2="23"></line>
+                  </svg>
+                } @else {
+                  <svg
+                    width="18"
+                    height="18"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  >
+                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                    <circle cx="12" cy="12" r="3"></circle>
+                  </svg>
+                }
+              </button>
             </div>
           </div>
 
-          <div class="divider">
-            <span>or continue with email</span>
+          <label class="check-row">
+            <input type="checkbox" checked />
+            <span class="check-box">
+              <svg
+                width="11"
+                height="11"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="#c8e84f"
+                stroke-width="3.5"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <polyline points="20 6 9 17 4 12"></polyline>
+              </svg>
+            </span>
+            <span class="check-label">Keep me signed in on this device</span>
+          </label>
+
+          <button
+            type="submit"
+            class="submit-btn"
+            [class.loading]="isLoading()"
+            [disabled]="isLoading()"
+          >
+            <span class="btn-text">Sign in</span>
+            <svg
+              class="btn-arrow"
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2.5"
+            >
+              <line x1="5" y1="12" x2="19" y2="12" />
+              <polyline points="12 5 19 12 12 19" />
+            </svg>
+            <span class="loader">âœ¦</span>
+          </button>
+
+          <div class="form-foot">
+            New here?
+            <button type="button" (click)="toggleView(false)">Create an account â†’</button>
+          </div>
+        </form>
+      } @else {
+        <form class="form active" (ngSubmit)="onRegisterSubmit()">
+          <h2 class="form-title">make an <em>account</em>.</h2>
+          <p class="form-sub">Claim your artist handle. It takes sixty seconds.</p>
+
+          <button type="button" class="google-btn">
+            <div class="google-btn-shell">
+              <svg viewBox="0 0 48 48" aria-hidden="true">
+                <path
+                  fill="#FFC107"
+                  d="M43.611 20.083H42V20H24v8h11.303c-1.649 4.657-6.08 8-11.303 8-6.627 0-12-5.373-12-12s5.4-12 12-12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4 12.955 4 4 12.955 4 24s8.955 20 20 20 20-8.955 20-20c0-2.641-.21-5.236-.611-7.743z"
+                />
+                <path
+                  fill="#FF3D00"
+                  d="M6.306 14.691l6.571 4.819C14.655 15.108 18.961 12 24 12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4 16.318 4 9.656 8.337 6.306 14.691z"
+                />
+                <path
+                  fill="#4CAF50"
+                  d="M24 44c5.166 0 9.86-1.977 13.409-5.192l-6.19-5.238C29.211 35.091 26.715 36 24 36c-5.202 0-9.619-3.317-11.283-7.946l-6.522 5.025C9.505 39.556 16.227 44 24 44z"
+                />
+                <path
+                  fill="#1976D2"
+                  d="M43.611 20.083H42V20H24v8h11.303c-.792 2.237-2.231 4.166-4.087 5.571l6.19 5.238C42.022 35.026 44 30.038 44 24c0-2.641-.21-5.236-.611-7.743z"
+                />
+              </svg>
+              <span>Sign up with Google</span>
+            </div>
+            <div class="google-invisible-wrapper">
+              <asl-google-signin-button type="standard" size="large" [width]="400" />
+            </div>
+          </button>
+
+          <div class="divider"><em>or with email</em></div>
+
+          <div class="form-group">
+            <label class="form-label" for="su-name">
+              Your name <span class="required-dot">*</span>
+            </label>
+            <input
+              type="text"
+              class="form-input"
+              id="su-name"
+              name="name"
+              [(ngModel)]="registerUsername"
+              placeholder="Alex Jordan"
+              required
+              autocomplete="name"
+            />
           </div>
 
-          @if (isLoginView) {
-            <!-- Login Form -->
-            <form (ngSubmit)="onLoginSubmit()">
-              <div class="input-group">
-                <label>Email address</label>
-                <input
-                  type="email"
-                  placeholder="name@company.com"
-                  [(ngModel)]="loginEmail"
-                  name="email"
-                  required
-                />
-              </div>
-              <div class="input-group">
-                <div class="label-row">
-                  <label>Password</label>
-                  <a href="#" class="forgot-link">Forgot password?</a>
-                </div>
-                <input
-                  type="password"
-                  placeholder="••••••••"
-                  [(ngModel)]="loginPassword"
-                  name="password"
-                  required
-                />
-              </div>
+          <div class="form-group">
+            <label class="form-label" for="su-display">
+              Artist name <span class="required-dot">*</span>
+              <em>this is what listeners see</em>
+            </label>
+            <div class="input-with-prefix">
+              <span class="prefix">@</span>
+              <input
+                type="text"
+                class="form-input"
+                id="su-display"
+                name="displayName"
+                [(ngModel)]="registerDisplayName"
+                placeholder="kita sol"
+                required
+                autocomplete="username"
+              />
+            </div>
+            <div class="form-help">
+              Pick a <strong>unique handle</strong>. Letters, numbers, dots and underscores only.
+            </div>
+          </div>
 
-              <button type="submit" class="submit-btn" [disabled]="isLoading()">
-                @if (isLoading()) {
-                  <app-loading-spinner size="18px" color="var(--bg-color)"></app-loading-spinner>
+          <div class="form-group">
+            <label class="form-label" for="su-email">
+              Email <span class="required-dot">*</span>
+            </label>
+            <input
+              type="email"
+              class="form-input"
+              id="su-email"
+              name="email"
+              [(ngModel)]="registerEmail"
+              placeholder="you@after-hours.fm"
+              required
+              autocomplete="email"
+            />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="su-password">
+              Password <span class="required-dot">*</span>
+            </label>
+            <div class="input-with-eye">
+              <input
+                [type]="showRegisterPassword ? 'text' : 'password'"
+                class="form-input"
+                id="su-password"
+                name="password"
+                [(ngModel)]="registerPassword"
+                placeholder="at least 8 characters"
+                required
+                autocomplete="new-password"
+              />
+              <button
+                type="button"
+                class="eye-btn"
+                (click)="showRegisterPassword = !showRegisterPassword"
+                aria-label="Toggle password visibility"
+              >
+                @if (showRegisterPassword) {
+                  <svg
+                    width="18"
+                    height="18"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  >
+                    <path
+                      d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"
+                    ></path>
+                    <line x1="1" y1="1" x2="23" y2="23"></line>
+                  </svg>
                 } @else {
-                  Sign In
+                  <svg
+                    width="18"
+                    height="18"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  >
+                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                    <circle cx="12" cy="12" r="3"></circle>
+                  </svg>
                 }
               </button>
-            </form>
-          } @else {
-            <!-- Register Form -->
-            <form (ngSubmit)="onRegisterSubmit()">
-              <div class="input-row">
-                <div class="input-group">
-                  <label>Username</label>
-                  <input
-                    type="text"
-                    placeholder="artist_01"
-                    [(ngModel)]="registerUsername"
-                    name="username"
-                    required
-                  />
-                </div>
-                <div class="input-group">
-                  <label>Display Name</label>
-                  <input
-                    type="text"
-                    placeholder="Stage Name"
-                    [(ngModel)]="registerDisplayName"
-                    name="displayName"
-                    required
-                  />
-                </div>
-              </div>
+            </div>
 
-              <div class="input-group">
-                <label>Email address</label>
-                <input
-                  type="email"
-                  placeholder="name@company.com"
-                  [(ngModel)]="registerEmail"
-                  name="email"
-                  required
-                />
-              </div>
+            <div class="strength">
+              @for (bar of [0, 1, 2, 3]; track bar) {
+                <div
+                  class="strength-bar"
+                  [class.on]="bar < passwordStrength().score"
+                  [class.weak]="passwordStrength().score === 1"
+                  [class.ok]="passwordStrength().score === 2"
+                  [class.good]="passwordStrength().score === 3"
+                  [class.strong]="passwordStrength().score === 4"
+                ></div>
+              }
+            </div>
+            <div class="strength-label">
+              <span>Strength</span>
+              <span
+                class="lvl"
+                [class.weak]="passwordStrength().score === 1"
+                [class.ok]="passwordStrength().score === 2"
+                [class.good]="passwordStrength().score === 3"
+                [class.strong]="passwordStrength().score === 4"
+              >
+                {{ passwordStrength().label }}
+              </span>
+            </div>
+          </div>
 
-              <div class="input-row">
-                <div class="input-group">
-                  <label>Password</label>
-                  <input
-                    type="password"
-                    placeholder="Min. 8 characters"
-                    [(ngModel)]="registerPassword"
-                    name="password"
-                    required
-                  />
-                </div>
-                <div class="input-group">
-                  <label>Confirm</label>
-                  <input
-                    type="password"
-                    placeholder="Repeat password"
-                    [(ngModel)]="registerConfirmPassword"
-                    name="confirmPassword"
-                    required
-                  />
-                </div>
-              </div>
+          <div class="form-group">
+            <label class="form-label" for="su-confirm">
+              Confirm password <span class="required-dot">*</span>
+            </label>
+            <div class="input-with-eye input-with-match">
+              <input
+                type="password"
+                class="form-input"
+                id="su-confirm"
+                name="confirm"
+                [(ngModel)]="registerConfirmPassword"
+                placeholder="type it again"
+                required
+                autocomplete="new-password"
+                [class.has-error]="registerConfirmPassword.length > 0 && !passwordsMatch()"
+              />
+              @if (registerConfirmPassword.length > 0) {
+                <span
+                  class="match-indicator"
+                  [class.ok]="passwordsMatch()"
+                  [class.bad]="!passwordsMatch()"
+                >
+                  <span class="mdot"></span>
+                  <span>{{ passwordsMatch() ? 'matches' : 'no match' }}</span>
+                </span>
+              }
+            </div>
+          </div>
 
-              <div class="role-switch-container">
-                <label>I am joining as a:</label>
-                <div class="switch-wrapper">
-                  <input
-                    type="radio"
-                    id="artist"
-                    name="role"
-                    [(ngModel)]="registerRole"
-                    value="artist"
-                    hidden
-                  />
-                  <label for="artist" class="switch-option">Artist</label>
+          <div class="form-group">
+            <label class="form-label">I am joining as</label>
+            <div class="role-switch">
+              <input
+                id="roleArtist"
+                type="radio"
+                name="role"
+                value="artist"
+                [(ngModel)]="registerRole"
+                hidden
+              />
+              <label for="roleArtist">Artist</label>
 
-                  <input
-                    type="radio"
-                    id="producer"
-                    name="role"
-                    [(ngModel)]="registerRole"
-                    value="producer"
-                    hidden
-                  />
-                  <label for="producer" class="switch-option">Producer</label>
-                  <div class="switch-selection"></div>
-                </div>
-              </div>
+              <input
+                id="roleProducer"
+                type="radio"
+                name="role"
+                value="producer"
+                [(ngModel)]="registerRole"
+                hidden
+              />
+              <label for="roleProducer">Producer</label>
 
-              <button type="submit" class="submit-btn" [disabled]="isLoading()">
-                @if (isLoading()) {
-                  <app-loading-spinner size="18px" color="var(--bg-color)"></app-loading-spinner>
-                } @else {
-                  Create Account
-                }
-              </button>
-            </form>
-          }
-        </div>
-      </div>
+              <div class="role-highlight" [class.producer]="registerRole === 'producer'"></div>
+            </div>
+          </div>
+
+          <label class="check-row">
+            <input type="checkbox" checked />
+            <span class="check-box">
+              <svg
+                width="11"
+                height="11"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="#c8e84f"
+                stroke-width="3.5"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <polyline points="20 6 9 17 4 12"></polyline>
+              </svg>
+            </span>
+            <span class="check-label">
+              I agree to the <a routerLink="/">terms</a> and <a routerLink="/">privacy policy</a>.
+            </span>
+          </label>
+
+          <button
+            type="submit"
+            class="submit-btn signup"
+            [class.loading]="isLoading()"
+            [disabled]="isLoading()"
+          >
+            <span class="btn-text">Create account</span>
+            <svg
+              class="btn-arrow"
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2.5"
+            >
+              <line x1="5" y1="12" x2="19" y2="12" />
+              <polyline points="12 5 19 12 12 19" />
+            </svg>
+            <span class="loader">âœ¦</span>
+          </button>
+
+          <div class="form-foot">
+            Already a member?
+            <button type="button" (click)="toggleView(true)">Sign in instead â†’</button>
+          </div>
+        </form>
+      }
     </div>
-  </div>
+
+    <div class="form-legal">
+      <span class="star">âœ¦</span> Press record. No subscriptions. <span class="star">âœ¦</span>
+    </div>
+  </main>
 </div>

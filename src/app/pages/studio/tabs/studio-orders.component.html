@@ -1,73 +1,211 @@
-<div class="orders-page">
-  <div class="page-header">
-    <div class="header-left">
-      <h1 class="page-title">Orders</h1>
-      <p class="page-subtitle">All beat sales and license transactions</p>
+<div class="page-head">
+  <div>
+    <div class="page-num"><span class="dot"></span> 04 · Orders</div>
+    <h1 class="page-h">incoming <em>sales</em>.</h1>
+  </div>
+  <p class="page-sub">Every license sold appears here. Payments settle within <em>48 hours</em>.</p>
+</div>
+
+<div class="stats-grid" style="grid-template-columns: repeat(3, 1fr)">
+  <div class="stat-cell c1">
+    <div class="stat-top">
+      <span class="stat-lbl">This month · revenue</span><span class="stat-ic">₹</span>
     </div>
-    <button class="btn-export" (click)="exportCSV()">
-      <i class="fas fa-download"></i> Export CSV
+    <div class="stat-val">
+      @if (isLoading()) {
+        —
+      } @else {
+        <span class="cur">₹</span>{{ monthlyRevenue() }}
+      }
+    </div>
+    <div class="stat-foot"><span class="stat-delta up">+12% vs last</span></div>
+  </div>
+  <div class="stat-cell c2">
+    <div class="stat-top">
+      <span class="stat-lbl">Orders · this month</span><span class="stat-ic">◉</span>
+    </div>
+    <div class="stat-val">
+      @if (isLoading()) {
+        —
+      } @else {
+        {{ total() }}
+      }
+    </div>
+    <div class="stat-foot"><span class="stat-delta up">All licenses</span></div>
+  </div>
+  <div class="stat-cell c3">
+    <div class="stat-top">
+      <span class="stat-lbl">Avg. order value</span><span class="stat-ic">↗</span>
+    </div>
+    <div class="stat-val">
+      @if (isLoading()) {
+        —
+      } @else {
+        <span class="cur">₹</span>{{ avgOrderValue() }}
+      }
+    </div>
+    <div class="stat-foot"><span class="stat-delta up">+8%</span></div>
+  </div>
+</div>
+
+<div class="tracks-toolbar" style="margin-top: 22px">
+  <div class="tb-left" style="gap: 6px">
+    <button
+      class="btn sm"
+      [class.dark]="orderFilter() === 'all'"
+      type="button"
+      (click)="setOrderFilter('all')"
+    >
+      All <span style="opacity: 0.7; margin-left: 4px">{{ total() }}</span>
+    </button>
+    <button
+      class="btn sm"
+      [class.dark]="orderFilter() === 'paid'"
+      type="button"
+      (click)="setOrderFilter('paid')"
+    >
+      Paid
+    </button>
+    <button
+      class="btn sm"
+      [class.dark]="orderFilter() === 'processing'"
+      type="button"
+      (click)="setOrderFilter('processing')"
+    >
+      Processing
+    </button>
+    <button
+      class="btn sm"
+      [class.dark]="orderFilter() === 'refunded'"
+      type="button"
+      (click)="setOrderFilter('refunded')"
+    >
+      Refunds
     </button>
   </div>
-
-  @if (isLoading()) {
-    <div class="loading-state">
-      <div class="spinner"></div>
-      <p>Loading orders...</p>
-    </div>
-  } @else {
-    <div class="table-panel">
-      <div class="table-responsive">
-        <table>
-          <thead>
-            <tr>
-              <th>Date</th>
-              <th>Buyer</th>
-              <th>Item</th>
-              <th>License</th>
-              <th>Amount</th>
-              <th>Status</th>
-            </tr>
-          </thead>
-          <tbody>
-            @for (order of orders(); track order.id) {
-              <tr>
-                <td class="td-date">{{ order.created_at | date: 'mediumDate' }}</td>
-                <td>
-                  <div class="buyer-info">
-                    <span class="name">{{ order.buyer_name }}</span>
-                    <span class="email">{{ order.buyer_email }}</span>
-                  </div>
-                </td>
-                <td class="td-track">{{ order.spec_title }}</td>
-                <td>
-                  <span class="badge">{{ order.license_type }}</span>
-                </td>
-                <td class="td-amount">{{ order.amount | currency: order.currency }}</td>
-                <td>
-                  <span class="status-badge" [class]="order.status.toLowerCase()">
-                    {{ order.status }}
-                  </span>
-                </td>
-              </tr>
-            }
-            @if (orders().length === 0) {
-              <tr>
-                <td colspan="6" class="empty-cell">
-                  <i class="fas fa-box-open"></i>
-                  No orders found yet.
-                </td>
-              </tr>
-            }
-          </tbody>
-        </table>
-      </div>
-
-      <app-pagination
-        [currentPage]="currentPage()"
-        [total]="total()"
-        [perPage]="limit()"
-        (pageChange)="onPageChange($event)"
-      />
-    </div>
-  }
+  <button class="btn" type="button" (click)="exportCSV()">
+    <svg
+      width="12"
+      height="12"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="2.2"
+    >
+      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+      <polyline points="7 10 12 15 17 10" />
+      <line x1="12" y1="15" x2="12" y2="3" />
+    </svg>
+    Export CSV
+  </button>
 </div>
+
+@if (isLoading()) {
+  <div class="tracks-skeleton" style="margin-top: 12px">
+    @for (i of [1, 2, 3, 4, 5]; track i) {
+      <div class="sk-row"></div>
+    }
+  </div>
+}
+
+@if (error() && !isLoading()) {
+  <div class="empty-state">
+    <p>{{ error() }}</p>
+    <button class="btn sm" (click)="loadOrders()" type="button">Retry</button>
+  </div>
+}
+
+@if (!isLoading() && !error()) {
+  <div class="tracks-table">
+    <div class="track-row head" style="grid-template-columns: 100px 1fr 1.4fr 1fr 90px 100px 80px">
+      <div>Date</div>
+      <div>Buyer</div>
+      <div>Beat</div>
+      <div>License</div>
+      <div style="text-align: right">Amount</div>
+      <div>Status</div>
+      <div></div>
+    </div>
+
+    @for (order of filteredOrders(); track order.id; let i = $index) {
+      <div class="track-row" style="grid-template-columns: 100px 1fr 1.4fr 1fr 90px 100px 80px">
+        <div class="stat-m">
+          {{ formatDate(order.created_at) }}<br /><em style="font-size: 10px; opacity: 0.7">{{
+            formatTime(order.created_at)
+          }}</em>
+        </div>
+        <div style="display: flex; align-items: center; gap: 10px">
+          <div
+            class="buyer-avatar"
+            [style.background]="buyerColor(order.buyer_name || order.buyer_email || '')"
+          >
+            {{ (order.buyer_name || order.buyer_email || 'A').charAt(0).toLowerCase() }}
+          </div>
+          <div>
+            <div class="title-m" style="font-size: 13px">{{ order.buyer_name || 'Customer' }}</div>
+            <div class="meta-m">{{ order.buyer_email || '@buyer' }}</div>
+          </div>
+        </div>
+        <div style="display: flex; align-items: center; gap: 10px">
+          <div class="mini-art" [class]="'a' + ((i % 6) + 1)" style="width: 32px; height: 32px">
+            {{ (order.spec_title || 'B').charAt(0).toLowerCase() }}
+          </div>
+          <div>
+            <div class="title-m" style="font-size: 13px">{{ order.spec_title || 'Untitled' }}</div>
+            <div class="meta-m">Order #{{ (order.id || '').slice(-6).toUpperCase() }}</div>
+          </div>
+        </div>
+        <div class="stat-m">
+          <strong style="font-family: var(--display); font-weight: 700">{{
+            order.license_type || 'License'
+          }}</strong>
+        </div>
+        <div class="money-m" style="text-align: right">
+          ₹{{ (order.amount || 0).toLocaleString('en-IN') }}
+        </div>
+        <div>
+          @if (order.status === 'paid' || order.status === 'completed') {
+            <span class="badge paid">Paid</span>
+          } @else if (order.status === 'processing') {
+            <span class="badge processing">Processing</span>
+          } @else if (order.status === 'refunded') {
+            <span class="badge refund">Refunded</span>
+          } @else {
+            <span class="badge draft">{{ order.status }}</span>
+          }
+        </div>
+        <div class="row-actions">
+          <button class="ra-btn" type="button" aria-label="View">
+            <svg
+              width="10"
+              height="10"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2.5"
+            >
+              <polyline points="9 18 15 12 9 6" />
+            </svg>
+          </button>
+        </div>
+      </div>
+    }
+
+    @if (filteredOrders().length === 0) {
+      <div class="empty-state" style="padding: 40px">
+        <p>No orders yet. Keep sharing your beats.</p>
+      </div>
+    }
+  </div>
+
+  <app-pagination
+    variant="studio"
+    [currentPage]="currentPage()"
+    [total]="total()"
+    [perPage]="limit()"
+    [showPerPage]="true"
+    [perPageOptions]="[10, 20, 50, 100]"
+    (pageChange)="onPageChange($event)"
+    (perPageChange)="onPerPageChange($event)"
+  />
+}

@@ -10,7 +10,6 @@ import {
   OnDestroy,
 } from '@angular/core';
 import { Subscription } from 'rxjs';
-import { Router, RouterLink } from '@angular/router';
 import { CommonModule, NgOptimizedImage } from '@angular/common';
 
 import type { Spec } from '../../models';
@@ -18,7 +17,7 @@ import { SpecActionService } from '../../services/spec-action.service';
 
 @Component({
   selector: 'app-spec-list-item',
-  imports: [CommonModule, NgOptimizedImage, RouterLink],
+  imports: [CommonModule, NgOptimizedImage],
   templateUrl: './spec-list-item.component.html',
   styleUrls: ['./spec-list-item.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

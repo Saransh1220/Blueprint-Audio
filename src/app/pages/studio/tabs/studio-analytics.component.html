@@ -1,195 +1,379 @@
-<div class="analytics-dashboard">
-  <!-- Header / Toolbar -->
-  <header class="dashboard-header">
-    <div class="header-content">
-      <h1 class="page-title">Analytics</h1>
-      <p class="page-subtitle">Overview of your performance</p>
+<div class="page-head">
+  <div>
+    <div class="page-num"><span class="dot"></span> 02 · Analytics</div>
+    <h1 class="page-h">the <em>numbers</em>.</h1>
+  </div>
+  <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap">
+    <div class="range-pill">
+      <button [class.on]="currentDays() === 7" type="button" (click)="setFilter(7)">7d</button>
+      <button [class.on]="currentDays() === 30" type="button" (click)="setFilter(30)">30d</button>
+      <button [class.on]="currentDays() === 90" type="button" (click)="setFilter(90)">90d</button>
+      <button [class.on]="currentDays() === 365" type="button" (click)="setFilter(365)">1y</button>
+      <button [class.on]="currentDays() > 365" type="button" (click)="setFilter(3650)">all</button>
     </div>
-    <div class="header-actions">
-      <div class="time-selector">
-        @for (days of [7, 30, 90, 365]; track days) {
-          <button
-            class="time-btn"
-            [class.active]="currentDays() === days"
-            (click)="setFilter(days)"
-          >
-            {{ days === 365 ? '1Y' : days + 'D' }}
-          </button>
-        }
-      </div>
-      <button class="icon-btn export-btn" (click)="exportCSV()" title="Export CSV">
-        <i class="fas fa-download"></i>
-      </button>
-    </div>
-  </header>
+    <button class="btn" type="button" (click)="exportCSV()">
+      <svg
+        width="12"
+        height="12"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2.2"
+      >
+        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+        <polyline points="7 10 12 15 17 10" />
+        <line x1="12" y1="15" x2="12" y2="3" />
+      </svg>
+      Export
+    </button>
+  </div>
+</div>
 
-  @if (isLoading()) {
-    <div class="loading-state">
-      <div class="spinner-border"></div>
-      <span>Loading data...</span>
-    </div>
-  } @else {
-    <div class="bento-grid">
-      <div class="metric-card card-plays">
-        <div class="card-label"><i class="fas fa-play"></i> Plays</div>
-        <div class="card-value">{{ data()?.total_plays | number }}</div>
+<div class="stats-grid">
+  @for (card of analyticsCards(); track card.label) {
+    <div class="stat-cell" [class]="card.cls">
+      <div class="stat-top">
+        <span class="stat-lbl">{{ card.label }}</span
+        ><span class="stat-ic">{{ card.icon }}</span>
       </div>
-      <div class="metric-card card-revenue">
-        <div class="card-label"><i class="fas fa-rupee-sign"></i> Revenue</div>
-        <div class="card-value">
-          {{ data()?.total_revenue | currency: 'INR' : 'symbol' : '1.0-0' }}
-        </div>
-      </div>
-      <div class="metric-card card-favorites">
-        <div class="card-label"><i class="fas fa-heart"></i> Favorites</div>
-        <div class="card-value">{{ data()?.total_favorites | number }}</div>
-      </div>
-      <div class="metric-card card-downloads">
-        <div class="card-label"><i class="fas fa-download"></i> Downloads</div>
-        <div class="card-value">{{ data()?.total_downloads | number }}</div>
-      </div>
-
-      <div class="chart-card performance-section">
-        <div class="card-header">
-          <h3>Performance Trend</h3>
-          <div class="legend-inline">
-            <span class="legend-item plays"><span class="dot"></span> Plays</span>
-            <span class="legend-item downloads"><span class="dot"></span> Downloads</span>
-          </div>
-        </div>
-        <div class="chart-container">
-          <canvas
-            baseChart
-            [data]="lineChartData()"
-            [options]="commonChartOptions"
-            [type]="lineChartType"
-          ></canvas>
-        </div>
-      </div>
-
-      <div class="chart-card revenue-section">
-        <div class="card-header floating-header">
-          <h3>Revenue Trend</h3>
-          <div class="glass-toggle">
-            <button
-              [class.active]="revenueChartType() === 'line'"
-              (click)="revenueChartType.set('line')"
-              title="Line View"
-            >
-              <i class="fas fa-chart-line"></i>
-            </button>
-            <button
-              [class.active]="revenueChartType() === 'bar'"
-              (click)="revenueChartType.set('bar')"
-              title="Bar View"
-            >
-              <i class="fas fa-chart-bar"></i>
-            </button>
-          </div>
-        </div>
-        <div class="chart-container full-bleed">
-          <canvas
-            baseChart
-            [data]="revenueChartData()"
-            [options]="revenueChartOptions"
-            [type]="revenueChartType()"
-          ></canvas>
-        </div>
-      </div>
-
-      <div class="bottom-grid">
-        <div class="chart-card license-section">
-          <div class="card-header"><h3>License Sales</h3></div>
-          <div class="chart-container">
-            <canvas
-              baseChart
-              [data]="doughnutChartData()"
-              [options]="doughnutChartOptions"
-              [type]="doughnutChartType"
-            ></canvas>
-            <div class="custom-legend">
-              @for (label of doughnutChartData().labels; track label; let i = $index) {
-                <div class="legend-row">
-                  <span class="dot" [style.background-color]="getLegendColor(i)"></span>
-                  <span class="label">{{ label }}</span>
-                  <span class="value">{{ doughnutChartData().datasets[0].data[i] }}</span>
-                </div>
-              }
-            </div>
-          </div>
-        </div>
-
-        <div class="list-card leaderboard-section">
-          <div class="card-header"><h3>Top Tracks</h3></div>
-          <div class="compact-list">
-            <div class="list-head">
-              <span class="col-rank">#</span>
-              <span class="col-title">Track</span>
-              <button
-                type="button"
-                class="col-sort"
-                (click)="onSort('plays')"
-                [class.active]="sortBy() === 'plays'"
-              >
-                Plays
-                @if (sortBy() === 'plays') {
-                  <i
-                    class="fas"
-                    [class.fa-caret-down]="sortDirection() === 'desc'"
-                    [class.fa-caret-up]="sortDirection() === 'asc'"
-                  ></i>
-                }
-              </button>
-              <button
-                type="button"
-                class="col-sort"
-                (click)="onSort('downloads')"
-                [class.active]="sortBy() === 'downloads'"
-              >
-                Downloads
-                @if (sortBy() === 'downloads') {
-                  <i
-                    class="fas"
-                    [class.fa-caret-down]="sortDirection() === 'desc'"
-                    [class.fa-caret-up]="sortDirection() === 'asc'"
-                  ></i>
-                }
-              </button>
-              <button
-                type="button"
-                class="col-sort text-right"
-                (click)="onSort('revenue')"
-                [class.active]="sortBy() === 'revenue'"
-              >
-                Revenue
-                @if (sortBy() === 'revenue') {
-                  <i
-                    class="fas"
-                    [class.fa-caret-down]="sortDirection() === 'desc'"
-                    [class.fa-caret-up]="sortDirection() === 'asc'"
-                  ></i>
-                }
-              </button>
-            </div>
-            @for (spec of topSpecs(); track spec.spec_id; let i = $index) {
-              <div class="list-row" [class.top-3]="i < 3">
-                <span class="col-rank" [attr.data-rank]="i + 1">{{ i + 1 }}</span>
-                <span class="col-title text-truncate"
-                  ><i class="fas fa-music"></i> {{ spec.title }}</span
-                >
-                <span class="col-val">{{ spec.plays | number }}</span>
-                <span class="col-val">{{ spec.downloads | number }}</span>
-                <span class="col-val text-right brand-text">{{
-                  spec.revenue | currency: 'INR' : 'symbol' : '1.0-0'
-                }}</span>
-              </div>
-            }
-            @if (topSpecs().length === 0) {
-              <div class="empty-row">No data</div>
-            }
-          </div>
-        </div>
+      <div class="stat-val">{{ card.value }}</div>
+      <div class="stat-foot">
+        <span
+          class="stat-delta"
+          [class.up]="!card.delta.startsWith('-')"
+          [class.down]="card.delta.startsWith('-')"
+          >{{ card.delta }}</span
+        >
+        <svg class="spark" viewBox="0 0 80 22" preserveAspectRatio="none">
+          <polyline
+            [attr.points]="card.spark"
+            fill="none"
+            stroke="rgba(20,19,16,0.65)"
+            stroke-width="1.5"
+          />
+        </svg>
       </div>
     </div>
   }
+</div>
+
+<div class="card" style="margin-bottom: 20px">
+  <div class="card-head">
+    <h4>Plays &amp; revenue · <em>over time</em></h4>
+    <span class="cnum">{{ rangeLabel() }}</span>
+  </div>
+  @if (isLoading()) {
+    <div class="chart-loading">Calculating trends...</div>
+  } @else {
+    <div
+      class="chart-wrap chart-interactive"
+      style="height: 280px"
+      (mousemove)="onBigChartMove($event)"
+      (mouseleave)="clearBigChartHover()"
+    >
+      <svg viewBox="0 0 800 280" preserveAspectRatio="none">
+        <defs>
+          <linearGradient id="bigGradNg" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#ff3d5a" stop-opacity="0.25" />
+            <stop offset="100%" stop-color="#ff3d5a" stop-opacity="0" />
+          </linearGradient>
+          <linearGradient id="bigGrad2Ng" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#2d4cff" stop-opacity="0.2" />
+            <stop offset="100%" stop-color="#2d4cff" stop-opacity="0" />
+          </linearGradient>
+        </defs>
+        <line
+          x1="0"
+          y1="50"
+          x2="800"
+          y2="50"
+          stroke="#e0d7c0"
+          stroke-width="1"
+          stroke-dasharray="3 3"
+        />
+        <line
+          x1="0"
+          y1="120"
+          x2="800"
+          y2="120"
+          stroke="#e0d7c0"
+          stroke-width="1"
+          stroke-dasharray="3 3"
+        />
+        <line
+          x1="0"
+          y1="190"
+          x2="800"
+          y2="190"
+          stroke="#e0d7c0"
+          stroke-width="1"
+          stroke-dasharray="3 3"
+        />
+        <line x1="0" y1="260" x2="800" y2="260" stroke="#141310" stroke-width="1.5" />
+        <path [attr.d]="bigRevenueAreaPath()" fill="url(#bigGradNg)" />
+        <path [attr.d]="bigPlaysAreaPath()" fill="url(#bigGrad2Ng)" />
+        <path
+          [attr.d]="bigRevenueLinePath()"
+          fill="none"
+          stroke="#ff3d5a"
+          stroke-width="3"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        />
+        <path
+          [attr.d]="bigPlaysLinePath()"
+          fill="none"
+          stroke="#2d4cff"
+          stroke-width="2.5"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        />
+        @if (hoveredBigPoint(); as point) {
+          <line class="chart-hover-line" [attr.x1]="point.x" y1="24" [attr.x2]="point.x" y2="260" />
+          <circle
+            class="chart-hover-dot hot"
+            [attr.cx]="point.x"
+            [attr.cy]="point.revenueY"
+            r="5"
+          />
+          <circle
+            class="chart-hover-dot cobalt"
+            [attr.cx]="point.x"
+            [attr.cy]="point.playsY"
+            r="4.5"
+          />
+        }
+      </svg>
+      @if (hoveredBigPoint(); as point) {
+        <div
+          class="chart-tooltip visible"
+          [style.left.%]="(point.x / 800) * 100"
+          [style.top.%]="(point.revenueY / 280) * 100"
+        >
+          <span>{{ point.label }}</span>
+          <strong>{{ currency(point.revenue) }}</strong>
+          <em>{{ point.plays.toLocaleString('en-IN') }} plays</em>
+        </div>
+      }
+    </div>
+    <div class="chart-legend">
+      <div class="lg-item"><span class="lg-dot" style="background: var(--hot)"></span>Revenue</div>
+      <div class="lg-item"><span class="lg-dot" style="background: var(--cobalt)"></span>Plays</div>
+    </div>
+  }
+</div>
+
+<div class="ov-two">
+  <div class="card">
+    <div class="card-head">
+      <h4>License <em>split</em></h4>
+      <span class="cnum">this month</span>
+    </div>
+    <div class="donut-wrap">
+      <svg class="donut-svg" viewBox="0 0 120 120">
+        <circle cx="60" cy="60" r="48" fill="none" stroke="var(--cream-3)" stroke-width="18" />
+        @for (item of donutSegments(); track item.label) {
+          <circle
+            cx="60"
+            cy="60"
+            r="48"
+            fill="none"
+            [attr.stroke]="item.color"
+            stroke-width="18"
+            [attr.stroke-dasharray]="item.dash"
+            [attr.stroke-dashoffset]="item.offset"
+            transform="rotate(-90 60 60)"
+          />
+        }
+        <text
+          x="60"
+          y="56"
+          text-anchor="middle"
+          font-family="Bricolage Grotesque"
+          font-weight="800"
+          font-size="22"
+          fill="#141310"
+          letter-spacing="-0.04em"
+        >
+          {{ totalLicenseCount() }}
+        </text>
+        <text
+          x="60"
+          y="72"
+          text-anchor="middle"
+          font-family="DM Mono"
+          font-size="7.5"
+          fill="#6b635a"
+          letter-spacing="1"
+        >
+          LICENSES
+        </text>
+      </svg>
+      <div class="donut-legend">
+        @for (item of licenseBreakdown(); track item.label) {
+          <div class="dl-item">
+            <span class="dl-swatch" [style.background]="item.color"></span>
+            <span class="dl-lbl">{{ item.label }}</span>
+            <span class="dl-pct">{{ item.share }}%</span>
+            <span class="dl-val">{{ currency(item.value) }}</span>
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <h4>Top <em>countries</em></h4>
+      <span class="cnum">by plays</span>
+    </div>
+    @for (country of topCountries; track country.label) {
+      <div class="geo-row">
+        <div class="geo-flag">{{ country.label }}</div>
+        <div class="geo-bar">
+          <div
+            class="geo-bar-fill"
+            [style.width.%]="country.pct * 3.125"
+            [style.background]="country.color"
+          ></div>
+        </div>
+        <div class="geo-pct">{{ country.pct }}%</div>
+      </div>
+    }
+  </div>
+</div>
+
+<div class="ov-two" style="margin-top: 20px">
+  <div class="card">
+    <div class="card-head">
+      <h4>Top <em>referrers</em></h4>
+      <span class="cnum">last 30d</span>
+    </div>
+    @for (ref of referrers; track ref.label) {
+      <div class="geo-row">
+        <div class="geo-flag">{{ ref.label }}</div>
+        <div class="geo-bar">
+          <div
+            class="geo-bar-fill"
+            [style.width.%]="ref.pct * 2.2727"
+            [style.background]="ref.color"
+          ></div>
+        </div>
+        <div class="geo-pct">{{ ref.pct }}%</div>
+      </div>
+    }
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <h4>Listener <em>heatmap</em></h4>
+      <span class="cnum">by hour</span>
+    </div>
+    <div class="heatmap-grid">
+      @for (cell of heatmapCells; track cell.hour) {
+        <div
+          class="heatmap-cell"
+          [style.background]="cell.color"
+          [attr.title]="cell.hour + ':00'"
+        ></div>
+      }
+    </div>
+    <div
+      style="
+        display: flex;
+        justify-content: space-between;
+        font-family: var(--mono);
+        font-size: 10px;
+        letter-spacing: 0.1em;
+        color: var(--ink-mute);
+      "
+    >
+      <span>12a</span><span>6a</span><span>12p</span><span>6p</span><span>11p</span>
+    </div>
+    <div
+      style="
+        margin-top: 14px;
+        padding-top: 10px;
+        border-top: 1px dashed var(--cream-3);
+        font-family: 'Instrument Serif', serif;
+        font-style: italic;
+        font-size: 13px;
+        color: var(--ink-2);
+      "
+    >
+      Peak listening:
+      <strong
+        style="font-family: var(--display); font-weight: 600; font-style: normal; color: var(--hot)"
+        >9-11pm</strong
+      >
+      · Quietest:
+      <strong
+        style="font-family: var(--display); font-weight: 600; font-style: normal; color: var(--ink)"
+        >4-6am</strong
+      >
+    </div>
+  </div>
+</div>
+
+<div class="card" style="margin-top: 20px">
+  <div class="card-head">
+    <h4>Top <em>performing beats</em></h4>
+    <div class="view-toggle">
+      <button [class.on]="sortBy() === 'plays'" type="button" (click)="onSort('plays')">
+        Plays
+      </button>
+      <button [class.on]="sortBy() === 'revenue'" type="button" (click)="onSort('revenue')">
+        Revenue
+      </button>
+      <button [class.on]="sortBy() === 'downloads'" type="button" (click)="onSort('downloads')">
+        Downloads
+      </button>
+    </div>
+  </div>
+  <div class="tracks-table">
+    <div class="track-row head" style="grid-template-columns: 40px 1fr 120px 100px 110px 80px">
+      <div>#</div>
+      <div>Track title</div>
+      <div>Plays</div>
+      <div>Downloads</div>
+      <div>Revenue</div>
+      <div style="text-align: right">Trend</div>
+    </div>
+    @for (spec of topSpecRows(); track spec.spec_id; let i = $index) {
+      <div class="track-row" style="grid-template-columns: 40px 1fr 120px 100px 110px 80px">
+        <div class="cnum">{{ i + 1 }}</div>
+        <div style="display: flex; align-items: center; gap: 12px">
+          <div class="track-cover tiny">
+            @if (spec.imageUrl) {
+              <img [src]="spec.imageUrl" [alt]="spec.title || 'Beat cover'" loading="lazy" />
+            } @else {
+              <div
+                class="mini-art"
+                [class]="'a' + ((i % 6) + 1)"
+                style="width: 28px; height: 28px; font-size: 12px"
+              >
+                {{ spec.title.charAt(0).toLowerCase() }}
+              </div>
+            }
+          </div>
+          <div class="title-m">{{ spec.title }}</div>
+        </div>
+        <div class="stat-m">{{ spec.plays.toLocaleString('en-IN') }} plays</div>
+        <div class="stat-m text-mute">{{ spec.downloads.toLocaleString('en-IN') }} dls</div>
+        <div class="money-m">{{ currency(spec.revenue) }}</div>
+        <div class="row-actions">
+          <svg
+            width="40"
+            height="14"
+            viewBox="0 0 40 14"
+            fill="none"
+            stroke="var(--lime)"
+            stroke-width="1.5"
+          >
+            <polyline points="0,12 8,8 16,10 24,4 32,6 40,0" />
+          </svg>
+        </div>
+      </div>
+    }
+  </div>
 </div>

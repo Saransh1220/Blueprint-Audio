@@ -1,19 +1,17 @@
 import { Location } from '@angular/common';
 import { Component, effect, inject, type OnDestroy, type OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { SocialAuthService, GoogleSigninButtonModule } from '@abacritt/angularx-social-login';
 import { Subscription } from 'rxjs';
 import { AuthService } from '../../services/auth.service';
 import { ThemeService } from '../../services/theme.service';
 import { ToastService } from '../../services/toast.service';
-import { SocialAuthService, GoogleSigninButtonModule } from '@abacritt/angularx-social-login';
-
-import { LoadingSpinnerComponent } from '../../components';
 
 @Component({
   selector: 'app-auth',
   standalone: true,
-  imports: [FormsModule, LoadingSpinnerComponent, GoogleSigninButtonModule],
+  imports: [FormsModule, GoogleSigninButtonModule, RouterLink],
   templateUrl: './auth.component.html',
   styleUrls: ['./auth.component.scss'],
 })
@@ -28,18 +26,25 @@ export class AuthComponent implements OnInit, OnDestroy {
 
   isLoginView = true;
   isLoading = signal(false);
+  showLoginPassword = false;
+  showRegisterPassword = false;
 
-  // Login Form Data
   loginEmail = '';
   loginPassword = '';
 
-  // Register Form Data
   registerUsername = '';
   registerDisplayName = '';
   registerEmail = '';
   registerPassword = '';
   registerConfirmPassword = '';
   registerRole: 'artist' | 'producer' = 'artist';
+
+  readonly tickerItems = [
+    'Cult Beats Auth',
+    'Sign in and keep your crate close',
+    'New drops every Friday',
+    'Artists and producers welcome',
+  ];
 
   private authSubscription?: Subscription;
 
@@ -65,36 +70,60 @@ export class AuthComponent implements OnInit, OnDestroy {
     });
 
     effect(() => {
-      // Just consuming theme service to ensure it initializes,
-      // specific color tracking forcanvas removed since canvas is removed.
       this.themeService.activeTheme();
     });
   }
 
   ngOnInit() {
-    // Check URL to determine initial state
     const path = this.route.snapshot.url[0]?.path;
-    if (path === 'register') {
-      this.isLoginView = false;
-    } else {
-      this.isLoginView = true;
-    }
+    this.isLoginView = path !== 'register';
   }
 
   ngOnDestroy() {
-    if (this.authSubscription) {
-      this.authSubscription.unsubscribe();
-    }
+    this.authSubscription?.unsubscribe();
+  }
+
+  get pageTitle() {
+    return this.isLoginView ? 'Welcome back' : 'Create your account';
+  }
+
+  get pageDescription() {
+    return this.isLoginView
+      ? 'Access your account and continue your journey with us.'
+      : 'Set up your account and start sharing your sound.';
+  }
+
+  get submitLabel() {
+    return this.isLoginView ? 'Sign In' : 'Create Account';
+  }
+
+  brandChips() {
+    return this.isLoginView
+      ? [
+          { number: '#0241', text: 'Violet Hour', emphasis: '- Kita Sol' },
+          { number: 'NEW', text: '140 BPM drops every', emphasis: 'Friday' },
+        ]
+      : [
+          { number: 'SIDE B', text: 'Claim your handle and', emphasis: 'start building' },
+          { number: 'DROP', text: 'Upload, license, and sell', emphasis: 'faster' },
+        ];
+  }
+
+  passwordStrength() {
+    const score = this.scorePassword(this.registerPassword);
+    const labels = ['-', 'weak', 'ok', 'good', 'strong'];
+    return { score, label: labels[score] };
+  }
+
+  passwordsMatch() {
+    return !!this.registerConfirmPassword && this.registerPassword === this.registerConfirmPassword;
   }
 
   toggleView(isLogin: boolean) {
     if (this.isLoginView === isLogin) return;
 
     this.isLoginView = isLogin;
-
-    // Update URL without reloading
-    const url = isLogin ? '/login' : '/register';
-    this.location.go(url);
+    this.location.go(isLogin ? '/login' : '/register');
   }
 
   onLoginSubmit() {
@@ -117,6 +146,14 @@ export class AuthComponent implements OnInit, OnDestroy {
         },
         error: (err) => {
           this.isLoading.set(false);
+          if (err.error?.error === 'email not verified') {
+            this.toastService.show('Verify your email before signing in.', 'error');
+            this.router.navigate(['/verify-email'], {
+              queryParams: { email: this.loginEmail },
+            });
+            return;
+          }
+
           this.toastService.show(
             'Login failed: ' + (err.error?.error || 'Invalid credentials'),
             'error',
@@ -159,8 +196,13 @@ export class AuthComponent implements OnInit, OnDestroy {
       .subscribe({
         next: () => {
           this.isLoading.set(false);
-          this.toastService.show('Account created successfully!', 'success');
-          this.router.navigate(['/dashboard']);
+          this.toastService.show(
+            'Account created. Check your inbox for the verification code.',
+            'success',
+          );
+          this.router.navigate(['/verify-email'], {
+            queryParams: { email: this.registerEmail },
+          });
         },
         error: (err) => {
           this.isLoading.set(false);
@@ -170,5 +212,23 @@ export class AuthComponent implements OnInit, OnDestroy {
           );
         },
       });
+  }
+
+  goToForgotPassword() {
+    this.router.navigate(['/forgot-password'], {
+      queryParams: { email: this.loginEmail || undefined },
+    });
+  }
+
+  private scorePassword(password: string) {
+    if (!password) return 0;
+
+    let score = 0;
+    if (password.length >= 8) score++;
+    if (password.length >= 12) score++;
+    if (/[a-z]/.test(password) && /[A-Z]/.test(password)) score++;
+    if (/\d/.test(password) || /[^A-Za-z0-9]/.test(password)) score++;
+
+    return Math.min(score, 4);
   }
 }

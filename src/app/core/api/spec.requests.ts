@@ -82,6 +82,7 @@ export class GetSpecsRequest implements ApiRequest<PaginatedResponse<SpecDto>> {
     max_price?: number;
     key?: string;
     page?: number;
+    per_page?: number;
     sort?: string;
   }) {
     let params = new HttpParams();
@@ -98,6 +99,10 @@ export class GetSpecsRequest implements ApiRequest<PaginatedResponse<SpecDto>> {
     if (filters?.max_price) params = params.set('max_price', filters.max_price);
     if (filters?.key && filters.key !== 'All') params = params.set('key', filters.key);
     if (filters?.page) params = params.set('page', filters.page);
+    if (filters?.per_page) {
+      params = params.set('per_page', filters.per_page);
+      params = params.set('limit', filters.per_page); // alternate name some backends expect
+    }
     if (filters?.sort) params = params.set('sort', filters.sort);
     this.params = params;
   }

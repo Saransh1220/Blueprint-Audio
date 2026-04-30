@@ -9,19 +9,23 @@ export class PlayerService {
   private audioContext: AudioContext | null = null;
   private analyser: AnalyserNode | null = null;
   private source: MediaElementAudioSourceNode | null = null;
+  private previousVolume = 1;
 
-  // Data buffer
   public dataArray: Uint8Array | null = null;
 
-  // State signals
   public isVisible = signal(false);
+  public isExpanded = signal(false);
   public isPlaying = signal(false);
   public currentTrack = signal<Spec | null>(null);
   public duration = signal(0);
   public currentTime = signal(0);
-  public volume = signal(1); // 0 to 1
+  public volume = signal(1);
+  public queue = signal<Spec[]>([]);
+  public queueIndex = signal(0);
+  public shuffleEnabled = signal(false);
+  public repeatEnabled = signal(false);
+  public playbackRate = signal(1);
 
-  // Computed display values
   public currentTimeFormatted = computed(() => this.formatTime(this.currentTime()));
   public durationFormatted = computed(() => this.formatTime(this.duration()));
   public volumeIcon = computed(() => {
@@ -30,22 +34,34 @@ export class PlayerService {
     if (vol < 0.5) return 'fa-volume-low';
     return 'fa-volume-high';
   });
+  public hasPrevious = computed(() => this.queue().length > 1 || this.currentTime() > 3);
+  public hasNext = computed(() => this.queue().length > 1);
 
   constructor() {
     this.audio.crossOrigin = 'anonymous';
     this.audio.volume = this.volume();
+    this.audio.playbackRate = this.playbackRate();
 
     this.audio.addEventListener('loadedmetadata', () => {
-      this.duration.set(this.audio.duration);
+      this.duration.set(this.audio.duration || 0);
     });
 
     this.audio.addEventListener('timeupdate', () => {
-      this.currentTime.set(this.audio.currentTime);
+      this.currentTime.set(this.audio.currentTime || 0);
     });
 
     this.audio.addEventListener('ended', () => {
-      this.isPlaying.set(false);
-      this.currentTime.set(0);
+      if (this.repeatEnabled()) {
+        this.seekTo(0);
+        void this.play();
+        return;
+      }
+
+      const didAdvance = this.playNext(true);
+      if (!didAdvance) {
+        this.isPlaying.set(false);
+        this.currentTime.set(0);
+      }
     });
   }
 
@@ -64,7 +80,7 @@ export class PlayerService {
     }
 
     if (this.audioContext.state === 'suspended') {
-      this.audioContext.resume();
+      void this.audioContext.resume();
     }
   }
 
@@ -77,26 +93,52 @@ export class PlayerService {
   }
 
   showPlayer(track: Spec) {
-    this.currentTrack.set(track);
-    this.isVisible.set(true);
+    const queue = this.queue();
+    const existingIndex = queue.findIndex((item) => item.id === track.id);
+    const nextQueue = existingIndex >= 0 ? queue : [...queue, track];
+    const nextIndex = existingIndex >= 0 ? existingIndex : nextQueue.length - 1;
 
-    if (track.audioUrl) {
-      this.audio.src = track.audioUrl;
-      this.play();
-    } else {
-      console.warn('No audio URL found for track', track.title);
-    }
+    this.queue.set(nextQueue);
+    this.queueIndex.set(nextIndex);
+    this.loadTrack(nextQueue[nextIndex]);
   }
 
   hidePlayer() {
     this.pause();
     this.isVisible.set(false);
+    this.isExpanded.set(false);
     this.currentTrack.set(null);
+    this.queue.set([]);
+    this.queueIndex.set(0);
+    this.currentTime.set(0);
+    this.duration.set(0);
+  }
+
+  toggleExpanded() {
+    this.isExpanded.update((expanded) => !expanded);
+  }
+
+  setExpanded(expanded: boolean) {
+    this.isExpanded.set(expanded);
+  }
+
+  toggleShuffle() {
+    this.shuffleEnabled.update((enabled) => !enabled);
+  }
+
+  toggleRepeat() {
+    this.repeatEnabled.update((enabled) => !enabled);
+  }
+
+  setPlaybackRate(rate: number) {
+    const clamped = Math.max(0.5, Math.min(2, rate));
+    this.audio.playbackRate = clamped;
+    this.playbackRate.set(clamped);
   }
 
   togglePlay() {
     if (this.audio.paused) {
-      this.play();
+      void this.play();
     } else {
       this.pause();
     }
@@ -104,7 +146,7 @@ export class PlayerService {
 
   play() {
     this.initAudioContext();
-    this.audio
+    return this.audio
       .play()
       .then(() => {
         this.isPlaying.set(true);
@@ -119,6 +161,7 @@ export class PlayerService {
 
   seekTo(time: number) {
     this.audio.currentTime = time;
+    this.currentTime.set(time);
   }
 
   setVolume(vol: number) {
@@ -127,14 +170,128 @@ export class PlayerService {
     this.volume.set(clamped);
   }
 
-  private previousVolume = 1;
-
   toggleMute() {
     if (this.volume() > 0) {
       this.previousVolume = this.volume();
       this.setVolume(0);
     } else {
       this.setVolume(this.previousVolume > 0 ? this.previousVolume : 1);
+    }
+  }
+
+  playTrackAt(index: number) {
+    const queue = this.queue();
+    if (index < 0 || index >= queue.length) return false;
+
+    this.queueIndex.set(index);
+    this.loadTrack(queue[index]);
+    return true;
+  }
+
+  playPrevious() {
+    if (this.currentTime() > 3) {
+      this.seekTo(0);
+      return true;
+    }
+
+    const queue = this.queue();
+    if (!queue.length) return false;
+
+    const currentIndex = this.queueIndex();
+    if (currentIndex > 0) {
+      return this.playTrackAt(currentIndex - 1);
+    }
+
+    if (queue.length > 1 && this.shuffleEnabled()) {
+      return this.playRandomTrack(currentIndex);
+    }
+
+    this.seekTo(0);
+    return true;
+  }
+
+  playNext(autoAdvance: boolean = false) {
+    const queue = this.queue();
+    if (!queue.length) return false;
+
+    const currentIndex = this.queueIndex();
+
+    if (this.shuffleEnabled() && queue.length > 1) {
+      return this.playRandomTrack(currentIndex);
+    }
+
+    const nextIndex = currentIndex + 1;
+    if (nextIndex < queue.length) {
+      return this.playTrackAt(nextIndex);
+    }
+
+    if (!autoAdvance && currentIndex > -1) {
+      return this.playTrackAt(0);
+    }
+
+    return false;
+  }
+
+  removeFromQueue(index: number) {
+    const queue = this.queue();
+    if (index < 0 || index >= queue.length) return;
+
+    const nextQueue = queue.filter((_, currentIndex) => currentIndex !== index);
+    const currentIndex = this.queueIndex();
+
+    if (!nextQueue.length) {
+      this.hidePlayer();
+      return;
+    }
+
+    if (index === currentIndex) {
+      const nextIndex = Math.min(index, nextQueue.length - 1);
+      this.queue.set(nextQueue);
+      this.queueIndex.set(nextIndex);
+      this.loadTrack(nextQueue[nextIndex]);
+      return;
+    }
+
+    this.queue.set(nextQueue);
+    if (index < currentIndex) {
+      this.queueIndex.set(currentIndex - 1);
+    }
+  }
+
+  clearQueue() {
+    const current = this.currentTrack();
+    if (!current) {
+      this.hidePlayer();
+      return;
+    }
+
+    this.queue.set([current]);
+    this.queueIndex.set(0);
+  }
+
+  private playRandomTrack(currentIndex: number) {
+    const queue = this.queue();
+    if (queue.length <= 1) return false;
+
+    let nextIndex = currentIndex;
+    while (nextIndex === currentIndex) {
+      nextIndex = Math.floor(Math.random() * queue.length);
+    }
+    return this.playTrackAt(nextIndex);
+  }
+
+  private loadTrack(track: Spec) {
+    this.currentTrack.set(track);
+    this.isVisible.set(true);
+    this.currentTime.set(0);
+    this.duration.set(track.duration ?? 0);
+
+    if (track.audioUrl) {
+      this.audio.src = track.audioUrl;
+      void this.play();
+    } else {
+      console.warn('No audio URL found for track', track.title);
+      this.pause();
     }
   }
 

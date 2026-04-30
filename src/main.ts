@@ -3,7 +3,7 @@ import { provideZoneChangeDetection } from '@angular/core';
 import { bootstrapApplication } from '@angular/platform-browser';
 import { importProvidersFrom } from '@angular/core';
 import { provideAnimations } from '@angular/platform-browser/animations';
-import { provideRouter, withInMemoryScrolling } from '@angular/router';
+import { provideRouter, withInMemoryScrolling, withRouterConfig } from '@angular/router';
 import { AppComponent } from './app/app';
 import { routes } from './app/app.routes';
 import { authInterceptor } from './app/core/interceptors/auth.interceptor';
@@ -24,6 +24,10 @@ bootstrapApplication(AppComponent, {
       routes,
       withInMemoryScrolling({
         scrollPositionRestoration: 'top',
+        anchorScrolling: 'enabled',
+      }),
+      withRouterConfig({
+        onSameUrlNavigation: 'reload',
       }),
     ),
     provideHttpClient(withInterceptors([authInterceptor, loadingInterceptor])),

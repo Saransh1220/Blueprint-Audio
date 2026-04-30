@@ -46,16 +46,8 @@ describe('StudioUploadComponent', () => {
     expect(component.tags.length).toBe(2);
   });
 
-  it('blocks next step until required files exist and allows drag/drop handlers', () => {
+  it('advances through the reference step order and still gates required files', () => {
     const component = create();
-    component.uploadForm.patchValue({
-      title: 'Song',
-      category: 'beat',
-      genre: Genre.TRAP,
-      bpm: 120,
-      key: MusicalKey.A_MINOR,
-    });
-
     const preventDefault = vi.fn();
     const stopPropagation = vi.fn();
     component.onDragOver({ preventDefault, stopPropagation } as any);
@@ -67,12 +59,30 @@ describe('StudioUploadComponent', () => {
     expect(component.currentStep()).toBe(1);
 
     component.coverFile.set(new File(['a'], 'cover.png', { type: 'image/png' }));
+    component.nextStep();
+    expect(toast.show).toHaveBeenCalledWith('Please upload cover art and preview audio.', 'error');
+    expect(component.currentStep()).toBe(1);
+
     component.previewFile.set(new File(['a'], 'preview.mp3', { type: 'audio/mpeg' }));
     component.nextStep();
     expect(component.currentStep()).toBe(2);
 
+    component.uploadForm.patchValue({
+      title: 'Song',
+      category: 'beat',
+      genre: Genre.TRAP,
+      bpm: 120,
+      key: MusicalKey.A_MINOR,
+    });
+
+    component.nextStep();
+    expect(component.currentStep()).toBe(3);
+
+    component.nextStep();
+    expect(component.currentStep()).toBe(4);
+
     component.prevStep();
-    expect(component.currentStep()).toBe(1);
+    expect(component.currentStep()).toBe(3);
   });
 
   it('validates selected files and supports dropped files', () => {
@@ -92,7 +102,7 @@ describe('StudioUploadComponent', () => {
       type: 'image/png',
     });
     component.onFileSelected({ target: { files: [hugeCover] } } as any, 'cover');
-    expect(toast.show).toHaveBeenCalledWith('File too large. Max 5MB', 'error');
+    expect(toast.show).toHaveBeenCalledWith('File too large. Max size for cover is 5MB', 'error');
 
     component.onFileSelected(
       { target: { files: [new File(['a'], 'x.txt', { type: 'text/plain' })] } } as any,

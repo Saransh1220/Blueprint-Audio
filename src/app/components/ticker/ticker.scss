@@ -1,33 +1,38 @@
 @use '../../styles/variables' as *;
 
-.ticker-bar {
-  background: rgba(var(--brand-color-rgb), 0.15);
-  backdrop-filter: blur(8px);
-  color: var(--text-color);
+.top-ticker {
+  background: var(--text-color);
+  color: var(--bg-color);
   overflow: hidden;
-  border-top: 1px solid rgba(var(--brand-color-rgb), 0.3);
-  border-bottom: 1px solid rgba(var(--brand-color-rgb), 0.3);
-  padding: 10px 0;
-  white-space: nowrap;
-  width: 100%;
+  padding: 9px 0;
+  border-top: 2px solid var(--text-color);
+  border-bottom: 2px solid var(--text-color);
 }
 
 .ticker-track {
-  display: inline-block;
-  animation: scroll 15s linear infinite;
-}
-
-.ticker-item {
-  margin-right: 40px;
-  font-weight: 700;
+  display: flex;
+  white-space: nowrap;
+  animation: scroll 30s linear infinite;
+  font-family: $font-tech;
+  font-size: 11px;
+  letter-spacing: 0.16em;
   text-transform: uppercase;
+  gap: 40px;
+  width: max-content;
+
+  span {
+    display: flex;
+    align-items: center;
+    gap: 40px;
+
+    &::after {
+      content: '✦';
+      color: var(--brand-color);
+    }
+  }
 }
 
 @keyframes scroll {
-  from {
-    transform: translateX(0);
-  }
-
   to {
     transform: translateX(-50%);
   }

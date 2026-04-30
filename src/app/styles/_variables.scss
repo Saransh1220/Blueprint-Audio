@@ -1,24 +1,24 @@
 // Sass Variables (used for internal calculations or defaults, not directly as CSS Custom Properties anymore)
-$bg: #f0f0f0;
-$card-bg: #ffffff;
-$ink: #050505;
-$red: #ff3300;
-$line: #d1d1d1;
+$bg: #f5f1e8;
+$card-bg: #ece5d3;
+$ink: #141310;
+$red: #ff3d5a;
+$line: #1a1a1a;
 
-$font-head: 'Outfit', sans-serif;
-$font-tech: 'Manrope', sans-serif;
-$font-body: $font-tech;
+$font-head: 'Bricolage Grotesque', sans-serif;
+$font-tech: 'DM Mono', monospace;
+$font-body: $font-head;
 
 $gap: 1px;
 
 // New Variables for Red Wave Theme (Ethereal / Neon)
-$bg-dark: #030712;
-$text-primary: #f8fafc;
-$text-secondary: #94a3b8;
+$bg-dark: #f5f1e8;
+$text-primary: #141310;
+$text-secondary: #6b635a;
 $white: #ffffff;
 
-$brand-primary-light: #dc2626;
-$brand-primary-dark: #ef4444;
+$brand-primary-light: #ff3d5a;
+$brand-primary-dark: #ff6b1a;
 
 // DEPRECATED but kept for potential variable fallbacks until replaced
 $red: $brand-primary-light;

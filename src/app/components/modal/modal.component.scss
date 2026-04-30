@@ -4,7 +4,6 @@
   position: fixed;
   inset: 0;
   background: rgba(0, 0, 0, 0.85); // Dark, professional overlay
-  backdrop-filter: blur(8px); // Subtle blur for focus
   z-index: 1000;
   display: flex;
   align-items: center;
@@ -26,9 +25,7 @@
 }
 
 .modal-container {
-  background: rgba(var(--bg-color-rgb), 0.85); // Glass background
-  backdrop-filter: blur(24px); // Heavy blur
-  -webkit-backdrop-filter: blur(24px);
+  background: rgb(var(--bg-color-rgb)); // Solid background for smoother scrolling
   border: 1px solid rgba(var(--line-color-rgb), 0.3);
   border-radius: 16px; // Slightly more rounded
   width: 100%;
@@ -42,9 +39,14 @@
     0 0 0 1px rgba(255, 255, 255, 0.05) inset; // Inner highlight
   transform: translateY(20px);
   opacity: 0;
-  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1); // Smoother spring-like easing
+  transition:
+    transform 0.4s cubic-bezier(0.16, 1, 0.3, 1),
+    opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1);
   overflow: hidden;
   position: relative;
+  contain: layout paint;
+  will-change: transform, opacity;
+  isolation: isolate;
 
   @media (max-width: 900px) {
     height: auto;
@@ -55,32 +57,30 @@
 
 .modal-header {
   position: absolute;
-  top: 16px;
-  right: 16px;
+  top: 20px;
+  right: 20px;
   z-index: 20;
 
-  // Clean Close Button
   .btn-close {
-    background: transparent;
-    border: none;
-    color: var(--text-color);
-    opacity: 0.5;
-    width: 32px;
-    height: 32px;
-    border-radius: 4px;
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background: #f5f1e8;
+    border: 1.5px solid #141310;
+    color: #141310;
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    transition: all 0.2s ease;
-
-    i {
-      font-size: 1.2rem;
-    }
+    transition:
+      background 0.15s ease,
+      color 0.15s ease,
+      transform 0.15s ease;
 
     &:hover {
-      background: var(--faded-ink);
-      opacity: 1;
+      background: #141310;
+      color: #f5f1e8;
+      transform: rotate(90deg);
     }
   }
 
@@ -96,6 +96,7 @@
   height: 100%;
   overflow: hidden;
   padding: 0;
+  contain: layout paint;
 
   @media (max-width: 900px) {
     overflow-y: auto; // Ensure content can scroll on mobile
