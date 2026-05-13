@@ -11,20 +11,8 @@ import { ThemeService } from '../../services';
 })
 export class ThemeToggleComponent {
   themeService = inject(ThemeService);
-  isDropdownOpen = false;
 
-  toggleDropdown(event: Event) {
-    event.stopPropagation();
-    this.isDropdownOpen = !this.isDropdownOpen;
-  }
-
-  selectTheme(themeId: string, event: Event) {
-    event.stopPropagation();
-    this.themeService.setTheme(themeId);
-    this.isDropdownOpen = false;
-  }
-
-  closeDropdown() {
-    this.isDropdownOpen = false;
+  toggleMode() {
+    this.themeService.toggleMode();
   }
 }

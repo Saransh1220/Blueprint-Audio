@@ -1,11 +1,23 @@
-// Theme Definitions (Updated)
-// We now support multiple themes via data-theme attribute on <body>
+// Theme Definitions
 @use 'sass:color';
 @use 'sass:list';
 @use 'sass:map';
 
 // --- Mixins for Theme Generation ---
-@mixin theme-properties($bg, $card, $text, $brand, $line, $on-brand, $faded-rgb) {
+@mixin theme-properties(
+  $bg,
+  $card,
+  $text,
+  $brand,
+  $line,
+  $on-brand,
+  $faded-rgb,
+  $noise-blend: multiply,
+  $noise-opacity: 0.06
+) {
+  --noise-blend: #{$noise-blend};
+  --noise-opacity: #{$noise-opacity};
+
   --bg-color: #{$bg};
   --bg-color-rgb:
     #{color.channel($bg, 'red', $space: rgb)}, #{color.channel($bg, 'green', $space: rgb)},
@@ -30,7 +42,7 @@
 
   --line-color: #{$line};
 
-  // Brand Mapping
+  // Base Brand Mapping
   --ink: #{$text};
   --cream: #{$bg};
   --hot: #ff3d5a;
@@ -47,103 +59,108 @@
   );
 }
 
-// --- Theme Configurations Map ---
-// We define themes in a map to easily loop and create preview classes
-// These are currently set to the original 'dark' theme configurations
-$themes: (
-  'vampire': (
-    #f5f1e8,
-    #fff6e6,
-    #141310,
-    #ff3d5a,
-    #1a1a1a,
-    #ffffff,
-  ),
-  'neon': (
-    #f5f1e8,
-    #f8f0dd,
-    #141310,
-    #2d4cff,
-    #1a1a1a,
-    #ffffff,
-  ),
-  'toxic': (
-    #f5f1e8,
-    #eef0ce,
-    #141310,
-    #c8e84f,
-    #1a1a1a,
-    #000000,
-  ),
-  'royal': (
-    #f5f1e8,
-    #e4e9ff,
-    #141310,
-    #2d4cff,
-    #1a1a1a,
-    #000000,
-  ),
-  'mint': (
-    #f5f1e8,
-    #edf5d8,
-    #141310,
-    #c8e84f,
-    #1a1a1a,
-    #000000,
-  ),
-  'onyx': (
-    #f5f1e8,
-    #ece5d3,
-    #141310,
-    #ff3d5a,
-    #1a1a1a,
-    #ffffff,
-  ),
-);
-
 // --- Global Theme Application ---
 
-// Default (Onyx theme for clean minimal aesthetic)
-:root {
-  $c: map.get($themes, 'onyx');
+// Default (Light Mode)
+:root,
+body:not(.dark-theme) {
   @include theme-properties(
-    list.nth($c, 1),
-    list.nth($c, 2),
-    list.nth($c, 3),
-    list.nth($c, 4),
-    list.nth($c, 5),
-    list.nth($c, 6),
+    #f5f1e8,
+    // bg
+    #fff6e6,
+    // card
+    #141310,
+    // text
+    #ff3d5a,
+    // brand
+    #1a1a1a,
+    // line
+    #ffffff,
+    // on-brand
     null
   );
+  --cream-2: #ece5d3;
+  --cream-3: #e0d7c0;
+  --ink-2: #3a3630;
+  --ink-mute: #6b635a;
+  --sun: #ffc93c;
+  --lime: #c8e84f;
+  --hot: #ff3d5a;
+
+  // Additional section backgrounds
+  --inverse: var(--ink);
+  --inverse-fg: var(--cream);
+  --player-bg: var(--ink);
+  --player-fg: var(--cream);
 }
 
-// Apply Global Themes
-@each $name, $colors in $themes {
-  [data-theme='#{$name}'] {
-    @include theme-properties(
-      list.nth($colors, 1),
-      list.nth($colors, 2),
-      list.nth($colors, 3),
-      list.nth($colors, 4),
-      list.nth($colors, 5),
-      list.nth($colors, 6),
-      null
-    );
-  }
+// Dark Mode (from Waveyard-beat-dark reference)
+body.dark-theme {
+  @include theme-properties(
+    #0e0d0b,
+    // bg (--cream)
+    #1a1814,
+    // card (--cream-2)
+    #f0e9d6,
+    // text (--ink)
+    #ff4d68,
+    // brand (--hot)
+    #f0e9d6,
+    // line (using ink for lines)
+    #0e0d0b,
+    // on-brand (cream on hot background)
+    null,
+    screen,
+    // noise-blend
+    0.08 // noise-opacity
+  );
+
+  // Additional explicit variable overrides if needed
+  --cream-2: #1a1814;
+  --cream-3: #26241e;
+  --ink-2: #c4bdab;
+  --ink-mute: #8a8373;
+  --hot: #ff4d68;
+  --lime: #d9f561;
+  --sun: #ffd859;
+
+  // Additional section backgrounds
+  --inverse: #f0e9d6;
+  --inverse-fg: #0e0d0b;
+  --player-bg: #050402;
+  --player-fg: #f0e9d6;
 }
 
 // --- Scoped Preview Classes ---
 // Used for the Settings "Mini App" preview
-@each $name, $colors in $themes {
-  .theme-preview-#{$name} {
-    @include theme-properties(
-      list.nth($colors, 1),
-      list.nth($colors, 2),
-      list.nth($colors, 3),
-      list.nth($colors, 4),
-      list.nth($colors, 5),
-      list.nth($colors, 6),
-      null
-    );
-  }
+.theme-preview-light {
+  @include theme-properties(#f5f1e8, #fff6e6, #141310, #ff3d5a, #1a1a1a, #ffffff, null);
+  --cream-2: #ece5d3;
+  --cream-3: #e0d7c0;
+  --ink-2: #3a3630;
+  --ink-mute: #6b635a;
+  --sun: #ffc93c;
+  --lime: #c8e84f;
+  --hot: #ff3d5a;
+}
+
+.theme-preview-dark {
+  @include theme-properties(
+    #0e0d0b,
+    #1a1814,
+    #f0e9d6,
+    #ff4d68,
+    #f0e9d6,
+    #0e0d0b,
+    null,
+    screen,
+    0.08
+  );
+  --cream-2: #1a1814;
+  --cream-3: #26241e;
+  --ink-2: #c4bdab;
+  --ink-mute: #8a8373;
+  --hot: #ff4d68;
+  --lime: #d9f561;
+  --sun: #ffd859;
 }

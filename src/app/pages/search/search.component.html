@@ -13,17 +13,21 @@
   <header class="page-head">
     <div class="breadcrumb">
       <a routerLink="/">Home</a>
-      <span>/</span>
+      <span class="sep">/</span>
       <span class="here">Explore</span>
     </div>
 
     <div class="page-title-row">
-      <h1 class="page-title">
-        explore the <em>whole</em> <span class="underline-word">rack</span>
-      </h1>
+      <div>
+        <h1 class="page-title">Explore <em>beats</em>.</h1>
+        <div class="head-meta">
+          <span class="dot"></span>
+          <strong>{{ resultCount() }}</strong> live specs in the yard
+        </div>
+      </div>
     </div>
 
-    <div class="search-bar">
+    <div class="search-row">
       <div class="search-input-wrap">
         <svg
           width="18"
@@ -47,14 +51,12 @@
         <span class="search-hint">Ctrl K</span>
       </div>
 
-      <select class="sort-select" [ngModel]="sortOption()" (ngModelChange)="setSortOption($event)">
-        <option value="newest">Sort: Newest</option>
-        <option value="name">Sort: Name</option>
-        <option value="price_asc">Sort: Price ↑</option>
-        <option value="price_desc">Sort: Price ↓</option>
-      </select>
+      <button class="search-go" type="button" (click)="onSearch()">
+        Search
+        <i class="fas fa-arrow-right"></i>
+      </button>
 
-      <button class="filter-toggle-mobile" (click)="toggleMobileFilters()">
+      <button class="filter-toggle-mobile" type="button" (click)="toggleMobileFilters()">
         <svg
           width="14"
           height="14"
@@ -70,7 +72,295 @@
         Filters
       </button>
     </div>
+
+    <div class="quick-rail" aria-label="Quick picks">
+      @for (item of quickFilters; track item.genre) {
+        <button
+          type="button"
+          class="qpill"
+          [class.on]="genre().includes(item.genre)"
+          (click)="toggleGenre(item.genre)"
+        >
+          <span class="qp-tile" [class]="item.tone">{{ item.label.charAt(0) }}</span>
+          <span class="qp-mid">
+            <span class="qp-label">{{ item.label }}</span>
+            <span class="qp-sub">{{ item.sub }}</span>
+          </span>
+          <span class="qp-count">{{ item.count }}</span>
+        </button>
+      }
+      <button type="button" class="qpill visual-only">
+        <span class="qp-tile c-cream"><i class="fas fa-bolt"></i></span>
+        <span class="qp-mid">
+          <span class="qp-label">Trending</span>
+          <span class="qp-sub">hot picks</span>
+        </span>
+        <span class="qp-count">91</span>
+      </button>
+      <button type="button" class="qpill visual-only">
+        <span class="qp-tile c-lime"><i class="fas fa-check"></i></span>
+        <span class="qp-mid">
+          <span class="qp-label">Verified</span>
+          <span class="qp-sub">producers</span>
+        </span>
+        <span class="qp-count">528</span>
+      </button>
+    </div>
   </header>
+
+  <div class="filter-bar">
+    <span class="fb-label">Refine</span>
+    <div class="filter-dd">
+      <button
+        class="fd-trigger"
+        [class.active]="isDropdownOpen('genre')"
+        type="button"
+        (click)="toggleDropdown('genre')"
+      >
+        <span class="fd-mono">Genre</span>
+        <span class="fd-val">{{ getGenreSummary() }}</span>
+        @if (genre().length) {
+          <span class="fd-count">{{ genre().length }}</span>
+        }
+        <i class="fas fa-chevron-down fd-caret"></i>
+      </button>
+      <div class="fd-panel" [class.show]="isDropdownOpen('genre')">
+        <div class="fp-head">
+          <h5>Pick genres</h5>
+          <button class="fp-clear" type="button" (click)="genre.set([]); onFilterChange()">
+            Clear
+          </button>
+        </div>
+        <div class="fp-options">
+          @for (g of genres; track g) {
+            <button
+              type="button"
+              class="fp-opt"
+              [class.on]="genre().includes(g)"
+              (click)="toggleGenre(g)"
+            >
+              <span class="fp-check"><i class="fas fa-check"></i></span>
+              <span class="fp-opt-name">{{ g }}</span>
+              <span class="fp-opt-count">24</span>
+            </button>
+          }
+        </div>
+      </div>
+    </div>
+
+    <div class="filter-dd">
+      <button
+        class="fd-trigger"
+        [class.active]="isDropdownOpen('mood')"
+        type="button"
+        (click)="toggleDropdown('mood')"
+      >
+        <span class="fd-mono">Mood</span>
+        <span class="fd-val">Any</span>
+        <i class="fas fa-chevron-down fd-caret"></i>
+      </button>
+      <div class="fd-panel" [class.show]="isDropdownOpen('mood')">
+        <div class="fp-head">
+          <h5>Pick moods</h5>
+          <button class="fp-clear" type="button">Clear</button>
+        </div>
+        <div class="fp-options">
+          @for (tag of inertMoodTags; track tag) {
+            <button type="button" class="fp-opt">
+              <span class="fp-check"><i class="fas fa-check"></i></span>
+              <span class="fp-opt-name">{{ tag }}</span>
+              <span class="fp-opt-count">18</span>
+            </button>
+          }
+        </div>
+      </div>
+    </div>
+
+    <div class="filter-dd">
+      <button
+        class="fd-trigger"
+        [class.active]="isDropdownOpen('instr')"
+        type="button"
+        (click)="toggleDropdown('instr')"
+      >
+        <span class="fd-mono">Instruments</span>
+        <span class="fd-val">Any</span>
+        <i class="fas fa-chevron-down fd-caret"></i>
+      </button>
+      <div class="fd-panel" [class.show]="isDropdownOpen('instr')">
+        <div class="fp-head">
+          <h5>Pick instruments</h5>
+          <button class="fp-clear" type="button">Clear</button>
+        </div>
+        <div class="fp-options">
+          @for (item of inertInstruments; track item.label) {
+            <button type="button" class="fp-opt">
+              <span class="fp-check"><i class="fas fa-check"></i></span>
+              <span class="fp-opt-name">{{ item.label }}</span>
+              <span class="fp-opt-count">{{ item.count }}</span>
+            </button>
+          }
+        </div>
+      </div>
+    </div>
+
+    <div class="filter-dd">
+      <button
+        class="fd-trigger"
+        [class.active]="isDropdownOpen('bpm')"
+        type="button"
+        (click)="toggleDropdown('bpm')"
+      >
+        <span class="fd-mono">BPM</span>
+        <span class="fd-val">{{ bpmRange()[0] }} <em>to</em> {{ bpmRange()[1] }}</span>
+        <i class="fas fa-chevron-down fd-caret"></i>
+      </button>
+      <div class="fd-panel wide" [class.show]="isDropdownOpen('bpm')">
+        <div class="fp-head">
+          <h5>Tempo range</h5>
+          <button
+            class="fp-clear"
+            type="button"
+            (click)="bpmRange.set([60, 200]); onFilterChange()"
+          >
+            Reset
+          </button>
+        </div>
+        <div class="range-wrap">
+          <div class="range-display">
+            <div class="range-val">{{ bpmRange()[0] }} <em>to</em> {{ bpmRange()[1] }}</div>
+            <div class="range-unit">bpm</div>
+          </div>
+          <div class="slider-track-wrap">
+            <div class="slider-bg"></div>
+            <div
+              class="slider-fill"
+              [style.left.%]="bpmFillLeft()"
+              [style.width.%]="bpmFillWidth()"
+            ></div>
+            <input
+              class="range-slider"
+              type="range"
+              min="60"
+              max="200"
+              [value]="bpmRange()[0]"
+              (input)="updateBpm($event, 0)"
+              (change)="onFilterChange()"
+            />
+            <input
+              class="range-slider"
+              type="range"
+              min="60"
+              max="200"
+              [value]="bpmRange()[1]"
+              (input)="updateBpm($event, 1)"
+              (change)="onFilterChange()"
+            />
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="filter-dd">
+      <button
+        class="fd-trigger"
+        [class.active]="isDropdownOpen('price')"
+        type="button"
+        (click)="toggleDropdown('price')"
+      >
+        <span class="fd-mono">Price</span>
+        <span class="fd-val">{{ getPriceSummary() }}</span>
+        <i class="fas fa-chevron-down fd-caret"></i>
+      </button>
+      <div class="fd-panel wide" [class.show]="isDropdownOpen('price')">
+        <div class="fp-head">
+          <h5>Price range</h5>
+          <button
+            class="fp-clear"
+            type="button"
+            (click)="priceRange.set([0, 50000]); onFilterChange()"
+          >
+            Reset
+          </button>
+        </div>
+        <div class="range-wrap">
+          <div class="range-display">
+            <div class="range-val">${{ priceRange()[0] }} <em>to</em> ${{ priceRange()[1] }}</div>
+            <div class="range-unit">usd</div>
+          </div>
+          <div class="slider-track-wrap">
+            <div class="slider-bg"></div>
+            <div
+              class="slider-fill hot-fill"
+              [style.left.%]="priceFillLeft()"
+              [style.width.%]="priceFillWidth()"
+            ></div>
+            <input
+              class="range-slider"
+              type="range"
+              min="0"
+              max="50000"
+              [value]="priceRange()[0]"
+              (input)="updatePrice($event, 0)"
+              (change)="onFilterChange()"
+            />
+            <input
+              class="range-slider"
+              type="range"
+              min="0"
+              max="50000"
+              [value]="priceRange()[1]"
+              (input)="updatePrice($event, 1)"
+              (change)="onFilterChange()"
+            />
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="filter-dd">
+      <button
+        class="fd-trigger"
+        [class.active]="isDropdownOpen('extras')"
+        type="button"
+        (click)="toggleDropdown('extras')"
+      >
+        <span class="fd-mono">License & Extras</span>
+        <span class="fd-val">Any</span>
+        <i class="fas fa-chevron-down fd-caret"></i>
+      </button>
+      <div class="fd-panel" [class.show]="isDropdownOpen('extras')">
+        <div class="fp-head">
+          <h5>License & extras</h5>
+          <button class="fp-clear" type="button">Clear</button>
+        </div>
+        <div class="fp-options">
+          @for (item of inertExtras; track item.title) {
+            <button type="button" class="fp-opt">
+              <span class="fp-check"><i class="fas fa-check"></i></span>
+              <span class="fp-opt-name">{{ item.title }}</span>
+              <span class="fp-opt-count">31</span>
+            </button>
+          }
+        </div>
+      </div>
+    </div>
+    @if (activeFilterChips().length) {
+      <button class="clear-all-btn show" type="button" (click)="clearFilters()">Clear all</button>
+    }
+  </div>
+
+  @if (activeFilterChips().length) {
+    <div class="active-strip">
+      <span class="ac-label">Active</span>
+      @for (chip of activeFilterChips(); track chip.id) {
+        <button class="ac-chip" type="button" (click)="removeActiveChip(chip.id)">
+          {{ chip.label }}
+          <span class="ac-chip-x">x</span>
+        </button>
+      }
+    </div>
+  }
 
   <div class="explore">
     <div
@@ -79,336 +369,117 @@
       (click)="toggleMobileFilters(false)"
     ></div>
 
-    <aside class="filters" [class.open]="mobileFiltersOpen()">
-      <div class="filters-head">
-        <div class="filters-title">
-          Filters
-          <span class="count-badge">{{ activeFilterChips().length }}</span>
-        </div>
-        <button class="clear-btn" (click)="clearFilters()">Clear all</button>
-      </div>
-
-      <div class="active-chips">
-        @for (chip of activeFilterChips(); track chip.id) {
-          <button class="active-chip" (click)="removeActiveChip(chip.id)">
-            {{ chip.label }}
-            <span class="x">×</span>
-          </button>
-        }
-      </div>
-
-      <div class="filter-group">
-        <div class="fg-head" [class.open]="isGroupOpen('genres')" (click)="toggleGroup('genres')">
-          <div class="fg-title">Genres <span class="tiny">live filter</span></div>
-          <div class="fg-toggle">
-            <svg
-              width="10"
-              height="10"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="3"
-            >
-              <polyline points="6 9 12 15 18 9"></polyline>
-            </svg>
+    <aside class="sidebar" [class.open]="mobileFiltersOpen()">
+      <div class="sb-card cobalt np-card">
+        <div class="np-eyebrow"><span class="live-dot"></span>Now playing</div>
+        <div class="np-art-row">
+          <div class="np-art"><span class="np-art-letter">M</span></div>
+          <div class="np-info">
+            <div class="np-title">Midnight on <em>Sunset</em></div>
+            <div class="np-prod">@kita / 142 BPM / F# Min</div>
           </div>
         </div>
-        @if (isGroupOpen('genres')) {
-          <div class="fg-body">
-            @for (g of genres; track g) {
-              <label class="check-row">
-                <input
-                  class="f-genre"
-                  type="checkbox"
-                  [checked]="genre().includes(g)"
-                  (change)="toggleGenre(g)"
-                />
-                <span class="cb"></span>
-                <span class="label">{{ g }}</span>
-              </label>
-            }
-          </div>
-        }
+        <div class="np-wave">
+          @for (
+            bar of [22, 44, 31, 67, 38, 82, 54, 73, 29, 62, 45, 88, 34, 57, 76, 41, 68, 30];
+            track $index
+          ) {
+            <span class="np-wave-bar" [style.height.%]="bar"></span>
+          }
+        </div>
+        <div class="np-actions">
+          <button type="button" class="np-btn"><i class="fas fa-play"></i> Listen</button>
+          <button type="button" class="np-btn primary">Open beat</button>
+        </div>
       </div>
 
-      <div class="filter-group">
-        <div class="fg-head" [class.open]="isGroupOpen('bpm')" (click)="toggleGroup('bpm')">
-          <div class="fg-title">BPM <span class="tiny">tempo range</span></div>
-          <div class="fg-toggle">
-            <svg
-              width="10"
-              height="10"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="3"
-            >
-              <polyline points="6 9 12 15 18 9"></polyline>
-            </svg>
-          </div>
+      <div class="stat-tiles">
+        <div class="st-tile t1">
+          <div class="st-num"><em>89</em></div>
+          <div class="st-label">drops today</div>
         </div>
-        @if (isGroupOpen('bpm')) {
-          <div class="fg-body">
-            <div class="range-wrap">
-              <div class="range-values">
-                <div class="range-val">{{ bpmRange()[0] }}<span class="unit">bpm</span></div>
-                <div class="range-sep">to</div>
-                <div class="range-val">{{ bpmRange()[1] }}<span class="unit">bpm</span></div>
+        <div class="st-tile t2">
+          <div class="st-num">42</div>
+          <div class="st-label">live now</div>
+        </div>
+        <div class="st-tile t3">
+          <div class="st-num"><em>$</em>3.4k</div>
+          <div class="st-label">sales / 24h</div>
+        </div>
+      </div>
+
+      <div class="sb-card dark">
+        <div class="sb-head">
+          <h4>Top <em>producers</em></h4>
+          <span class="sb-num">WK 19</span>
+        </div>
+        <div class="tp-list">
+          @for (
+            item of ['Kita Vandermark', 'Nyx Fontaine', 'Riko Sato', 'Mose Okafor', 'Prism Lo'];
+            track item;
+            let i = $index
+          ) {
+            <div class="tp-item">
+              <div class="tp-rank">{{ i + 1 }}</div>
+              <div class="tp-avatar">{{ item.charAt(0) }}</div>
+              <div class="tp-info">
+                <div class="tp-name">{{ item }}</div>
+                <div class="tp-meta">{{ 312 - i * 29 }} sales / up {{ 24 - i * 4 }}%</div>
               </div>
-              <div class="slider-track-wrap">
-                <div class="slider-bg"></div>
-                <div
-                  class="slider-fill"
-                  [style.left.%]="bpmFillLeft()"
-                  [style.width.%]="bpmFillWidth()"
-                ></div>
-                <input
-                  class="range-slider"
-                  type="range"
-                  min="60"
-                  max="200"
-                  [value]="bpmRange()[0]"
-                  (input)="updateBpm($event, 0)"
-                  (change)="onFilterChange()"
-                />
-                <input
-                  class="range-slider"
-                  type="range"
-                  min="60"
-                  max="200"
-                  [value]="bpmRange()[1]"
-                  (input)="updateBpm($event, 1)"
-                  (change)="onFilterChange()"
-                />
-              </div>
-              <div class="range-ticks">
-                <span>60</span>
-                <span>100</span>
-                <span>140</span>
-                <span>200</span>
-              </div>
+              <svg class="tp-spark" viewBox="0 0 38 22" aria-hidden="true">
+                <path d="M2 18 L8 14 L13 16 L19 10 L25 12 L31 6 L36 4"></path>
+              </svg>
             </div>
-          </div>
-        }
-      </div>
-
-      <div class="filter-group">
-        <div class="fg-head" [class.open]="isGroupOpen('price')" (click)="toggleGroup('price')">
-          <div class="fg-title">Price <span class="tiny">license range</span></div>
-          <div class="fg-toggle">
-            <svg
-              width="10"
-              height="10"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="3"
-            >
-              <polyline points="6 9 12 15 18 9"></polyline>
-            </svg>
-          </div>
+          }
         </div>
-        @if (isGroupOpen('price')) {
-          <div class="fg-body">
-            <div class="range-wrap">
-              <div class="range-values">
-                <div class="range-val">₹{{ priceRange()[0] }}</div>
-                <div class="range-sep">to</div>
-                <div class="range-val">₹{{ priceRange()[1] }}</div>
-              </div>
-              <div class="slider-track-wrap">
-                <div class="slider-bg"></div>
-                <div
-                  class="slider-fill hot-fill"
-                  [style.left.%]="priceFillLeft()"
-                  [style.width.%]="priceFillWidth()"
-                ></div>
-                <input
-                  class="range-slider"
-                  type="range"
-                  min="0"
-                  max="50000"
-                  [value]="priceRange()[0]"
-                  (input)="updatePrice($event, 0)"
-                  (change)="onFilterChange()"
-                />
-                <input
-                  class="range-slider"
-                  type="range"
-                  min="0"
-                  max="50000"
-                  [value]="priceRange()[1]"
-                  (input)="updatePrice($event, 1)"
-                  (change)="onFilterChange()"
-                />
-              </div>
-              <div class="range-ticks">
-                <span>0</span>
-                <span>10k</span>
-                <span>25k</span>
-                <span>50k</span>
-              </div>
-            </div>
-          </div>
-        }
       </div>
 
-      <div class="filter-group">
-        <div class="fg-head" [class.open]="isGroupOpen('key')" (click)="toggleGroup('key')">
-          <div class="fg-title">Key <span class="tiny">harmonic center</span></div>
-          <div class="fg-toggle">
-            <svg
-              width="10"
-              height="10"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="3"
-            >
-              <polyline points="6 9 12 15 18 9"></polyline>
-            </svg>
-          </div>
+      <div class="sb-card lime">
+        <div class="sb-head">
+          <h4>Genre <em>pulse</em></h4>
+          <span class="sb-num">7D</span>
         </div>
-        @if (isGroupOpen('key')) {
-          <div class="fg-body">
-            <div class="key-mode-toggle">
-              <button
-                [class.on]="keyMode() === 'any'"
-                (click)="setKeyMode('any'); $event.stopPropagation()"
-              >
-                Any
-              </button>
-              <button
-                [class.on]="keyMode() === 'major'"
-                (click)="setKeyMode('major'); $event.stopPropagation()"
-              >
-                Major
-              </button>
-              <button
-                [class.on]="keyMode() === 'minor'"
-                (click)="setKeyMode('minor'); $event.stopPropagation()"
-              >
-                Minor
-              </button>
-            </div>
-            <select class="cult-beats-select" [ngModel]="key()" (ngModelChange)="setKey($event)">
-              @for (k of visibleKeys(); track k) {
-                <option [value]="k">{{ k }}</option>
-              }
-            </select>
-          </div>
-        }
-      </div>
-
-      <div class="filter-group inert">
-        <div
-          class="fg-head"
-          [class.open]="isGroupOpen('licenses')"
-          (click)="toggleGroup('licenses')"
-        >
-          <div class="fg-title">Licenses <span class="tiny">visual shell</span></div>
-          <div class="fg-toggle">
-            <svg
-              width="10"
-              height="10"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="3"
-            >
-              <polyline points="6 9 12 15 18 9"></polyline>
-            </svg>
-          </div>
+        <div class="gp-list">
+          @for (row of quickFilters.slice(0, 5); track row.genre; let i = $index) {
+            <button type="button" class="gp-row" (click)="toggleGenre(row.genre)">
+              <span class="gp-name">{{ row.label }}</span>
+              <span class="gp-bar-wrap">
+                <span class="gp-bar" [style.width.%]="92 - i * 13"></span>
+              </span>
+              <span class="gp-pct">+{{ 92 - i * 13 }}%</span>
+            </button>
+          }
         </div>
-        @if (isGroupOpen('licenses')) {
-          <div class="fg-body">
-            @for (item of inertLicenses; track item.label) {
-              <label class="radio-row inert-row">
-                <input type="radio" disabled />
-                <span class="radio-dot"></span>
-                <span class="label">{{ item.label }}</span>
-                <span class="count">{{ item.count }}</span>
-              </label>
-            }
-          </div>
-        }
       </div>
 
-      <div class="filter-group inert">
-        <div class="fg-head" [class.open]="isGroupOpen('moods')" (click)="toggleGroup('moods')">
-          <div class="fg-title">Moods <span class="tiny">visual shell</span></div>
-          <div class="fg-toggle">
-            <svg
-              width="10"
-              height="10"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="3"
-            >
-              <polyline points="6 9 12 15 18 9"></polyline>
-            </svg>
-          </div>
+      <div class="sb-card cream">
+        <div class="sb-head">
+          <h4>By <em>mood</em></h4>
+          <span class="sb-num">06</span>
         </div>
-        @if (isGroupOpen('moods')) {
-          <div class="fg-body">
-            <div class="mood-tags">
-              @for (tag of inertMoodTags; track tag) {
-                <button class="mood-tag" disabled>{{ tag }}</button>
-              }
-            </div>
-          </div>
-        }
-      </div>
-
-      <div class="filter-group inert">
-        <div class="fg-head" [class.open]="isGroupOpen('extras')" (click)="toggleGroup('extras')">
-          <div class="fg-title">Extras <span class="tiny">visual shell</span></div>
-          <div class="fg-toggle">
-            <svg
-              width="10"
-              height="10"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="3"
-            >
-              <polyline points="6 9 12 15 18 9"></polyline>
-            </svg>
-          </div>
+        <div class="mood-grid">
+          @for (
+            tag of ['Dark', 'Dreamy', 'Hype', 'Warm', 'Sad', 'Aggro'];
+            track tag;
+            let i = $index
+          ) {
+            <button type="button" class="mood-tile" [ngClass]="'c' + (i + 1)">
+              <span class="me">{{ tag.charAt(0) }}</span>
+              <span class="ml">{{ tag }}</span>
+            </button>
+          }
         </div>
-        @if (isGroupOpen('extras')) {
-          <div class="fg-body">
-            @for (item of inertExtras; track item.title) {
-              <label class="toggle-row inert-row">
-                <span class="toggle-label">
-                  {{ item.title }}
-                  <span class="sub">{{ item.sub }}</span>
-                </span>
-                <input type="checkbox" class="toggle-in" disabled />
-                <span class="toggle-switch"></span>
-              </label>
-            }
-          </div>
-        }
       </div>
 
-      <div class="apply-filters">
-        <button class="apply-btn" (click)="toggleMobileFilters(false)">
-          <span
-            >Show <strong>{{ resultCount() }}</strong> beats</span
-          >
-          <svg
-            width="14"
-            height="14"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2.5"
-          >
-            <line x1="5" y1="12" x2="19" y2="12"></line>
-            <polyline points="12 5 19 12 12 19"></polyline>
-          </svg>
+      <div class="sb-card lavender">
+        <div class="sb-head soft">
+          <h4>For <em>producers</em></h4>
+        </div>
+        <div class="pc-title">Sell your <em>beats</em> here.</div>
+        <div class="pc-sub">Keep your catalog moving with clean licenses and fast checkout.</div>
+        <button type="button" class="pc-btn" routerLink="/upload">
+          <i class="fas fa-plus"></i>
+          Upload a beat
         </button>
       </div>
     </aside>
@@ -430,6 +501,18 @@
           </div>
 
           <div class="toolbar-right">
+            <div class="sort-dd">
+              <span>Sort</span>
+              <select
+                class="sort-select"
+                [ngModel]="sortOption()"
+                (ngModelChange)="setSortOption($event)"
+              >
+                @for (option of sortOptions; track option.value) {
+                  <option [value]="option.value">{{ option.label }}</option>
+                }
+              </select>
+            </div>
             <div class="per-page">
               Per page
               <select [ngModel]="perPageShell()" (ngModelChange)="perPageShell.set($event)">
@@ -489,24 +572,15 @@
               @if (viewMode() === 'grid') {
                 <div class="beat-grid">
                   @for (spec of specs(); track spec.id) {
-                    <app-spec-card [spec]="spec" appearance="explore"></app-spec-card>
+                    <app-spec-card [spec]="spec" appearance="market"></app-spec-card>
                   }
                 </div>
               }
 
               @if (viewMode() === 'list') {
                 <div class="beat-list">
-                  <div class="list-head">
-                    <span></span>
-                    <span>Title / Producer</span>
-                    <span class="c-tags">Tags</span>
-                    <span>BPM</span>
-                    <span class="c-key">Key</span>
-                    <span class="c-dur">Length</span>
-                    <span style="text-align: right">Price</span>
-                  </div>
                   @for (spec of specs(); track spec.id) {
-                    <app-spec-list-item [spec]="spec"></app-spec-list-item>
+                    <app-spec-list-item [spec]="spec" appearance="market"></app-spec-list-item>
                   }
                 </div>
               }
@@ -518,7 +592,7 @@
                   [currentPage]="currentPage()"
                   [total]="pagination()!.total"
                   [perPage]="pagination()!.per_page"
-                  [variant]="'cult-beats'"
+                  [variant]="'waveyard'"
                   (pageChange)="updatePage($event)"
                 ></app-pagination>
               </div>

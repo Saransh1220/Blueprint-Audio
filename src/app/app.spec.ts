@@ -38,6 +38,7 @@ describe('AppComponent', () => {
           { path: 'login', component: DummyRouteComponent },
           { path: 'register', component: DummyRouteComponent },
           { path: 'upload', component: DummyRouteComponent },
+          { path: 'explore', component: DummyRouteComponent },
           { path: 'studio', component: DummyRouteComponent },
           { path: 'studio/:tab', component: DummyRouteComponent },
           { path: 'dashboard', component: DummyRouteComponent },
@@ -63,7 +64,7 @@ describe('AppComponent', () => {
     expect(compiled.querySelector('.loader')).toBeTruthy();
   });
 
-  it('shows footer on normal pages and hides it on studio/auth/upload routes', async () => {
+  it('shows footer on normal pages and hides it on studio/auth/upload/explore routes', async () => {
     const router = TestBed.inject(Router);
 
     await router.navigateByUrl('/');
@@ -83,6 +84,11 @@ describe('AppComponent', () => {
     fixture.detectChanges();
     expect((fixture.nativeElement as HTMLElement).querySelector('app-footer')).toBeNull();
     expect((fixture.nativeElement as HTMLElement).querySelector('app-header')).toBeNull();
+
+    await router.navigateByUrl('/explore');
+    fixture.detectChanges();
+    expect((fixture.nativeElement as HTMLElement).querySelector('app-footer')).toBeNull();
+    expect((fixture.nativeElement as HTMLElement).querySelector('app-header')).toBeTruthy();
   });
 
   it('detects studio routes from the current url', async () => {
@@ -116,6 +122,16 @@ describe('AppComponent', () => {
 
     await router.navigateByUrl('/dashboard');
     expect(component.isUploadRoute()).toBe(false);
+  });
+
+  it('detects explore routes from the current url', async () => {
+    const router = TestBed.inject(Router);
+
+    await router.navigateByUrl('/explore');
+    expect(component.isExploreRoute()).toBe(true);
+
+    await router.navigateByUrl('/dashboard');
+    expect(component.isExploreRoute()).toBe(false);
   });
 
   it('toggles cart when cart view child exists', () => {

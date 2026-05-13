@@ -13,18 +13,8 @@
 
     <a class="brand-logo" routerLink="/">
       <div class="logo">
-        <span class="logo-mark" aria-hidden="true">
-          <span class="mark-letters">
-            <span class="c">C</span>
-            <span class="b">B</span>
-          </span>
-        </span>
-        <span class="logo-word">
-          <span class="word-cult">cult</span>
-          <span class="word-dot">·</span>
-          <span class="word-beats">beats</span>
-          <span class="word-star">✦</span>
-        </span>
+        <img class="logo-mark" src="/Logo-cropped.png" alt="" aria-hidden="true" />
+        <span class="logo-word">Waveyard</span>
       </div>
     </a>
 
@@ -33,7 +23,7 @@
         @if (isLoginView) {
           sign<br /><em>in</em>.
         } @else {
-          join the<br /><em>cult</em>.
+          join the<br /><em>mesh</em>.
         }
       </h1>
 
@@ -66,7 +56,7 @@
     </div>
 
     <div class="brand-foot">
-      <span>Â© 2026 Cult Beats</span>
+      <span>Â© 2026 Waveyard</span>
     </div>
   </aside>
 
@@ -105,7 +95,7 @@
           <h2 class="form-title">welcome <em>back</em>.</h2>
           <p class="form-sub">Sign in to your crate. Pick up where you left off.</p>
 
-          <button type="button" class="google-btn">
+          <div class="google-btn" role="presentation">
             <div class="google-btn-shell">
               <svg viewBox="0 0 48 48" aria-hidden="true">
                 <path
@@ -130,7 +120,7 @@
             <div class="google-invisible-wrapper">
               <asl-google-signin-button type="standard" size="large" [width]="400" />
             </div>
-          </button>
+          </div>
 
           <div class="divider"><em>or with email</em></div>
 
@@ -254,7 +244,7 @@
           <h2 class="form-title">make an <em>account</em>.</h2>
           <p class="form-sub">Claim your artist handle. It takes sixty seconds.</p>
 
-          <button type="button" class="google-btn">
+          <div class="google-btn" role="presentation">
             <div class="google-btn-shell">
               <svg viewBox="0 0 48 48" aria-hidden="true">
                 <path
@@ -279,7 +269,7 @@
             <div class="google-invisible-wrapper">
               <asl-google-signin-button type="standard" size="large" [width]="400" />
             </div>
-          </button>
+          </div>
 
           <div class="divider"><em>or with email</em></div>
 

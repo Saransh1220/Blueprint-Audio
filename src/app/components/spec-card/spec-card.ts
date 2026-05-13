@@ -27,7 +27,7 @@ import { SpecActionService } from '../../services/spec-action.service';
 export class SpecCardComponent implements OnInit, OnDestroy {
   @Input() spec!: Spec;
   @Input() priority = false;
-  @Input() appearance: 'default' | 'explore' = 'default';
+  @Input() appearance: 'default' | 'explore' | 'market' = 'default';
 
   actionService = inject(SpecActionService);
   cdr = inject(ChangeDetectorRef);

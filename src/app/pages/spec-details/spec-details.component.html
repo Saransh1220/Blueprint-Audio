@@ -13,12 +13,12 @@
   <div class="breadcrumb-bar">
     <a routerLink="/">Home</a>
     <span class="sep">/</span>
-    <a routerLink="/search">Explore</a>
+    <a routerLink="/explore">Explore</a>
     <span class="sep">/</span>
     <span class="here">{{ s.title }}</span>
     <span class="spacer"></span>
     <div class="nav-btns">
-      <a class="nav-btn" routerLink="/search">Back to rack</a>
+      <a class="nav-btn" routerLink="/explore">Back to rack</a>
     </div>
   </div>
 
@@ -189,7 +189,7 @@
           class="lc-price"
           [class.exclusive-price]="getLicenseVariant(license, i, s.licenses.length) === 'exclusive'"
         >
-          <span class="cur">₹</span>{{ license.price }}
+          <span class="cur">$</span>{{ license.price }}
           <span class="term">one-time</span>
         </div>
         <div class="lc-divider"></div>
@@ -343,31 +343,6 @@
       </a>
     </div>
   </section>
-
-  <div class="sticky-buy">
-    <div class="sb-left">
-      <div class="sb-art">
-        <img [src]="s.imageUrl" [alt]="s.title" />
-      </div>
-      <div class="sb-copy">
-        <strong>{{ s.title }}</strong>
-        <span>{{ selectedLicense()?.name ?? 'Choose license' }}</span>
-      </div>
-    </div>
-    <div class="sb-right">
-      <div class="sb-price">{{ displayPrice() | currency: currencyCode : 'symbol' : '1.0-0' }}</div>
-      <button class="sb-btn ghost" (click)="playSpec()">
-        <i class="fa-solid fa-play"></i>
-      </button>
-      <button
-        class="sb-btn primary"
-        (click)="addSelectedLicenseToCart()"
-        [disabled]="!selectedLicense()"
-      >
-        Add to cart
-      </button>
-    </div>
-  </div>
 </main>
 
 <ng-template #notFound>

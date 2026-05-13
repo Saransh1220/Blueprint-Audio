@@ -178,7 +178,7 @@ export class StudioTracksComponent {
 
   currency(value: number) {
     if (!value) return '—';
-    return `₹${Math.round(value).toLocaleString('en-IN')}`;
+    return `$${Math.round(value).toLocaleString('en-IN')}`;
   }
   private buildApiFilters() {
     const search = this.searchTerm().trim();

@@ -9,34 +9,9 @@
 <!-- PRELOADER -->
 <div class="loader">
   <div class="logo-container">
-    <svg viewBox="0 0 100 100" class="logo-svg">
-      <defs>
-        <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
-          <feGaussianBlur stdDeviation="2" result="blur" />
-          <feComposite in="SourceGraphic" in2="blur" operator="over" />
-        </filter>
-      </defs>
-      <!-- Hexagon Container -->
-      <path
-        class="logo-shape"
-        d="M50 5 L90 25 L90 75 L50 95 L10 75 L10 25 Z"
-        fill="none"
-        stroke="var(--brand-color)"
-        stroke-width="2"
-      />
-      <!-- Pulse Wave -->
-      <path
-        class="logo-pulse"
-        d="M20 50 L35 50 L45 25 L55 75 L65 50 L80 50"
-        fill="none"
-        stroke="var(--brand-color)"
-        stroke-width="3"
-        stroke-linecap="round"
-        stroke-linejoin="round"
-      />
-    </svg>
+    <img class="loader-logo" src="/Logo-cropped.png" alt="Waveyard" />
   </div>
-  <div class="loading-text">INITIALIZING<span class="dots">...</span></div>
+  <div class="loading-text">WAVEYARD<span class="dots">...</span></div>
 </div>
 
 <style>
@@ -64,23 +39,12 @@
     position: relative;
   }
 
-  .logo-svg {
+  .loader-logo {
     width: 100%;
     height: 100%;
-    filter: drop-shadow(0 0 10px rgba(var(--brand-color-rgb), 0.5));
-  }
-
-  .logo-shape {
-    stroke-dasharray: 300;
-    stroke-dashoffset: 300;
-    animation: drawShape 2s ease-in-out infinite alternate;
-  }
-
-  .logo-pulse {
-    stroke-dasharray: 100;
-    stroke-dashoffset: 100;
-    animation: drawPulse 2s ease-in-out infinite alternate 0.5s;
-    /* Delayed start */
+    object-fit: contain;
+    filter: drop-shadow(0 0 14px rgba(var(--brand-color-rgb), 0.45));
+    animation: logoPulse 1.8s ease-in-out infinite alternate;
   }
 
   .loading-text {
@@ -95,31 +59,15 @@
     animation: blink 1.5s infinite;
   }
 
-  @keyframes drawShape {
+  @keyframes logoPulse {
     0% {
-      stroke-dashoffset: 300;
-      opacity: 0.5;
+      opacity: 0.72;
+      transform: scale(0.96);
     }
 
     100% {
-      stroke-dashoffset: 0;
       opacity: 1;
-    }
-  }
-
-  @keyframes drawPulse {
-    0% {
-      stroke-dashoffset: 100;
-      opacity: 0;
-    }
-
-    50% {
-      opacity: 1;
-    }
-
-    100% {
-      stroke-dashoffset: 0;
-      opacity: 1;
+      transform: scale(1);
     }
   }
 
@@ -147,7 +95,7 @@
   <div class="app-route-layer">
     <router-outlet></router-outlet>
   </div>
-  @if (!isStudioRoute() && !isAuthRoute() && !isUploadRoute()) {
+  @if (!isStudioRoute() && !isAuthRoute() && !isUploadRoute() && !isExploreRoute()) {
     <app-footer></app-footer>
   }
 </div>

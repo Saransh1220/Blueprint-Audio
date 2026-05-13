@@ -70,7 +70,7 @@ export class PaymentService {
       key: environment.razorpayKeyId,
       amount: order.amount,
       currency: order.currency,
-      name: 'Blueprint Audio',
+      name: 'Waveyard',
       description: `Purchase ${specTitle}`,
       order_id: order.razorpay_order_id!,
       prefill: {

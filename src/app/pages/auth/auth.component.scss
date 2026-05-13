@@ -1,15 +1,6 @@
 :host {
-  --cream: #f5f1e8;
-  --cream-2: #ece5d3;
-  --cream-3: #e0d7c0;
-  --ink: #141310;
-  --ink-2: #3a3630;
-  --ink-mute: #6b635a;
-  --hot: #ff3d5a;
   --tangerine: #ff6b1a;
-  --lime: #c8e84f;
   --cobalt: #2d4cff;
-  --sun: #ffc93c;
   display: block;
 }
 
@@ -18,17 +9,6 @@
   display: grid;
   grid-template-columns: 45fr 55fr;
   background: var(--cream);
-}
-
-.auth-wrap::before {
-  content: '';
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  z-index: 1;
-  opacity: 0.06;
-  mix-blend-mode: multiply;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' seed='4'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
 }
 
 .brand-panel {

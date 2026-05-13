@@ -30,8 +30,8 @@
       <select class="sort-select" [ngModel]="sortMode()" (ngModelChange)="sortMode.set($event)">
         <option>Sort: Newest</option>
         <option>Sort: Trending</option>
-        <option>Sort: Price ↑</option>
-        <option>Sort: Price ↓</option>
+        <option>Sort: Price &#8593;</option>
+        <option>Sort: Price &#8595;</option>
       </select>
       <div class="search-bar">
         <i class="fas fa-search"></i>
@@ -101,17 +101,12 @@
 
     @if (viewMode() === 'list') {
       <div class="list-container">
-        <div class="list-head">
-          <span></span>
-          <span>Title / Producer</span>
-          <span class="c-tags">Tags</span>
-          <span>BPM</span>
-          <span class="c-key">Key</span>
-          <span class="c-dur">Length</span>
-          <span style="text-align: right">Price</span>
-        </div>
         @for (spec of specs(); track spec.id; let i = $index) {
-          <app-spec-list-item [spec]="spec" [priority]="i < 6"></app-spec-list-item>
+          <app-spec-list-item
+            [spec]="spec"
+            appearance="market"
+            [priority]="i < 6"
+          ></app-spec-list-item>
         }
       </div>
     }

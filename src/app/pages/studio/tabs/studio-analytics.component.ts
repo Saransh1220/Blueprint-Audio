@@ -357,7 +357,7 @@ export class StudioAnalyticsComponent {
   }
 
   currency(value: number): string {
-    return `₹${Math.round(value || 0).toLocaleString('en-IN')}`;
+    return `$${Math.round(value || 0).toLocaleString('en-IN')}`;
   }
 
   private linePath(points: { x: number; y: number }[]): string {

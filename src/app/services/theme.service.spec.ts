@@ -29,18 +29,20 @@ describe('ThemeService', () => {
 
   it('initializes from localStorage values when available', () => {
     getItemSpy.mockImplementation((key: string) => {
-      if (key === 'app-theme-preset') return 'mint';
+      if (key === 'theme-mode') return 'dark';
       return null;
     });
 
     service = TestBed.inject(ThemeService);
-    expect(service.activeTheme()).toBe('mint');
+    expect(service.currentMode()).toBe('dark');
   });
 
-  it('sets theme properly', () => {
+  it('sets mode properly', () => {
     service = TestBed.inject(ThemeService);
-    service.setTheme('neon');
+    service.setMode('dark');
+    expect(service.currentMode()).toBe('dark');
 
-    expect(service.activeTheme()).toBe('neon');
+    service.toggleMode();
+    expect(service.currentMode()).toBe('light');
   });
 });

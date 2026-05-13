@@ -86,14 +86,14 @@ export class LabSectionComponent implements OnInit, AfterViewInit {
 
   onSearch() {
     if (this.searchTerm().trim()) {
-      this.router.navigate(['/search'], {
+      this.router.navigate(['/explore'], {
         queryParams: { search: this.searchTerm() },
       });
     }
   }
 
   navigateToSearch() {
-    this.router.navigate(['/search']);
+    this.router.navigate(['/explore']);
   }
 
   playSong(spec: Spec) {

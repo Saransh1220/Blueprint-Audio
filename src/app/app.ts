@@ -98,6 +98,10 @@ export class AppComponent implements AfterViewInit {
     return this.router.url === '/upload' || this.router.url.startsWith('/studio/upload');
   }
 
+  isExploreRoute(): boolean {
+    return this.router.url === '/explore' || this.router.url.startsWith('/explore?');
+  }
+
   isAuthRoute(): boolean {
     return (
       this.router.url.startsWith('/login') ||

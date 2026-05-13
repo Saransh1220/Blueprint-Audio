@@ -87,7 +87,7 @@ export class StudioOverviewComponent {
     }
     return [
       { label: 'Plays', value: data.total_plays.toLocaleString('en-IN') },
-      { label: 'Revenue', value: `₹${data.total_revenue.toLocaleString('en-IN')}` },
+      { label: 'Revenue', value: `$${data.total_revenue.toLocaleString('en-IN')}` },
       { label: 'Downloads', value: data.total_downloads.toLocaleString('en-IN') },
       { label: 'Favorites', value: data.total_favorites.toLocaleString('en-IN') },
     ];
@@ -324,7 +324,7 @@ export class StudioOverviewComponent {
   }
 
   currency(value: number): string {
-    return `₹${Math.round(value || 0).toLocaleString('en-IN')}`;
+    return `$${Math.round(value || 0).toLocaleString('en-IN')}`;
   }
 
   private linePath(points: { x: number; y: number }[]): string {

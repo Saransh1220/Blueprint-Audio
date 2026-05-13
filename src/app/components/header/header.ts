@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, computed, inject, output, signal } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { AuthService, CartService, NotificationService } from '../../services';
@@ -37,7 +38,7 @@ interface HeaderNotificationItem {
 @Component({
   selector: 'app-header',
   standalone: true,
-  imports: [CommonModule, RouterLink, RouterLinkActive, ThemeToggleComponent],
+  imports: [CommonModule, FormsModule, RouterLink, RouterLinkActive, ThemeToggleComponent],
   templateUrl: './header.html',
   styleUrls: ['./header.scss'],
 })
@@ -49,6 +50,7 @@ export class HeaderComponent {
   notificationService = inject(NotificationService);
   private router = inject(Router);
   studioShell = inject(StudioShellService);
+  globalSearchTerm = '';
 
   // Expose Role enum to template
   readonly Role = Role;
@@ -182,6 +184,16 @@ export class HeaderComponent {
 
   isStudioSection(path: string) {
     return this.router.url === `/studio/${path}`;
+  }
+
+  submitGlobalSearch() {
+    const query = this.globalSearchTerm.trim();
+    this.router.navigate(['/explore'], {
+      queryParams: query ? { search: query } : {},
+    });
+    this.closeMobileMenu();
+    this.closeNotifications();
+    this.closeUserMenu();
   }
 
   toggleStudioMobileNav() {

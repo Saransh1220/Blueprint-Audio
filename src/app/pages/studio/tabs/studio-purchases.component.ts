@@ -264,7 +264,7 @@ export class StudioPurchasesComponent implements OnInit {
       date: date.toLocaleDateString('en-US', { month: 'short', day: '2-digit' }),
       year: String(date.getFullYear()),
       title,
-      producer: 'Cult Beats',
+      producer: 'Waveyard',
       meta: `License key · ${license.license_key?.slice(0, 8) || 'active'}`,
       license: licenseName,
       format,

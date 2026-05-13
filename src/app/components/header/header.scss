@@ -24,6 +24,7 @@ nav.fixed-navbar {
   display: inline-flex;
   align-items: center;
   gap: 8px;
+  flex-shrink: 0;
 }
 
 .nav-brand {
@@ -41,17 +42,16 @@ nav.fixed-navbar {
 
 // Logo overrides for header context
 .header-brand .logo-mark {
-  width: 36px; // Match reference size (Image 1)
-  height: 36px;
-  box-shadow: 2.5px 2.5px 0 var(--hot); // Stronger brand shadow for visibility
+  width: 76px;
+  height: 50px;
 }
 
 .header-brand .logo-word {
   gap: 4px;
-  .word-cult {
+  .word-audio {
     color: var(--ink) !important;
   }
-  .word-beats {
+  .word-mesh {
     color: var(--hot) !important;
   }
   .word-dot {
@@ -60,6 +60,84 @@ nav.fixed-navbar {
   .word-star {
     color: var(--hot) !important;
     font-size: 14px;
+  }
+}
+
+.nav-search {
+  position: relative;
+  flex: 1 1 320px;
+  max-width: 390px;
+  min-width: 220px;
+  display: flex;
+  align-items: center;
+  margin-left: clamp(4px, 1vw, 14px);
+
+  i {
+    position: absolute;
+    left: 14px;
+    z-index: 1;
+    color: var(--text-secondary, var(--ink-mute));
+    font-size: 13px;
+    pointer-events: none;
+  }
+
+  input {
+    width: 100%;
+    height: 40px;
+    border: 1.5px solid var(--text-color);
+    border-radius: 999px;
+    padding: 0 58px 0 38px;
+    background: var(--bg-color);
+    color: var(--text-color);
+    font-family: $font-head;
+    font-size: 13.5px;
+    font-weight: 600;
+    outline: none;
+    transition:
+      box-shadow 0.15s ease,
+      transform 0.15s ease,
+      background 0.15s ease;
+
+    &::placeholder {
+      color: rgba(var(--text-color-rgb), 0.58);
+    }
+
+    &:focus {
+      background: var(--cream);
+      color: var(--ink);
+      box-shadow: 3px 3px 0 var(--hot);
+      transform: translate(-1px, -1px);
+    }
+  }
+
+  button {
+    position: absolute;
+    right: 6px;
+    min-width: 42px;
+    height: 28px;
+    border: 1.5px solid var(--text-color);
+    border-radius: 999px;
+    background: var(--text-color);
+    color: var(--bg-color);
+    font-family: $font-tech;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    cursor: pointer;
+  }
+}
+
+@media (max-width: 980px) {
+  .nav-search {
+    max-width: 300px;
+    min-width: 180px;
+  }
+}
+
+@media (max-width: 760px) {
+  .nav-search {
+    display: none;
   }
 }
 
@@ -1236,4 +1314,224 @@ nav.fixed-navbar {
   &::before {
     right: 20px !important;
   }
+}
+
+// Waveyard dark reference styling for notification/user popups.
+:host-context(body.dark-theme) {
+  --notif-surface: #1a1814;
+  --notif-surface-2: #262219;
+  --notif-ink: #f0e9d6;
+  --notif-muted: #8a8170;
+  --notif-soft: #c8bfa9;
+  --notif-hot: #ff4d68;
+  --notif-lime: #d9f561;
+  --notif-sun: #ffd455;
+  --notif-cobalt: #5b78ff;
+  --notif-cream: #0e0d0b;
+}
+
+:host-context(body.dark-theme) nav.fixed-navbar {
+  background: rgba(14, 13, 11, 0.92);
+  border-bottom-color: var(--notif-ink);
+}
+
+:host-context(body.dark-theme) .studio-menu,
+:host-context(body.dark-theme) .dropdown-menu,
+:host-context(body.dark-theme) .mobile-menu {
+  background: var(--notif-surface);
+  color: var(--notif-ink);
+  border-color: var(--notif-ink);
+  box-shadow: 6px 6px 0 var(--notif-hot);
+}
+
+:host-context(body.dark-theme) .studio-menu::after,
+:host-context(body.dark-theme) .notifications-menu::before {
+  background: var(--notif-surface);
+  border-color: var(--notif-ink);
+}
+
+:host-context(body.dark-theme) .sm-head,
+:host-context(body.dark-theme) .notif-head,
+:host-context(body.dark-theme) .notif-foot,
+:host-context(body.dark-theme) .sm-foot,
+:host-context(body.dark-theme) .notif-filters,
+:host-context(body.dark-theme) .ni-meta-row {
+  border-color: color-mix(in srgb, var(--notif-ink) 26%, transparent);
+}
+
+:host-context(body.dark-theme) .sm-foot,
+:host-context(body.dark-theme) .notif-foot,
+:host-context(body.dark-theme) .menu-header,
+:host-context(body.dark-theme) .user-menu-header {
+  background: var(--notif-surface-2);
+}
+
+:host-context(body.dark-theme) .notif-title,
+:host-context(body.dark-theme) .user-name,
+:host-context(body.dark-theme) .sm-label,
+:host-context(body.dark-theme) .notif-empty h5,
+:host-context(body.dark-theme) .ni-amount,
+:host-context(body.dark-theme) .menu-item {
+  color: var(--notif-ink);
+}
+
+:host-context(body.dark-theme) .sm-desc,
+:host-context(body.dark-theme) .sm-foot-meta,
+:host-context(body.dark-theme) .sm-kbd,
+:host-context(body.dark-theme) .notif-mark-read,
+:host-context(body.dark-theme) .notif-filter,
+:host-context(body.dark-theme) .ni-text,
+:host-context(body.dark-theme) .ni-time,
+:host-context(body.dark-theme) .ni-license,
+:host-context(body.dark-theme) .notif-empty,
+:host-context(body.dark-theme) .user-email,
+:host-context(body.dark-theme) .settings-link {
+  color: var(--notif-muted);
+}
+
+:host-context(body.dark-theme) .ni-text em,
+:host-context(body.dark-theme) .notif-empty h5 em,
+:host-context(body.dark-theme) .sm-head h5 em {
+  color: var(--notif-hot);
+}
+
+:host-context(body.dark-theme) .notif-pill,
+:host-context(body.dark-theme) .notification-badge,
+:host-context(body.dark-theme) .cart-badge,
+:host-context(body.dark-theme) .sm-count.alert {
+  background: var(--notif-hot);
+  color: #fff;
+  border-color: var(--notif-ink);
+}
+
+:host-context(body.dark-theme) .notif-pill.empty,
+:host-context(body.dark-theme) .sm-count {
+  background: var(--notif-surface-2);
+  color: var(--notif-muted);
+}
+
+:host-context(body.dark-theme) .notif-filter:hover,
+:host-context(body.dark-theme) .notif-item:hover,
+:host-context(body.dark-theme) .menu-item:hover,
+:host-context(body.dark-theme) .sm-item:hover,
+:host-context(body.dark-theme) .mobile-links a:hover,
+:host-context(body.dark-theme) .mobile-links a.active,
+:host-context(body.dark-theme) .mobile-logout-btn:hover {
+  background: var(--notif-surface-2) !important;
+  color: var(--notif-ink) !important;
+}
+
+:host-context(body.dark-theme) .notif-filter.active,
+:host-context(body.dark-theme) .sm-item.active {
+  background: var(--notif-ink) !important;
+  color: var(--notif-cream) !important;
+  border-color: var(--notif-ink);
+}
+
+:host-context(body.dark-theme) .notif-filter.active .fc-count,
+:host-context(body.dark-theme) .sm-item.active .sm-count {
+  color: var(--notif-hot);
+}
+
+:host-context(body.dark-theme) .notif-item {
+  color: var(--notif-ink);
+  border-bottom-color: color-mix(in srgb, var(--notif-ink) 16%, transparent);
+
+  &.unread {
+    background: rgba(255, 77, 104, 0.08);
+
+    &:hover {
+      background: rgba(255, 77, 104, 0.13);
+    }
+  }
+
+  &::before {
+    background: color-mix(in srgb, var(--notif-ink) 26%, transparent);
+  }
+}
+
+:host-context(body.dark-theme) .notif-item[data-kind='sale']::before,
+:host-context(body.dark-theme) .ni-dot {
+  background: var(--notif-hot);
+}
+
+:host-context(body.dark-theme) .notif-item[data-kind='message']::before {
+  background: var(--notif-cobalt);
+}
+
+:host-context(body.dark-theme) .notif-item[data-kind='cart']::before {
+  background: #ff7d2e;
+}
+
+:host-context(body.dark-theme) .notif-item[data-kind='follow']::before,
+:host-context(body.dark-theme) .notif-item[data-kind='wishlist']::before {
+  background: #d4c5ff;
+}
+
+:host-context(body.dark-theme) .notif-item[data-kind='milestone']::before {
+  background: var(--notif-sun);
+}
+
+:host-context(body.dark-theme) .notif-item[data-kind='system']::before {
+  background: var(--notif-lime);
+}
+
+:host-context(body.dark-theme) .ni-avatar,
+:host-context(body.dark-theme) .ni-mini-art,
+:host-context(body.dark-theme) .sm-ico,
+:host-context(body.dark-theme) .user-avatar-large,
+:host-context(body.dark-theme) .user-avatar-fallback-large,
+:host-context(body.dark-theme) .notif-empty .ne-ico,
+:host-context(body.dark-theme) .sm-kbd {
+  border-color: var(--notif-ink);
+}
+
+:host-context(body.dark-theme) .ni-avatar.c-hot,
+:host-context(body.dark-theme) .sm-ico.c-hot {
+  background: var(--notif-hot);
+  color: #fff;
+}
+
+:host-context(body.dark-theme) .ni-avatar.c-cobalt,
+:host-context(body.dark-theme) .sm-ico.c-cobalt {
+  background: var(--notif-cobalt);
+  color: #fff;
+}
+
+:host-context(body.dark-theme) .ni-avatar.c-lime,
+:host-context(body.dark-theme) .sm-ico.c-lime {
+  background: var(--notif-lime);
+  color: var(--notif-cream);
+}
+
+:host-context(body.dark-theme) .ni-avatar.c-sun,
+:host-context(body.dark-theme) .sm-ico.c-sun {
+  background: var(--notif-sun);
+  color: var(--notif-cream);
+}
+
+:host-context(body.dark-theme) .ni-avatar.c-lavender,
+:host-context(body.dark-theme) .sm-ico.c-lavender {
+  background: #d4c5ff;
+  color: var(--notif-cream);
+}
+
+:host-context(body.dark-theme) .ni-avatar.c-cream,
+:host-context(body.dark-theme) .sm-ico.c-cream {
+  background: var(--notif-surface-2);
+  color: var(--notif-ink);
+}
+
+:host-context(body.dark-theme) .notif-foot a {
+  color: var(--notif-ink);
+  border-color: var(--notif-ink);
+
+  &:hover {
+    color: var(--notif-hot);
+    border-color: var(--notif-hot);
+  }
+}
+
+:host-context(body.dark-theme) .backdrop {
+  background: rgba(5, 4, 2, 0.18);
 }

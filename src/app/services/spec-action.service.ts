@@ -16,7 +16,7 @@ export class SpecActionService {
   private analyticsService = inject(AnalyticsService);
   private authService = inject(AuthService);
 
-  playSong(event: MouseEvent, spec: Spec) {
+  playSong(event: Event, spec: Spec) {
     event.stopPropagation();
     const currentTrack = this.playerService.currentTrack();
 
@@ -30,7 +30,7 @@ export class SpecActionService {
     }
   }
 
-  addToCart(event: MouseEvent, spec: Spec) {
+  addToCart(event: Event, spec: Spec) {
     event.stopPropagation();
     this.authService.requireAuth(() => {
       this.modalService.open(LicenseSelectorComponent, 'Select License', { spec });
@@ -43,7 +43,7 @@ export class SpecActionService {
   }
 
   toggleFavorite(
-    event: MouseEvent,
+    event: Event,
     spec: Spec,
     isFavoriting: WritableSignal<boolean>,
     cdr: ChangeDetectorRef,
@@ -89,7 +89,7 @@ export class SpecActionService {
     });
   }
 
-  downloadFreeMp3(event: MouseEvent, spec: Spec) {
+  downloadFreeMp3(event: Event, spec: Spec) {
     event.stopPropagation();
     this.analyticsService.downloadFreeMp3(spec.id).subscribe({
       next: (response) => {

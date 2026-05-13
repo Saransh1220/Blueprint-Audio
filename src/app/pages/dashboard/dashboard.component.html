@@ -151,7 +151,7 @@
             Discover fresh beats, revisit your favorites, and add to your collection.
           </p>
           <div class="lc-hero-actions">
-            <a routerLink="/search" class="lc-action-btn primary">
+            <a routerLink="/explore" class="lc-action-btn primary">
               Browse the store
               <svg
                 width="14"
@@ -182,7 +182,7 @@
               ></div>
             } @else if (totalRevenue() !== null) {
               <div class="lc-hs-big">
-                <span class="lc-cur">₹</span>{{ totalRevenue()!.toLocaleString() }}
+                <span class="lc-cur">$</span>{{ totalRevenue()!.toLocaleString() }}
               </div>
             } @else {
               <div class="lc-hs-big">—</div>
@@ -217,7 +217,7 @@
           </a>
         }
         @if (activeRole() === 'listener') {
-          <a routerLink="/search" class="lc-hs-cta">
+          <a routerLink="/explore" class="lc-hs-cta">
             Browse the store
             <svg
               width="13"
@@ -280,7 +280,7 @@
               <h2 class="lc-section-h">recently <em>played</em>.</h2>
             }
           </div>
-          <a routerLink="/search" class="lc-section-link">
+          <a routerLink="/explore" class="lc-section-link">
             See all
             <span class="lc-arrow">
               <svg
@@ -343,7 +343,7 @@
                         }}{{ spec.key ? ' · ' + spec.key : '' }}</span
                       >
                       <span class="lc-bc-price">{{
-                        spec.price != null ? '₹' + spec.price : ''
+                        spec.price != null ? '$' + spec.price : ''
                       }}</span>
                     </div>
                   </div>
@@ -379,7 +379,7 @@
           <div class="lc-empty-state">
             <p>
               Your recently played tracks will appear here.
-              <a routerLink="/search">Browse beats →</a>
+              <a routerLink="/explore">Browse beats →</a>
             </p>
           </div>
         }
@@ -477,7 +477,7 @@
                     <div class="lc-drop-meta">
                       {{ spec.bpm ? spec.bpm + ' BPM' : '' }}
                       {{ spec.key ? '· ' + spec.key : '' }}
-                      {{ spec.genres?.[0]?.name ? '· ' + spec.genres[0].name : '' }}
+                      {{ spec.genres[0]?.name ? '· ' + spec.genres[0].name : '' }}
                     </div>
                   </div>
                   <div class="lc-drop-stat hide-mobile">
@@ -487,7 +487,7 @@
                     {{ spec.analytics?.totalDownloadCount ?? '—' }} <em>dl</em>
                   </div>
                   <div class="lc-drop-rev hide-mobile">
-                    {{ spec.price != null ? '₹' + spec.price : '—' }}
+                    {{ spec.price != null ? '$' + spec.price : '—' }}
                   </div>
                   <div class="lc-drop-actions">
                     <span
@@ -667,7 +667,7 @@
         </a>
       }
       @if (activeRole() === 'listener') {
-        <a routerLink="/search" class="lc-dock-item">
+        <a routerLink="/explore" class="lc-dock-item">
           <div class="lc-dock-icon c1">
             <svg
               width="18"
@@ -684,7 +684,7 @@
           <div class="lc-dock-label">Find beats</div>
         </a>
       }
-      <a routerLink="/search" class="lc-dock-item">
+      <a routerLink="/explore" class="lc-dock-item">
         <div class="lc-dock-icon c2">
           <svg
             width="18"
@@ -830,7 +830,7 @@
     @if (activeRole() === 'listener') {
       <section class="lc-cta-banner">
         <div class="lc-cta-text">
-          <div class="lc-cta-kicker">✦ Save more with Cult Beats+</div>
+          <div class="lc-cta-kicker">✦ Save more with Waveyard+</div>
           <h3 class="lc-cta-title">Unlock <em>unlimited streams</em> on every beat you buy.</h3>
           <p class="lc-cta-sub">
             Members get 15% off every license, early access to Friday drops, and first dibs on
@@ -838,8 +838,8 @@
           </p>
         </div>
         <div class="lc-cta-actions">
-          <button class="lc-cta-btn primary" (click)="showToast('Going Cult Beats+!')">
-            Go Cult Beats+
+          <button class="lc-cta-btn primary" (click)="showToast('Going Waveyard+!')">
+            Go Waveyard+
             <svg
               width="14"
               height="14"

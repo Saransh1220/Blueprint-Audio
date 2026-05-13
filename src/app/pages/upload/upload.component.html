@@ -3,18 +3,8 @@
     <header class="upload-header">
       <a class="upload-logo" routerLink="/">
         <div class="logo">
-          <span class="logo-mark" aria-hidden="true">
-            <span class="mark-letters">
-              <span class="c">C</span>
-              <span class="b">B</span>
-            </span>
-          </span>
-          <span class="logo-word">
-            <span class="word-cult">cult</span>
-            <span class="word-dot">·</span>
-            <span class="word-beats">beats</span>
-            <span class="word-star">✦</span>
-          </span>
+          <img class="logo-mark" src="/Logo-cropped.png" alt="" aria-hidden="true" />
+          <span class="logo-word">Waveyard</span>
         </div>
       </a>
       <div class="upload-header-title">Upload a <em>beat</em></div>
@@ -104,7 +94,7 @@
               <div class="form-group">
                 <label class="form-label">
                   <span>Tempo</span>
-                  <em>60â€“300 bpm</em>
+                  <em>60-300 bpm</em>
                 </label>
                 <div class="input-with-suffix">
                   <input class="form-input" type="text" formControlName="bpm" placeholder="92" />
@@ -178,7 +168,7 @@
                   @for (tag of tags.controls; track tag; let i = $index) {
                     <span class="tag-chip">
                       {{ tag.value }}
-                      <span class="x" (click)="removeTag(i)">Ã—</span>
+                      <span class="x" (click)="removeTag(i)">&times;</span>
                     </span>
                   }
                   <input
@@ -255,7 +245,7 @@
                   </div>
                   <h4>Cover <em>art</em></h4>
                   <p class="cover-sub">Square artwork for listing cards and detail pages.</p>
-                  <span class="cover-specs">jpg, png Â· up to 5mb</span>
+                  <span class="cover-specs">jpg, png &middot; up to 5mb</span>
                 }
               </div>
 
@@ -439,7 +429,7 @@
                   </div>
 
                   <div class="price-input-wrap">
-                    <span class="cur">â‚¹</span>
+                    <span class="cur">&#8377;</span>
                     <input
                       type="number"
                       class="price-input"
@@ -510,7 +500,7 @@
                   ></div>
                   <div class="preview-info">
                     <div class="p-title">{{ f['title'].value || 'Untitled' }}</div>
-                    <div class="p-by">prod. you Â· {{ currentScale() }}</div>
+                    <div class="p-by">prod. you &middot; {{ currentScale() }}</div>
                     <div class="p-tags">
                       @for (tag of beatPreviewTags(); track tag) {
                         <span class="p-tag">{{ tag }}</span>
@@ -522,9 +512,7 @@
                 <div class="kv-list">
                   <div class="kv-row">
                     <span class="k">Tempo</span
-                    ><span class="v"
-                      >{{ f['bpm'].value || 'â€“' }} <span class="sub">BPM</span></span
-                    >
+                    ><span class="v">{{ f['bpm'].value || '-' }} <span class="sub">BPM</span></span>
                   </div>
                   <div class="kv-row">
                     <span class="k">Key</span
@@ -534,8 +522,7 @@
                     >
                   </div>
                   <div class="kv-row">
-                    <span class="k">Genre</span
-                    ><span class="v">{{ f['genre'].value || 'â€”' }}</span>
+                    <span class="k">Genre</span><span class="v">{{ f['genre'].value || '-' }}</span>
                   </div>
                   <div class="kv-row">
                     <span class="k">Starting at</span
@@ -557,8 +544,8 @@
                     <div class="fsum-info">
                       <div class="t">Cover art</div>
                       <div class="s">
-                        {{ coverSummary()?.name || 'Required â€” please upload'
-                        }}{{ coverSummary()?.detail ? ' Â· ' + coverSummary()?.detail : '' }}
+                        {{ coverSummary()?.name || 'Required - please upload'
+                        }}{{ coverSummary()?.detail ? ' - ' + coverSummary()?.detail : '' }}
                       </div>
                     </div>
                     <span class="fsum-status" [class.warn]="!coverFile()">{{
@@ -571,8 +558,8 @@
                     <div class="fsum-info">
                       <div class="t">Tagged MP3 preview</div>
                       <div class="s">
-                        {{ previewSummary()?.name || 'Required â€” please upload'
-                        }}{{ previewSummary()?.detail ? ' Â· ' + previewSummary()?.detail : '' }}
+                        {{ previewSummary()?.name || 'Required - please upload'
+                        }}{{ previewSummary()?.detail ? ' - ' + previewSummary()?.detail : '' }}
                       </div>
                     </div>
                     <span class="fsum-status" [class.warn]="!previewFile()">{{
@@ -585,8 +572,8 @@
                     <div class="fsum-info">
                       <div class="t">Master WAV</div>
                       <div class="s">
-                        {{ wavSummary()?.name || 'Optional â€” not uploaded'
-                        }}{{ wavSummary()?.detail ? ' Â· ' + wavSummary()?.detail : '' }}
+                        {{ wavSummary()?.name || 'Optional - not uploaded'
+                        }}{{ wavSummary()?.detail ? ' - ' + wavSummary()?.detail : '' }}
                       </div>
                     </div>
                     <span class="fsum-status" [class.soft]="!wavFile()">{{
@@ -598,7 +585,7 @@
                     <div class="fsum-icon stems"><i class="fa-solid fa-layer-group"></i></div>
                     <div class="fsum-info">
                       <div class="t">Stems / trackouts</div>
-                      <div class="s">{{ stemsSummary()?.name || 'Optional â€” not uploaded' }}</div>
+                      <div class="s">{{ stemsSummary()?.name || 'Optional - not uploaded' }}</div>
                     </div>
                     <span class="fsum-status" [class.soft]="!stemsFile()">{{
                       stemsFile() ? 'Uploaded' : 'Skipped'
@@ -617,11 +604,11 @@
                 <div class="kv-list">
                   <div class="kv-row">
                     <span class="k">Mood tags</span
-                    ><span class="v">{{ selectedMoods().join(' Â· ') || 'â€”' }}</span>
+                    ><span class="v">{{ selectedMoods().join(' - ') || '-' }}</span>
                   </div>
                   <div class="kv-row">
                     <span class="k">Searchable tags</span
-                    ><span class="v">{{ tags.length ? tags.value.join(', ') : 'â€”' }}</span>
+                    ><span class="v">{{ tags.length ? tags.value.join(', ') : '-' }}</span>
                   </div>
                   <div class="kv-row">
                     <span class="k">Description</span>
@@ -672,7 +659,7 @@
 
     <div class="nav-footer">
       <div class="nav-info">
-        Step <strong>{{ currentStep() }}</strong> of <strong>{{ totalSteps }}</strong> Â·
+        Step <strong>{{ currentStep() }}</strong> of <strong>{{ totalSteps }}</strong> &middot;
         <span>{{ getStepHint() }}</span>
       </div>
       <div class="nav-btns">

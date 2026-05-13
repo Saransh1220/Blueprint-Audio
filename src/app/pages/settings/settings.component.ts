@@ -14,10 +14,4 @@ import { ThemeService } from '../../services/theme.service';
 export class SettingsComponent {
   themeService = inject(ThemeService);
   activeTab: 'appearance' | 'preferences' | 'account' = 'appearance';
-
-  // Computed property to get details of the current active theme
-  activeThemeDetails = computed(() => {
-    const themeId = this.themeService.activeTheme();
-    return this.themeService.themes.find((t) => t.id === themeId);
-  });
 }

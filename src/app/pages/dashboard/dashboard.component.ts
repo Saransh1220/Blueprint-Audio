@@ -10,7 +10,7 @@ import {
   effect,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { SpecRowComponent } from '../../components/spec-row/spec-row.component';
+
 import { AuthService, LabService, AnalyticsService } from '../../services';
 import { PlayerService } from '../../services/player.service';
 import { Role } from '../../models';
@@ -19,7 +19,7 @@ import type { AnalyticsOverviewResponse, TopSpecStat } from '../../core/api/anal
 
 @Component({
   selector: 'app-dashboard',
-  imports: [CommonModule, SpecRowComponent, RouterLink],
+  imports: [CommonModule, RouterLink],
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -119,7 +119,7 @@ export class DashboardComponent implements OnInit {
       },
       {
         label: 'Revenue',
-        value: '₹' + data.total_revenue.toLocaleString(),
+        value: '$' + data.total_revenue.toLocaleString(),
         delta: 'Lifetime',
         deltaDir: 'up',
         accent: 'c2',
@@ -383,7 +383,7 @@ export class DashboardComponent implements OnInit {
       prod: spec.producerName ? `prod. ${spec.producerName}` : '',
       bpm: spec.bpm ? `${spec.bpm} BPM` : '',
       key: spec.key || '',
-      price: spec.price != null ? `₹${spec.price.toLocaleString()}` : '',
+      price: spec.price != null ? `$${spec.price.toLocaleString()}` : '',
     };
   }
 
@@ -394,7 +394,7 @@ export class DashboardComponent implements OnInit {
       title: spec.title,
       prod: '',
       plays: spec.plays?.toLocaleString() || '—',
-      rev: spec.revenue != null ? `₹${spec.revenue.toLocaleString()}` : '—',
+      rev: spec.revenue != null ? `$${spec.revenue.toLocaleString()}` : '—',
     };
   }
 
@@ -409,7 +409,7 @@ export class DashboardComponent implements OnInit {
         .join(' · '),
       plays: spec.analytics?.playCount?.toLocaleString() || '—',
       downloads: spec.analytics?.totalDownloadCount?.toLocaleString() || '—',
-      rev: spec.price != null ? `₹${spec.price.toLocaleString()}` : '—',
+      rev: spec.price != null ? `$${spec.price.toLocaleString()}` : '—',
       status:
         spec.processingStatus === 'completed'
           ? 'live'

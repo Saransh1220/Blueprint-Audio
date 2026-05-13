@@ -2,18 +2,9 @@
 
 // ═══ CSS variable palette (scoped to studio) ═══
 :host {
-  --cream: #f5f1e8;
-  --cream-2: #ece5d3;
-  --cream-3: #e0d7c0;
-  --ink: #141310;
-  --ink-2: #3a3630;
-  --ink-mute: #6b635a;
-  --hot: #ff3d5a;
   --tangerine: #ff6b1a;
-  --lime: #c8e84f;
   --cobalt: #2d4cff;
   --lavender: #c9b8ff;
-  --sun: #ffc93c;
   --sidebar-w: 264px;
   display: block;
   background: var(--cream);
@@ -151,7 +142,7 @@
   font-family: $font-tech;
   font-size: 10px;
   letter-spacing: 0.1em;
-  color: rgba(245, 241, 232, 0.6);
+  color: color-mix(in srgb, var(--cream) 60%, transparent);
   margin-top: 1px;
 }
 
@@ -176,7 +167,7 @@
   grid-template-columns: 1fr 1fr;
   gap: 4px;
   padding-top: 10px;
-  border-top: 1px dashed rgba(245, 241, 232, 0.2);
+  border-top: 1px dashed color-mix(in srgb, var(--cream) 20%, transparent);
 }
 
 .prof-stat {
@@ -185,7 +176,7 @@
     font-size: 9px;
     letter-spacing: 0.12em;
     text-transform: uppercase;
-    color: rgba(245, 241, 232, 0.55);
+    color: color-mix(in srgb, var(--cream) 55%, transparent);
   }
 
   .val {
@@ -488,7 +479,7 @@
     display: block;
     position: fixed;
     inset: 78px 0 0;
-    background: rgba(20, 19, 16, 0.5);
+    background: color-mix(in srgb, var(--ink) 50%, transparent);
     backdrop-filter: blur(3px);
     z-index: 140;
     opacity: 0;
@@ -510,4 +501,136 @@
   .studio-main {
     padding: 20px 14px 40px;
   }
+}
+
+// Waveyard dark reference skin. Scoped so light Studio remains unchanged.
+:host-context(body.dark-theme) {
+  --cream: #0e0d0b;
+  --cream-2: #1a1814;
+  --cream-3: #262219;
+  --ink: #f0e9d6;
+  --ink-2: #c8bfa9;
+  --ink-mute: #8a8170;
+  --hot: #ff4d68;
+  --tangerine: #ff7d2e;
+  --lime: #d9f561;
+  --cobalt: #5b78ff;
+  --lavender: #d4c5ff;
+  --sun: #ffd455;
+  --inverse: #f0e9d6;
+  --inverse-fg: #0e0d0b;
+  --player-bg: #050402;
+
+  background:
+    radial-gradient(circle at 88% 8%, rgba(255, 77, 104, 0.08), transparent 26rem),
+    radial-gradient(circle at 12% 38%, rgba(91, 120, 255, 0.07), transparent 28rem), var(--cream);
+  color: var(--ink);
+}
+
+:host-context(body.dark-theme) .studio-layout {
+  min-height: calc(100vh - 74px);
+}
+
+:host-context(body.dark-theme) .sidebar {
+  background: color-mix(in srgb, var(--cream) 88%, #000 12%);
+  color: var(--ink);
+  border-right-color: var(--ink);
+  box-shadow: 8px 0 34px rgba(0, 0, 0, 0.34);
+}
+
+:host-context(body.dark-theme) .prof-card {
+  background: var(--player-bg);
+  color: var(--ink);
+  border-color: var(--ink);
+  box-shadow: 4px 4px 0 var(--hot);
+
+  &::before {
+    opacity: 0.1;
+    mix-blend-mode: screen;
+  }
+}
+
+:host-context(body.dark-theme) .prof-avatar {
+  border-color: var(--ink);
+  color: #fff;
+}
+
+:host-context(body.dark-theme) .prof-name em,
+:host-context(body.dark-theme) .prof-stat .val em {
+  color: var(--lime);
+}
+
+:host-context(body.dark-theme) .prof-handle,
+:host-context(body.dark-theme) .prof-stat .lbl,
+:host-context(body.dark-theme) .side-section-head,
+:host-context(body.dark-theme) .signed-as,
+:host-context(body.dark-theme) .tool-link .tl-ico {
+  color: var(--ink-mute);
+}
+
+:host-context(body.dark-theme) .prof-pro,
+:host-context(body.dark-theme) .verified {
+  background: var(--lime);
+  color: var(--cream);
+  border-color: var(--ink);
+}
+
+:host-context(body.dark-theme) .prof-stats {
+  border-top-color: color-mix(in srgb, var(--ink) 20%, transparent);
+}
+
+:host-context(body.dark-theme) .side-nav-item,
+:host-context(body.dark-theme) .tool-link,
+:host-context(body.dark-theme) .side-bottom a,
+:host-context(body.dark-theme) .side-bottom-btn {
+  color: var(--ink);
+}
+
+:host-context(body.dark-theme) .side-nav-item:hover,
+:host-context(body.dark-theme) .tool-link:hover {
+  background: var(--cream-2);
+}
+
+:host-context(body.dark-theme) .side-nav-item.active {
+  background: var(--ink);
+  color: var(--cream);
+  border-color: var(--ink);
+  box-shadow: 3px 3px 0 var(--hot);
+}
+
+:host-context(body.dark-theme) .side-nav-item .sn-count {
+  background: var(--cream-2);
+  color: var(--ink-mute);
+  border: 1px solid color-mix(in srgb, var(--ink) 16%, transparent);
+}
+
+:host-context(body.dark-theme) .side-nav-item.active .sn-count {
+  background: var(--hot);
+  color: #fff;
+  border-color: var(--hot);
+}
+
+:host-context(body.dark-theme) .side-divider,
+:host-context(body.dark-theme) .side-bottom {
+  border-color: color-mix(in srgb, var(--ink) 24%, transparent);
+}
+
+:host-context(body.dark-theme) .upload-cta {
+  background: var(--hot);
+  color: #fff;
+  border-color: var(--ink);
+  box-shadow: 3px 3px 0 var(--ink);
+
+  &:hover {
+    box-shadow: 5px 5px 0 var(--ink);
+  }
+}
+
+:host-context(body.dark-theme) .studio-main {
+  background: transparent;
+}
+
+:host-context(body.dark-theme) .sidebar-backdrop.show {
+  background: rgba(5, 4, 2, 0.72);
+  backdrop-filter: blur(6px);
 }

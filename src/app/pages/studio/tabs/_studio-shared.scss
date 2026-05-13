@@ -78,7 +78,7 @@
   border: 2px solid var(--ink);
   border-radius: 18px;
   padding: 20px;
-  box-shadow: 4px 4px 0 rgba(20, 19, 16, 0.1);
+  box-shadow: 4px 4px 0 color-mix(in srgb, var(--ink) 10%, transparent);
 }
 
 .card-head {
@@ -138,7 +138,7 @@
   background: var(--cream);
   position: relative;
   overflow: hidden;
-  box-shadow: 3px 3px 0 rgba(20, 19, 16, 0.08);
+  box-shadow: 3px 3px 0 color-mix(in srgb, var(--ink) 8%, transparent);
 
   &::before {
     content: '';
@@ -502,7 +502,7 @@
   font-size: 13px;
   font-weight: 500;
   cursor: pointer;
-  box-shadow: 2px 2px 0 rgba(20, 19, 16, 0.08);
+  box-shadow: 2px 2px 0 color-mix(in srgb, var(--ink) 8%, transparent);
   appearance: none;
   -webkit-appearance: none;
 }
@@ -520,7 +520,7 @@
   font-family: $font-head;
   font-size: 13px;
   font-weight: 500;
-  box-shadow: 2px 2px 0 rgba(20, 19, 16, 0.08);
+  box-shadow: 2px 2px 0 color-mix(in srgb, var(--ink) 8%, transparent);
   width: 220px;
   transition:
     width 0.2s ease,
@@ -641,7 +641,7 @@
   font-size: 10px;
   letter-spacing: 0.2em;
   text-transform: uppercase;
-  color: rgba(245, 241, 232, 0.6);
+  color: color-mix(in srgb, var(--cream) 60%, transparent);
   margin-bottom: 6px;
 }
 
@@ -668,7 +668,7 @@
   font-family: 'Instrument Serif', serif;
   font-style: italic;
   font-size: 14px;
-  color: rgba(245, 241, 232, 0.7);
+  color: color-mix(in srgb, var(--cream) 70%, transparent);
   margin: 8px 0 16px;
 
   strong {
@@ -699,7 +699,7 @@
   display: flex;
   flex-direction: column;
   padding: 8px 14px;
-  border: 1px dashed rgba(245, 241, 232, 0.25);
+  border: 1px dashed color-mix(in srgb, var(--cream) 25%, transparent);
   border-radius: 10px;
   min-width: 110px;
 }
@@ -709,7 +709,7 @@
   font-size: 9px;
   letter-spacing: 0.15em;
   text-transform: uppercase;
-  color: rgba(245, 241, 232, 0.5);
+  color: color-mix(in srgb, var(--cream) 50%, transparent);
   margin-bottom: 2px;
 }
 
@@ -1087,7 +1087,7 @@
   border-radius: 999px;
   overflow: hidden;
   background: var(--cream);
-  box-shadow: 2px 2px 0 rgba(20, 19, 16, 0.08);
+  box-shadow: 2px 2px 0 color-mix(in srgb, var(--ink) 8%, transparent);
 
   button {
     min-width: 42px;
@@ -1439,7 +1439,7 @@
   }
 }
 
-// Final reference overrides for studio pages copied from cult-beats-studio-reference.html.
+// Final reference overrides for studio pages copied from waveyard-studio-reference.html.
 // These intentionally sit last so older partial-redesign rules cannot distort the pages.
 .page-head {
   margin-bottom: 24px;
@@ -1567,7 +1567,7 @@
 
 .stat-cell.c3 .stat-ic,
 .stat-cell.c4 .stat-ic {
-  background: rgba(20, 19, 16, 0.15);
+  background: color-mix(in srgb, var(--ink) 15%, transparent);
 }
 
 .stat-val {
@@ -1807,7 +1807,7 @@
 }
 
 .eh-right {
-  border-left: 1.5px dashed rgba(245, 241, 232, 0.25);
+  border-left: 1.5px dashed color-mix(in srgb, var(--cream) 25%, transparent);
   padding-left: 28px;
   gap: 14px;
 }
@@ -1820,7 +1820,7 @@
   gap: 8px;
   padding: 0 0 10px;
   border: 0;
-  border-bottom: 1px dashed rgba(245, 241, 232, 0.2);
+  border-bottom: 1px dashed color-mix(in srgb, var(--cream) 20%, transparent);
   border-radius: 0;
   min-width: 0;
 }
@@ -2014,7 +2014,11 @@
     content: '';
     position: absolute;
     inset: 0;
-    background: linear-gradient(180deg, rgba(20, 19, 16, 0.08), rgba(20, 19, 16, 0.44));
+    background: linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--ink) 8%, transparent),
+      color-mix(in srgb, var(--ink) 44%, transparent)
+    );
     pointer-events: none;
     z-index: 1;
   }
@@ -2149,4 +2153,396 @@
     min-width: 104px;
     padding: 7px 8px;
   }
+}
+
+// Waveyard dark reference skin for Studio tabs. Kept behind dark-theme to
+// preserve the existing light-mode Studio exactly.
+:host-context(body.dark-theme) {
+  --cream: #0e0d0b;
+  --cream-2: #1a1814;
+  --cream-3: #262219;
+  --ink: #f0e9d6;
+  --ink-2: #c8bfa9;
+  --ink-mute: #8a8170;
+  --hot: #ff4d68;
+  --tangerine: #ff7d2e;
+  --lime: #d9f561;
+  --cobalt: #5b78ff;
+  --lavender: #d4c5ff;
+  --sun: #ffd455;
+  --inverse: #f0e9d6;
+  --inverse-fg: #0e0d0b;
+  --player-bg: #050402;
+
+  color: var(--ink);
+}
+
+:host-context(body.dark-theme) .page-num,
+:host-context(body.dark-theme) .cnum,
+:host-context(body.dark-theme) .meta-m,
+:host-context(body.dark-theme) .stat-lbl,
+:host-context(body.dark-theme) .chart-legend,
+:host-context(body.dark-theme) .chart-labels,
+:host-context(body.dark-theme) .page-window,
+:host-context(body.dark-theme) .table-footer,
+:host-context(body.dark-theme) .act-time,
+:host-context(body.dark-theme) .msg-tag,
+:host-context(body.dark-theme) .msg-time,
+:host-context(body.dark-theme) .ref,
+:host-context(body.dark-theme) .text-mute,
+:host-context(body.dark-theme) .empty-state,
+:host-context(body.dark-theme) .chart-loading,
+:host-context(body.dark-theme) .chart-empty,
+:host-context(body.dark-theme) .dl-pct,
+:host-context(body.dark-theme) .geo-pct,
+:host-context(body.dark-theme) .ref-pct,
+:host-context(body.dark-theme) .bar-lbl {
+  color: var(--ink-mute);
+}
+
+:host-context(body.dark-theme) .page-h,
+:host-context(body.dark-theme) .card-head h4,
+:host-context(body.dark-theme) .title-m,
+:host-context(body.dark-theme) .stat-m,
+:host-context(body.dark-theme) .tb-name,
+:host-context(body.dark-theme) .tb-count,
+:host-context(body.dark-theme) .geo-flag,
+:host-context(body.dark-theme) .geo-lbl,
+:host-context(body.dark-theme) .ref-lbl,
+:host-context(body.dark-theme) .dl-val,
+:host-context(body.dark-theme) .msg-header strong,
+:host-context(body.dark-theme) .toggle-info h5,
+:host-context(body.dark-theme) .payout-note strong,
+:host-context(body.dark-theme) .ws-title {
+  color: var(--ink);
+}
+
+:host-context(body.dark-theme) .page-h em,
+:host-context(body.dark-theme) .page-sub em,
+:host-context(body.dark-theme) .card-head h4 em,
+:host-context(body.dark-theme) .title-m em,
+:host-context(body.dark-theme) .tb-name em,
+:host-context(body.dark-theme) .act-text em,
+:host-context(body.dark-theme) .ws-title em {
+  color: var(--hot);
+}
+
+:host-context(body.dark-theme) .page-sub,
+:host-context(body.dark-theme) .act-text,
+:host-context(body.dark-theme) .msg-preview,
+:host-context(body.dark-theme) .settings-bio,
+:host-context(body.dark-theme) .payout-note,
+:host-context(body.dark-theme) .ws-status {
+  color: var(--ink-2);
+}
+
+:host-context(body.dark-theme) .card,
+:host-context(body.dark-theme) .welcome-strip,
+:host-context(body.dark-theme) .stat-cell,
+:host-context(body.dark-theme) .filter-select,
+:host-context(body.dark-theme) .search-mini,
+:host-context(body.dark-theme) .range-pill,
+:host-context(body.dark-theme) .chart-tooltip,
+:host-context(body.dark-theme) .page-chip {
+  background: var(--cream-2);
+  color: var(--ink);
+  border-color: var(--ink);
+}
+
+:host-context(body.dark-theme) .card,
+:host-context(body.dark-theme) .welcome-strip {
+  box-shadow: 4px 4px 0 color-mix(in srgb, var(--ink) 18%, transparent);
+}
+
+:host-context(body.dark-theme) .welcome-strip {
+  background: linear-gradient(135deg, rgba(255, 77, 104, 0.08), transparent 36%), var(--cream-2);
+}
+
+:host-context(body.dark-theme) .welcome-strip::after {
+  color: var(--hot);
+}
+
+:host-context(body.dark-theme) .card.dark,
+:host-context(body.dark-theme) .earn-hero,
+:host-context(body.dark-theme) .bulk-bar {
+  background: var(--player-bg);
+  color: var(--ink);
+  border-color: var(--ink);
+  box-shadow: 5px 5px 0 var(--hot);
+}
+
+:host-context(body.dark-theme) .card.dark .card-head h4,
+:host-context(body.dark-theme) .card.dark .title-m,
+:host-context(body.dark-theme) .earn-hero .eh-amount,
+:host-context(body.dark-theme) .earn-hero .eh-mini-val {
+  color: var(--ink);
+}
+
+:host-context(body.dark-theme) .card-head,
+:host-context(body.dark-theme) .tracks-table,
+:host-context(body.dark-theme) .track-row,
+:host-context(body.dark-theme) .topbeat-row,
+:host-context(body.dark-theme) .activity-item,
+:host-context(body.dark-theme) .dl-item,
+:host-context(body.dark-theme) .studio-pagination,
+:host-context(body.dark-theme) .table-footer,
+:host-context(body.dark-theme) .msg-row,
+:host-context(body.dark-theme) .settings-bio,
+:host-context(body.dark-theme) .payout-note,
+:host-context(body.dark-theme) .chart-tooltip {
+  border-color: color-mix(in srgb, var(--ink) 28%, transparent);
+}
+
+:host-context(body.dark-theme) .tracks-table,
+:host-context(body.dark-theme) .track-cover,
+:host-context(body.dark-theme) .mini-art,
+:host-context(body.dark-theme) .heatmap-cell,
+:host-context(body.dark-theme) .monthly-bar,
+:host-context(body.dark-theme) .monthly-bars-static .bar,
+:host-context(body.dark-theme) .geo-bar,
+:host-context(body.dark-theme) .geo-bar-track,
+:host-context(body.dark-theme) .ref-bar,
+:host-context(body.dark-theme) .ref-bar-track,
+:host-context(body.dark-theme) .tb-bar,
+:host-context(body.dark-theme) .df-ring,
+:host-context(body.dark-theme) .donut-legend .dl-swatch {
+  border-color: var(--ink);
+}
+
+:host-context(body.dark-theme) .track-row.head {
+  background: var(--ink);
+  color: var(--cream);
+  border-bottom-color: var(--ink);
+}
+
+:host-context(body.dark-theme) .track-row:hover:not(.head),
+:host-context(body.dark-theme) .topbeat-row:hover,
+:host-context(body.dark-theme) .activity-item:hover,
+:host-context(body.dark-theme) .msg-row:hover,
+:host-context(body.dark-theme) .range-pill button:not(.on):hover,
+:host-context(body.dark-theme) .view-toggle button:hover:not(.on) {
+  background: var(--cream-3);
+}
+
+:host-context(body.dark-theme) .stat-cell {
+  box-shadow: none;
+
+  &:hover {
+    box-shadow: 4px 4px 0 var(--ink);
+  }
+
+  &.c1 {
+    background: var(--hot);
+    color: #fff;
+  }
+
+  &.c2 {
+    background: var(--cobalt);
+    color: #fff;
+  }
+
+  &.c3 {
+    background: var(--lime);
+    color: var(--cream);
+  }
+
+  &.c4 {
+    background: var(--sun);
+    color: var(--cream);
+  }
+}
+
+:host-context(body.dark-theme) .stat-cell.c1 .stat-val,
+:host-context(body.dark-theme) .stat-cell.c1 .stat-lbl,
+:host-context(body.dark-theme) .stat-cell.c2 .stat-val,
+:host-context(body.dark-theme) .stat-cell.c2 .stat-lbl {
+  color: #fff;
+}
+
+:host-context(body.dark-theme) .stat-cell.c3 .stat-val,
+:host-context(body.dark-theme) .stat-cell.c3 .stat-lbl,
+:host-context(body.dark-theme) .stat-cell.c4 .stat-val,
+:host-context(body.dark-theme) .stat-cell.c4 .stat-lbl {
+  color: var(--cream);
+}
+
+:host-context(body.dark-theme) .stat-delta.up,
+:host-context(body.dark-theme) .money-m,
+:host-context(body.dark-theme) .eh-eyebrow,
+:host-context(body.dark-theme) .eh-amount em {
+  color: var(--lime);
+}
+
+:host-context(body.dark-theme) .money-m::before {
+  background: var(--lime);
+}
+
+:host-context(body.dark-theme) .btn,
+:host-context(body.dark-theme) .page-chip,
+:host-context(body.dark-theme) .ra-btn,
+:host-context(body.dark-theme) .filter-select,
+:host-context(body.dark-theme) .search-mini,
+:host-context(body.dark-theme) .view-toggle,
+:host-context(body.dark-theme) .range-pill,
+:host-context(body.dark-theme) .badge {
+  border-color: var(--ink);
+}
+
+:host-context(body.dark-theme) .btn,
+:host-context(body.dark-theme) .ra-btn,
+:host-context(body.dark-theme) .page-chip {
+  background: var(--cream-2);
+  color: var(--ink);
+}
+
+:host-context(body.dark-theme) .btn:hover,
+:host-context(body.dark-theme) .ra-btn:hover,
+:host-context(body.dark-theme) .page-chip:hover,
+:host-context(body.dark-theme) .page-chip.on {
+  background: var(--ink);
+  color: var(--cream);
+}
+
+:host-context(body.dark-theme) .btn.primary,
+:host-context(body.dark-theme) .btn.dark {
+  background: var(--hot);
+  color: #fff;
+  border-color: var(--hot);
+  box-shadow: 3px 3px 0 var(--ink);
+}
+
+:host-context(body.dark-theme) .btn.ghost {
+  background: transparent;
+  color: var(--ink);
+  border-color: var(--ink);
+}
+
+:host-context(body.dark-theme) .card.dark .btn.ghost,
+:host-context(body.dark-theme) .eh-actions .btn.ghost {
+  color: var(--ink);
+  border-color: var(--ink);
+}
+
+:host-context(body.dark-theme) .eh-actions .btn.primary,
+:host-context(body.dark-theme) .btn.lime {
+  background: var(--lime);
+  color: var(--cream);
+  border-color: var(--lime);
+  box-shadow: 3px 3px 0 var(--ink);
+}
+
+:host-context(body.dark-theme) .badge.live,
+:host-context(body.dark-theme) .badge.paid,
+:host-context(body.dark-theme) .toggle.on,
+:host-context(body.dark-theme) .range-pill button.on,
+:host-context(body.dark-theme) .view-toggle button.on {
+  background: var(--lime);
+  color: var(--cream);
+}
+
+:host-context(body.dark-theme) .badge.review,
+:host-context(body.dark-theme) .badge.processing {
+  background: var(--sun);
+  color: var(--cream);
+}
+
+:host-context(body.dark-theme) .badge.draft,
+:host-context(body.dark-theme) .badge.refund {
+  background: var(--cream-3);
+  color: var(--ink);
+}
+
+:host-context(body.dark-theme) .search-mini input,
+:host-context(body.dark-theme) .search-field input {
+  color: var(--ink);
+
+  &::placeholder {
+    color: var(--ink-mute);
+  }
+}
+
+:host-context(body.dark-theme) .tg-card,
+:host-context(body.dark-theme) .track-cover {
+  background: var(--cream-2);
+  border-color: var(--ink);
+  box-shadow: 3px 3px 0 color-mix(in srgb, var(--ink) 18%, transparent);
+}
+
+:host-context(body.dark-theme) .tg-card:hover,
+:host-context(body.dark-theme) .related-card:hover {
+  box-shadow: 5px 5px 0 var(--hot);
+}
+
+:host-context(body.dark-theme) .tg-art,
+:host-context(body.dark-theme) .rc-art {
+  border-color: var(--ink);
+}
+
+:host-context(body.dark-theme) .tg-body,
+:host-context(body.dark-theme) .tg-stats {
+  background: var(--cream-2);
+}
+
+:host-context(body.dark-theme) .tb-bar,
+:host-context(body.dark-theme) .geo-bar,
+:host-context(body.dark-theme) .geo-bar-track,
+:host-context(body.dark-theme) .ref-bar,
+:host-context(body.dark-theme) .ref-bar-track,
+:host-context(body.dark-theme) .monthly-bar,
+:host-context(body.dark-theme) .monthly-bars-static .bar,
+:host-context(body.dark-theme) .df-ring,
+:host-context(body.dark-theme) .heatmap-cell {
+  background: var(--cream-3);
+}
+
+:host-context(body.dark-theme) .tb-bar-fill,
+:host-context(body.dark-theme) .geo-bar-fill,
+:host-context(body.dark-theme) .ref-bar-fill,
+:host-context(body.dark-theme) .monthly-bar.active,
+:host-context(body.dark-theme) .bar-wrap--active .bar,
+:host-context(body.dark-theme) .rev-bar {
+  background: var(--hot);
+}
+
+:host-context(body.dark-theme) .rev-bar.empty {
+  background: var(--cream-3);
+  border-color: color-mix(in srgb, var(--ink) 22%, transparent);
+}
+
+:host-context(body.dark-theme) .toggle {
+  background: var(--cream-3);
+  border-color: var(--ink);
+
+  .toggle-knob,
+  &::after {
+    background: var(--ink);
+  }
+}
+
+:host-context(body.dark-theme) .toggle.on .toggle-knob,
+:host-context(body.dark-theme) .toggle.on::after {
+  background: var(--cream);
+}
+
+:host-context(body.dark-theme) .chart-hover-line {
+  stroke: var(--ink);
+}
+
+:host-context(body.dark-theme) .chart-hover-dot {
+  fill: var(--cream);
+}
+
+:host-context(body.dark-theme) .chart-tooltip {
+  background: var(--cream-2);
+  box-shadow: 4px 4px 0 var(--hot);
+}
+
+:host-context(body.dark-theme) .empty-state .empty-icon,
+:host-context(body.dark-theme) .sk-row {
+  opacity: 0.7;
+}
+
+:host-context(body.dark-theme) .sk-row {
+  background: linear-gradient(90deg, var(--cream-2) 0%, var(--cream-3) 50%, var(--cream-2) 100%);
+  background-size: 200% 100%;
 }

@@ -1,4 +1,12 @@
-import { Component, computed, inject, signal, type OnDestroy, type OnInit } from '@angular/core';
+import {
+  Component,
+  computed,
+  HostListener,
+  inject,
+  signal,
+  type OnDestroy,
+  type OnInit,
+} from '@angular/core';
 import { CommonModule, DOCUMENT } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -15,6 +23,7 @@ import { ToastService } from '../../services/toast.service';
 
 type GroupKey = 'genres' | 'bpm' | 'price' | 'key' | 'licenses' | 'moods' | 'extras';
 type KeyMode = 'any' | 'major' | 'minor';
+type ExploreDropdown = 'genre' | 'mood' | 'instr' | 'bpm' | 'price' | 'extras';
 
 @Component({
   selector: 'app-search-page',
@@ -40,7 +49,7 @@ export class SearchPageComponent implements OnInit, OnDestroy {
 
   specs = signal<Spec[]>([]);
   isLoading = signal(true);
-  viewMode = signal<'grid' | 'list'>('grid');
+  viewMode = signal<'grid' | 'list'>('list');
   pagination = this.labService.specsPagination;
   currentPage = signal(1);
 
@@ -52,6 +61,7 @@ export class SearchPageComponent implements OnInit, OnDestroy {
   sortOption = signal('newest');
 
   mobileFiltersOpen = signal(false);
+  openDropdown = signal<ExploreDropdown | null>(null);
   perPageShell = signal('16');
   keyMode = signal<KeyMode>('any');
   openGroups = signal<Record<GroupKey, boolean>>({
@@ -69,9 +79,25 @@ export class SearchPageComponent implements OnInit, OnDestroy {
 
   tickerItems = [
     'Fresh drops every Friday',
-    '40,000+ artists trust Cult Beats',
+    '40,000+ artists trust Waveyard',
     'Filter by BPM, key, and mood',
     'Use the rack your way',
+  ];
+
+  quickFilters = [
+    { label: 'Trap', sub: '808 ready', genre: 'TRAP', tone: 'c-hot', count: '38' },
+    { label: 'Drill', sub: 'dark bounce', genre: 'DRILL', tone: 'c-lime', count: '24' },
+    { label: 'Lo-Fi', sub: 'warm tape', genre: 'LO-FI', tone: 'c-sun', count: '19' },
+    { label: 'Hip-Hop', sub: 'classic bounce', genre: 'HIP-HOP', tone: 'c-cobalt', count: '31' },
+    { label: 'R&B', sub: 'late night', genre: 'R&B', tone: 'c-lavender', count: '16' },
+    { label: 'House', sub: 'club cuts', genre: 'HOUSE', tone: 'c-tangerine', count: '12' },
+  ];
+
+  sortOptions = [
+    { value: 'newest', label: 'Newest drops' },
+    { value: 'name', label: 'Name A-Z' },
+    { value: 'price_asc', label: 'Price low' },
+    { value: 'price_desc', label: 'Price high' },
   ];
 
   inertLicenses = [
@@ -82,6 +108,15 @@ export class SearchPageComponent implements OnInit, OnDestroy {
   ];
 
   inertMoodTags = ['Dark', 'Dreamy', 'Romantic', 'Aggressive', 'Cinematic', 'Hype'];
+
+  inertInstruments = [
+    { label: 'Piano', count: '487' },
+    { label: '808 / Bass', count: '612' },
+    { label: 'Guitar', count: '234' },
+    { label: 'Strings', count: '178' },
+    { label: 'Synth', count: '389' },
+    { label: 'Vocals', count: '142' },
+  ];
 
   inertExtras = [
     { title: 'Has stems', sub: 'separate tracks included' },
@@ -104,7 +139,7 @@ export class SearchPageComponent implements OnInit, OnDestroy {
     }
 
     if (this.priceRange()[0] !== 0 || this.priceRange()[1] !== 50000) {
-      chips.push({ id: 'price', label: `₹${this.priceRange()[0]}-₹${this.priceRange()[1]}` });
+      chips.push({ id: 'price', label: `$${this.priceRange()[0]}-$${this.priceRange()[1]}` });
     }
 
     if (this.key() !== 'All') {
@@ -315,12 +350,55 @@ export class SearchPageComponent implements OnInit, OnDestroy {
     this.applyFilters();
   }
 
+  getSortLabel() {
+    return this.sortOptions.find((option) => option.value === this.sortOption())?.label ?? 'Newest';
+  }
+
+  getGenreSummary() {
+    const selected = this.genre();
+    if (!selected.length) return 'Any';
+    if (selected.length === 1) return selected[0];
+    return `${selected[0]} +${selected.length - 1}`;
+  }
+
+  getPriceSummary() {
+    const [min, max] = this.priceRange();
+    if (min === 0 && max === 50000) return 'Any';
+    return `$${min} - $${max}`;
+  }
+
   setViewMode(mode: 'grid' | 'list') {
     this.viewMode.set(mode);
   }
 
   toggleMobileFilters(force?: boolean) {
     this.mobileFiltersOpen.set(force ?? !this.mobileFiltersOpen());
+  }
+
+  toggleDropdown(dropdown: ExploreDropdown) {
+    this.openDropdown.update((current) => (current === dropdown ? null : dropdown));
+  }
+
+  closeDropdown() {
+    this.openDropdown.set(null);
+  }
+
+  isDropdownOpen(dropdown: ExploreDropdown) {
+    return this.openDropdown() === dropdown;
+  }
+
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: MouseEvent) {
+    const target = event.target as HTMLElement | null;
+    if (!target?.closest('.filter-dd') && !target?.closest('.sort-dd')) {
+      this.closeDropdown();
+    }
+  }
+
+  @HostListener('document:keydown.escape')
+  onEscape() {
+    this.closeDropdown();
+    this.toggleMobileFilters(false);
   }
 
   toggleGroup(group: GroupKey) {

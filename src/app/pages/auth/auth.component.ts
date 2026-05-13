@@ -40,7 +40,7 @@ export class AuthComponent implements OnInit, OnDestroy {
   registerRole: 'artist' | 'producer' = 'artist';
 
   readonly tickerItems = [
-    'Cult Beats Auth',
+    'Waveyard Auth',
     'Sign in and keep your crate close',
     'New drops every Friday',
     'Artists and producers welcome',
@@ -55,7 +55,7 @@ export class AuthComponent implements OnInit, OnDestroy {
         this.authService.googleLogin(user.idToken).subscribe({
           next: () => {
             this.isLoading.set(false);
-            this.toastService.show('Welcome to Blueprint Audio!', 'success');
+            this.toastService.show('Welcome to Waveyard!', 'success');
             this.router.navigate(['/dashboard']);
           },
           error: (err) => {
@@ -67,10 +67,6 @@ export class AuthComponent implements OnInit, OnDestroy {
           },
         });
       }
-    });
-
-    effect(() => {
-      this.themeService.activeTheme();
     });
   }
 

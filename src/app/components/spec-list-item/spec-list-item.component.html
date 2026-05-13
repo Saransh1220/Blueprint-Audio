@@ -1,9 +1,29 @@
-<div class="spec-item gs-item" (click)="openDetails()">
-  <div class="row-art" (click)="playSong($event)">
+<div
+  class="gs-item"
+  [class.spec-item]="appearance !== 'market'"
+  [class.list-row]="appearance === 'market'"
+  [class.market-row]="appearance === 'market'"
+  [class.playing]="isCurrentlyPlaying()"
+  (click)="openDetails()"
+  tabindex="0"
+  (keydown.enter)="openDetails()"
+  (keydown.space)="openDetails(); $event.preventDefault()"
+>
+  @if (appearance === 'market') {
+    <button class="lr-play" type="button" (click)="playSong($event)" aria-label="Play">
+      <i [class]="isCurrentlyPlaying() ? 'fa-solid fa-pause' : 'fa-solid fa-play'"></i>
+    </button>
+  }
+
+  <div
+    class="row-art"
+    [class.lr-art]="appearance === 'market'"
+    (click)="playSong($event)"
+    tabindex="0"
+    (keydown.enter)="playSong($event)"
+    (keydown.space)="playSong($event); $event.preventDefault()"
+  >
     <img [ngSrc]="spec.imageUrl" [alt]="spec.title" fill [priority]="priority" />
-    @if (spec.analytics) {
-      <div class="img-analytics"><i class="fas fa-play"></i> {{ spec.analytics.playCount }}</div>
-    }
   </div>
 
   @if (
@@ -22,59 +42,57 @@
     </div>
   }
 
-  <div class="row-title-block">
+  <div class="row-title-block" [class.lr-info]="appearance === 'market'">
     <div class="title-line">
-      <div class="t">{{ spec.title }}</div>
-      @if (spec.genres && spec.genres.length > 0) {
-        <span class="row-chip genre">{{ spec.genres[0].name }}</span>
+      <div class="t" [class.lr-title]="appearance === 'market'">{{ spec.title }}</div>
+      @if (appearance === 'market' && spec.freeMp3Enabled) {
+        <span class="row-chip lr-tag">free mp3</span>
       }
     </div>
-    <span class="p"> prod. {{ spec.producerName }} </span>
+    <span class="p" [class.lr-producer-line]="appearance === 'market'"
+      >prod. {{ spec.producerName }}</span
+    >
   </div>
 
-  <div class="row-tags">
-    @for (tag of spec.tags.slice(0, 3); track tag) {
-      <span class="row-chip">#{{ tag }}</span>
-    }
-  </div>
+  @if (appearance === 'market') {
+    <div class="lr-prod lr-tag-stack">
+      @for (tag of getMarketTags(); track tag) {
+        <span class="row-chip lr-tag">{{ tag }}</span>
+      }
+    </div>
+    <div class="lr-cell row-genre">{{ getGenreLabel() }}</div>
+    <div class="stat-m row-bpm">{{ spec.bpm }}</div>
+    <div class="stat-m row-key">{{ spec.key }}</div>
+    <div class="lr-price">${{ spec.price }}</div>
+  } @else {
+    <div class="stat-m row-tags">
+      {{ getGenreLabel() }} · <em>{{ spec.bpm }} BPM</em> · {{ spec.key }}
+    </div>
+    <div class="money-m row-bpm">${{ spec.price }}</div>
+    <div class="stat-m row-key">{{ spec.category }}</div>
+    <div class="stat-m row-dur">
+      @if (spec.duration) {
+        {{ formatDuration(spec.duration) }}
+      }
+    </div>
+  }
 
-  <div class="row-num row-priority row-bpm">
-    <strong>{{ spec.bpm }}</strong>
-  </div>
-  <div class="row-num row-key row-priority">{{ spec.key }}</div>
-  <div class="row-num row-dur">
-    @if (spec.duration) {
-      {{ formatDuration(spec.duration) }}
-    }
-  </div>
-
-  <div class="row-price-block">
-    <div class="row-actions secondary-actions">
+  <div class="row-price-block" [class.lr-actions]="appearance === 'market'">
+    @if (spec.freeMp3Enabled) {
       <button
-        class="action-btn fav-btn"
-        [class.active]="spec.analytics?.isFavorited"
-        (click)="toggleFavorite($event)"
-        [disabled]="isFavoriting()"
-        title="Favorite"
+        class="action-btn download-btn lr-act"
+        (click)="downloadFreeMp3($event)"
+        title="Download Free MP3"
       >
-        <i [class]="spec.analytics?.isFavorited ? 'fas fa-heart' : 'far fa-heart'"></i>
+        <i class="fas fa-download"></i>
       </button>
+    }
 
-      @if (spec.freeMp3Enabled) {
-        <button
-          class="action-btn download-btn"
-          (click)="downloadFreeMp3($event)"
-          title="Download Free MP3"
-        >
-          <i class="fas fa-download"></i>
-        </button>
+    <button class="purchase-pill lr-act cart" (click)="addToCart($event)" title="Add to cart">
+      @if (appearance !== 'market') {
+        <span class="row-price">${{ spec.price }}</span>
       }
-    </div>
-
-    <button class="purchase-pill" (click)="addToCart($event)" title="Add to cart">
-      <span class="row-price">₹{{ spec.price }}</span>
-      <span class="purchase-divider"></span>
-      <span class="purchase-icon"><i class="fas fa-cart-plus"></i></span>
+      <span class="purchase-icon"><i class="fas fa-cart-shopping"></i></span>
     </button>
   </div>
 </div>

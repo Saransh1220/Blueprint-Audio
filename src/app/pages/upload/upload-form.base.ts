@@ -62,10 +62,10 @@ export abstract class UploadFormBase implements OnInit {
   readonly steps = [1, 2, 3, 4];
 
   readonly stepHints: Record<number, string> = {
-    1: "files — drop 'em in",
-    2: 'details — title & metadata',
-    3: 'licenses — set your prices',
-    4: 'review — last check before publish',
+    1: "files - drop 'em in",
+    2: 'details - title & metadata',
+    3: 'licenses - set your prices',
+    4: 'review - last check before publish',
   };
 
   readonly keys = Object.values(MusicalKey);
@@ -416,12 +416,12 @@ export abstract class UploadFormBase implements OnInit {
   }
 
   getKeyRootLabel(root: string) {
-    return root.replace('#', '♯');
+    return root.replace('#', '\u266f');
   }
 
   getCoverSummaryText() {
     const summary = this.coverSummary();
-    return summary ? `${summary.name} · ${summary.detail || summary.size}` : 'Not uploaded';
+    return summary ? `${summary.name} - ${summary.detail || summary.size}` : 'Not uploaded';
   }
 
   getKeyPreview() {
@@ -442,21 +442,21 @@ export abstract class UploadFormBase implements OnInit {
 
   formatCurrency(value: number | string) {
     const amount = Number(value || 0);
-    return `₹${Math.round(amount)}`;
+    return `\u20b9${Math.round(amount)}`;
   }
 
   formatFileState(type: UploadFileType) {
     const summary = this.getSummarySignal(type)();
     if (summary) {
       return summary.detail
-        ? `${summary.name} · ${summary.size} · ${summary.detail}`
-        : `${summary.name} · ${summary.size}`;
+        ? `${summary.name} - ${summary.size} - ${summary.detail}`
+        : `${summary.name} - ${summary.size}`;
     }
 
-    if (type === 'cover') return 'Required — upload cover art';
-    if (type === 'preview') return 'Required — tagged MP3 preview';
-    if (type === 'wav') return 'Optional — master WAV';
-    return 'Optional — ZIP / RAR trackouts';
+    if (type === 'cover') return 'Required - upload cover art';
+    if (type === 'preview') return 'Required - tagged MP3 preview';
+    if (type === 'wav') return 'Optional - master WAV';
+    return 'Optional - ZIP / RAR trackouts';
   }
 
   private validateDetailsStep() {
@@ -601,7 +601,7 @@ export abstract class UploadFormBase implements OnInit {
       const url = URL.createObjectURL(file);
       const img = new Image();
       img.onload = () => {
-        resolve(`${img.width}×${img.height}`);
+        resolve(`${img.width}x${img.height}`);
         URL.revokeObjectURL(url);
       };
       img.onerror = () => {

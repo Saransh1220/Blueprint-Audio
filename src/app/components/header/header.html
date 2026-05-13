@@ -16,27 +16,30 @@
       }
       <div class="nav-brand header-brand">
         <a class="logo" routerLink="/">
-          <span class="logo-mark" aria-hidden="true">
-            <span class="mark-letters">
-              <span class="c">C</span>
-              <span class="b">B</span>
-            </span>
-          </span>
-          <span class="logo-word">
-            <span class="word-cult">cult</span>
-            <span class="word-dot">·</span>
-            <span class="word-beats">beats</span>
-            <span class="word-star">✦</span>
-          </span>
+          <img class="logo-mark" src="/Logo-cropped.png" alt="" aria-hidden="true" />
+          <span class="logo-word">Waveyard</span>
         </a>
       </div>
     </div>
+
+    <form class="nav-search" role="search" (ngSubmit)="submitGlobalSearch()">
+      <i class="fas fa-search" aria-hidden="true"></i>
+      <input
+        type="search"
+        name="globalSearch"
+        [(ngModel)]="globalSearchTerm"
+        placeholder="Search beats, moods, producers"
+        aria-label="Search beats"
+      />
+      <button type="submit">Go</button>
+    </form>
 
     <!-- Center Navigation Links -->
     <div class="nav-links">
       <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }"
         >Home</a
       >
+      <a routerLink="/explore" routerLinkActive="active">Explore</a>
       <a routerLink="/battles" routerLinkActive="active">Battles</a>
       @if (authService.currentUser()) {
         <div class="nav-link-wrap studio-nav-wrap">
@@ -63,7 +66,7 @@
           <div class="studio-menu">
             <div class="sm-head">
               <h5>Jump to <em>Studio</em></h5>
-              <span class="sm-kbd">CB</span>
+              <span class="sm-kbd">WT</span>
             </div>
             <div class="sm-grid">
               @if (authService.currentUser()?.role === Role.PRODUCER) {
@@ -691,18 +694,8 @@
 <div class="mobile-menu" [class.open]="isMobileMenuOpen">
   <div class="mobile-logo-large">
     <a class="logo on-dark" routerLink="/" (click)="closeMobileMenu()">
-      <span class="logo-mark" aria-hidden="true">
-        <span class="mark-letters">
-          <span class="c">C</span>
-          <span class="b">B</span>
-        </span>
-      </span>
-      <span class="logo-word">
-        <span class="word-cult">cult</span>
-        <span class="word-dot">·</span>
-        <span class="word-beats">beats</span>
-        <span class="word-star">✦</span>
-      </span>
+      <img class="logo-mark" src="/Logo-cropped.png" alt="" aria-hidden="true" />
+      <span class="logo-word">Waveyard</span>
     </a>
   </div>
   <div class="mobile-links">
@@ -713,6 +706,7 @@
       (click)="closeMobileMenu()"
       >Home</a
     >
+    <a routerLink="/explore" routerLinkActive="active" (click)="closeMobileMenu()">Explore</a>
     <a routerLink="/battles" routerLinkActive="active" (click)="closeMobileMenu()">Battles</a>
 
     @if (authService.currentUser()) {

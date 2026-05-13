@@ -5,22 +5,18 @@ import { ToastService } from '../../../services/toast.service';
 import { AppearanceSettingsComponent } from './appearance-settings.component';
 
 describe('AppearanceSettingsComponent', () => {
-  const setTheme = vi.fn();
+  const setMode = vi.fn();
   const show = vi.fn();
 
-  it('updates preview, computes gradients, and applies theme', () => {
-    const activeTheme = signal('vampire');
+  it('reads and applies light or dark mode', () => {
+    const currentMode = signal<'light' | 'dark'>('dark');
     TestBed.configureTestingModule({
       providers: [
         {
           provide: ThemeService,
           useValue: {
-            activeTheme,
-            setTheme,
-            themes: [
-              { id: 'vampire', colors: ['#111', '#222'] },
-              { id: 'neon', colors: ['#333', '#444'] },
-            ],
+            currentMode,
+            setMode,
           },
         },
         { provide: ToastService, useValue: { show } },
@@ -28,15 +24,10 @@ describe('AppearanceSettingsComponent', () => {
     });
 
     const component = TestBed.runInInjectionContext(() => new AppearanceSettingsComponent());
-    expect(component.previewTheme()).toBe('vampire');
-    component.selectPreview('neon');
-    expect(component.previewTheme()).toBe('neon');
-    expect(component.getHeroGradient()).toContain('linear-gradient');
-    component.selectPreview('unknown');
-    expect(component.getHeroGradient()).toBe('black');
+    expect(component.currentMode).toBe('dark');
 
-    component.applyTheme();
-    expect(setTheme).toHaveBeenCalledWith('unknown');
-    expect(show).toHaveBeenCalledWith('Theme applied successfully', 'success');
+    component.setMode('light');
+    expect(setMode).toHaveBeenCalledWith('light');
+    expect(show).toHaveBeenCalledWith('Switched to light mode', 'success');
   });
 });

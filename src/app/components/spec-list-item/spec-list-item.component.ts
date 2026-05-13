@@ -30,6 +30,7 @@ export class SpecListItemComponent implements OnInit, OnDestroy {
 
   @Input({ required: true }) spec!: Spec;
   @Input() priority = false;
+  @Input() appearance: 'default' | 'market' = 'default';
 
   isCurrentlyPlaying = computed(() => this.actionService.isCurrentlyPlaying(this.spec));
 
@@ -43,23 +44,32 @@ export class SpecListItemComponent implements OnInit, OnDestroy {
     this.favoriteSub?.unsubscribe();
   }
 
-  playSong(event: MouseEvent) {
+  playSong(event: Event) {
     this.actionService.playSong(event, this.spec);
   }
-  addToCart(event: MouseEvent) {
+  addToCart(event: Event) {
     this.actionService.addToCart(event, this.spec);
   }
   openDetails() {
     this.actionService.openDetails(this.spec);
   }
-  toggleFavorite(event: MouseEvent) {
+  toggleFavorite(event: Event) {
     this.actionService.toggleFavorite(event, this.spec, this.isFavoriting, this.cdr);
   }
-  downloadFreeMp3(event: MouseEvent) {
+  downloadFreeMp3(event: Event) {
     this.actionService.downloadFreeMp3(event, this.spec);
   }
 
   formatDuration(seconds: number): string {
     return this.actionService.formatDuration(seconds);
+  }
+
+  getGenreLabel(): string {
+    return this.spec.genres?.[0]?.name || this.spec.category || 'Beat';
+  }
+
+  getMarketTags(): string[] {
+    const tags = this.spec.tags?.filter(Boolean).slice(0, 3) ?? [];
+    return tags.length ? tags : [this.getGenreLabel()];
   }
 }

@@ -114,7 +114,7 @@ export class StudioProfileComponent implements OnInit {
   }
 
   navigateToCatalog() {
-    this.router.navigate(['/search']);
+    this.router.navigate(['/explore']);
   }
 
   onAvatarFileSelected(event: Event) {

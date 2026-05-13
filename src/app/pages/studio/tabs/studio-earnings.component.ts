@@ -154,13 +154,13 @@ export class StudioEarningsComponent {
   }
 
   currency(value: number): string {
-    return `₹${Math.round(value || 0).toLocaleString('en-IN')}`;
+    return `$${Math.round(value || 0).toLocaleString('en-IN')}`;
   }
 
   compactCurrency(value: number): string {
     const rounded = Math.round(value || 0);
-    if (rounded >= 100000) return `₹${(rounded / 100000).toFixed(1)}L`;
-    if (rounded >= 1000) return `₹${(rounded / 1000).toFixed(1)}k`;
-    return `₹${rounded.toLocaleString('en-IN')}`;
+    if (rounded >= 100000) return `$${(rounded / 100000).toFixed(1)}L`;
+    if (rounded >= 1000) return `$${(rounded / 1000).toFixed(1)}k`;
+    return `$${rounded.toLocaleString('en-IN')}`;
   }
 }

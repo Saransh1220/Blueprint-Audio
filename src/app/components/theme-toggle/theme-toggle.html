@@ -1,33 +1,12 @@
-<div class="theme-selector-wrap" (clickOutside)="closeDropdown()">
-  <button
-    class="current-theme-btn"
-    (click)="toggleDropdown($event)"
-    [class.active]="isDropdownOpen"
-  >
-    <span class="theme-name">{{ themeService.activeTheme() }}</span>
-    <i class="fas fa-chevron-down"></i>
+<div class="theme-selector-wrap">
+  <button class="current-theme-btn" (click)="toggleMode()">
+    <span class="theme-name">{{
+      themeService.currentMode() === 'dark' ? 'Dark Mode' : 'Light Mode'
+    }}</span>
+    <i
+      class="fas"
+      [class.fa-moon]="themeService.currentMode() === 'dark'"
+      [class.fa-sun]="themeService.currentMode() === 'light'"
+    ></i>
   </button>
-
-  @if (isDropdownOpen) {
-    <div class="theme-dropdown-menu">
-      @for (theme of themeService.themes; track theme.id) {
-        <button
-          class="theme-option"
-          [class.selected]="themeService.activeTheme() === theme.id"
-          (click)="selectTheme(theme.id, $event)"
-        >
-          <div class="color-dots">
-            <div class="dot" [style.background]="theme.colors[0]"></div>
-            <div class="dot" [style.background]="theme.colors[1]"></div>
-          </div>
-          <div class="theme-info">
-            <span class="t-name">{{ theme.name }}</span>
-          </div>
-          @if (themeService.activeTheme() === theme.id) {
-            <i class="fas fa-check check-icon"></i>
-          }
-        </button>
-      }
-    </div>
-  }
 </div>

@@ -289,7 +289,7 @@ export class PlayerComponent implements OnDestroy {
     event?.stopPropagation();
     const track = this.playerService.currentTrack();
     if (!track?.producerId) return;
-    void this.router.navigate(['/search']);
+    void this.router.navigate(['/explore']);
     this.isMenuOpen.set(false);
   }
 

@@ -47,7 +47,7 @@
   color: var(--ink-mute);
 
   &.on-dark {
-    color: rgba(245, 241, 232, 0.6);
+    color: color-mix(in srgb, var(--cream) 60%, transparent);
   }
 }
 
@@ -56,19 +56,19 @@
   font-size: 9.5px;
   letter-spacing: 0.2em;
   text-transform: uppercase;
-  color: rgba(245, 241, 232, 0.55);
+  color: color-mix(in srgb, var(--cream) 55%, transparent);
 }
 
 .brand-footer-info {
   width: 100%;
   margin-top: 10px;
   padding-top: 10px;
-  border-top: 1.5px dashed rgba(245, 241, 232, 0.18);
+  border-top: 1.5px dashed color-mix(in srgb, var(--cream) 18%, transparent);
   font-family: $font-tech;
   font-size: 10px;
   letter-spacing: 0.15em;
   text-transform: uppercase;
-  color: rgba(245, 241, 232, 0.55);
+  color: color-mix(in srgb, var(--cream) 55%, transparent);
   display: flex;
   justify-content: space-between;
   flex-wrap: wrap;
@@ -104,4 +104,46 @@
     display: block;
     margin-bottom: 2px;
   }
+}
+
+:host-context(body.dark-theme) .brand-preview,
+:host-context(body.dark-theme) .usage-item {
+  border-color: var(--ink);
+}
+
+:host-context(body.dark-theme) .brand-preview.light,
+:host-context(body.dark-theme) .brand-preview.medium {
+  background: var(--cream-2);
+  color: var(--ink);
+}
+
+:host-context(body.dark-theme) .brand-preview.dark,
+:host-context(body.dark-theme) .brand-preview.mega {
+  background: var(--player-bg);
+  color: var(--ink);
+  box-shadow: 4px 4px 0 var(--hot);
+}
+
+:host-context(body.dark-theme) .brand-label,
+:host-context(body.dark-theme) .usage-notes {
+  color: var(--ink-mute);
+}
+
+:host-context(body.dark-theme) .brand-label.on-dark,
+:host-context(body.dark-theme) .brand-sub-header,
+:host-context(body.dark-theme) .brand-footer-info {
+  color: var(--ink-2);
+}
+
+:host-context(body.dark-theme) .brand-footer-info,
+:host-context(body.dark-theme) .usage-notes {
+  border-color: color-mix(in srgb, var(--ink) 26%, transparent);
+}
+
+:host-context(body.dark-theme) .usage-item {
+  background: var(--cream-2);
+}
+
+:host-context(body.dark-theme) .usage-item strong {
+  color: var(--ink);
 }

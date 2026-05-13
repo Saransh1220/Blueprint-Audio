@@ -34,7 +34,7 @@ export class SpecDetailsComponent {
   tickerItems = [
     'Instant license delivery',
     'Tag-free preview included',
-    'Cult Beats producer marketplace',
+    'Waveyard producer marketplace',
     'Pressed for late-night writing sessions',
   ];
 

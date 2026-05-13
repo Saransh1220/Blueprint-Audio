@@ -1,12 +1,5 @@
 import { CommonModule } from '@angular/common';
-import {
-  ChangeDetectionStrategy,
-  Component,
-  computed,
-  effect,
-  inject,
-  signal,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { ThemeService } from '../../../services/theme.service';
 import { ToastService } from '../../../services/toast.service';
 
@@ -22,39 +15,12 @@ export class AppearanceSettingsComponent {
   themeService = inject(ThemeService);
   toastService = inject(ToastService);
 
-  // Using the service's theme list
-  themes = this.themeService.themes;
-
-  // Current active theme (for comparison)
-  activeTheme = this.themeService.activeTheme;
-
-  // Local preview state
-  previewTheme = signal<string>(this.activeTheme()); // Initialize with active theme
-
-  // Computed derived state for the template
-  previewThemeDetails = computed(() => {
-    return this.themes.find((t) => t.id === this.previewTheme());
-  });
-
-  constructor() {
-    // Update preview if the active theme changes externally
-    effect(() => {
-      this.previewTheme.set(this.activeTheme());
-    });
+  get currentMode() {
+    return this.themeService.currentMode();
   }
 
-  selectPreview(themeId: string) {
-    this.previewTheme.set(themeId);
-  }
-
-  getHeroGradient() {
-    const theme = this.previewThemeDetails();
-    if (!theme) return 'black';
-    return `linear-gradient(135deg, ${theme.colors[0]}, ${theme.colors[1]})`;
-  }
-
-  applyTheme() {
-    this.themeService.setTheme(this.previewTheme());
-    this.toastService.show('Theme applied successfully', 'success');
+  setMode(mode: 'light' | 'dark') {
+    this.themeService.setMode(mode);
+    this.toastService.show(`Switched to ${mode} mode`, 'success');
   }
 }

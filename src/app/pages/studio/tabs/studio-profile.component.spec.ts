@@ -88,7 +88,7 @@ describe('StudioProfileComponent', () => {
   it('navigates to the catalog and validates avatar file selection', () => {
     const component = create();
     component.navigateToCatalog();
-    expect(navigate).toHaveBeenCalledWith(['/search']);
+    expect(navigate).toHaveBeenCalledWith(['/explore']);
 
     const tooLarge = new File([new Uint8Array(6 * 1024 * 1024)], 'a.png', { type: 'image/png' });
     component.onAvatarFileSelected({ target: { files: [tooLarge] } } as any);

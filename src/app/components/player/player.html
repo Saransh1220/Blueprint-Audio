@@ -111,7 +111,7 @@
       <div class="mp-right">
         <div class="mp-price-block">
           <div class="mp-price-lbl">from</div>
-          <div class="mp-price"><span class="cur">₹</span>{{ minimumLicensePrice() }}</div>
+          <div class="mp-price"><span class="cur">$</span>{{ minimumLicensePrice() }}</div>
         </div>
 
         <button class="mp-buy-btn" (click)="addToCart($event)">
@@ -286,7 +286,7 @@
           <div class="panel-spec">
             <div class="k">License</div>
             <div class="v">
-              <span>from</span><em>₹{{ minimumLicensePrice() }}</em>
+              <span>from</span><em>${{ minimumLicensePrice() }}</em>
             </div>
           </div>
         </div>

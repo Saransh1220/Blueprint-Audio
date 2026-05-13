@@ -1,9 +1,7 @@
 @use 'variables' as *;
 
-// ═══════════════════════════════════════════════════════════
-//            LOGO SYSTEM — Cult Beats
-//    Stamp monogram + wordmark, responsive across sizes
-// ═══════════════════════════════════════════════════════════
+// LOGO SYSTEM - Waveyard
+// Raster mark + wordmark, responsive across sizes.
 
 .logo {
   display: inline-flex;
@@ -19,101 +17,108 @@
 
   &:hover {
     .logo-mark {
-      transform: rotate(360deg);
-      box-shadow: 3px 3px 0 var(--hot);
+      transform: translateY(-1px);
     }
-    .logo-mark::after {
-      opacity: 1;
-    }
+
     .word-star {
       animation-duration: 1.5s;
     }
   }
 }
 
-/* The "pressed wax stamp" monogram — circular, grooved, C+B inside */
 .logo-mark {
   position: relative;
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  background: var(--ink);
-  color: var(--cream);
-  border: 2px solid var(--ink);
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
+  width: 72px;
+  height: 48px;
+  display: block;
   flex-shrink: 0;
-  box-shadow: 2px 2px 0 var(--hot);
+  object-fit: contain;
+  object-position: center;
   transition:
-    transform 0.5s cubic-bezier(0.65, 0, 0.35, 1),
-    box-shadow 0.2s ease;
+    transform 0.45s cubic-bezier(0.65, 0, 0.35, 1),
+    filter 0.2s ease;
 
-  /* Dashed inner ring — like the "side A" sticker pattern */
   &::before {
-    content: '';
-    position: absolute;
-    inset: 4px;
-    border: 1px dashed rgba(245, 241, 232, 0.45);
-    border-radius: 50%;
-    pointer-events: none;
+    content: none;
   }
 
-  /* Center spindle dot */
   &::after {
-    content: '';
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 4px;
-    height: 4px;
-    border-radius: 50%;
-    background: var(--hot);
-    opacity: 0;
-    transition: opacity 0.3s ease;
-    z-index: 3;
-  }
-
-  .mark-letters {
-    display: inline-flex;
-    align-items: baseline;
-    line-height: 1;
-    position: relative;
-    z-index: 2;
-
-    .c {
-      font-family: 'Instrument Serif', serif;
-      font-style: italic;
-      font-weight: 400;
-      font-size: 18px;
-      color: var(--hot);
-      margin-right: -5px;
-      position: relative;
-      z-index: 2;
-    }
-
-    .b {
-      font-family: $font-head;
-      font-weight: 800;
-      font-size: 15px;
-      letter-spacing: -0.04em;
-      color: var(--cream);
-      position: relative;
-      z-index: 1;
-    }
+    content: none;
   }
 }
 
-/* Wordmark text */
+.mark-slices {
+  display: none;
+}
+
+.mark-slice {
+  position: absolute;
+  top: -8%;
+  bottom: -8%;
+  width: 3px;
+  background: var(--mark-cut);
+  opacity: 0.94;
+  transform: skewX(-7deg);
+  transition: transform 0.45s cubic-bezier(0.65, 0, 0.35, 1);
+
+  &:nth-child(1) {
+    left: 22%;
+    --slice-hover: -3px;
+  }
+
+  &:nth-child(2) {
+    left: 42%;
+    width: 4px;
+    --slice-hover: 2px;
+  }
+
+  &:nth-child(3) {
+    left: 63%;
+    --slice-hover: -2px;
+  }
+
+  &:nth-child(4) {
+    left: 78%;
+    width: 2px;
+    --slice-hover: 3px;
+  }
+}
+
+.mark-letters {
+  display: none;
+
+  .a,
+  .m {
+    font-family: $font-head;
+    font-weight: 800;
+    letter-spacing: -0.08em;
+  }
+
+  .a {
+    font-size: 18px;
+    color: var(--mark-accent);
+    margin-right: -4px;
+  }
+
+  .m {
+    font-size: 15px;
+    color: var(--mark-fg);
+  }
+}
+
 .logo-word {
   display: inline-flex;
   align-items: baseline;
   gap: 4px;
+  color: var(--ink);
+  font-family: $font-head;
+  font-size: 22px;
+  font-weight: 900;
+  letter-spacing: -0.04em;
   line-height: 1;
   transition: opacity 0.2s ease;
 
-  .word-cult {
+  .word-audio {
     font-family: $font-head;
     font-weight: 800;
     font-size: 22px;
@@ -131,12 +136,12 @@
     transform: translateY(-2px);
   }
 
-  .word-beats {
+  .word-mesh {
     font-family: 'Instrument Serif', serif;
     font-style: italic;
     font-weight: 400;
     font-size: 22px;
-    color: var(--hot); // MULTI-COLOR: Highlighting 'beats' in brand color
+    color: var(--hot);
     letter-spacing: -0.01em;
     margin-left: -1px;
   }
@@ -151,31 +156,17 @@
   }
 }
 
-/* Dark variant (for dark sections) */
 .logo.on-dark {
   .logo-mark {
-    background: var(--cream);
-    color: var(--ink);
-    box-shadow: 2px 2px 0 var(--lime);
-
-    &::before {
-      border-color: rgba(20, 19, 16, 0.3);
-    }
-
-    .mark-letters {
-      .c {
-        color: var(--hot);
-      }
-      .b {
-        color: var(--ink);
-      }
-    }
+    filter: none;
   }
 
-  .word-cult,
-  .word-beats {
+  .logo-word,
+  .word-audio,
+  .word-mesh {
     color: var(--cream);
   }
+
   .word-dot {
     color: var(--lime);
   }
@@ -187,7 +178,6 @@
   }
 }
 
-/* ═══ MEGA WORDMARK (footer / brand walls) ═══ */
 .logo-mega {
   font-family: $font-head;
   font-weight: 800;
@@ -199,13 +189,13 @@
   align-items: baseline;
   gap: 0.06em;
 
-  .mega-cult {
+  .mega-audio {
     font-family: $font-head;
     font-weight: 800;
     letter-spacing: -0.07em;
   }
 
-  .mega-beats {
+  .mega-mesh {
     font-family: 'Instrument Serif', serif;
     font-style: italic;
     font-weight: 400;
@@ -226,9 +216,18 @@
 
   &.on-dark {
     color: var(--cream);
-    .mega-beats {
+
+    .mega-mesh {
       color: var(--hot);
     }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .logo,
+  .logo * {
+    animation: none !important;
+    transition: none !important;
   }
 }
 

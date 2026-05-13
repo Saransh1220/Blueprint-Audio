@@ -9,7 +9,7 @@ import { CommonModule } from '@angular/common';
     <div
       class="pagination-container"
       [class.hidden]="totalPages() <= 1 && !showPerPage()"
-      [class.cult-beats]="variant() === 'cult-beats'"
+      [class.waveyard]="variant() === 'waveyard'"
       [class.studio]="variant() === 'studio'"
     >
       <div class="pagination-info">
@@ -94,7 +94,7 @@ import { CommonModule } from '@angular/common';
         }
       }
 
-      .pagination-container.cult-beats {
+      .pagination-container.waveyard {
         gap: 1rem;
         padding: 1.25rem 0 0;
         border-top: none;
@@ -125,7 +125,7 @@ import { CommonModule } from '@angular/common';
         }
       }
 
-      .pagination-container.cult-beats .pagination-info {
+      .pagination-container.waveyard .pagination-info {
         font-family: 'DM Mono', ui-monospace, monospace;
         font-size: 11px;
         letter-spacing: 0.12em;
@@ -154,7 +154,7 @@ import { CommonModule } from '@angular/common';
         gap: 0.75rem;
       }
 
-      .pagination-container.cult-beats .pagination-controls {
+      .pagination-container.waveyard .pagination-controls {
         gap: 0.5rem;
       }
 
@@ -201,8 +201,8 @@ import { CommonModule } from '@angular/common';
         }
       }
 
-      .pagination-container.cult-beats .pager-btn,
-      .pagination-container.cult-beats .page-btn {
+      .pagination-container.waveyard .pager-btn,
+      .pagination-container.waveyard .page-btn {
         height: 40px;
         min-width: 40px;
         border-radius: 999px;
@@ -215,14 +215,14 @@ import { CommonModule } from '@angular/common';
         box-shadow: 3px 3px 0 #141310;
       }
 
-      .pagination-container.cult-beats .pager-btn:hover:not(:disabled),
-      .pagination-container.cult-beats .page-btn:hover:not(:disabled) {
+      .pagination-container.waveyard .pager-btn:hover:not(:disabled),
+      .pagination-container.waveyard .page-btn:hover:not(:disabled) {
         background: #ece5d3;
         color: #141310;
         border-color: #141310;
       }
 
-      .pagination-container.cult-beats .page-btn.active {
+      .pagination-container.waveyard .page-btn.active {
         background: #141310;
         border-color: #141310;
         color: #f5f1e8;
@@ -287,7 +287,7 @@ import { CommonModule } from '@angular/common';
         padding: 0 0.25rem;
       }
 
-      .pagination-container.cult-beats .ellipsis {
+      .pagination-container.waveyard .ellipsis {
         font-family: 'DM Mono', ui-monospace, monospace;
         opacity: 0.55;
       }
@@ -351,7 +351,7 @@ export class PaginationComponent {
   currentPage = input.required<number>();
   total = input.required<number>();
   perPage = input.required<number>();
-  variant = input<'default' | 'cult-beats' | 'studio'>('default');
+  variant = input<'default' | 'waveyard' | 'studio'>('default');
   showPerPage = input(false);
   perPageOptions = input<number[]>([8, 16, 32, 50]);
 

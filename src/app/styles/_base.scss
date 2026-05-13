@@ -23,6 +23,50 @@ body {
   position: relative;
 }
 
+body.search-page-active {
+  overflow-x: clip;
+}
+
+body.dark-theme.search-page-active {
+  --noise-opacity: 0.13;
+  --noise-blend: screen;
+
+  background:
+    radial-gradient(ellipse 900px 700px at 8% -5%, rgba(91, 120, 255, 0.18), transparent 55%),
+    radial-gradient(ellipse 700px 600px at 100% 20%, rgba(255, 77, 104, 0.14), transparent 55%),
+    radial-gradient(ellipse 1100px 800px at 50% 110%, rgba(212, 197, 255, 0.12), transparent 55%),
+    radial-gradient(ellipse 600px 500px at 90% 80%, rgba(255, 125, 46, 0.09), transparent 55%),
+    var(--cream);
+  background-attachment: fixed;
+}
+
+body.dark-theme.search-page-active::after {
+  content: '';
+  position: fixed;
+  inset: -10%;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse 500px 400px at 30% 30%, rgba(217, 245, 97, 0.04), transparent 60%),
+    radial-gradient(ellipse 600px 500px at 70% 70%, rgba(91, 120, 255, 0.05), transparent 60%);
+  filter: blur(40px);
+  animation: auroraDrift 24s ease-in-out infinite alternate;
+}
+
+@keyframes auroraDrift {
+  0% {
+    transform: translate(0, 0) scale(1);
+  }
+
+  50% {
+    transform: translate(-3%, 2%) scale(1.05);
+  }
+
+  100% {
+    transform: translate(2%, -2%) scale(0.98);
+  }
+}
+
 button,
 input,
 select,
@@ -36,9 +80,21 @@ body::before {
   inset: 0;
   pointer-events: none;
   z-index: 999;
-  opacity: 0.06;
-  mix-blend-mode: multiply;
+  opacity: var(--noise-opacity);
+  mix-blend-mode: var(--noise-blend);
   background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' seed='4'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+body.search-page-active::before {
+  opacity: 0.13;
+  mix-blend-mode: multiply;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' seed='4'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+body.dark-theme.search-page-active::before {
+  opacity: 0.13;
+  mix-blend-mode: screen;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' seed='4'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
 }
 
 ::selection {

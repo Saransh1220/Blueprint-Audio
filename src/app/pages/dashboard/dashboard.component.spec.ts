@@ -4,6 +4,7 @@ import { Subject, of, throwError } from 'rxjs';
 import { AuthService } from '../../services/auth.service';
 import { LabService } from '../../services/lab';
 import { AnalyticsService } from '../../services/analytics.service';
+import { PlayerService } from '../../services/player.service';
 import { DashboardComponent } from './dashboard.component';
 import { Role } from '../../models';
 
@@ -18,6 +19,15 @@ describe('DashboardComponent', () => {
         { provide: AuthService, useValue: { currentUser: signal({ role: userRole }) } },
         { provide: LabService, useValue: { getSpecs, refresh$ } },
         { provide: AnalyticsService, useValue: { getOverview } },
+        {
+          provide: PlayerService,
+          useValue: {
+            currentTrack: signal(null),
+            isPlaying: signal(false),
+            togglePlay: vi.fn(),
+            showPlayer: vi.fn(),
+          },
+        },
       ],
     });
     return TestBed.runInInjectionContext(() => new DashboardComponent());
@@ -31,21 +41,28 @@ describe('DashboardComponent', () => {
     );
   });
 
-  it('loads specs and analytics, toggles genres and maps genre images', () => {
+  it('loads producer specs and analytics and maps dashboard rows', () => {
     const component = create();
-    component.loadSpecs([]);
+    component.loadProducerSpecs();
     component.loadAnalytics();
     expect(getSpecs).toHaveBeenCalled();
-    expect(component.filteredSpecs().length).toBe(1);
+    expect(component.producerSpecs().length).toBe(1);
     expect(component.stats()[0].value).toBe('10');
 
-    component.toggleGenre('Trap');
-    expect(component.selectedGenres()).toContain('Trap');
-    component.toggleGenre('Trap');
-    expect(component.selectedGenres()).not.toContain('Trap');
+    const spec = {
+      id: 's1',
+      title: 'Trap Run',
+      producerName: 'Blaze',
+      bpm: 140,
+      key: 'Am',
+      price: 29,
+      genres: [{ id: 'g1', name: 'Trap' }],
+      analytics: { playCount: 11, totalDownloadCount: 3 },
+      processingStatus: 'completed',
+    } as any;
 
-    expect(component.getGenreImage('Trap')).toContain('trap.png');
-    expect(component.getGenreImage('Unknown')).toContain('placeholder');
+    expect(component.specToCard(spec, 0).price).toBe('$29');
+    expect(component.producerSpecToDropRow(spec, 0).status).toBe('live');
     refresh$.next();
     expect(getSpecs).toHaveBeenCalled();
   });
@@ -54,6 +71,7 @@ describe('DashboardComponent', () => {
     getOverview.mockReturnValueOnce(throwError(() => new Error('x')));
     const component = create();
     component.loadAnalytics();
-    expect(component.stats()[0].trend).toBe('No Data');
+    expect(component.stats()[0].delta).toBe('Loading...');
+    expect(component.analyticsLoading()).toBe(false);
   });
 });

@@ -19,7 +19,8 @@ import { Role } from './models';
 
 export const routes: Routes = [
   { path: '', component: HomeComponent },
-  { path: 'search', component: SearchPageComponent },
+  { path: 'explore', component: SearchPageComponent },
+  { path: 'search', redirectTo: 'explore', pathMatch: 'full' },
   { path: 'battles', component: BattlesComponent },
   { path: 'battles/:id', component: BattleDetailsComponent },
   {

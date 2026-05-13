@@ -1,13 +1,6 @@
 :host {
-  --cream: #f5f1e8;
-  --cream-2: #ece5d3;
-  --cream-3: #e0d7c0;
-  --ink: #141310;
-  --muted: #6b635a;
-  --hot: #ff3d5a;
-  --lime: #c8e84f;
+  --muted: var(--ink-mute);
   --cobalt: #2d4cff;
-  --sun: #ffc93c;
   --display: 'Bricolage Grotesque', sans-serif;
   --italic: 'Instrument Serif', serif;
   --mono: 'DM Mono', ui-monospace, monospace;
@@ -192,7 +185,7 @@ dt {
 
   p {
     margin: 0;
-    color: rgba(245, 241, 232, 0.72);
+    color: color-mix(in srgb, var(--cream) 72%, transparent);
     font-family: var(--italic);
     font-style: italic;
     font-size: 17px;
@@ -222,39 +215,80 @@ dt {
 }
 
 .bd-lane {
-  min-height: 210px;
+  min-height: 260px;
   text-align: left;
   border: 2px solid var(--ink);
   border-radius: 20px;
-  padding: 24px;
-  background: var(--cream);
-  color: var(--ink);
+  padding: 26px 28px;
+  color: var(--cream);
   cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  background-size: cover;
+  background-position: center;
   transition:
-    transform 0.15s ease,
-    box-shadow 0.15s ease;
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
 
-  &:hover {
-    transform: translate(-2px, -2px);
-    box-shadow: 5px 5px 0 var(--ink);
+  /* Overlay sits above bg but below content */
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    pointer-events: none;
+    transition: opacity 0.2s ease;
   }
 
-  &.artist {
-    box-shadow: 4px 4px 0 var(--hot);
-  }
-
-  &.producer {
-    box-shadow: 4px 4px 0 var(--cobalt);
-  }
-
+  /* All text/children sit above overlay */
   span,
   strong,
   em {
+    position: relative;
+    z-index: 1;
     display: block;
   }
 
+  &:hover {
+    transform: translate(-2px, -2px);
+  }
+
+  &.artist {
+    background-image: url('/battle-artist.png');
+    box-shadow: 4px 4px 0 var(--hot);
+
+    &::before {
+      background: linear-gradient(
+        160deg,
+        color-mix(in srgb, var(--ink) 68%, transparent) 0%,
+        rgba(255, 61, 90, 0.55) 100%
+      );
+    }
+
+    &:hover {
+      box-shadow: 6px 6px 0 var(--hot);
+    }
+  }
+
+  &.producer {
+    background-image: url('/battle-producer.png');
+    box-shadow: 4px 4px 0 var(--cobalt);
+
+    &::before {
+      background: linear-gradient(
+        160deg,
+        color-mix(in srgb, var(--ink) 68%, transparent) 0%,
+        rgba(45, 76, 255, 0.55) 100%
+      );
+    }
+
+    &:hover {
+      box-shadow: 6px 6px 0 var(--cobalt);
+    }
+  }
+
   span {
-    color: var(--muted);
+    color: color-mix(in srgb, var(--cream) 72%, transparent);
     font-size: 10px;
     margin-bottom: 20px;
   }
@@ -264,12 +298,14 @@ dt {
     font-size: clamp(28px, 4vw, 44px);
     line-height: 0.95;
     letter-spacing: -0.045em;
+    color: var(--cream);
+    text-shadow: 0 2px 12px color-mix(in srgb, var(--ink) 45%, transparent);
   }
 
   em {
     margin-top: 14px;
     max-width: 380px;
-    color: var(--muted);
+    color: color-mix(in srgb, var(--cream) 82%, transparent);
     font-family: var(--italic);
     font-size: 17px;
     line-height: 1.35;

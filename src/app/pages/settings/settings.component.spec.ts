@@ -4,25 +4,21 @@ import { ThemeService } from '../../services/theme.service';
 import { SettingsComponent } from './settings.component';
 
 describe('SettingsComponent', () => {
-  it('resolves active theme details from theme service', () => {
-    const activeTheme = signal('vampire');
+  it('keeps the active settings tab and exposes theme service', () => {
+    const currentMode = signal<'light' | 'dark'>('dark');
     TestBed.configureTestingModule({
       providers: [
         {
           provide: ThemeService,
           useValue: {
-            activeTheme,
-            themes: [
-              { id: 'vampire', colors: ['#1', '#2'] },
-              { id: 'neon', colors: ['#3', '#4'] },
-            ],
+            currentMode,
           },
         },
       ],
     });
 
     const component = TestBed.runInInjectionContext(() => new SettingsComponent());
-    expect(component.activeThemeDetails()?.id).toBe('vampire');
+    expect(component.themeService.currentMode()).toBe('dark');
     component.activeTab = 'account';
     expect(component.activeTab).toBe('account');
   });

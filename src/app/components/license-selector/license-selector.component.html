@@ -84,7 +84,7 @@
               </div>
 
               <div class="lic-price-col">
-                <div class="lic-price">₹{{ license.price }}</div>
+                <div class="lic-price">${{ license.price }}</div>
                 <div class="lic-term">one-time</div>
               </div>
             </div>
@@ -108,7 +108,7 @@
       @if (selectedLicense(); as selected) {
         <div class="foot-name">
           <span>{{ selected.name }}</span>
-          <span class="price">₹{{ selected.price }}</span>
+          <span class="price">${{ selected.price }}</span>
         </div>
         <div class="foot-note">{{ getFooterNote(selected) }}</div>
       } @else {

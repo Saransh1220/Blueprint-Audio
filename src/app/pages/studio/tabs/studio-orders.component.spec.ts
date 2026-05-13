@@ -100,4 +100,58 @@ describe('StudioOrdersComponent', () => {
     isoSpy.mockRestore();
     localeSpy.mockRestore();
   });
+
+  it('filters, paginates, and formats order data', () => {
+    const { component, getProducerOrders } = setup();
+    component.orders.set([
+      ...response.orders,
+      {
+        ...response.orders[0],
+        id: 'ord-2',
+        amount: 301,
+        status: 'completed',
+        buyer_name: 'Ava',
+        created_at: 'bad-date',
+      },
+      {
+        ...response.orders[0],
+        id: 'ord-3',
+        amount: 0,
+        status: 'processing',
+        buyer_name: '',
+      },
+      {
+        ...response.orders[0],
+        id: 'ord-4',
+        amount: undefined,
+        status: 'refunded',
+      },
+    ] as any);
+    component.total.set(35);
+
+    expect(component.monthlyRevenue()).toBe('2,300');
+    expect(component.avgOrderValue()).toBe('575');
+
+    component.setOrderFilter('paid');
+    expect(component.filteredOrders().map((order) => order.id)).toEqual(['ord-2']);
+    component.setOrderFilter('processing');
+    expect(component.filteredOrders().map((order) => order.id)).toEqual(['ord-3']);
+    component.setOrderFilter('refunded');
+    expect(component.filteredOrders().map((order) => order.id)).toEqual(['ord-4']);
+    component.setOrderFilter('all');
+    expect(component.filteredOrders().length).toBe(4);
+
+    getProducerOrders.mockReturnValueOnce(of({ ...response, limit: 25, offset: 0 }));
+    component.onPerPageChange(25);
+    expect(component.limit()).toBe(25);
+    expect(component.currentPage()).toBe(1);
+    expect(getProducerOrders).toHaveBeenLastCalledWith(1, 25);
+
+    expect(component.formatDate('2026-03-11T10:00:00.000Z')).toContain('Mar');
+    expect(component.formatDate('not-a-date')).toBe('Invalid Date');
+    expect(component.formatTime('2026-03-11T10:00:00.000Z')).toContain(':');
+    expect(component.formatTime('not-a-date')).toBe('Invalid Date');
+    expect(component.buyerColor('')).toBe('var(--hot)');
+    expect(component.buyerColor('A')).toBe('var(--tangerine)');
+  });
 });

@@ -8,21 +8,11 @@
 
   <!-- LIVE PREVIEW STAGE -->
   <div class="preview-stage-wrapper">
-    <div class="stage-header">
-      <h3>Interactive Preview</h3>
-      @if (activeTheme() !== previewTheme()) {
-        <button class="apply-btn" (click)="applyTheme()">
-          Apply {{ previewThemeDetails()?.name }}
-        </button>
-      }
-    </div>
-
     <!-- The "Window" Mockup -->
     <div
       class="mockup-window"
-      [style.--p-brand]="previewThemeDetails()?.colors?.[0]"
-      [style.--p-bg]="previewThemeDetails()?.colors?.[1]"
-      [style.--p-accent]="previewThemeDetails()?.colors?.[2] || previewThemeDetails()?.colors?.[0]"
+      [class.theme-preview-light]="currentMode === 'light'"
+      [class.theme-preview-dark]="currentMode === 'dark'"
     >
       <!-- Mockup Background (Global Theme Bg) -->
       <div class="mockup-bg"></div>
@@ -89,21 +79,26 @@
   </div>
 
   <div class="themes-list">
-    <h3>Theme Library</h3>
+    <h3>Mode</h3>
     <div class="grid">
-      @for (theme of themes; track theme.id) {
-        <div
-          class="theme-item glass-panel"
-          [class.active]="activeTheme() === theme.id"
-          [class.previewing]="previewTheme() === theme.id"
-          (click)="selectPreview(theme.id)"
-        >
-          <div class="swatch" [style.background]="theme.colors[0]"></div>
-          <div class="details">
-            <span class="name">{{ theme.name }}</span>
-          </div>
+      <div
+        class="theme-item glass-panel"
+        [class.active]="currentMode === 'light'"
+        (click)="setMode('light')"
+      >
+        <div class="details">
+          <span class="name">Light Mode</span>
         </div>
-      }
+      </div>
+      <div
+        class="theme-item glass-panel"
+        [class.active]="currentMode === 'dark'"
+        (click)="setMode('dark')"
+      >
+        <div class="details">
+          <span class="name">Dark Mode</span>
+        </div>
+      </div>
     </div>
   </div>
 </div>

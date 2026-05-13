@@ -1,84 +1,70 @@
 import {
   type AfterViewInit,
-  type OnInit,
-  type OnDestroy,
   ChangeDetectionStrategy,
   Component,
   ElementRef,
   inject,
+  type OnInit,
   signal,
 } from '@angular/core';
-import { Router } from '@angular/router';
 import { RouterLink } from '@angular/router';
 import { gsap } from 'gsap';
-import { FormsModule } from '@angular/forms';
-import { Genre } from '../../models/enums';
+import { catchError, finalize, of } from 'rxjs';
+import type { Spec } from '../../models';
+import { LabService } from '../../services';
+
+type BeatCard = {
+  id: string;
+  title: string;
+  producer: string;
+  producerHandle: string;
+  genre: string;
+  meta: string;
+  price: string;
+  imageUrl: string;
+  className: string;
+  tilt: number;
+  lift: number;
+};
+
+const CARD_LAYOUTS = [
+  { className: 'cover-noir', tilt: -14, lift: 34 },
+  { className: 'cover-blueprint', tilt: -9, lift: 14 },
+  { className: 'cover-yellow', tilt: -4, lift: 2 },
+  { className: 'cover-coral', tilt: 2, lift: 0 },
+  { className: 'cover-redline', tilt: 7, lift: 9 },
+  { className: 'cover-poster', tilt: 12, lift: 22 },
+  { className: 'cover-green', tilt: 16, lift: 40 },
+] as const;
 
 @Component({
   selector: 'app-hero',
-  imports: [RouterLink, FormsModule],
+  imports: [RouterLink],
   templateUrl: './hero.html',
   styleUrl: './hero.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: { style: 'display: block' },
 })
-export class HeroComponent implements AfterViewInit, OnInit, OnDestroy {
+export class HeroComponent implements OnInit, AfterViewInit {
   private el = inject(ElementRef);
-  private router = inject(Router);
+  private labService = inject(LabService);
 
-  // Search logic
-  searchQuery = signal('');
-  isSearchFocused = signal(false);
-  activeChips = signal<string[]>(['Trap']);
+  readonly cardLayouts = CARD_LAYOUTS;
+  beatCards = signal<BeatCard[]>([]);
+  isLoading = signal(true);
 
-  // Rotating headline
-  useCases = [
-    'your next single',
-    'your film score',
-    "tonight's session",
-    'your EP',
-    'your advertisement',
-    'your mixtape',
-  ];
-  currentUseCase = signal(this.useCases[0]);
-  useCaseOpacity = signal(1);
-  private ucInterval: any;
-
-  // Rotating placeholders
-  placeholders = [
-    'trap beats at 140 BPM…',
-    'dark moody piano loops…',
-    'afrobeats with stems…',
-    'cinematic trailer music…',
-    '“looking for sync-ready R&B”',
-    'producers from Lagos…',
-  ];
-  currentPlaceholder = signal(this.placeholders[0]);
-  private phInterval: any;
-
-  ngOnInit() {
-    let ucIdx = 0;
-    this.ucInterval = setInterval(() => {
-      ucIdx = (ucIdx + 1) % this.useCases.length;
-      this.useCaseOpacity.set(0);
-      setTimeout(() => {
-        this.currentUseCase.set(this.useCases[ucIdx]);
-        this.useCaseOpacity.set(1);
-      }, 200);
-    }, 2400);
-
-    let phIdx = 0;
-    this.phInterval = setInterval(() => {
-      if (!this.isSearchFocused()) {
-        phIdx = (phIdx + 1) % this.placeholders.length;
-        this.currentPlaceholder.set(this.placeholders[phIdx]);
-      }
-    }, 2800);
-  }
-
-  ngOnDestroy() {
-    clearInterval(this.ucInterval);
-    clearInterval(this.phInterval);
+  ngOnInit(): void {
+    this.labService
+      .getSpecs({ category: 'beat', page: 1, per_page: CARD_LAYOUTS.length, sort: 'newest' })
+      .pipe(
+        catchError(() => of([] as Spec[])),
+        finalize(() => this.isLoading.set(false)),
+      )
+      .subscribe((specs) => {
+        this.beatCards.set(
+          specs.slice(0, CARD_LAYOUTS.length).map((spec, index) => this.toBeatCard(spec, index)),
+        );
+      });
   }
 
   ngAfterViewInit(): void {
@@ -93,80 +79,37 @@ export class HeroComponent implements AfterViewInit, OnInit, OnDestroy {
     });
   }
 
-  // Chip management
-  addChip(label: string) {
-    if (!this.activeChips().some((c) => c.toLowerCase() === label.toLowerCase())) {
-      this.activeChips.update((chips) => [...chips, label]);
-    }
+  private toBeatCard(spec: Spec, index: number): BeatCard {
+    const layout = CARD_LAYOUTS[index % CARD_LAYOUTS.length];
+    const genre = spec.genres?.[0]?.name || spec.category;
+    const meta = [spec.bpm ? `${spec.bpm} BPM` : '', spec.key].filter(Boolean).join(' / ');
+
+    return {
+      id: spec.id,
+      title: spec.title,
+      producer: spec.producerName,
+      producerHandle: this.toHandle(spec.producerName),
+      genre,
+      meta,
+      price: this.formatPrice(spec.price),
+      imageUrl: spec.imageUrl,
+      ...layout,
+    };
   }
 
-  removeChip(label: string) {
-    this.activeChips.update((chips) => chips.filter((c) => c !== label));
+  private toHandle(name: string): string {
+    const clean = name
+      .trim()
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '');
+    return clean ? `@${clean.slice(0, 14)}` : '@producer';
   }
 
-  // Search
-  onSearchFocus() {
-    this.isSearchFocused.set(true);
-  }
-
-  onSearchBlur() {
-    setTimeout(() => {
-      this.isSearchFocused.set(false);
-    }, 150);
-  }
-
-  pickSuggest(label: string) {
-    this.searchQuery.set(label);
-    this.doSearch();
-  }
-
-  doSearch() {
-    const queryParams: Record<string, string> = {};
-    const matchedGenres: string[] = [];
-    const searchTerms: string[] = [];
-
-    // Separate active chips into valid genres vs free-text search strings
-    const allGenres = Object.values(Genre).map((g) => g.toLowerCase());
-
-    for (const chip of this.activeChips()) {
-      const lowerChip = chip.toLowerCase();
-      // Handle the case where the enum has R&B but the chip might be R&B or Rnb etc.
-      // We will look for a direct match in the values.
-      const exactGenreMatch = Object.values(Genre).find((g) => g.toLowerCase() === lowerChip);
-      if (exactGenreMatch) {
-        matchedGenres.push(exactGenreMatch);
-      } else {
-        searchTerms.push(chip);
-      }
-    }
-
-    if (this.searchQuery().trim()) {
-      searchTerms.push(this.searchQuery().trim());
-    }
-
-    if (matchedGenres.length > 0) {
-      queryParams['genres'] = matchedGenres.join(',');
-    }
-
-    if (searchTerms.length > 0) {
-      queryParams['search'] = searchTerms.join(' ');
-    }
-
-    // Direct to search page with mapped parameters
-    this.router.navigate(['/search'], { queryParams });
-  }
-
-  doQuick(key: string) {
-    const queryParams: Record<string, string | number> = {};
-    if (key === 'under-30') {
-      queryParams['max_price'] = 999;
-    } else if (key === 'new') {
-      queryParams['sort'] = 'newest';
-    } else if (key === 'stems') {
-      queryParams['search'] = 'stems';
-    } else if (key === 'sync') {
-      queryParams['search'] = 'sync';
-    }
-    this.router.navigate(['/search'], { queryParams });
+  private formatPrice(price: number): string {
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD',
+      maximumFractionDigits: 0,
+    }).format(price);
   }
 }

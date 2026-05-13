@@ -5,16 +5,7 @@
 }
 
 .license-selector {
-  --cream: #f5f1e8;
-  --cream-2: #ece5d3;
-  --cream-3: #e0d7c0;
-  --ink: #141310;
-  --ink-2: #3a3630;
-  --ink-mute: #6b635a;
-  --hot: #ff3d5a;
   --tangerine: #ff6b1a;
-  --lime: #c8e84f;
-  --sun: #ffc93c;
 
   position: relative;
   display: flex;
@@ -24,16 +15,6 @@
   background: var(--cream);
   color: var(--ink);
   overflow: hidden;
-}
-
-.license-selector::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  opacity: 0.05;
-  mix-blend-mode: multiply;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' seed='4'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
 }
 
 .split-body {
@@ -63,20 +44,24 @@
 
 .beat-panel::-webkit-scrollbar-track,
 .license-panel::-webkit-scrollbar-track {
-  background: rgba(20, 19, 16, 0.08);
+  background: color-mix(in srgb, var(--ink) 8%, transparent);
   border-radius: 999px;
 }
 
 .beat-panel::-webkit-scrollbar-thumb {
   background: linear-gradient(180deg, rgba(255, 61, 90, 0.82), rgba(255, 107, 26, 0.78));
   border-radius: 999px;
-  border: 2px solid rgba(245, 241, 232, 0.65);
+  border: 2px solid color-mix(in srgb, var(--cream) 65%, transparent);
 }
 
 .license-panel::-webkit-scrollbar-thumb {
-  background: linear-gradient(180deg, rgba(245, 241, 232, 0.96), rgba(224, 215, 192, 0.82));
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--cream) 96%, transparent),
+    rgba(224, 215, 192, 0.82)
+  );
   border-radius: 999px;
-  border: 2px solid rgba(20, 19, 16, 0.45);
+  border: 2px solid color-mix(in srgb, var(--ink) 45%, transparent);
 }
 
 .beat-panel {
@@ -151,7 +136,7 @@
   height: 24px;
   border-radius: 50%;
   border: 2px solid var(--ink);
-  background: rgba(245, 241, 232, 0.95);
+  background: color-mix(in srgb, var(--cream) 95%, transparent);
   box-shadow: 2px 2px 0 var(--ink);
 }
 
@@ -213,7 +198,7 @@
   gap: 6px;
   border: 1.5px solid var(--ink);
   border-radius: 14px;
-  background: rgba(236, 229, 211, 0.88);
+  background: color-mix(in srgb, var(--cream-2) 88%, transparent);
 }
 
 .bp-stat-label {
@@ -309,7 +294,7 @@
   padding: 5px 12px;
   border: 1.5px solid var(--cream);
   border-radius: 999px;
-  background: rgba(245, 241, 232, 0.08);
+  background: color-mix(in srgb, var(--cream) 8%, transparent);
 }
 
 .lp-num .dot,
@@ -337,7 +322,7 @@
 }
 
 .lp-sub {
-  color: rgba(245, 241, 232, 0.65);
+  color: color-mix(in srgb, var(--cream) 65%, transparent);
   font-family: 'Instrument Serif', serif;
   font-style: italic;
   font-size: 13px;
@@ -353,9 +338,9 @@
   position: relative;
   width: 100%;
   padding: 14px 16px 14px 20px;
-  border: 2px solid var(--cream);
+  border: 2px solid var(--ink);
   border-radius: 14px;
-  background: var(--cream);
+  background: var(--cream-3);
   color: var(--ink);
   text-align: left;
   cursor: pointer;
@@ -379,7 +364,7 @@
 .lic-row.popular {
   background: var(--hot);
   border-color: var(--hot);
-  color: var(--cream);
+  color: #fff;
 }
 
 .lic-row.popular:hover,
@@ -388,8 +373,8 @@
 }
 
 .lic-row.exclusive {
-  background: #1c1a17;
-  border-color: var(--cream);
+  background: var(--ink);
+  border-color: var(--ink);
   color: var(--cream);
 }
 
@@ -432,7 +417,7 @@
 
 .lic-row.exclusive .lic-tick {
   border-color: var(--cream);
-  background: rgba(245, 241, 232, 0.12);
+  background: color-mix(in srgb, var(--cream) 12%, transparent);
   color: var(--cream);
 }
 
@@ -546,7 +531,7 @@
   align-items: center;
   gap: 20px;
   padding: 12px 22px;
-  border-top: 1.5px solid rgba(20, 19, 16, 0.12);
+  border-top: 1.5px solid color-mix(in srgb, var(--ink) 12%, transparent);
   background: var(--cream);
 }
 
@@ -651,7 +636,7 @@
   font-size: 10px;
   letter-spacing: 0.08em;
   cursor: pointer;
-  border-bottom: 1px solid rgba(20, 19, 16, 0.2);
+  border-bottom: 1px solid color-mix(in srgb, var(--ink) 20%, transparent);
   padding: 0;
 }
 
@@ -699,4 +684,8 @@
   .action-btn {
     flex: 1;
   }
+}
+
+.lic-row.popular .lic-price {
+  color: #fff;
 }

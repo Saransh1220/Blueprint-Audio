@@ -9,13 +9,13 @@
 <div class="stats-grid" style="grid-template-columns: repeat(3, 1fr)">
   <div class="stat-cell c1">
     <div class="stat-top">
-      <span class="stat-lbl">This month · revenue</span><span class="stat-ic">₹</span>
+      <span class="stat-lbl">This month · revenue</span><span class="stat-ic">$</span>
     </div>
     <div class="stat-val">
       @if (isLoading()) {
         —
       } @else {
-        <span class="cur">₹</span>{{ monthlyRevenue() }}
+        <span class="cur">$</span>{{ monthlyRevenue() }}
       }
     </div>
     <div class="stat-foot"><span class="stat-delta up">+12% vs last</span></div>
@@ -41,7 +41,7 @@
       @if (isLoading()) {
         —
       } @else {
-        <span class="cur">₹</span>{{ avgOrderValue() }}
+        <span class="cur">$</span>{{ avgOrderValue() }}
       }
     </div>
     <div class="stat-foot"><span class="stat-delta up">+8%</span></div>
@@ -161,7 +161,7 @@
           }}</strong>
         </div>
         <div class="money-m" style="text-align: right">
-          ₹{{ (order.amount || 0).toLocaleString('en-IN') }}
+          ${{ (order.amount || 0).toLocaleString('en-IN') }}
         </div>
         <div>
           @if (order.status === 'paid' || order.status === 'completed') {
