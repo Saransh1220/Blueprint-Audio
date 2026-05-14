@@ -19,7 +19,7 @@
 
     <div class="page-title-row">
       <div>
-      <h1 class="page-title">Explore <em>beats</em>.</h1>
+        <h1 class="page-title">Explore <em>beats</em>.</h1>
       </div>
     </div>
 
@@ -557,7 +557,11 @@
   </div>
 
   <!-- Mobile full-screen filter panel -->
-  <div class="mob-filter-backdrop" [class.on]="mobileFilterPanelOpen()" (click)="toggleMobileFilterPanel(false)"></div>
+  <div
+    class="mob-filter-backdrop"
+    [class.on]="mobileFilterPanelOpen()"
+    (click)="toggleMobileFilterPanel(false)"
+  ></div>
   <div class="mob-fp" [class.open]="mobileFilterPanelOpen()">
     <div class="mfp-head">
       <span class="mfp-title">Filters</span>
@@ -574,13 +578,20 @@
       <div class="mfp-section">
         <button class="mfp-sec-hd" type="button" (click)="toggleGroup('genres')">
           <span>Genre</span>
-          @if (genre().length) { <span class="mfp-sec-count">{{ genre().length }}</span> }
+          @if (genre().length) {
+            <span class="mfp-sec-count">{{ genre().length }}</span>
+          }
           <i class="fas fa-chevron-down" [class.flip]="isGroupOpen('genres')"></i>
         </button>
         @if (isGroupOpen('genres')) {
           <div class="mfp-options">
             @for (g of genres; track g) {
-              <button type="button" class="mfp-opt" [class.on]="genre().includes(g)" (click)="toggleGenre(g)">
+              <button
+                type="button"
+                class="mfp-opt"
+                [class.on]="genre().includes(g)"
+                (click)="toggleGenre(g)"
+              >
                 <span class="mfp-check"><i class="fas fa-check"></i></span>
                 {{ g }}
               </button>
@@ -622,11 +633,37 @@
             </div>
             <div class="slider-track-wrap">
               <div class="slider-bg"></div>
-              <div class="slider-fill" [style.left.%]="bpmFillLeft()" [style.width.%]="bpmFillWidth()"></div>
-              <input class="range-slider" type="range" min="60" max="200" [value]="bpmRange()[0]" (input)="updateBpm($event, 0)" (change)="onFilterChange()" />
-              <input class="range-slider" type="range" min="60" max="200" [value]="bpmRange()[1]" (input)="updateBpm($event, 1)" (change)="onFilterChange()" />
+              <div
+                class="slider-fill"
+                [style.left.%]="bpmFillLeft()"
+                [style.width.%]="bpmFillWidth()"
+              ></div>
+              <input
+                class="range-slider"
+                type="range"
+                min="60"
+                max="200"
+                [value]="bpmRange()[0]"
+                (input)="updateBpm($event, 0)"
+                (change)="onFilterChange()"
+              />
+              <input
+                class="range-slider"
+                type="range"
+                min="60"
+                max="200"
+                [value]="bpmRange()[1]"
+                (input)="updateBpm($event, 1)"
+                (change)="onFilterChange()"
+              />
             </div>
-            <button class="mfp-reset" type="button" (click)="bpmRange.set([60, 200]); onFilterChange()">Reset</button>
+            <button
+              class="mfp-reset"
+              type="button"
+              (click)="bpmRange.set([60, 200]); onFilterChange()"
+            >
+              Reset
+            </button>
           </div>
         }
       </div>
@@ -646,11 +683,37 @@
             </div>
             <div class="slider-track-wrap">
               <div class="slider-bg"></div>
-              <div class="slider-fill hot-fill" [style.left.%]="priceFillLeft()" [style.width.%]="priceFillWidth()"></div>
-              <input class="range-slider" type="range" min="0" max="50000" [value]="priceRange()[0]" (input)="updatePrice($event, 0)" (change)="onFilterChange()" />
-              <input class="range-slider" type="range" min="0" max="50000" [value]="priceRange()[1]" (input)="updatePrice($event, 1)" (change)="onFilterChange()" />
+              <div
+                class="slider-fill hot-fill"
+                [style.left.%]="priceFillLeft()"
+                [style.width.%]="priceFillWidth()"
+              ></div>
+              <input
+                class="range-slider"
+                type="range"
+                min="0"
+                max="50000"
+                [value]="priceRange()[0]"
+                (input)="updatePrice($event, 0)"
+                (change)="onFilterChange()"
+              />
+              <input
+                class="range-slider"
+                type="range"
+                min="0"
+                max="50000"
+                [value]="priceRange()[1]"
+                (input)="updatePrice($event, 1)"
+                (change)="onFilterChange()"
+              />
             </div>
-            <button class="mfp-reset" type="button" (click)="priceRange.set([0, 50000]); onFilterChange()">Reset</button>
+            <button
+              class="mfp-reset"
+              type="button"
+              (click)="priceRange.set([0, 50000]); onFilterChange()"
+            >
+              Reset
+            </button>
           </div>
         }
       </div>

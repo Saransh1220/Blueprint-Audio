@@ -113,11 +113,7 @@ export class AppComponent implements AfterViewInit {
   }
 
   shouldReservePlayerSpace(): boolean {
-    return (
-      this.playerService.isVisible() &&
-      !this.isAuthRoute() &&
-      !this.isUploadRoute()
-    );
+    return this.playerService.isVisible() && !this.isAuthRoute() && !this.isUploadRoute();
   }
 
   shouldReserveExpandedPlayerSpace(): boolean {
