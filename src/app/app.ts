@@ -115,7 +115,6 @@ export class AppComponent implements AfterViewInit {
   shouldReservePlayerSpace(): boolean {
     return (
       this.playerService.isVisible() &&
-      !this.isStudioRoute() &&
       !this.isAuthRoute() &&
       !this.isUploadRoute()
     );

@@ -2,11 +2,14 @@ import { Component, OnInit, computed, effect, inject, signal, ViewChild } from '
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
+import { switchMap, tap } from 'rxjs';
 import { AuthService } from '../../../services/auth.service';
 import { UserService } from '../../../services/user.service';
 import { ToastService } from '../../../services/toast.service';
 import { Role } from '../../../models';
+import { PublicUserResponse } from '../../../core/api/user.requests';
 import { ConfirmDialogComponent } from '../../../components/confirm-dialog/confirm-dialog.component';
+import { resolveMediaUrl } from '../../../utils/media-url';
 
 @Component({
   selector: 'app-studio-profile',
@@ -83,26 +86,49 @@ export class StudioProfileComponent implements OnInit {
     });
   }
 
+  hasUnsavedChanges() {
+    return !!this.profileForm && (this.profileForm.dirty || !!this.selectedAvatarFile());
+  }
+
   saveProfile() {
     if (this.profileForm.invalid) {
       this.toastService.show('Please fix the form errors', 'error');
       return;
     }
     this.isSaving.set(true);
-    this.userService.updateProfile(this.profileForm.value).subscribe({
+    const avatarFile = this.selectedAvatarFile();
+    const profileData = this.profileForm.value;
+    let uploadedProfile: PublicUserResponse | null = null;
+    const save$ = avatarFile
+      ? this.authService.uploadAvatar(avatarFile).pipe(
+          tap((profile) => {
+            uploadedProfile = profile;
+          }),
+          switchMap(() => this.userService.updateProfile(profileData)),
+        )
+      : this.userService.updateProfile(profileData);
+
+    save$.subscribe({
       next: (profile) => {
         if (this.currentUser()) {
           this.authService.currentUser.set({
             ...this.currentUser()!,
-            bio: profile.bio,
-            display_name: profile.display_name,
-            instagram_url: profile.instagram_url,
-            twitter_url: profile.twitter_url,
-            youtube_url: profile.youtube_url,
-            spotify_url: profile.spotify_url,
+            bio: profile.bio ?? profileData.bio,
+            display_name: profile.display_name ?? profileData.display_name,
+            instagram_url: profile.instagram_url ?? profileData.instagram_url,
+            twitter_url: profile.twitter_url ?? profileData.twitter_url,
+            youtube_url: profile.youtube_url ?? profileData.youtube_url,
+            spotify_url: profile.spotify_url ?? profileData.spotify_url,
+            avatar_url: resolveMediaUrl(
+              avatarFile
+                ? uploadedProfile?.avatar_url || profile.avatar_url
+                : profile.avatar_url || this.currentUser()!.avatar_url,
+            ),
           });
         }
         this.toastService.show('Profile updated successfully', 'success');
+        this.selectedAvatarFile.set(null);
+        this.avatarPreview.set(null);
         this.profileForm.markAsPristine();
         this.isSaving.set(false);
       },
@@ -111,6 +137,22 @@ export class StudioProfileComponent implements OnInit {
         this.isSaving.set(false);
       },
     });
+  }
+
+  discardProfileChanges() {
+    const user = this.currentUser();
+    if (user) {
+      this.profileForm.patchValue({
+        bio: user.bio || '',
+        display_name: user.display_name || '',
+        instagram_url: user.instagram_url || '',
+        twitter_url: user.twitter_url || '',
+        youtube_url: user.youtube_url || '',
+        spotify_url: user.spotify_url || '',
+      });
+    }
+    this.cancelAvatarUpload();
+    this.profileForm.markAsPristine();
   }
 
   navigateToCatalog() {

@@ -19,11 +19,7 @@
 
     <div class="page-title-row">
       <div>
-        <h1 class="page-title">Explore <em>beats</em>.</h1>
-        <div class="head-meta">
-          <span class="dot"></span>
-          <strong>{{ resultCount() }}</strong> live specs in the yard
-        </div>
+      <h1 class="page-title">Explore <em>beats</em>.</h1>
       </div>
     </div>
 
@@ -54,22 +50,6 @@
       <button class="search-go" type="button" (click)="onSearch()">
         Search
         <i class="fas fa-arrow-right"></i>
-      </button>
-
-      <button class="filter-toggle-mobile" type="button" (click)="toggleMobileFilters()">
-        <svg
-          width="14"
-          height="14"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2.5"
-        >
-          <line x1="4" y1="6" x2="20" y2="6"></line>
-          <line x1="7" y1="12" x2="17" y2="12"></line>
-          <line x1="10" y1="18" x2="14" y2="18"></line>
-        </svg>
-        Filters
       </button>
     </div>
 
@@ -109,7 +89,7 @@
   </header>
 
   <div class="filter-bar">
-    <span class="fb-label">Refine</span>
+    <span class="fb-label">Filters</span>
     <div class="filter-dd">
       <button
         class="fd-trigger"
@@ -487,67 +467,40 @@
     <main class="catalog">
       <div class="catalog-inner">
         <div class="catalog-toolbar">
-          <div class="result-info">
-            <div class="big">
-              <em>{{ resultCount() }}</em> beats match
-            </div>
-            <div class="small">
-              @if (pagination()) {
-                page {{ currentPage() }} of {{ totalPages() }}
-              } @else {
-                live catalog
-              }
-            </div>
-          </div>
+          <!-- Mobile-only filter trigger -->
+          <button class="mob-filter-btn" type="button" (click)="toggleMobileFilterPanel()">
+            <i class="fas fa-sliders"></i>
+            Filters
+            @if (activeFilterChips().length) {
+              <span class="mfb-badge">{{ activeFilterChips().length }}</span>
+            }
+          </button>
 
-          <div class="toolbar-right">
-            <div class="sort-dd">
-              <span>Sort</span>
-              <select
-                class="sort-select"
-                [ngModel]="sortOption()"
-                (ngModelChange)="setSortOption($event)"
+          <div class="view-switch">
+            <button [class.on]="viewMode() === 'grid'" (click)="setViewMode('grid')">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor">
+                <rect x="3" y="3" width="8" height="8" rx="1"></rect>
+                <rect x="13" y="3" width="8" height="8" rx="1"></rect>
+                <rect x="3" y="13" width="8" height="8" rx="1"></rect>
+                <rect x="13" y="13" width="8" height="8" rx="1"></rect>
+              </svg>
+              Grid
+            </button>
+            <button [class.on]="viewMode() === 'list'" (click)="setViewMode('list')">
+              <svg
+                width="11"
+                height="11"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2.5"
               >
-                @for (option of sortOptions; track option.value) {
-                  <option [value]="option.value">{{ option.label }}</option>
-                }
-              </select>
-            </div>
-            <div class="per-page">
-              Per page
-              <select [ngModel]="perPageShell()" (ngModelChange)="perPageShell.set($event)">
-                <option value="16">16</option>
-                <option value="24">24</option>
-                <option value="48">48</option>
-                <option value="all">All</option>
-              </select>
-            </div>
-            <div class="view-switch">
-              <button [class.on]="viewMode() === 'grid'" (click)="setViewMode('grid')">
-                <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor">
-                  <rect x="3" y="3" width="8" height="8" rx="1"></rect>
-                  <rect x="13" y="3" width="8" height="8" rx="1"></rect>
-                  <rect x="3" y="13" width="8" height="8" rx="1"></rect>
-                  <rect x="13" y="13" width="8" height="8" rx="1"></rect>
-                </svg>
-                Grid
-              </button>
-              <button [class.on]="viewMode() === 'list'" (click)="setViewMode('list')">
-                <svg
-                  width="11"
-                  height="11"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2.5"
-                >
-                  <line x1="3" y1="6" x2="21" y2="6"></line>
-                  <line x1="3" y1="12" x2="21" y2="12"></line>
-                  <line x1="3" y1="18" x2="21" y2="18"></line>
-                </svg>
-                List
-              </button>
-            </div>
+                <line x1="3" y1="6" x2="21" y2="6"></line>
+                <line x1="3" y1="12" x2="21" y2="12"></line>
+                <line x1="3" y1="18" x2="21" y2="18"></line>
+              </svg>
+              List
+            </button>
           </div>
         </div>
 
@@ -601,5 +554,131 @@
         }
       </div>
     </main>
+  </div>
+
+  <!-- Mobile full-screen filter panel -->
+  <div class="mob-filter-backdrop" [class.on]="mobileFilterPanelOpen()" (click)="toggleMobileFilterPanel(false)"></div>
+  <div class="mob-fp" [class.open]="mobileFilterPanelOpen()">
+    <div class="mfp-head">
+      <span class="mfp-title">Filters</span>
+      @if (activeFilterChips().length) {
+        <span class="mfp-active-count">{{ activeFilterChips().length }} active</span>
+      }
+      <button class="mfp-close" type="button" (click)="toggleMobileFilterPanel(false)">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+
+    <div class="mfp-body">
+      <!-- Genre -->
+      <div class="mfp-section">
+        <button class="mfp-sec-hd" type="button" (click)="toggleGroup('genres')">
+          <span>Genre</span>
+          @if (genre().length) { <span class="mfp-sec-count">{{ genre().length }}</span> }
+          <i class="fas fa-chevron-down" [class.flip]="isGroupOpen('genres')"></i>
+        </button>
+        @if (isGroupOpen('genres')) {
+          <div class="mfp-options">
+            @for (g of genres; track g) {
+              <button type="button" class="mfp-opt" [class.on]="genre().includes(g)" (click)="toggleGenre(g)">
+                <span class="mfp-check"><i class="fas fa-check"></i></span>
+                {{ g }}
+              </button>
+            }
+          </div>
+        }
+      </div>
+
+      <!-- Mood -->
+      <div class="mfp-section">
+        <button class="mfp-sec-hd" type="button" (click)="toggleGroup('moods')">
+          <span>Mood</span>
+          <i class="fas fa-chevron-down" [class.flip]="isGroupOpen('moods')"></i>
+        </button>
+        @if (isGroupOpen('moods')) {
+          <div class="mfp-options">
+            @for (tag of inertMoodTags; track tag) {
+              <button type="button" class="mfp-opt">
+                <span class="mfp-check"><i class="fas fa-check"></i></span>
+                {{ tag }}
+              </button>
+            }
+          </div>
+        }
+      </div>
+
+      <!-- BPM -->
+      <div class="mfp-section">
+        <button class="mfp-sec-hd" type="button" (click)="toggleGroup('bpm')">
+          <span>BPM</span>
+          <span class="mfp-sec-val">{{ bpmRange()[0] }}–{{ bpmRange()[1] }}</span>
+          <i class="fas fa-chevron-down" [class.flip]="isGroupOpen('bpm')"></i>
+        </button>
+        @if (isGroupOpen('bpm')) {
+          <div class="mfp-range">
+            <div class="range-display">
+              <div class="range-val">{{ bpmRange()[0] }} <em>to</em> {{ bpmRange()[1] }}</div>
+              <div class="range-unit">bpm</div>
+            </div>
+            <div class="slider-track-wrap">
+              <div class="slider-bg"></div>
+              <div class="slider-fill" [style.left.%]="bpmFillLeft()" [style.width.%]="bpmFillWidth()"></div>
+              <input class="range-slider" type="range" min="60" max="200" [value]="bpmRange()[0]" (input)="updateBpm($event, 0)" (change)="onFilterChange()" />
+              <input class="range-slider" type="range" min="60" max="200" [value]="bpmRange()[1]" (input)="updateBpm($event, 1)" (change)="onFilterChange()" />
+            </div>
+            <button class="mfp-reset" type="button" (click)="bpmRange.set([60, 200]); onFilterChange()">Reset</button>
+          </div>
+        }
+      </div>
+
+      <!-- Price -->
+      <div class="mfp-section">
+        <button class="mfp-sec-hd" type="button" (click)="toggleGroup('price')">
+          <span>Price</span>
+          <span class="mfp-sec-val">{{ getPriceSummary() }}</span>
+          <i class="fas fa-chevron-down" [class.flip]="isGroupOpen('price')"></i>
+        </button>
+        @if (isGroupOpen('price')) {
+          <div class="mfp-range">
+            <div class="range-display">
+              <div class="range-val">${{ priceRange()[0] }} <em>to</em> ${{ priceRange()[1] }}</div>
+              <div class="range-unit">usd</div>
+            </div>
+            <div class="slider-track-wrap">
+              <div class="slider-bg"></div>
+              <div class="slider-fill hot-fill" [style.left.%]="priceFillLeft()" [style.width.%]="priceFillWidth()"></div>
+              <input class="range-slider" type="range" min="0" max="50000" [value]="priceRange()[0]" (input)="updatePrice($event, 0)" (change)="onFilterChange()" />
+              <input class="range-slider" type="range" min="0" max="50000" [value]="priceRange()[1]" (input)="updatePrice($event, 1)" (change)="onFilterChange()" />
+            </div>
+            <button class="mfp-reset" type="button" (click)="priceRange.set([0, 50000]); onFilterChange()">Reset</button>
+          </div>
+        }
+      </div>
+
+      <!-- License & Extras -->
+      <div class="mfp-section">
+        <button class="mfp-sec-hd" type="button" (click)="toggleGroup('extras')">
+          <span>License &amp; Extras</span>
+          <i class="fas fa-chevron-down" [class.flip]="isGroupOpen('extras')"></i>
+        </button>
+        @if (isGroupOpen('extras')) {
+          <div class="mfp-options">
+            @for (item of inertExtras; track item.title) {
+              <button type="button" class="mfp-opt">
+                <span class="mfp-check"><i class="fas fa-check"></i></span>
+                {{ item.title }}
+              </button>
+            }
+          </div>
+        }
+      </div>
+    </div>
+
+    <div class="mfp-footer">
+      <button class="mfp-clear-btn" type="button" (click)="clearFilters()">Clear all</button>
+      <button class="mfp-apply-btn" type="button" (click)="toggleMobileFilterPanel(false)">
+        Show {{ resultCount() }} results
+      </button>
+    </div>
   </div>
 </section>

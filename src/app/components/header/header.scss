@@ -172,6 +172,15 @@ nav.fixed-navbar {
   display: inline-flex;
 }
 
+.studio-nav-wrap::before {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: -18px;
+  right: -18px;
+  height: 18px;
+}
+
 .studio-nav-link {
   .caret {
     width: 10px;
@@ -237,6 +246,12 @@ nav.fixed-navbar {
   opacity: 1;
   pointer-events: auto;
   transform: translateX(-50%) translateY(0);
+}
+
+.studio-nav-wrap.studio-menu-dismissed .studio-menu {
+  opacity: 0 !important;
+  pointer-events: none !important;
+  transform: translateX(-50%) translateY(-6px) !important;
 }
 
 .sm-head {

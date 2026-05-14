@@ -61,6 +61,7 @@ export class SearchPageComponent implements OnInit, OnDestroy {
   sortOption = signal('newest');
 
   mobileFiltersOpen = signal(false);
+  mobileFilterPanelOpen = signal(false);
   openDropdown = signal<ExploreDropdown | null>(null);
   perPageShell = signal('16');
   keyMode = signal<KeyMode>('any');
@@ -373,6 +374,10 @@ export class SearchPageComponent implements OnInit, OnDestroy {
 
   toggleMobileFilters(force?: boolean) {
     this.mobileFiltersOpen.set(force ?? !this.mobileFiltersOpen());
+  }
+
+  toggleMobileFilterPanel(force?: boolean) {
+    this.mobileFilterPanelOpen.set(force ?? !this.mobileFilterPanelOpen());
   }
 
   toggleDropdown(dropdown: ExploreDropdown) {

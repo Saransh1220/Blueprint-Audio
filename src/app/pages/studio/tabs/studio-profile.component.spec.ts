@@ -70,6 +70,47 @@ describe('StudioProfileComponent', () => {
     expect(component.profileForm.pristine).toBe(true);
   });
 
+  it('treats selected avatar files as unsaved changes and uploads them on save', () => {
+    const component = create();
+    const avatarFile = new File(['x'], 'new-avatar.png', { type: 'image/png' });
+    component.selectedAvatarFile.set(avatarFile);
+    component.avatarPreview.set('data:image/png;base64,new-avatar');
+    uploadAvatar.mockReturnValueOnce(
+      of({
+        id: 'u1',
+        name: 'Blaze',
+        display_name: 'Blaze',
+        role: Role.PRODUCER,
+        created_at: '2026-01-01',
+        avatar_url: 'new-avatar.png',
+        bio: 'Old bio',
+      }),
+    );
+    updateProfile.mockReturnValueOnce(
+      of({
+        id: 'u1',
+        name: 'Blaze',
+        display_name: 'Blaze',
+        role: Role.PRODUCER,
+        created_at: '2026-01-01',
+        bio: 'Old bio',
+      }),
+    );
+
+    expect(component.profileForm.pristine).toBe(true);
+    expect(component.hasUnsavedChanges()).toBe(true);
+
+    component.saveProfile();
+
+    expect(uploadAvatar).toHaveBeenCalledWith(avatarFile);
+    expect(updateProfile).toHaveBeenCalledWith(component.profileForm.value);
+    expect(currentUser().avatar_url).toBe('http://localhost:8080/new-avatar.png');
+    expect(component.selectedAvatarFile()).toBeNull();
+    expect(component.avatarPreview()).toBeNull();
+    expect(component.profileForm.pristine).toBe(true);
+    expect(component.hasUnsavedChanges()).toBe(false);
+  });
+
   it('shows validation and update errors without saving invalid form state', () => {
     const component = create();
     component.profileForm.patchValue({ instagram_url: 'invalid-url' });

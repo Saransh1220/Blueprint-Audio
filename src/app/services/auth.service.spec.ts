@@ -150,7 +150,7 @@ describe('AuthService', () => {
 
     const file = new File(['a'], 'avatar.png', { type: 'image/png' });
     service.uploadAvatar(file).subscribe();
-    expect(service.currentUser()?.avatar_url).toBe('avatar.png');
+    expect(service.currentUser()?.avatar_url).toBe('http://localhost:8080/avatar.png');
   });
 
   it('getMe maps user and stores it', () => {

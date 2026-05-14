@@ -13,7 +13,7 @@
         type="button"
         class="btn dark"
         (click)="saveProfile()"
-        [disabled]="!profileForm.dirty || isSaving()"
+        [disabled]="!hasUnsavedChanges() || isSaving()"
       >
         @if (isSaving()) {
           Saving...
@@ -308,11 +308,11 @@
     </div>
   </form>
 
-  @if (profileForm.dirty) {
+  @if (hasUnsavedChanges()) {
     <div class="save-bar show">
       <div class="save-bar-text">You have <em>unsaved changes</em>.</div>
       <div class="save-bar-actions">
-        <button class="btn" type="button" (click)="profileForm.markAsPristine()">Discard</button>
+        <button class="btn" type="button" (click)="discardProfileChanges()">Discard</button>
         <button class="btn lime" type="button" (click)="saveProfile()">Save changes</button>
       </div>
     </div>

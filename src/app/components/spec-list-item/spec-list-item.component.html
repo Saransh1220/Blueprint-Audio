@@ -63,7 +63,6 @@
     <div class="lr-cell row-genre">{{ getGenreLabel() }}</div>
     <div class="stat-m row-bpm">{{ spec.bpm }}</div>
     <div class="stat-m row-key">{{ spec.key }}</div>
-    <div class="lr-price">${{ spec.price }}</div>
   } @else {
     <div class="stat-m row-tags">
       {{ getGenreLabel() }} · <em>{{ spec.bpm }} BPM</em> · {{ spec.key }}
@@ -89,9 +88,7 @@
     }
 
     <button class="purchase-pill lr-act cart" (click)="addToCart($event)" title="Add to cart">
-      @if (appearance !== 'market') {
-        <span class="row-price">${{ spec.price }}</span>
-      }
+      <span class="row-price">${{ spec.price }}</span>
       <span class="purchase-icon"><i class="fas fa-cart-shopping"></i></span>
     </button>
   </div>

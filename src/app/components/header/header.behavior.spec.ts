@@ -49,6 +49,21 @@ describe('HeaderComponent behavior', () => {
     component.toggleUserMenu();
     expect(component.isUserMenuOpen).toBe(false);
 
+    component.isNotificationsOpen = true;
+    component.notificationWrap = { nativeElement: { contains: () => false } } as any;
+    component.onDocumentClick({ target: document.createElement('div') } as any);
+    expect(component.isNotificationsOpen).toBe(false);
+
+    component.isUserMenuOpen = true;
+    component.userMenuWrap = { nativeElement: { contains: () => false } } as any;
+    component.onDocumentClick({ target: document.createElement('div') } as any);
+    expect(component.isUserMenuOpen).toBe(false);
+
+    component.closeStudioMenu();
+    expect(component.isStudioMenuDismissed).toBe(true);
+    component.resetStudioMenuDismissal();
+    expect(component.isStudioMenuDismissed).toBe(false);
+
     const stopPropagation = vi.fn();
     component.markAsRead('n1', { stopPropagation } as any);
     expect(stopPropagation).toHaveBeenCalled();

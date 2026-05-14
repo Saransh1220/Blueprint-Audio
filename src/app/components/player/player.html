@@ -4,6 +4,20 @@
     [class.is-active]="isDockActive()"
     [class.expanded]="playerService.isExpanded()"
   >
+    <div class="mob-progress-bar">
+      <input
+        type="range"
+        class="wave-input"
+        min="0"
+        max="1"
+        step="0.001"
+        [value]="progress()"
+        (input)="onSeekSlider($event)"
+        aria-label="Seek player"
+      />
+      <div class="mob-progress-fill" [style.width.%]="progress() * 100"></div>
+    </div>
+
     <div class="mp-row">
       <div class="mp-left">
         <a
@@ -40,7 +54,7 @@
       <div class="mp-center">
         <div class="mp-controls">
           <button
-            class="mp-ctrl"
+            class="mp-ctrl shuffle"
             [class.mode-on]="playerService.shuffleEnabled()"
             (click)="playerService.toggleShuffle()"
             title="Shuffle"
@@ -73,7 +87,7 @@
             <i class="fa-solid fa-forward-step"></i>
           </button>
           <button
-            class="mp-ctrl"
+            class="mp-ctrl repeat"
             [class.mode-on]="playerService.repeatEnabled()"
             (click)="playerService.toggleRepeat()"
             title="Repeat"

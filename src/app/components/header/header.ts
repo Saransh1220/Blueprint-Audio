@@ -1,5 +1,14 @@
 import { CommonModule } from '@angular/common';
-import { Component, computed, inject, output, signal } from '@angular/core';
+import {
+  Component,
+  ElementRef,
+  HostListener,
+  ViewChild,
+  computed,
+  inject,
+  output,
+  signal,
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
@@ -57,6 +66,9 @@ export class HeaderComponent {
 
   // Notifications
   isNotificationsOpen = false;
+  isStudioMenuDismissed = false;
+  @ViewChild('notificationWrap') notificationWrap?: ElementRef<HTMLElement>;
+  @ViewChild('userMenuWrap') userMenuWrap?: ElementRef<HTMLElement>;
   notifications = this.notificationService.notifications;
   unreadCount = this.notificationService.unreadCount;
   notificationFilter = signal<NotificationKind>('all');
@@ -194,6 +206,25 @@ export class HeaderComponent {
     this.closeMobileMenu();
     this.closeNotifications();
     this.closeUserMenu();
+  }
+
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: MouseEvent) {
+    const target = event.target as Node;
+    if (this.isNotificationsOpen && !this.notificationWrap?.nativeElement.contains(target)) {
+      this.closeNotifications();
+    }
+    if (this.isUserMenuOpen && !this.userMenuWrap?.nativeElement.contains(target)) {
+      this.closeUserMenu();
+    }
+  }
+
+  resetStudioMenuDismissal() {
+    this.isStudioMenuDismissed = false;
+  }
+
+  closeStudioMenu() {
+    this.isStudioMenuDismissed = true;
   }
 
   toggleStudioMobileNav() {

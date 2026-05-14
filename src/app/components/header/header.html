@@ -42,7 +42,11 @@
       <a routerLink="/explore" routerLinkActive="active">Explore</a>
       <a routerLink="/battles" routerLinkActive="active">Battles</a>
       @if (authService.currentUser()) {
-        <div class="nav-link-wrap studio-nav-wrap">
+        <div
+          class="nav-link-wrap studio-nav-wrap"
+          [class.studio-menu-dismissed]="isStudioMenuDismissed"
+          (mouseenter)="resetStudioMenuDismissal()"
+        >
           <a
             [routerLink]="
               authService.currentUser()?.role === Role.PRODUCER
@@ -74,6 +78,7 @@
                   class="sm-item"
                   routerLink="/studio/overview"
                   [class.active]="isStudioSection('overview')"
+                  (click)="closeStudioMenu()"
                 >
                   <div class="sm-ico c-hot">
                     <svg
@@ -100,6 +105,7 @@
                   class="sm-item"
                   routerLink="/studio/analytics"
                   [class.active]="isStudioSection('analytics')"
+                  (click)="closeStudioMenu()"
                 >
                   <div class="sm-ico c-cobalt">
                     <svg
@@ -125,6 +131,7 @@
                   class="sm-item"
                   routerLink="/studio/tracks"
                   [class.active]="isStudioSection('tracks')"
+                  (click)="closeStudioMenu()"
                 >
                   <div class="sm-ico c-lime">
                     <svg
@@ -149,6 +156,7 @@
                   class="sm-item"
                   routerLink="/studio/orders"
                   [class.active]="isStudioSection('orders')"
+                  (click)="closeStudioMenu()"
                 >
                   <div class="sm-ico c-sun">
                     <svg
@@ -175,6 +183,7 @@
                 class="sm-item"
                 routerLink="/studio/purchases"
                 [class.active]="isStudioSection('purchases')"
+                (click)="closeStudioMenu()"
               >
                 <div class="sm-ico c-lavender">
                   <svg
@@ -201,6 +210,7 @@
                   class="sm-item"
                   routerLink="/studio/earnings"
                   [class.active]="isStudioSection('earnings')"
+                  (click)="closeStudioMenu()"
                 >
                   <div class="sm-ico c-ink">
                     <svg
@@ -226,6 +236,7 @@
                 class="sm-item"
                 routerLink="/studio/messages"
                 [class.active]="isStudioSection('messages')"
+                (click)="closeStudioMenu()"
               >
                 <div class="sm-ico c-cream">
                   <svg
@@ -249,6 +260,7 @@
                 class="sm-item"
                 routerLink="/studio/profile"
                 [class.active]="isStudioSection('profile')"
+                (click)="closeStudioMenu()"
               >
                 <div class="sm-ico c-cream">
                   <svg
@@ -283,6 +295,7 @@
                     ? '/studio/overview'
                     : '/studio/purchases'
                 "
+                (click)="closeStudioMenu()"
               >
                 Open studio
                 <i class="fas fa-arrow-right"></i>
@@ -308,7 +321,7 @@
 
       @if (authService.currentUser()) {
         <!-- Notifications -->
-        <div class="notification-wrap">
+        <div class="notification-wrap" #notificationWrap>
           <button
             class="icon-btn notification-btn"
             (click)="toggleNotifications()"
@@ -445,13 +458,12 @@
                 >
               </div>
             </div>
-            <div class="backdrop" (click)="closeNotifications()"></div>
           }
         </div>
 
         <!-- User Profile Dropdown -->
         @if (!isStudioRoute()) {
-          <div class="user-menu-wrap">
+          <div class="user-menu-wrap" #userMenuWrap>
             <button
               class="icon-btn user-btn"
               (click)="toggleUserMenu()"
@@ -666,7 +678,6 @@
                   </button>
                 </div>
               </div>
-              <div class="backdrop" (click)="closeUserMenu()"></div>
             }
           </div>
         }

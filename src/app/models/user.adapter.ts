@@ -1,5 +1,6 @@
 import { User } from './user.model';
 import { UserApiResponse } from './user-api.model';
+import { resolveMediaUrl } from '../utils/media-url';
 
 export class UserAdapter {
   static toUser(apiResponse: UserApiResponse): User {
@@ -11,7 +12,7 @@ export class UserAdapter {
       role: apiResponse.role,
       email_verified: apiResponse.email_verified ?? true,
       bio: apiResponse.bio || null,
-      avatar_url: apiResponse.avatar_url || null,
+      avatar_url: resolveMediaUrl(apiResponse.avatar_url),
       instagram_url: apiResponse.instagram_url || null,
       twitter_url: apiResponse.twitter_url || null,
       youtube_url: apiResponse.youtube_url || null,

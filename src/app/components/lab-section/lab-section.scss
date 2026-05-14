@@ -393,6 +393,42 @@
   }
 }
 
+:host ::ng-deep app-spec-list-item .market-row.playing .row-title-block .t,
+:host ::ng-deep app-spec-list-item .market-row.playing .row-title-block .p,
+:host ::ng-deep app-spec-list-item .market-row.playing .lr-prod,
+:host ::ng-deep app-spec-list-item .market-row.playing .lr-cell,
+:host ::ng-deep app-spec-list-item .market-row.playing .stat-m,
+:host ::ng-deep app-spec-list-item .market-row.playing .lr-price,
+:host ::ng-deep app-spec-list-item .market-row.playing .money-m {
+  color: var(--cream);
+}
+
+:host ::ng-deep app-spec-list-item .market-row.playing .row-title-block .p,
+:host ::ng-deep app-spec-list-item .market-row.playing .lr-prod,
+:host ::ng-deep app-spec-list-item .market-row.playing .lr-cell,
+:host ::ng-deep app-spec-list-item .market-row.playing .stat-m {
+  opacity: 0.78;
+}
+
+:host ::ng-deep app-spec-list-item .market-row.playing .row-chip {
+  border-color: color-mix(in srgb, var(--cream) 72%, transparent);
+  background: color-mix(in srgb, var(--cream) 12%, transparent);
+  color: var(--cream);
+}
+
+:host ::ng-deep app-spec-list-item .market-row.playing .lr-play {
+  border-color: #141310;
+  background: var(--lime);
+  color: #141310;
+
+  i,
+  .fa-solid,
+  .fa-pause,
+  i::before {
+    color: #141310;
+  }
+}
+
 :host ::ng-deep app-spec-list-item .action-btn {
   border-color: color-mix(in srgb, var(--ink) 28%, transparent);
   box-shadow: none;

@@ -24,6 +24,7 @@ import { ModalService } from './modal.service';
 import { AuthRequirementComponent } from '../components/modals/auth-requirement/auth-requirement.component';
 import { SocialAuthService } from '@abacritt/angularx-social-login';
 import { TokenRefreshService } from './token-refresh.service';
+import { resolveMediaUrl } from '../utils/media-url';
 
 @Injectable({
   providedIn: 'root',
@@ -151,7 +152,7 @@ export class AuthService {
       role: response.role as Role,
       email_verified: response.email_verified ?? true,
       bio: response.bio || null,
-      avatar_url: response.avatar_url || null,
+      avatar_url: resolveMediaUrl(response.avatar_url),
       instagram_url: response.instagram_url || null,
       twitter_url: response.twitter_url || null,
       youtube_url: response.youtube_url || null,
