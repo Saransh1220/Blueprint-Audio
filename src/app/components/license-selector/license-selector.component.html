@@ -1,11 +1,25 @@
 <div class="license-selector">
-  <div class="split-body">
-    <aside class="beat-panel">
-      <div class="bp-eyebrow">
-        <span class="live-dot"></span>
-        {{ getCatalogCode() }} · {{ getPrimaryGenre() }} · <em>{{ spec.category }}</em>
+  <!-- ── MOBILE-ONLY compact beat strip ── -->
+  <div class="mob-beat-strip">
+    <div class="mob-art">
+      <img [src]="spec.imageUrl || 'assets/images/placeholder.jpg'" [alt]="spec.title" />
+    </div>
+    <div class="mob-beat-info">
+      <div class="mob-title" [innerHTML]="getDisplayTitleHtml(spec.title)"></div>
+      <div class="mob-byline">
+        prod. by <span>{{ getProducerName() }}</span>
       </div>
+    </div>
+    <div class="mob-meta">
+      <span>{{ getTempoDisplay() }}</span>
+      <span>{{ getKeyDisplay() }}</span>
+      <span>{{ getLengthDisplay() }}</span>
+    </div>
+  </div>
 
+  <div class="split-body">
+    <!-- ── DESKTOP beat panel (hidden on mobile) ── -->
+    <aside class="beat-panel">
       <div class="bp-art">
         <img [src]="spec.imageUrl || 'assets/images/placeholder.jpg'" [alt]="spec.title" />
       </div>
@@ -34,19 +48,6 @@
           <div class="bp-stat-value">{{ getTypeDisplay() }}</div>
         </div>
       </div>
-
-      <div class="bp-tags">
-        @for (tag of detailTags(); track tag.label) {
-          <span class="bp-chip" [class.hot]="tag.tone === 'hot'" [class.lime]="tag.tone === 'lime'">
-            {{ tag.label }}
-          </span>
-        }
-      </div>
-
-      <p class="bp-desc">
-        <span class="lead">{{ getDetailLead() }}</span>
-        {{ getDetailBody() }}
-      </p>
     </aside>
 
     <section class="license-panel">
@@ -133,9 +134,5 @@
         <i class="fas fa-arrow-right"></i>
       </button>
     </div>
-  </div>
-
-  <div class="modal-compare">
-    <button type="button">Compare license details →</button>
   </div>
 </div>

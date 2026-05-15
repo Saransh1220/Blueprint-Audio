@@ -281,7 +281,8 @@ export class PlayerComponent implements OnDestroy {
     event?.stopPropagation();
     const track = this.playerService.currentTrack();
     if (!track) return;
-    void this.router.navigate(['/beats', track.id.replace('#', '')]);
+    const targetId = track.shortCode || track.id.replace('#', '');
+    void this.router.navigate(['/', targetId]);
     this.isMenuOpen.set(false);
   }
 

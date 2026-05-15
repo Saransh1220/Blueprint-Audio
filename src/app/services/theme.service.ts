@@ -6,7 +6,7 @@ import { effect, Injectable, inject, signal } from '@angular/core';
 })
 export class ThemeService {
   private document = inject(DOCUMENT);
-  public currentMode = signal<'light' | 'dark'>('light');
+  public currentMode = signal<'light' | 'dark'>('dark');
   private themeKey = 'theme-mode';
 
   constructor() {

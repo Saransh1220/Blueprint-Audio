@@ -41,6 +41,10 @@ export interface SpecDto {
   licenses?: LicenseDto[];
   analytics?: PublicAnalyticsDto;
   processing_status?: 'pending' | 'processing' | 'completed' | 'failed';
+  short_code?: string;
+  slug?: string;
+  moods?: string[];
+  instruments?: string[];
 }
 
 export interface GenreDto {

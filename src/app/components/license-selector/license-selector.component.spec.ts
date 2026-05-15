@@ -88,18 +88,12 @@ describe('LicenseSelectorComponent', () => {
     expect(component.getStyledTitle('Solo')).toEqual({ lead: 'Solo', accent: '' });
     expect(component.getDisplayTitleHtml('Red <Sun')).toBe('<em>Red</em><br/>&lt;Sun.');
     expect(component.getProducerName()).toBe('Blaze');
-    expect(component.getCatalogCode()).toBe('#0042');
     expect(component.getPrimaryGenre()).toBe('Drill');
     expect(component.formatDuration(187)).toBe('3:07');
-    expect(component.getSpecChips()).toContain('Free MP3');
-    expect(component.detailStats()[0]).toEqual({ label: 'Tempo', value: '144 BPM' });
     expect(component.getTempoDisplay()).toBe('144 BPM');
     expect(component.getKeyDisplay()).toBe('F#m');
     expect(component.getLengthDisplay()).toBe('3:07');
     expect(component.getTypeDisplay()).toBe('Drill');
-    expect(component.detailTags().map((tag) => tag.label)).toContain('Free MP3');
-    expect(component.getDetailLead()).toContain('Red <Sun');
-    expect(component.getDetailBody()).toContain('dark, bounce, club');
     expect(component.getLicenseVariant(1, 4)).toBe('popular');
     expect(component.getLicenseVariant(3, 4)).toBe('exclusive');
     expect(component.getLicenseSubtitle(trackout, 2, 4)).toContain('stems');

@@ -4,10 +4,10 @@
   [class.list-row]="appearance === 'market'"
   [class.market-row]="appearance === 'market'"
   [class.playing]="isCurrentlyPlaying()"
-  (click)="openDetails()"
+  (click)="handleRowClick($event)"
   tabindex="0"
-  (keydown.enter)="openDetails()"
-  (keydown.space)="openDetails(); $event.preventDefault()"
+  (keydown.enter)="handleRowClick($event)"
+  (keydown.space)="handleRowClick($event); $event.preventDefault()"
 >
   @if (appearance === 'market') {
     <button class="lr-play" type="button" (click)="playSong($event)" aria-label="Play">
@@ -44,7 +44,19 @@
 
   <div class="row-title-block" [class.lr-info]="appearance === 'market'">
     <div class="title-line">
-      <div class="t" [class.lr-title]="appearance === 'market'">{{ spec.title }}</div>
+      @if (appearance === 'market') {
+        <!-- In list view: title is the navigation link, row click plays -->
+        <span
+          class="t lr-title lr-title-link"
+          (click)="navigateToDetails($event)"
+          tabindex="0"
+          (keydown.enter)="navigateToDetails($event)"
+          role="link"
+          >{{ spec.title }}</span
+        >
+      } @else {
+        <div class="t">{{ spec.title }}</div>
+      }
       @if (appearance === 'market' && spec.freeMp3Enabled) {
         <span class="row-chip lr-tag">free mp3</span>
       }

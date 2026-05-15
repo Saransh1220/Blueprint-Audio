@@ -47,6 +47,23 @@
   }
 }
 
+// --- Dark / Light logo switching ---
+// By default (light mode): show light logo, hide dark variant
+.logo-dark {
+  display: none !important;
+}
+.logo-light {
+  display: block !important;
+}
+
+// Dark theme active: swap
+body.dark-theme .logo-light {
+  display: none !important;
+}
+body.dark-theme .logo-dark {
+  display: block !important;
+}
+
 .mark-slices {
   display: none;
 }

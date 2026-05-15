@@ -52,4 +52,8 @@ export interface Spec {
   duration?: number; // Audio duration in seconds
   freeMp3Enabled?: boolean; // Whether free MP3 download is available
   analytics?: PublicAnalytics; // Public analytics data
+  shortCode?: string;
+  slug?: string;
+  moods?: string[];
+  instruments?: string[];
 }

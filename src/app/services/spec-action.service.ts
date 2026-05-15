@@ -38,8 +38,8 @@ export class SpecActionService {
   }
 
   openDetails(spec: Spec) {
-    const id = spec.id.replace('#', '');
-    this.router.navigate(['/beats', id]);
+    const targetId = spec.shortCode || spec.id.replace('#', '');
+    this.router.navigate(['/beats', targetId]);
   }
 
   toggleFavorite(

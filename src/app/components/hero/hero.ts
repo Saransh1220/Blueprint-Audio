@@ -23,6 +23,8 @@ type BeatCard = {
   price: string;
   imageUrl: string;
   className: string;
+  shortCode?: string;
+  slug?: string;
   tilt: number;
   lift: number;
 };
@@ -93,6 +95,8 @@ export class HeroComponent implements OnInit, AfterViewInit {
       meta,
       price: this.formatPrice(spec.price),
       imageUrl: spec.imageUrl,
+      shortCode: spec.shortCode,
+      slug: spec.slug,
       ...layout,
     };
   }

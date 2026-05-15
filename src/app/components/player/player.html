@@ -23,13 +23,13 @@
         <a
           class="mp-art"
           [class.playing]="playerService.isPlaying()"
-          [routerLink]="['/beats', track.id.replace('#', '')]"
+          [routerLink]="['/', track.shortCode || track.id.replace('#', '')]"
           [style.background-image]="'url(' + track.imageUrl + ')'"
           aria-label="Open beat page"
         ></a>
 
         <div class="mp-info">
-          <a class="mp-title" [routerLink]="['/beats', track.id.replace('#', '')]">
+          <a class="mp-title" [routerLink]="['/', track.shortCode || track.id.replace('#', '')]">
             {{ track.title }}
           </a>
           <div class="mp-sub">

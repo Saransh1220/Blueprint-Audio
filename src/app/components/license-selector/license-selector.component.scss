@@ -17,15 +17,106 @@
   overflow: hidden;
 }
 
+.mob-beat-strip {
+  display: none;
+
+  @media (max-width: 768px) {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 16px;
+    border-bottom: 2px solid var(--ink);
+    background:
+      radial-gradient(circle at left, rgba(255, 201, 60, 0.15), transparent 50%), var(--cream);
+    flex-shrink: 0;
+  }
+}
+
+.mob-art {
+  width: 48px;
+  height: 48px;
+  flex-shrink: 0;
+  border: 2px solid var(--ink);
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 3px 3px 0 var(--ink);
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+}
+
+.mob-beat-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.mob-title {
+  font-family: 'Bricolage Grotesque', sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+
+  em {
+    font-family: 'Instrument Serif', serif;
+    font-style: italic;
+    font-weight: 400;
+    color: var(--hot);
+  }
+}
+
+.mob-byline {
+  font-size: 11px;
+  color: var(--ink-2);
+  margin-top: 2px;
+
+  span {
+    font-weight: 700;
+  }
+}
+
+.mob-meta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+  flex-shrink: 0;
+
+  span {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.08em;
+    color: var(--ink-2);
+    white-space: nowrap;
+  }
+}
+
 .split-body {
   position: relative;
   z-index: 1;
   display: grid;
-  grid-template-columns: 44fr 56fr;
+  grid-template-columns: 40fr 60fr;
   flex: 1;
   min-height: 0;
   overflow: hidden;
   contain: layout paint;
+
+  @media (max-width: 960px) {
+    grid-template-columns: 1fr;
+    overflow-y: auto;
+    overflow-x: hidden;
+  }
+
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+    overflow-y: auto;
+  }
 }
 
 .beat-panel,
@@ -35,6 +126,12 @@
   scrollbar-width: thin;
   overscroll-behavior: contain;
   will-change: scroll-position;
+
+  @media (max-width: 960px) {
+    overflow-y: visible; /* Let split-body handle scroll when stacked */
+    height: auto;
+    min-height: auto;
+  }
 }
 
 .beat-panel::-webkit-scrollbar,
@@ -65,40 +162,25 @@
 }
 
 .beat-panel {
-  padding: 32px 28px 28px;
+  padding: 20px 20px 16px;
   border-right: 2px solid var(--ink);
   display: flex;
   flex-direction: column;
-  gap: 18px;
+  gap: 10px;
   background:
     radial-gradient(circle at top left, rgba(255, 201, 60, 0.18), transparent 35%),
     radial-gradient(circle at bottom left, rgba(255, 61, 90, 0.1), transparent 25%), var(--cream);
   contain: content;
-}
 
-.bp-eyebrow {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  align-self: flex-start;
-  padding: 5px 12px;
-  border: 1.5px solid var(--ink);
-  border-radius: 999px;
-  background: var(--cream);
-  color: var(--ink-mute);
-  font-family: 'DM Mono', monospace;
-  font-size: 10px;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-}
+  @media (max-width: 960px) {
+    border-right: none;
+    border-bottom: 2px solid var(--ink);
+    padding: 24px 20px;
+  }
 
-.bp-eyebrow em {
-  font-family: 'Instrument Serif', serif;
-  font-style: italic;
-  text-transform: none;
-  letter-spacing: 0;
-  font-size: 11px;
-  color: var(--ink-2);
+  @media (max-width: 768px) {
+    display: none; /* replaced by .mob-beat-strip on mobile */
+  }
 }
 
 .live-dot {
@@ -111,14 +193,14 @@
 .bp-art {
   position: relative;
   width: 100%;
-  max-width: 280px;
+  max-width: 160px;
   aspect-ratio: 1;
   align-self: center;
   overflow: hidden;
   border: 2px solid var(--ink);
-  border-radius: 20px;
+  border-radius: 16px;
   background: linear-gradient(135deg, var(--hot), var(--tangerine));
-  box-shadow: 6px 6px 0 var(--ink);
+  box-shadow: 4px 4px 0 var(--ink);
 }
 
 .bp-art img {
@@ -159,10 +241,14 @@
 .bp-title {
   margin: 0;
   font-family: 'Bricolage Grotesque', sans-serif;
-  font-size: clamp(40px, 5vw, 48px);
+  font-size: clamp(24px, 3.5vw, 30px);
   font-weight: 700;
-  letter-spacing: -0.045em;
-  line-height: 0.92;
+  letter-spacing: -0.04em;
+  line-height: 1;
+
+  @media (max-width: 960px) {
+    text-align: center;
+  }
 }
 
 .bp-title em {
@@ -173,9 +259,14 @@
 }
 
 .bp-byline {
-  margin-top: -8px;
-  font-size: 14px;
+  margin-top: -6px;
+  font-size: 13px;
   color: var(--ink-2);
+
+  @media (max-width: 960px) {
+    text-align: center;
+    margin-top: -12px;
+  }
 }
 
 .bp-byline span {
@@ -189,15 +280,15 @@
 }
 
 .bp-stat {
-  min-height: 60px;
-  padding: 10px 12px;
+  min-height: 40px;
+  padding: 4px 8px;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
   justify-content: center;
-  gap: 6px;
+  gap: 2px;
   border: 1.5px solid var(--ink);
-  border-radius: 14px;
+  border-radius: 10px;
   background: color-mix(in srgb, var(--cream-2) 88%, transparent);
 }
 
@@ -212,70 +303,38 @@
 
 .bp-stat-value {
   font-family: 'Bricolage Grotesque', sans-serif;
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 700;
   letter-spacing: -0.025em;
-  line-height: 1.15;
+  line-height: 1.1;
   white-space: nowrap;
   color: var(--ink);
 }
 
-.bp-tags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-}
-
-.bp-chip {
-  padding: 5px 10px;
-  border: 1.5px solid var(--ink);
-  border-radius: 999px;
-  background: var(--cream);
-  color: var(--ink);
-  font-family: 'DM Mono', monospace;
-  font-size: 10px;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-}
-
-.bp-chip.hot {
-  background: var(--hot);
-  color: var(--cream);
-}
-
-.bp-chip.lime {
-  background: var(--lime);
-}
-
-.bp-desc {
-  padding: 12px 0;
-  border-top: 1.5px dashed var(--ink);
-  border-bottom: 1.5px dashed var(--ink);
-  color: var(--ink-2);
-  font-family: 'Instrument Serif', serif;
-  font-style: italic;
-  font-size: 14px;
-  line-height: 1.45;
-}
-
-.bp-desc .lead {
-  color: var(--ink);
-  font-weight: 500;
-}
+/* Removed .bp-desc paragraph as requested */
 
 .license-panel {
   position: relative;
   display: flex;
   flex-direction: column;
-  padding: 28px 28px 24px;
-  background:
-    radial-gradient(circle at top right, rgba(200, 232, 79, 0.08), transparent 24%), var(--ink);
-  color: var(--cream);
+  padding: 20px 20px 16px;
+  // Hardcoded dark — stays constant regardless of light/dark theme
+  background-color: #1a1814;
+  background-image: radial-gradient(circle at top right, rgba(200, 232, 79, 0.06), transparent 24%);
+  color: #f0e9d6;
   contain: content;
+
+  @media (max-width: 960px) {
+    padding: 20px 16px 32px;
+  }
+
+  @media (max-width: 768px) {
+    padding: 16px 14px 24px;
+  }
 }
 
 .lp-head {
-  margin-bottom: 18px;
+  margin-bottom: 12px;
 }
 
 .lp-num,
@@ -306,12 +365,13 @@
 }
 
 .lp-h {
-  margin: 0 0 6px;
+  margin: 0 0 4px;
   font-family: 'Bricolage Grotesque', sans-serif;
-  font-size: 34px;
+  font-size: 24px;
   font-weight: 700;
   letter-spacing: -0.04em;
-  line-height: 0.95;
+  line-height: 1;
+  color: #f0e9d6;
 }
 
 .lp-h em {
@@ -322,7 +382,7 @@
 }
 
 .lp-sub {
-  color: color-mix(in srgb, var(--cream) 65%, transparent);
+  color: rgba(240, 233, 214, 0.6);
   font-family: 'Instrument Serif', serif;
   font-style: italic;
   font-size: 13px;
@@ -331,24 +391,36 @@
 .lic-list {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 8px;
+
+  @media (max-width: 768px) {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
 }
 
 .lic-row {
   position: relative;
   width: 100%;
-  padding: 14px 16px 14px 20px;
-  border: 2px solid var(--ink);
-  border-radius: 14px;
-  background: var(--cream-3);
-  color: var(--ink);
+  padding: 8px 12px 8px 14px;
+  // Hardcoded — panel is always dark, so cards use fixed dark palette
+  border: 2px solid #3a3730;
+  border-radius: 12px;
+  background-color: #2a2720;
+  color: #f0e9d6;
   text-align: left;
   cursor: pointer;
   transition:
     transform 0.16s ease,
     box-shadow 0.16s ease,
     border-color 0.16s ease,
-    background 0.16s ease;
+    background-color 0.16s ease;
+
+  @media (max-width: 768px) {
+    padding: 10px 10px 8px 10px;
+    border-radius: 10px;
+  }
 }
 
 .lic-row:hover {
@@ -358,29 +430,31 @@
 
 .lic-row.selected {
   transform: translate(-2px, -2px);
-  box-shadow: 5px 5px 0 var(--lime);
+  box-shadow: 5px 5px 0 #c8e84f;
+  border-color: #c8e84f;
 }
 
 .lic-row.popular {
-  background: var(--hot);
+  background-color: var(--hot);
   border-color: var(--hot);
   color: #fff;
 }
 
 .lic-row.popular:hover,
 .lic-row.popular.selected {
-  box-shadow: 5px 5px 0 var(--lime);
+  box-shadow: 5px 5px 0 #c8e84f;
 }
 
+// Exclusive (Unlimited): deeper dark + lime border so it stands out from panel
 .lic-row.exclusive {
-  background: var(--ink);
-  border-color: var(--ink);
-  color: var(--cream);
+  background-color: #0e0d0b;
+  border-color: #c8e84f;
+  color: #f0e9d6;
 }
 
 .lic-row.exclusive:hover,
 .lic-row.exclusive.selected {
-  box-shadow: 5px 5px 0 var(--lime);
+  box-shadow: 5px 5px 0 #c8e84f;
 }
 
 .lic-badge {
@@ -389,10 +463,11 @@
   left: 18px;
   padding: 4px 11px;
   border-radius: 999px;
-  border: 1.5px solid var(--ink);
-  background: var(--lime);
-  color: var(--ink);
-  box-shadow: 2px 2px 0 var(--ink);
+  // Always dark border + text on lime — hardcoded so dark mode doesn't invert
+  border: 1.5px solid #141310;
+  background: #c8e84f;
+  color: #141310;
+  box-shadow: 2px 2px 0 #141310;
   font-family: 'DM Mono', monospace;
   font-size: 9px;
   letter-spacing: 0.15em;
@@ -407,22 +482,36 @@
   width: 22px;
   height: 22px;
   border-radius: 50%;
-  border: 1.5px solid var(--ink);
-  background: var(--cream);
-  color: var(--ink);
+  // Use fixed colours for the inverted panel context
+  border: 1.5px solid rgba(240, 233, 214, 0.45);
+  background: rgba(240, 233, 214, 0.12);
+  color: rgba(240, 233, 214, 0.55);
+  font-size: 10px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  transition:
+    background 0.16s ease,
+    border-color 0.16s ease,
+    color 0.16s ease;
+}
+
+.lic-row.popular .lic-tick {
+  border-color: rgba(255, 255, 255, 0.6);
+  background: rgba(255, 255, 255, 0.18);
+  color: rgba(255, 255, 255, 0.7);
 }
 
 .lic-row.exclusive .lic-tick {
-  border-color: var(--cream);
-  background: color-mix(in srgb, var(--cream) 12%, transparent);
-  color: var(--cream);
+  border-color: rgba(200, 232, 79, 0.6);
+  background: rgba(200, 232, 79, 0.12);
+  color: rgba(200, 232, 79, 0.7);
 }
 
 .lic-row.selected .lic-tick {
   background: var(--lime);
+  border-color: var(--lime);
+  color: #141310;
 }
 
 .lic-top {
@@ -432,15 +521,30 @@
   gap: 16px;
   margin-bottom: 10px;
   padding-right: 34px;
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+    gap: 4px;
+    padding-right: 28px;
+    margin-bottom: 6px;
+
+    .lic-price-col {
+      text-align: left;
+    }
+  }
 }
 
 .lic-name {
   font-family: 'Bricolage Grotesque', sans-serif;
-  font-size: 22px;
+  font-size: 17px;
   font-weight: 700;
-  letter-spacing: -0.03em;
-  line-height: 1;
-  margin-bottom: 4px;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+  margin-bottom: 2px;
+
+  @media (max-width: 768px) {
+    font-size: 14px;
+  }
 }
 
 .lic-name em {
@@ -449,12 +553,13 @@
   font-weight: 400;
 }
 
+// Panel is always dark — use fixed hot/sun/lime for em accents
 .lic-row:not(.popular):not(.exclusive) .lic-name em {
-  color: var(--hot);
+  color: #ff6b6b;
 }
 
 .lic-row.popular .lic-name em {
-  color: var(--sun);
+  color: #ffd666;
 }
 
 .lic-row.exclusive .lic-name em {
@@ -462,10 +567,11 @@
 }
 
 .lic-sub {
-  opacity: 0.74;
+  opacity: 0.68;
   font-family: 'Instrument Serif', serif;
   font-style: italic;
   font-size: 13px;
+  color: var(--lp-card-fg);
 }
 
 .lic-price-col {
@@ -474,10 +580,14 @@
 
 .lic-price {
   font-family: 'Bricolage Grotesque', sans-serif;
-  font-size: 32px;
+  font-size: 22px;
   font-weight: 800;
-  letter-spacing: -0.05em;
+  letter-spacing: -0.04em;
   line-height: 1;
+
+  @media (max-width: 768px) {
+    font-size: 18px;
+  }
 }
 
 .lic-term {
@@ -493,18 +603,27 @@
   list-style: none;
   display: flex;
   flex-wrap: wrap;
-  gap: 10px 18px;
+  gap: 6px 14px;
   margin: 0;
   padding: 0;
+
+  @media (max-width: 768px) {
+    gap: 4px 8px;
+  }
 }
 
 .lic-feats li {
   display: flex;
   align-items: center;
-  gap: 7px;
-  min-width: 120px;
-  font-size: 12.5px;
+  gap: 6px;
+  min-width: 100px;
+  font-size: 11.5px;
   line-height: 1.25;
+
+  @media (max-width: 768px) {
+    min-width: 80px;
+    font-size: 10px;
+  }
 }
 
 .lic-feats .ic {
@@ -512,11 +631,12 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  color: var(--hot);
+  // Panel is always dark — fixed icon colours
+  color: #ff8a9a;
 }
 
 .lic-row.popular .ic {
-  color: var(--sun);
+  color: #ffd666;
 }
 
 .lic-row.exclusive .ic {
@@ -525,14 +645,24 @@
 
 .modal-foot {
   position: relative;
-  z-index: 1;
+  z-index: 10;
   display: flex;
   justify-content: space-between;
   align-items: center;
   gap: 20px;
-  padding: 12px 22px;
-  border-top: 1.5px solid color-mix(in srgb, var(--ink) 12%, transparent);
+  padding: 10px 20px;
+  border-top: 2px solid var(--ink);
   background: var(--cream);
+  box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.08);
+
+  @media (max-width: 768px) {
+    position: sticky;
+    bottom: 0;
+    flex-direction: row;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 14px;
+  }
 }
 
 .foot-selected {
@@ -554,6 +684,11 @@
   font-size: 18px;
   font-weight: 700;
   letter-spacing: -0.03em;
+
+  @media (max-width: 768px) {
+    font-size: 14px;
+    gap: 6px;
+  }
 }
 
 .foot-name .price {
@@ -571,6 +706,10 @@
   display: flex;
   align-items: center;
   gap: 10px;
+
+  @media (max-width: 768px) {
+    flex-shrink: 0;
+  }
 }
 
 .action-btn {
@@ -623,9 +762,17 @@
 
 .modal-compare {
   position: relative;
-  z-index: 1;
+  z-index: 10;
   padding: 0 22px 14px;
   background: var(--cream);
+
+  @media (max-width: 768px) {
+    position: sticky;
+    bottom: 0;
+    padding: 0 20px 20px;
+    text-align: center;
+    margin-top: -1px; /* overlap border if needed */
+  }
 }
 
 .modal-compare button {
@@ -645,47 +792,50 @@
   border-color: var(--hot);
 }
 
-@media (max-width: 860px) {
-  .split-body {
-    grid-template-columns: 1fr;
-  }
-
-  .beat-panel {
-    border-right: none;
-    border-bottom: 2px solid var(--ink);
-  }
-
-  .bp-art {
-    max-width: 220px;
-  }
-
-  .bp-title {
-    font-size: 36px;
-  }
-
+@media (max-width: 960px) {
   .bp-stats {
     grid-template-columns: repeat(2, 1fr);
   }
+}
 
-  .lic-feats {
-    flex-direction: column;
-    gap: 4px;
+@media (max-width: 768px) {
+  .lp-head {
+    margin-bottom: 10px;
   }
 
-  .modal-foot {
-    flex-direction: column;
-    align-items: stretch;
+  .lp-h {
+    font-size: 18px;
   }
 
-  .foot-actions {
-    width: 100%;
+  .lp-sub {
+    font-size: 11px;
   }
+}
 
+@media (max-width: 480px) {
   .action-btn {
-    flex: 1;
+    padding: 0 12px;
+    font-size: 12px;
+    min-height: 36px;
   }
 }
 
 .lic-row.popular .lic-price {
   color: #fff;
+}
+
+// Ensure lic-term is visible on the dark panel
+.lic-row:not(.popular):not(.exclusive) .lic-term {
+  color: rgba(240, 233, 214, 0.55);
+  opacity: 1;
+}
+
+.lic-row.exclusive .lic-term {
+  color: rgba(200, 232, 79, 0.7);
+  opacity: 1;
+}
+
+.lic-row.popular .lic-term {
+  color: rgba(255, 255, 255, 0.65);
+  opacity: 1;
 }

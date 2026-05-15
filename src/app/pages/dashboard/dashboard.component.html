@@ -303,7 +303,7 @@
           @if (producerSpecs().length > 0) {
             <div class="lc-crate-scroll">
               @for (spec of producerSpecs().slice(0, 5); track spec.id) {
-                <div class="lc-beat-card" [routerLink]="['/beats', spec.id]">
+                <div class="lc-beat-card" [routerLink]="['/', spec.shortCode || spec.id]">
                   <!-- Real cover art -->
                   <div class="lc-bc-art">
                     <img
@@ -336,7 +336,7 @@
                   </div>
                   <div class="lc-bc-body">
                     <div class="lc-bc-title">{{ spec.title }}</div>
-                    <div class="lc-bc-prod">{{ spec.genres?.[0]?.name || '' }}</div>
+                    <div class="lc-bc-prod">{{ spec.genres[0]?.name || '' }}</div>
                     <div class="lc-bc-foot">
                       <span
                         >{{ spec.bpm ? spec.bpm + ' BPM' : ''
@@ -444,7 +444,7 @@
           @if (activeRole() === 'producer') {
             @if (producerSpecs().length > 0) {
               @for (spec of producerSpecs().slice(0, 8); track spec.id) {
-                <div class="lc-drop-row" [routerLink]="['/beats', spec.id]">
+                <div class="lc-drop-row" [routerLink]="['/', spec.shortCode || spec.id]">
                   <!-- Real cover art thumbnail -->
                   <div class="lc-drop-art-wrap">
                     <img

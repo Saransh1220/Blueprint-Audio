@@ -318,7 +318,7 @@
       <a
         class="related-card"
         *ngFor="let item of relatedDisplaySpecs()"
-        [routerLink]="['/beats', item.id]"
+        [routerLink]="['/', item.shortCode || item.id]"
       >
         <div class="rc-art">
           <img [src]="item.imageUrl" [alt]="item.title" />

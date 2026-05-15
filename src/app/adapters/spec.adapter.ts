@@ -39,6 +39,10 @@ export class SpecAdapter {
       freeMp3Enabled: dto.free_mp3_enabled,
       analytics: dto.analytics ? this.adaptPublicAnalytics(dto.analytics) : undefined,
       processingStatus: dto.processing_status || 'completed', // Default to completed for old records
+      shortCode: dto.short_code,
+      slug: dto.slug,
+      moods: dto.moods || [],
+      instruments: dto.instruments || [],
     };
   }
 

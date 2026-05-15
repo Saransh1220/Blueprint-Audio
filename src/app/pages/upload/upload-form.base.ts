@@ -43,6 +43,8 @@ export abstract class UploadFormBase implements OnInit {
   currentScale = signal<'major' | 'minor'>('minor');
   currentKeyRoot = signal('E');
   selectedMoods = signal<string[]>(['Moody', 'Dark']);
+  selectedInstruments = signal<string[]>([]);
+  beatDuration = signal<number>(0);
   royaltySplit = signal('50/50');
   contractType = signal('Standard');
   territory = signal('Worldwide');
@@ -55,6 +57,17 @@ export abstract class UploadFormBase implements OnInit {
     'Aggressive',
     'Soulful',
     'Melancholic',
+  ];
+  readonly instrumentOptions = [
+    'Piano',
+    'Guitar',
+    'Drums',
+    'Synth',
+    'Bass',
+    'Strings',
+    'Brass',
+    '808',
+    'Vocal',
   ];
   readonly royaltyOptions = ['50/50', '60/40', '70/30', 'None'];
   readonly contractOptions = ['Standard', 'Custom PDF'];
@@ -250,6 +263,25 @@ export abstract class UploadFormBase implements OnInit {
     return this.selectedMoods().includes(mood);
   }
 
+  toggleInstrument(instrument: string) {
+    const active = this.selectedInstruments();
+    if (active.includes(instrument)) {
+      this.selectedInstruments.set(active.filter((item) => item !== instrument));
+      return;
+    }
+
+    if (active.length >= 5) {
+      this.toastService.show('Pick up to 5 instruments.', 'info');
+      return;
+    }
+
+    this.selectedInstruments.set([...active, instrument]);
+  }
+
+  isInstrumentSelected(instrument: string) {
+    return this.selectedInstruments().includes(instrument);
+  }
+
   selectKeyRoot(root: string) {
     this.currentKeyRoot.set(root);
     this.applySelectedKey();
@@ -362,6 +394,9 @@ export abstract class UploadFormBase implements OnInit {
       ],
       description: formValue.description || '',
       free_mp3_enabled: formValue.freeMp3Enabled,
+      moods: this.selectedMoods(),
+      instruments: this.selectedInstruments(),
+      duration: this.beatDuration(),
       licenses: enabledLicenses.map(({ subtitle, ...license }: any) => license),
     };
 
@@ -619,6 +654,7 @@ export abstract class UploadFormBase implements OnInit {
       audio.preload = 'metadata';
       audio.onloadedmetadata = () => {
         const total = Number.isFinite(audio.duration) ? audio.duration : 0;
+        this.beatDuration.set(Math.round(total));
         const mins = Math.floor(total / 60);
         const secs = Math.floor(total % 60);
         resolve(total ? `${mins}:${secs.toString().padStart(2, '0')}` : '');

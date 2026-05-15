@@ -123,5 +123,13 @@ export const routes: Routes = [
   { path: 'dashboard', component: DashboardComponent, canActivate: [authGuard] },
   { path: 'upload', component: UploadComponent, canActivate: [authGuard] },
   { path: 'settings', component: SettingsComponent },
+
+  // Short code route (catch-all before 404)
+  {
+    path: ':shortCode',
+    loadComponent: () =>
+      import('./pages/spec-details/spec-details.component').then((m) => m.SpecDetailsComponent),
+  },
+
   { path: '**', redirectTo: '' },
 ];

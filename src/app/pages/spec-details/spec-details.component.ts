@@ -42,8 +42,8 @@ export class SpecDetailsComponent {
   spec = toSignal(
     this.route.paramMap.pipe(
       switchMap((params) => {
-        const id = params.get('id');
-        return this.labService.getSpecById(id || '');
+        const idOrCode = params.get('id') || params.get('shortCode');
+        return this.labService.getSpecById(idOrCode || '');
       }),
     ),
   );

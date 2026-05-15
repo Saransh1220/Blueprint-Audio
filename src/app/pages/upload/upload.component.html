@@ -3,7 +3,8 @@
     <header class="upload-header">
       <a class="upload-logo" routerLink="/">
         <div class="logo">
-          <img class="logo-mark" src="/Logo-cropped.png" alt="" aria-hidden="true" />
+          <img class="logo-mark logo-light" src="/Logo-cropped.png" alt="" aria-hidden="true" />
+          <img class="logo-mark logo-dark" src="/logo-dark-cropped.png" alt="" aria-hidden="true" />
           <span class="logo-word">Waveyard</span>
         </div>
       </a>
@@ -154,6 +155,26 @@
                     >
                       <span class="plus">+</span>
                       {{ mood }}
+                    </button>
+                  }
+                </div>
+              </div>
+
+              <div class="form-group span-full">
+                <label class="form-label">
+                  <span>Instrument tags</span>
+                  <em>pick up to 5</em>
+                </label>
+                <div class="mood-tags">
+                  @for (instrument of instrumentOptions; track instrument) {
+                    <button
+                      type="button"
+                      class="mood-tag"
+                      [class.on]="isInstrumentSelected(instrument)"
+                      (click)="toggleInstrument(instrument)"
+                    >
+                      <span class="plus">+</span>
+                      {{ instrument }}
                     </button>
                   }
                 </div>
@@ -515,6 +536,10 @@
                     ><span class="v">{{ f['bpm'].value || '-' }} <span class="sub">BPM</span></span>
                   </div>
                   <div class="kv-row">
+                    <span class="k">Duration</span
+                    ><span class="v">{{ beatDuration() ? previewSummary()?.detail : '-' }}</span>
+                  </div>
+                  <div class="kv-row">
                     <span class="k">Key</span
                     ><span class="v"
                       >{{ getKeyPreview().root }}
@@ -605,6 +630,10 @@
                   <div class="kv-row">
                     <span class="k">Mood tags</span
                     ><span class="v">{{ selectedMoods().join(' - ') || '-' }}</span>
+                  </div>
+                  <div class="kv-row">
+                    <span class="k">Instruments</span
+                    ><span class="v">{{ selectedInstruments().join(' - ') || '-' }}</span>
                   </div>
                   <div class="kv-row">
                     <span class="k">Searchable tags</span

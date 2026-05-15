@@ -53,6 +53,19 @@ export class SpecListItemComponent implements OnInit, OnDestroy {
   openDetails() {
     this.actionService.openDetails(this.spec);
   }
+  /** Row click: play in list/market view, navigate in default card view */
+  handleRowClick(event: Event) {
+    if (this.appearance === 'market') {
+      this.actionService.playSong(event, this.spec);
+    } else {
+      this.actionService.openDetails(this.spec);
+    }
+  }
+  /** Title click in list view: stop row-click propagation, then navigate */
+  navigateToDetails(event: Event) {
+    event.stopPropagation();
+    this.actionService.openDetails(this.spec);
+  }
   toggleFavorite(event: Event) {
     this.actionService.toggleFavorite(event, this.spec, this.isFavoriting, this.cdr);
   }
