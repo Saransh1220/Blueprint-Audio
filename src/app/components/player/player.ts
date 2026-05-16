@@ -548,6 +548,7 @@ export class PlayerComponent implements OnDestroy {
     }
 
     const imageUrl = track.imageUrl;
+    const fallbackPalette = this.paletteFromTrack(track);
     const img = new Image();
     img.crossOrigin = 'anonymous';
 
@@ -605,13 +606,13 @@ export class PlayerComponent implements OnDestroy {
           accent: this.rgbString(accentR * 1.08 + 12, accentG * 1.08 + 12, accentB * 1.08 + 12),
         });
       } catch {
-        this.mobilePalette.set({ deep: '#11100d', mid: '#4f4739', accent: '#ff3d5a' });
+        this.mobilePalette.set(fallbackPalette);
       }
     };
 
     img.onerror = () => {
       if (this.playerService.currentTrack()?.imageUrl === imageUrl) {
-        this.mobilePalette.set({ deep: '#11100d', mid: '#4f4739', accent: '#ff3d5a' });
+        this.mobilePalette.set(fallbackPalette);
       }
     };
 
@@ -621,5 +622,22 @@ export class PlayerComponent implements OnDestroy {
   private rgbString(r: number, g: number, b: number) {
     const clamp = (value: number) => Math.max(0, Math.min(255, Math.round(value)));
     return `rgb(${clamp(r)}, ${clamp(g)}, ${clamp(b)})`;
+  }
+
+  private paletteFromTrack(track: Spec) {
+    const source = `${track.title}|${track.imageUrl}|${track.id}`;
+    let hash = 0;
+    for (let i = 0; i < source.length; i++) {
+      hash = (hash * 31 + source.charCodeAt(i)) >>> 0;
+    }
+
+    const hue = hash % 360;
+    const accentHue = (hue + 26) % 360;
+
+    return {
+      deep: `hsl(${hue} 28% 8%)`,
+      mid: `hsl(${hue} 24% 25%)`,
+      accent: `hsl(${accentHue} 82% 58%)`,
+    };
   }
 }
