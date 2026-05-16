@@ -8,11 +8,23 @@ import { SpecCardComponent } from './spec-card';
 describe('SpecCardComponent', () => {
   let component: SpecCardComponent;
   let fixture: ComponentFixture<SpecCardComponent>;
+  let actionServiceMock: {
+    isCurrentlyPlaying: ReturnType<typeof vi.fn>;
+    syncFavorite: ReturnType<typeof vi.fn>;
+    playSong: ReturnType<typeof vi.fn>;
+    addToCart: ReturnType<typeof vi.fn>;
+    openDetails: ReturnType<typeof vi.fn>;
+    toggleFavorite: ReturnType<typeof vi.fn>;
+    downloadFreeMp3: ReturnType<typeof vi.fn>;
+    formatDuration: ReturnType<typeof vi.fn>;
+  };
+  let unsubscribe: ReturnType<typeof vi.fn>;
 
   beforeEach(async () => {
-    const actionServiceMock = {
+    unsubscribe = vi.fn();
+    actionServiceMock = {
       isCurrentlyPlaying: vi.fn().mockReturnValue(false),
-      syncFavorite: vi.fn().mockReturnValue({ unsubscribe: vi.fn() }),
+      syncFavorite: vi.fn().mockReturnValue({ unsubscribe }),
       playSong: vi.fn(),
       addToCart: vi.fn(),
       openDetails: vi.fn(),
@@ -47,5 +59,37 @@ describe('SpecCardComponent', () => {
 
   it('should create', () => {
     expect(component).toBeTruthy();
+  });
+
+  it('delegates card actions to the shared action service', () => {
+    const event = new MouseEvent('click');
+
+    component.playSong(event);
+    component.addToCart(event);
+    component.openDetails();
+    component.toggleFavorite(event);
+    component.downloadFreeMp3(event);
+
+    expect(actionServiceMock.playSong).toHaveBeenCalledWith(event, component.spec);
+    expect(actionServiceMock.addToCart).toHaveBeenCalledWith(event, component.spec);
+    expect(actionServiceMock.openDetails).toHaveBeenCalledWith(component.spec);
+    expect(actionServiceMock.toggleFavorite).toHaveBeenCalledWith(
+      event,
+      component.spec,
+      component.isFavoriting,
+      component.cdr,
+    );
+    expect(actionServiceMock.downloadFreeMp3).toHaveBeenCalledWith(event, component.spec);
+  });
+
+  it('uses fallback media helpers and cleans up favorite sync', () => {
+    expect(component.imageUrl).toBe('test-image.jpg');
+    expect(component.formatDuration(8)).toBe('0:08');
+
+    component.spec = { ...component.spec, imageUrl: '' } as Spec;
+    expect(component.imageUrl).toBe('assets/images/placeholder.jpg');
+
+    component.ngOnDestroy();
+    expect(unsubscribe).toHaveBeenCalled();
   });
 });

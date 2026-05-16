@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { type AfterViewInit, Component, ElementRef, inject, ViewChild } from '@angular/core';
-import { NavigationEnd, Router, RouterOutlet } from '@angular/router';
+import { NavigationEnd, Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { filter } from 'rxjs/operators';
 import { gsap } from 'gsap';
 import { HeaderComponent } from './components';
@@ -18,6 +18,8 @@ import { LoadingBarComponent } from './components/loading-bar/loading-bar.compon
   imports: [
     CommonModule,
     RouterOutlet,
+    RouterLink,
+    RouterLinkActive,
     HeaderComponent,
     FooterComponent,
     PlayerComponent,

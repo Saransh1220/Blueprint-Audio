@@ -1538,7 +1538,9 @@
   }
 
   .beat-title {
-    font-size: clamp(52px, 16vw, 84px);
+    font-size: clamp(32px, 9.5vw, 46px);
+    line-height: 1;
+    letter-spacing: -0.03em;
   }
 
   .stat-strip,

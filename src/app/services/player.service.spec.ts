@@ -243,4 +243,110 @@ describe('PlayerService', () => {
     audio.emit('timeupdate');
     expect(service.currentTimeFormatted()).toBe('0:00');
   });
+
+  it('manages queue navigation, shuffle, repeat, expansion, and playback rate bounds', () => {
+    const service = new PlayerService();
+    const second = { ...track, id: 'spec-2', title: 'Second', audioUrl: 'second.mp3' };
+    const third = { ...track, id: 'spec-3', title: 'Third', audioUrl: 'third.mp3' };
+    const playAtSpy = vi.spyOn(service, 'playTrackAt');
+
+    service.showPlayer(track);
+    service.showPlayer(second);
+    service.showPlayer(third);
+
+    expect(service.queue().map((item) => item.id)).toEqual(['spec-1', 'spec-2', 'spec-3']);
+    expect(service.queueIndex()).toBe(2);
+    expect(service.hasPrevious()).toBe(true);
+    expect(service.hasNext()).toBe(true);
+
+    service.setExpanded(true);
+    expect(service.isExpanded()).toBe(true);
+    service.toggleExpanded();
+    expect(service.isExpanded()).toBe(false);
+
+    service.toggleRepeat();
+    expect(service.repeatEnabled()).toBe(true);
+    service.toggleShuffle();
+    expect(service.shuffleEnabled()).toBe(true);
+
+    service.setPlaybackRate(3);
+    expect(service.playbackRate()).toBe(2);
+    service.setPlaybackRate(0.1);
+    expect(service.playbackRate()).toBe(0.5);
+
+    const originalRandom = Math.random;
+    service.queueIndex.set(0);
+    Math.random = vi.fn(() => 0.5);
+    expect(service.playPrevious()).toBe(true);
+    expect(playAtSpy).toHaveBeenCalledWith(1);
+
+    Math.random = vi.fn(() => 0.8);
+    service.queueIndex.set(0);
+    expect(service.playNext()).toBe(true);
+    expect(service.queueIndex()).toBe(2);
+    Math.random = originalRandom;
+
+    service.shuffleEnabled.set(false);
+    service.queueIndex.set(2);
+    expect(service.playNext()).toBe(true);
+    expect(service.queueIndex()).toBe(0);
+
+    service.queueIndex.set(2);
+    expect(service.playNext(true)).toBe(false);
+  });
+
+  it('handles invalid queue operations, removals, clearQueue, and previous restart', () => {
+    const service = new PlayerService();
+    const second = { ...track, id: 'spec-2', title: 'Second', audioUrl: 'second.mp3' };
+
+    expect(service.playTrackAt(-1)).toBe(false);
+    expect(service.playPrevious()).toBe(false);
+    expect(service.playNext()).toBe(false);
+
+    service.showPlayer(track);
+    service.showPlayer(second);
+    service.currentTime.set(5);
+    expect(service.playPrevious()).toBe(true);
+    expect(service.currentTime()).toBe(0);
+
+    service.currentTime.set(0);
+    service.queueIndex.set(1);
+    expect(service.playPrevious()).toBe(true);
+    expect(service.queueIndex()).toBe(0);
+
+    service.removeFromQueue(-1);
+    expect(service.queue().length).toBe(2);
+
+    service.queueIndex.set(1);
+    service.removeFromQueue(0);
+    expect(service.queueIndex()).toBe(0);
+    expect(service.queue().map((item) => item.id)).toEqual(['spec-2']);
+
+    service.showPlayer(track);
+    service.queueIndex.set(0);
+    service.removeFromQueue(0);
+    expect(service.currentTrack()?.id).toBe('spec-1');
+
+    service.clearQueue();
+    expect(service.queue()).toEqual([service.currentTrack()]);
+
+    service.hidePlayer();
+    service.clearQueue();
+    expect(service.queue()).toEqual([]);
+  });
+
+  it('repeats current track when audio ends with repeat enabled', async () => {
+    const service = new PlayerService();
+    const audio = (service as any).audio as FakeAudio;
+    const playSpy = vi.spyOn(service, 'play');
+
+    service.showPlayer(track);
+    service.repeatEnabled.set(true);
+    service.currentTime.set(12);
+    audio.currentTime = 12;
+    audio.emit('ended');
+
+    expect(service.currentTime()).toBe(0);
+    expect(playSpy).toHaveBeenCalled();
+  });
 });

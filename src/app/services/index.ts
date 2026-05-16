@@ -1,5 +1,6 @@
 export * from './analytics.service';
 export * from './auth.service';
+export * from './authz.service';
 export * from './cart.service';
 export * from './directory';
 export * from './lab';

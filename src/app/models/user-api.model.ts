@@ -1,4 +1,4 @@
-import { Role } from './enums';
+import { Role, SystemRole } from './enums';
 
 export interface UserApiResponse {
   id: string;
@@ -6,6 +6,8 @@ export interface UserApiResponse {
   name: string;
   display_name?: string;
   role: Role;
+  system_role?: SystemRole;
+  status?: 'active' | 'suspended';
   email_verified?: boolean;
   bio?: string;
   avatar_url?: string;

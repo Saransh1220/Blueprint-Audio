@@ -101,5 +101,29 @@
   }
 </div>
 <app-player></app-player>
+@if (!isAuthRoute() && !isUploadRoute()) {
+  <nav class="mobile-bottom-nav" aria-label="Mobile navigation">
+    <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
+      <i class="fas fa-home"></i>
+      <span>Home</span>
+    </a>
+    <a routerLink="/explore" routerLinkActive="active">
+      <i class="fas fa-search"></i>
+      <span>Explore</span>
+    </a>
+    <a routerLink="/studio/purchases" routerLinkActive="active">
+      <i class="fas fa-book-open"></i>
+      <span>Library</span>
+    </a>
+    <button type="button" (click)="toggleCart()">
+      <i class="fas fa-cart-shopping"></i>
+      <span>Cart</span>
+    </button>
+    <a routerLink="/settings" routerLinkActive="active">
+      <i class="fas fa-bars"></i>
+      <span>Menu</span>
+    </a>
+  </nav>
+}
 <app-modal></app-modal>
 <app-toast></app-toast>

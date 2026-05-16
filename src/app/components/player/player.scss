@@ -958,6 +958,23 @@
   }
 }
 
+@media (max-width: 1024px) {
+  .mini-player {
+    bottom: calc(76px + env(safe-area-inset-bottom));
+
+    &::after {
+      content: '';
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 100%;
+      height: calc(76px + env(safe-area-inset-bottom));
+      background: var(--player-bg);
+      pointer-events: none;
+    }
+  }
+}
+
 @media (max-width: 720px) {
   .mp-row {
     display: flex;

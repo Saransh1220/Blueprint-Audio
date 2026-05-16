@@ -42,6 +42,9 @@
       >
       <a routerLink="/explore" routerLinkActive="active">Explore</a>
       <a routerLink="/battles" routerLinkActive="active">Battles</a>
+      @if (authzService.isSuperAdmin()) {
+        <a routerLink="/admin" routerLinkActive="active">Admin</a>
+      }
       @if (authService.currentUser()) {
         <div
           class="nav-link-wrap studio-nav-wrap"
@@ -638,6 +641,33 @@
                       </div>
                     </div>
                   </a>
+                  @if (authzService.isSuperAdmin()) {
+                    <a
+                      routerLink="/admin"
+                      (click)="closeUserMenu()"
+                      class="notif-item"
+                      style="text-decoration: none"
+                    >
+                      <div class="ni-avatar c-hot">
+                        <i class="fas fa-shield-alt" style="font-size: 13px"></i>
+                      </div>
+                      <div class="ni-body">
+                        <div class="ni-row1">
+                          <div
+                            class="ni-text"
+                            style="
+                              font-family: 'Bricolage Grotesque', sans-serif;
+                              font-weight: 700;
+                              font-size: 14px;
+                              color: var(--text-color);
+                            "
+                          >
+                            Admin Console
+                          </div>
+                        </div>
+                      </div>
+                    </a>
+                  }
                 </div>
 
                 <div class="notif-foot" style="justify-content: space-between">
@@ -731,6 +761,9 @@
         >
       }
       <a routerLink="/settings" routerLinkActive="active" (click)="closeMobileMenu()">Settings</a>
+      @if (authzService.isSuperAdmin()) {
+        <a routerLink="/admin" routerLinkActive="active" (click)="closeMobileMenu()">Admin</a>
+      }
       <button
         type="button"
         class="mobile-logout-btn"

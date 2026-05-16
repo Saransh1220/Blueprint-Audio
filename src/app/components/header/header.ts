@@ -12,7 +12,7 @@ import {
 import { FormsModule } from '@angular/forms';
 
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
-import { AuthService, CartService, NotificationService } from '../../services';
+import { AuthService, AuthzService, CartService, NotificationService } from '../../services';
 import { Role } from '../../models';
 import { ThemeToggleComponent } from '../theme-toggle/theme-toggle';
 import { StudioShellService } from '../../pages/studio/studio-shell.service';
@@ -56,6 +56,7 @@ export class HeaderComponent {
   isMobileMenuOpen = false;
   cartService = inject(CartService);
   authService = inject(AuthService);
+  authzService = inject(AuthzService);
   notificationService = inject(NotificationService);
   private router = inject(Router);
   studioShell = inject(StudioShellService);

@@ -394,20 +394,34 @@
 }
 
 :host ::ng-deep app-spec-list-item .market-row.playing .row-title-block .t,
+:host ::ng-deep app-spec-list-item .market-row.playing .mobile-track-title,
+:host ::ng-deep app-spec-list-item .market-row.playing .lr-title,
+:host ::ng-deep app-spec-list-item .market-row.playing .lr-title-link,
 :host ::ng-deep app-spec-list-item .market-row.playing .row-title-block .p,
 :host ::ng-deep app-spec-list-item .market-row.playing .lr-prod,
 :host ::ng-deep app-spec-list-item .market-row.playing .lr-cell,
 :host ::ng-deep app-spec-list-item .market-row.playing .stat-m,
 :host ::ng-deep app-spec-list-item .market-row.playing .lr-price,
 :host ::ng-deep app-spec-list-item .market-row.playing .money-m {
-  color: var(--cream);
+  color: #141310 !important;
 }
 
 :host ::ng-deep app-spec-list-item .market-row.playing .row-title-block .p,
 :host ::ng-deep app-spec-list-item .market-row.playing .lr-prod,
 :host ::ng-deep app-spec-list-item .market-row.playing .lr-cell,
 :host ::ng-deep app-spec-list-item .market-row.playing .stat-m {
-  opacity: 0.78;
+  opacity: 0.72;
+}
+
+:host ::ng-deep app-spec-list-item .market-row.playing .purchase-pill {
+  border-color: #141310 !important;
+  background: var(--brand-color) !important;
+  color: #141310 !important;
+}
+
+:host ::ng-deep app-spec-list-item .market-row.playing .purchase-icon,
+:host ::ng-deep app-spec-list-item .market-row.playing .purchase-icon i {
+  color: #141310 !important;
 }
 
 :host ::ng-deep app-spec-list-item .market-row.playing .row-chip {
@@ -530,13 +544,16 @@
   }
 
   :host ::ng-deep app-spec-list-item .market-row {
-    grid-template-columns: 38px 50px minmax(0, 1fr) 72px 84px 88px;
+    grid-template-columns: 54px minmax(0, 1fr) 36px;
   }
 
   :host ::ng-deep app-spec-list-item .market-row .lr-prod,
+  :host ::ng-deep app-spec-list-item .market-row .lr-cell,
+  :host ::ng-deep app-spec-list-item .market-row .stat-m,
+  :host ::ng-deep app-spec-list-item .market-row .lr-play,
   :host ::ng-deep app-spec-list-item .market-row .row-key,
   :host ::ng-deep app-spec-list-item .market-row .row-dur {
-    display: none;
+    display: none !important;
   }
 }
 
@@ -551,7 +568,9 @@
   }
 
   .section-h {
-    font-size: clamp(34px, 12vw, 54px);
+    font-size: clamp(28px, 8.5vw, 38px);
+    line-height: 1;
+    letter-spacing: -0.025em;
   }
 
   .head-meta p,

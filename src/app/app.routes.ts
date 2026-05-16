@@ -1,6 +1,7 @@
 import type { Routes } from '@angular/router';
 import { inject } from '@angular/core';
 import { authGuard } from './guards/auth.guard';
+import { adminGuard } from './guards/admin.guard';
 import { guestGuard } from './guards/guest.guard';
 import { AuthComponent } from './pages/auth/auth.component';
 import { BattleDetailsComponent } from './pages/battle-details/battle-details.component';
@@ -123,6 +124,11 @@ export const routes: Routes = [
   { path: 'dashboard', component: DashboardComponent, canActivate: [authGuard] },
   { path: 'upload', component: UploadComponent, canActivate: [authGuard] },
   { path: 'settings', component: SettingsComponent },
+  {
+    path: 'admin',
+    canActivate: [authGuard, adminGuard],
+    loadComponent: () => import('./pages/admin/admin.component').then((m) => m.AdminComponent),
+  },
 
   // Short code route (catch-all before 404)
   {

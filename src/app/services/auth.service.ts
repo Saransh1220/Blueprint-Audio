@@ -19,7 +19,7 @@ import {
   UploadAvatarRequest,
   PublicUserResponse,
 } from '../core/api/user.requests';
-import { User, UserAdapter, Role } from '../models';
+import { User, UserAdapter, Role, SystemRole } from '../models';
 import { ModalService } from './modal.service';
 import { AuthRequirementComponent } from '../components/modals/auth-requirement/auth-requirement.component';
 import { SocialAuthService } from '@abacritt/angularx-social-login';
@@ -150,6 +150,8 @@ export class AuthService {
       display_name: response.display_name || null,
       email: '', // Not included in public response
       role: response.role as Role,
+      system_role: SystemRole.USER,
+      status: 'active',
       email_verified: response.email_verified ?? true,
       bio: response.bio || null,
       avatar_url: resolveMediaUrl(response.avatar_url),

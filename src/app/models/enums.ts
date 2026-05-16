@@ -4,6 +4,11 @@ export enum Role {
   ARTIST = 'artist',
 }
 
+export enum SystemRole {
+  USER = 'user',
+  SUPER_ADMIN = 'super_admin',
+}
+
 // Musical Keys
 export enum MusicalKey {
   // Major Keys

@@ -467,6 +467,18 @@
     <main class="catalog">
       <div class="catalog-inner">
         <div class="catalog-toolbar">
+          <h2 class="mobile-list-title">All Beats</h2>
+          @if (activeFilterChips().length) {
+            <div class="mobile-active-strip">
+              <span class="ac-label">Active</span>
+              @for (chip of activeFilterChips(); track chip.id) {
+                <button class="ac-chip" type="button" (click)="removeActiveChip(chip.id)">
+                  {{ chip.label }}
+                  <span class="ac-chip-x">x</span>
+                </button>
+              }
+            </div>
+          }
           <!-- Mobile-only filter trigger -->
           <button class="mob-filter-btn" type="button" (click)="toggleMobileFilterPanel()">
             <i class="fas fa-sliders"></i>

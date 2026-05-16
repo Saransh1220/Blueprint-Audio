@@ -1,0 +1,223 @@
+<main class="admin-shell">
+  <section class="admin-hero">
+    <div>
+      <p class="eyebrow">Super admin</p>
+      <h1>Command Center</h1>
+      <p class="subline">Users, catalog, commerce, and audit events in one restricted console.</p>
+    </div>
+    <div class="status-chip" [class.busy]="loading()">
+      <span></span>
+      {{ loading() ? 'Syncing' : 'Live' }}
+    </div>
+  </section>
+
+  <nav class="admin-tabs" aria-label="Admin sections">
+    <button [class.active]="activeTab() === 'overview'" (click)="setTab('overview')">
+      Overview
+    </button>
+    <button [class.active]="activeTab() === 'users'" (click)="setTab('users')">Users</button>
+    <button [class.active]="activeTab() === 'specs'" (click)="setTab('specs')">Specs</button>
+    <button [class.active]="activeTab() === 'orders'" (click)="setTab('orders')">Orders</button>
+    <button [class.active]="activeTab() === 'licenses'" (click)="setTab('licenses')">
+      Licenses
+    </button>
+    <button [class.active]="activeTab() === 'audit'" (click)="setTab('audit')">Audit</button>
+  </nav>
+
+  @if (activeTab() === 'overview') {
+    <section class="metric-grid">
+      <article>
+        <span>Users</span><strong>{{ overview()['users'] || 0 }}</strong>
+      </article>
+      <article>
+        <span>Producers</span><strong>{{ overview()['producers'] || 0 }}</strong>
+      </article>
+      <article>
+        <span>Specs</span><strong>{{ overview()['specs'] || 0 }}</strong>
+      </article>
+      <article>
+        <span>Paid orders</span><strong>{{ overview()['paid_orders'] || 0 }}</strong>
+      </article>
+      <article class="wide">
+        <span>Paid revenue</span><strong>Rs {{ paidRevenue() }}</strong>
+      </article>
+    </section>
+  }
+
+  @if (activeTab() === 'users') {
+    <section class="panel">
+      <div class="panel-toolbar">
+        <h2>Users</h2>
+        <form (ngSubmit)="loadUsers()">
+          <input
+            type="search"
+            [ngModel]="search()"
+            (ngModelChange)="search.set($event)"
+            name="userSearch"
+            placeholder="Search users"
+          />
+          <button type="submit">Search</button>
+        </form>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>User</th>
+              <th>Type</th>
+              <th>System</th>
+              <th>Status</th>
+              <th>Verified</th>
+              <th>Controls</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (user of users(); track user.id) {
+              <tr>
+                <td>
+                  <strong>{{ user.display_name || user.name }}</strong>
+                  <span>{{ user.email }}</span>
+                </td>
+                <td>{{ user.role }}</td>
+                <td>
+                  <span class="pill" [class.hot]="user.system_role === SystemRole.SUPER_ADMIN">{{
+                    user.system_role
+                  }}</span>
+                </td>
+                <td>
+                  <span class="pill" [class.muted]="user.status === 'suspended'">{{
+                    user.status
+                  }}</span>
+                </td>
+                <td>{{ user.email_verified ? 'yes' : 'no' }}</td>
+                <td class="actions">
+                  <button
+                    type="button"
+                    (click)="setSuperAdmin(user, user.system_role !== SystemRole.SUPER_ADMIN)"
+                  >
+                    {{
+                      user.system_role === SystemRole.SUPER_ADMIN ? 'Remove super' : 'Make super'
+                    }}
+                  </button>
+                  <button
+                    type="button"
+                    (click)="setUserStatus(user, user.status === 'active' ? 'suspended' : 'active')"
+                  >
+                    {{ user.status === 'active' ? 'Suspend' : 'Activate' }}
+                  </button>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </section>
+  }
+
+  @if (activeTab() === 'specs') {
+    <section class="panel">
+      <div class="panel-toolbar">
+        <h2>Catalog</h2>
+        <button (click)="loadSpecs()">Refresh</button>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Spec</th>
+              <th>Producer</th>
+              <th>Category</th>
+              <th>Price</th>
+              <th>Status</th>
+              <th>Controls</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (spec of specs(); track spec['id']) {
+              <tr>
+                <td>
+                  <strong>{{ spec['title'] }}</strong
+                  ><span>#{{ shortId(spec['id']) }}</span>
+                </td>
+                <td>{{ spec['producer_name'] || spec['producer_email'] }}</td>
+                <td>{{ spec['category'] }}</td>
+                <td>{{ spec['base_price'] }}</td>
+                <td>
+                  <span class="pill" [class.muted]="spec['is_deleted']">{{
+                    spec['is_deleted'] ? 'hidden' : spec['processing_status']
+                  }}</span>
+                </td>
+                <td class="actions">
+                  <button type="button" (click)="toggleSpecDeleted(spec)">
+                    {{ spec['is_deleted'] ? 'Restore' : 'Hide' }}
+                  </button>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </section>
+  }
+
+  @if (activeTab() === 'orders') {
+    <section class="panel">
+      <div class="panel-toolbar">
+        <h2>Orders</h2>
+        <button (click)="loadOrders()">Refresh</button>
+      </div>
+      <div class="row-list">
+        @for (order of orders(); track order['id']) {
+          <article>
+            <strong>{{ order['spec_title'] }}</strong>
+            <span
+              >{{ order['buyer_email'] }} · {{ order['status'] }} ·
+              {{ formatMoney(order['amount']) }}</span
+            >
+          </article>
+        }
+      </div>
+    </section>
+  }
+
+  @if (activeTab() === 'licenses') {
+    <section class="panel">
+      <div class="panel-toolbar">
+        <h2>Licenses</h2>
+        <button (click)="loadLicenses()">Refresh</button>
+      </div>
+      <div class="row-list">
+        @for (license of licenses(); track license['id']) {
+          <article>
+            <strong>{{ license['spec_title'] }}</strong>
+            <span
+              >{{ license['user_email'] }} · {{ license['license_type'] }} ·
+              {{ formatMoney(license['purchase_price']) }}</span
+            >
+          </article>
+        }
+      </div>
+    </section>
+  }
+
+  @if (activeTab() === 'audit') {
+    <section class="panel">
+      <div class="panel-toolbar">
+        <h2>Audit Log</h2>
+        <button (click)="loadAudit()">Refresh</button>
+      </div>
+      <div class="row-list audit">
+        @for (log of auditLogs(); track log['id']) {
+          <article>
+            <strong>{{ log['action'] }}</strong>
+            <span
+              >{{ log['actor_email'] }} · {{ log['resource_type'] }} #{{
+                shortId(log['resource_id'])
+              }}</span
+            >
+          </article>
+        }
+      </div>
+    </section>
+  }
+</main>

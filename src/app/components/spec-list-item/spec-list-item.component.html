@@ -55,7 +55,14 @@
           >{{ spec.title }}</span
         >
       } @else {
-        <div class="t">{{ spec.title }}</div>
+        <span
+          class="t lr-title-link"
+          (click)="navigateToDetails($event)"
+          tabindex="0"
+          (keydown.enter)="navigateToDetails($event)"
+          role="link"
+          >{{ spec.title }}</span
+        >
       }
       @if (appearance === 'market' && spec.freeMp3Enabled) {
         <span class="row-chip lr-tag">free mp3</span>
