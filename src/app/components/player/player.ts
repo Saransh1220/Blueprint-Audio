@@ -43,6 +43,14 @@ export class PlayerComponent implements OnDestroy {
   waveformBars = signal<number[]>(this.createIdleWaveform());
   displayTrack = signal<Spec | null>(null);
   isDockActive = signal(false);
+  isMobileSheetDragging = signal(false);
+  mobileSheetOffset = signal(0);
+  isMobileSheetClosing = signal(false);
+  mobilePalette = signal({
+    deep: '#11100d',
+    mid: '#4f4739',
+    accent: '#ff3d5a',
+  });
   speedOptions = [0.75, 1, 1.25, 1.5];
 
   progress = computed(() => {
@@ -89,6 +97,8 @@ export class PlayerComponent implements OnDestroy {
 
   private detailSub?: Subscription;
   private waveformFrame: number | null = null;
+  private mobileDragStartY: number | null = null;
+  private mobileCloseTimer: ReturnType<typeof setTimeout> | null = null;
 
   constructor() {
     effect(() => {
@@ -127,6 +137,7 @@ export class PlayerComponent implements OnDestroy {
       const expanded = this.playerService.isExpanded();
 
       this.expandedTrackDetail.set(track);
+      this.updateMobilePalette(track);
       this.detailSub?.unsubscribe();
 
       if (!track || !expanded) return;
@@ -170,11 +181,77 @@ export class PlayerComponent implements OnDestroy {
     this.stopWaveformLoop();
     this.clearHideTimer();
     this.cancelActivateFrame();
+    this.clearMobileCloseTimer();
   }
 
   @HostListener('document:click')
   handleDocumentClick() {
     this.isMenuOpen.set(false);
+  }
+
+  @HostListener('document:pointermove', ['$event'])
+  handleMobileSheetPointerMove(event: PointerEvent) {
+    if (this.mobileDragStartY === null) return;
+    const offset = Math.max(0, event.clientY - this.mobileDragStartY);
+    this.mobileSheetOffset.set(offset);
+    if (offset > 8) {
+      event.preventDefault();
+    }
+  }
+
+  @HostListener('document:pointerup')
+  handleMobileSheetPointerUp() {
+    if (this.mobileDragStartY === null) return;
+
+    const shouldClose = this.mobileSheetOffset() > 92;
+    this.mobileDragStartY = null;
+    this.isMobileSheetDragging.set(false);
+    this.mobileSheetOffset.set(0);
+
+    if (shouldClose) {
+      this.closeMobilePlayerWithAnimation();
+    }
+  }
+
+  openMobilePlayer(event: MouseEvent) {
+    if (!this.isMobileViewport()) return;
+
+    const target = event.target as HTMLElement | null;
+    if (target?.closest('button, input, select, textarea, [role="button"], .mp-menu')) {
+      return;
+    }
+
+    if (target?.closest('a')) {
+      event.preventDefault();
+    }
+
+    this.clearMobileCloseTimer();
+    this.isMobileSheetClosing.set(false);
+    this.playerService.setExpanded(true);
+  }
+
+  closeExpandedPlayer(event?: Event) {
+    event?.stopPropagation();
+    if (this.isMobileViewport() && this.playerService.isExpanded()) {
+      this.closeMobilePlayerWithAnimation();
+      return;
+    }
+
+    this.playerService.setExpanded(false);
+  }
+
+  onMobileHandlePointerDown(event: PointerEvent) {
+    if (!this.isMobileViewport()) return;
+    event.preventDefault();
+    event.stopPropagation();
+    this.mobileDragStartY = event.clientY;
+    this.mobileSheetOffset.set(0);
+    this.isMobileSheetDragging.set(true);
+  }
+
+  mobileSheetTransform() {
+    const offset = this.mobileSheetOffset();
+    return offset ? `translateY(${offset}px)` : null;
   }
 
   toggleMenu(event: MouseEvent) {
@@ -439,5 +516,110 @@ export class PlayerComponent implements OnDestroy {
       cancelAnimationFrame(this.activateFrame);
       this.activateFrame = null;
     }
+  }
+
+  private closeMobilePlayerWithAnimation() {
+    this.clearMobileCloseTimer();
+    this.mobileSheetOffset.set(0);
+    this.isMobileSheetDragging.set(false);
+    this.isMobileSheetClosing.set(true);
+    this.mobileCloseTimer = setTimeout(() => {
+      this.playerService.setExpanded(false);
+      this.isMobileSheetClosing.set(false);
+      this.mobileCloseTimer = null;
+    }, 340);
+  }
+
+  private clearMobileCloseTimer() {
+    if (this.mobileCloseTimer !== null) {
+      clearTimeout(this.mobileCloseTimer);
+      this.mobileCloseTimer = null;
+    }
+  }
+
+  private isMobileViewport() {
+    return typeof window !== 'undefined' && window.matchMedia('(max-width: 720px)').matches;
+  }
+
+  private updateMobilePalette(track: Spec | null) {
+    if (!track?.imageUrl || typeof Image === 'undefined' || typeof document === 'undefined') {
+      this.mobilePalette.set({ deep: '#11100d', mid: '#4f4739', accent: '#ff3d5a' });
+      return;
+    }
+
+    const imageUrl = track.imageUrl;
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+
+    img.onload = () => {
+      if (this.playerService.currentTrack()?.imageUrl !== imageUrl) return;
+
+      try {
+        const canvas = document.createElement('canvas');
+        const size = 36;
+        canvas.width = size;
+        canvas.height = size;
+        const ctx = canvas.getContext('2d', { willReadFrequently: true });
+        if (!ctx) return;
+
+        ctx.drawImage(img, 0, 0, size, size);
+        const { data } = ctx.getImageData(0, 0, size, size);
+        let r = 0;
+        let g = 0;
+        let b = 0;
+        let accentR = 0;
+        let accentG = 0;
+        let accentB = 0;
+        let accentScore = -1;
+        let count = 0;
+
+        for (let i = 0; i < data.length; i += 16) {
+          const pr = data[i];
+          const pg = data[i + 1];
+          const pb = data[i + 2];
+          const max = Math.max(pr, pg, pb);
+          const min = Math.min(pr, pg, pb);
+          const saturation = max - min;
+          const luma = 0.2126 * pr + 0.7152 * pg + 0.0722 * pb;
+          const score = saturation * 1.35 + luma * 0.24;
+
+          r += pr;
+          g += pg;
+          b += pb;
+          count++;
+
+          if (score > accentScore && luma > 34) {
+            accentScore = score;
+            accentR = pr;
+            accentG = pg;
+            accentB = pb;
+          }
+        }
+
+        const avgR = r / count;
+        const avgG = g / count;
+        const avgB = b / count;
+        this.mobilePalette.set({
+          deep: this.rgbString(avgR * 0.24, avgG * 0.24, avgB * 0.24),
+          mid: this.rgbString(avgR * 0.9 + 18, avgG * 0.9 + 18, avgB * 0.9 + 18),
+          accent: this.rgbString(accentR * 1.08 + 12, accentG * 1.08 + 12, accentB * 1.08 + 12),
+        });
+      } catch {
+        this.mobilePalette.set({ deep: '#11100d', mid: '#4f4739', accent: '#ff3d5a' });
+      }
+    };
+
+    img.onerror = () => {
+      if (this.playerService.currentTrack()?.imageUrl === imageUrl) {
+        this.mobilePalette.set({ deep: '#11100d', mid: '#4f4739', accent: '#ff3d5a' });
+      }
+    };
+
+    img.src = imageUrl;
+  }
+
+  private rgbString(r: number, g: number, b: number) {
+    const clamp = (value: number) => Math.max(0, Math.min(255, Math.round(value)));
+    return `rgb(${clamp(r)}, ${clamp(g)}, ${clamp(b)})`;
   }
 }

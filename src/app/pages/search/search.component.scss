@@ -3576,8 +3576,8 @@
   .mob-filter-btn {
     position: fixed;
     left: 50%;
-    bottom: calc(72px + env(safe-area-inset-bottom));
-    z-index: 960;
+    bottom: calc(72px + var(--player-dock-space, 0px) + env(safe-area-inset-bottom));
+    z-index: 1010;
     transform: translateX(-50%);
     min-height: 34px;
     padding: 0 16px;

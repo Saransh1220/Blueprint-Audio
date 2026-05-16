@@ -58,6 +58,7 @@ describe('PlayerComponent', () => {
     showPlayer: vi.fn(),
     hidePlayer: vi.fn(),
     togglePlay: vi.fn(),
+    setExpanded: vi.fn((expanded: boolean) => playerService.isExpanded.set(expanded)),
     toggleMute: vi.fn(),
     toggleShuffle: vi.fn(),
     toggleRepeat: vi.fn(),
@@ -181,5 +182,43 @@ describe('PlayerComponent', () => {
     expect(info).toHaveBeenCalledWith('Playlist API needed');
 
     component.ngOnDestroy();
+  });
+
+  it('opens and dismisses the expanded mobile player', () => {
+    vi.useFakeTimers();
+    const originalMatchMedia = window.matchMedia;
+    Object.defineProperty(window, 'matchMedia', {
+      writable: true,
+      value: vi.fn().mockReturnValue({ matches: true }),
+    });
+
+    const preventDefault = vi.fn();
+    component.openMobilePlayer({
+      target: document.createElement('div'),
+      preventDefault,
+    } as any);
+    expect(playerService.setExpanded).toHaveBeenCalledWith(true);
+
+    component.onMobileHandlePointerDown({
+      clientY: 100,
+      preventDefault,
+      stopPropagation: vi.fn(),
+    } as any);
+    component.handleMobileSheetPointerMove({
+      clientY: 210,
+      preventDefault,
+    } as any);
+    expect(component.mobileSheetOffset()).toBe(110);
+
+    component.handleMobileSheetPointerUp();
+    expect(component.isMobileSheetClosing()).toBe(true);
+    vi.advanceTimersByTime(340);
+    expect(playerService.setExpanded).toHaveBeenCalledWith(false);
+
+    Object.defineProperty(window, 'matchMedia', {
+      writable: true,
+      value: originalMatchMedia,
+    });
+    vi.useRealTimers();
   });
 });

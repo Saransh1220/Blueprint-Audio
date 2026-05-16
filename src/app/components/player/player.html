@@ -3,6 +3,8 @@
     class="mini-player"
     [class.is-active]="isDockActive()"
     [class.expanded]="playerService.isExpanded()"
+    [class.mobile-closing]="isMobileSheetClosing()"
+    (click)="openMobilePlayer($event)"
   >
     <div class="mob-progress-bar">
       <input
@@ -56,21 +58,21 @@
           <button
             class="mp-ctrl shuffle"
             [class.mode-on]="playerService.shuffleEnabled()"
-            (click)="playerService.toggleShuffle()"
+            (click)="stopBubble($event); playerService.toggleShuffle()"
             title="Shuffle"
           >
             <i class="fa-solid fa-shuffle"></i>
           </button>
           <button
             class="mp-ctrl"
-            (click)="playerService.playPrevious()"
+            (click)="stopBubble($event); playerService.playPrevious()"
             [disabled]="!playerService.hasPrevious()"
           >
             <i class="fa-solid fa-backward-step"></i>
           </button>
           <button
             class="mp-ctrl play"
-            (click)="playerService.togglePlay()"
+            (click)="stopBubble($event); playerService.togglePlay()"
             aria-label="Play or pause"
           >
             @if (playerService.isPlaying()) {
@@ -81,7 +83,7 @@
           </button>
           <button
             class="mp-ctrl"
-            (click)="playerService.playNext()"
+            (click)="stopBubble($event); playerService.playNext()"
             [disabled]="!playerService.hasNext()"
           >
             <i class="fa-solid fa-forward-step"></i>
@@ -89,7 +91,7 @@
           <button
             class="mp-ctrl repeat"
             [class.mode-on]="playerService.repeatEnabled()"
-            (click)="playerService.toggleRepeat()"
+            (click)="stopBubble($event); playerService.toggleRepeat()"
             title="Repeat"
           >
             <i class="fa-solid fa-repeat"></i>
@@ -365,6 +367,215 @@
               >
                 <i class="fa-solid fa-xmark"></i>
               </span>
+            </button>
+          }
+        </div>
+      </div>
+    </div>
+
+    <div
+      class="mobile-player-sheet"
+      [class.dragging]="isMobileSheetDragging()"
+      [style.transform]="mobileSheetTransform()"
+      [style.--mobile-deep]="mobilePalette().deep"
+      [style.--mobile-mid]="mobilePalette().mid"
+      [style.--mobile-accent]="mobilePalette().accent"
+      role="dialog"
+      aria-modal="true"
+      aria-label="Now playing"
+    >
+      <div class="mobile-sheet-bg" [style.background-image]="'url(' + track.imageUrl + ')'"></div>
+
+      <div class="mobile-sheet-top">
+        <button
+          class="mobile-top-action mobile-collapse"
+          (click)="closeExpandedPlayer($event)"
+          aria-label="Collapse player"
+        >
+          <i class="fa-solid fa-chevron-down"></i>
+        </button>
+        <button
+          class="mobile-grip"
+          (pointerdown)="onMobileHandlePointerDown($event)"
+          (click)="closeExpandedPlayer($event)"
+          aria-label="Collapse player"
+        >
+          <span></span>
+        </button>
+        <button class="mobile-top-action" (click)="toggleMenu($event)" aria-label="More options">
+          <i class="fa-solid fa-ellipsis"></i>
+        </button>
+
+        <div class="mobile-menu" [class.open]="isMenuOpen()" (click)="stopBubble($event)">
+          <div class="mp-menu-header">Now playing</div>
+          @if (track.freeMp3Enabled) {
+            <button class="mp-menu-item" (click)="downloadFreeMp3($event, track)">
+              <i class="fa-solid fa-download"></i>
+              Download preview
+              <span class="shortcut">MP3</span>
+            </button>
+          }
+          <button
+            class="mp-menu-item"
+            (click)="notifyApiNeeded('Playlist API needed for this action', $event)"
+          >
+            <i class="fa-solid fa-plus"></i>
+            Add to playlist
+          </button>
+          <button class="mp-menu-item" (click)="shareBeat($event)">
+            <i class="fa-solid fa-share-nodes"></i>
+            Share beat
+          </button>
+          <button class="mp-menu-item" (click)="copyBeatLink($event)">
+            <i class="fa-regular fa-copy"></i>
+            Copy beat link
+          </button>
+          <div class="mp-menu-divider"></div>
+          <button class="mp-menu-item" (click)="openBeatPage($event)">
+            <i class="fa-solid fa-arrow-up-right-from-square"></i>
+            Open beat page
+          </button>
+          <button class="mp-menu-item" (click)="openProducerProfile($event)">
+            <i class="fa-regular fa-user"></i>
+            View producer profile
+          </button>
+        </div>
+      </div>
+
+      <div class="mobile-now-playing">Now playing</div>
+
+      <div class="mobile-cover-wrap">
+        <img class="mobile-cover" [src]="track.imageUrl" [alt]="track.title" />
+      </div>
+
+      <div class="mobile-track-main">
+        <div class="mobile-title-row">
+          <div class="mobile-title-block">
+            <h2>{{ track.title }}</h2>
+            <p>prod. {{ track.producerName || 'Unknown producer' }}</p>
+          </div>
+        </div>
+
+        <div class="mobile-meta-row">
+          <div class="mobile-tags">
+            @for (genre of displayGenres(); track genre.id) {
+              <span>{{ genre.name }}</span>
+            }
+            <span>{{ track.bpm }} BPM</span>
+            <span>{{ formatPanelKey(track.key).root }} {{ formatPanelKey(track.key).mode }}</span>
+          </div>
+          <button
+            class="mobile-heart"
+            [class.saved]="track.analytics?.isFavorited"
+            (click)="toggleFavorite($event, track)"
+            [disabled]="isFavoriting()"
+            aria-label="Save to wishlist"
+          >
+            <i
+              [class]="track.analytics?.isFavorited ? 'fa-solid fa-heart' : 'fa-regular fa-heart'"
+            ></i>
+          </button>
+        </div>
+      </div>
+
+      <div class="mobile-seek">
+        <div class="mobile-seek-bar">
+          <div class="mobile-seek-fill" [style.width.%]="progress() * 100"></div>
+          <input
+            type="range"
+            min="0"
+            max="1"
+            step="0.001"
+            [value]="progress()"
+            (input)="onSeekSlider($event)"
+            aria-label="Seek player"
+          />
+        </div>
+        <div class="mobile-time-row">
+          <span>{{ playerService.currentTimeFormatted() }}</span>
+          <span>{{ playerService.durationFormatted() }}</span>
+        </div>
+      </div>
+
+      <div class="mobile-controls">
+        <button
+          class="mobile-mode"
+          [class.mode-on]="playerService.shuffleEnabled()"
+          (click)="playerService.toggleShuffle()"
+          aria-label="Shuffle"
+        >
+          <i class="fa-solid fa-shuffle"></i>
+        </button>
+        <button
+          class="mobile-skip"
+          (click)="playerService.playPrevious()"
+          [disabled]="!playerService.hasPrevious()"
+          aria-label="Previous"
+        >
+          <i class="fa-solid fa-backward-step"></i>
+        </button>
+        <button class="mobile-play" (click)="playerService.togglePlay()" aria-label="Play or pause">
+          @if (playerService.isPlaying()) {
+            <i class="fa-solid fa-pause"></i>
+          } @else {
+            <i class="fa-solid fa-play"></i>
+          }
+        </button>
+        <button
+          class="mobile-skip"
+          (click)="playerService.playNext()"
+          [disabled]="!playerService.hasNext()"
+          aria-label="Next"
+        >
+          <i class="fa-solid fa-forward-step"></i>
+        </button>
+        <button
+          class="mobile-mode"
+          [class.mode-on]="playerService.repeatEnabled()"
+          (click)="playerService.toggleRepeat()"
+          aria-label="Repeat"
+        >
+          <i class="fa-solid fa-repeat"></i>
+        </button>
+      </div>
+
+      <div class="mobile-actions">
+        <button class="mobile-buy" (click)="addToCart($event)">
+          <i class="fa-solid fa-cart-shopping"></i>
+          Buy from ${{ minimumLicensePrice() }}
+        </button>
+        <button class="mobile-action-icon" (click)="shareBeat($event)" aria-label="Share beat">
+          <i class="fa-solid fa-share-nodes"></i>
+        </button>
+        @if (track.freeMp3Enabled) {
+          <button
+            class="mobile-action-icon"
+            (click)="downloadFreeMp3($event, track)"
+            aria-label="Download preview"
+          >
+            <i class="fa-solid fa-download"></i>
+          </button>
+        }
+      </div>
+
+      <div class="mobile-up-next">
+        <div class="mobile-section-head">
+          <span>Up next</span>
+          <button (click)="playerService.clearQueue()">Clear</button>
+        </div>
+        <div class="mobile-queue-list">
+          @for (item of queueItems().slice(0, 4); track item.track.id) {
+            <button
+              class="mobile-queue-item"
+              [class.now-playing]="item.isActive"
+              (click)="playerService.playTrackAt(item.index)"
+            >
+              <img [src]="item.track.imageUrl" [alt]="item.track.title" />
+              <span>
+                <strong>{{ item.track.title }}</strong>
+                <em>{{ item.track.producerName || 'Unknown producer' }}</em>
+              </span>
+              <small>{{ formatDuration(item.track.duration) }}</small>
             </button>
           }
         </div>
