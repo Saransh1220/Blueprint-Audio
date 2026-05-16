@@ -307,7 +307,7 @@
 
 .market-row.playing .lr-title-link,
 .list-row.playing .lr-title-link {
-  color: var(--ink);
+  color: var(--cream);
 }
 
 .lr-prod,
@@ -328,7 +328,7 @@
 .list-row.playing .lr-cell,
 .list-row.playing .stat-m,
 .list-row.playing .lr-price {
-  color: var(--ink);
+  color: var(--cream);
   opacity: 0.72;
 }
 
@@ -833,7 +833,7 @@
   .list-row.playing .mobile-track-title,
   .list-row.playing .lr-title,
   .list-row.playing .lr-title-link {
-    color: #fff6e6 !important;
+    color: var(--cream) !important;
   }
 
   .market-row.playing .row-title-block .p,
@@ -844,8 +844,8 @@
   .list-row.playing .lr-prod,
   .list-row.playing .lr-cell,
   .list-row.playing .stat-m {
-    color: rgba(255, 246, 230, 0.72) !important;
-    opacity: 1;
+    color: var(--cream) !important;
+    opacity: 0.72;
   }
 
   .market-row.playing .purchase-pill,

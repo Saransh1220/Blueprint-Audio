@@ -11,47 +11,47 @@
       <a class="hero-cta" routerLink="/explore">Explore beats</a>
       <a class="hero-link" routerLink="/upload">Sell your beats</a>
     </div>
+  </div>
 
-    <div class="beat-stage gs-reveal" aria-label="Featured beats">
-      <div class="beat-shadow" aria-hidden="true"></div>
+  <div class="beat-stage gs-reveal" aria-label="Featured beats">
+    <div class="beat-shadow" aria-hidden="true"></div>
 
-      @if (isLoading()) {
-        @for (layout of cardLayouts; track $index) {
-          <div
-            class="beat-card beat-card-skeleton"
-            aria-hidden="true"
-            [style.--tilt]="layout.tilt + 'deg'"
-            [style.--lift]="layout.lift + 'px'"
-            [style.--index]="$index"
-          ></div>
-        }
-      } @else {
-        @for (card of beatCards(); track card.id; let index = $index) {
-          <a
-            [class]="'beat-card ' + card.className"
-            [routerLink]="['/', card.shortCode || card.id]"
-            [attr.aria-label]="'Open ' + card.title + ' by ' + card.producer"
-            [style.--tilt]="card.tilt + 'deg'"
-            [style.--lift]="card.lift + 'px'"
-            [style.--index]="index"
-          >
-            <div class="cover-art" [style.background-image]="'url(' + card.imageUrl + ')'">
-              <span class="beat-tag">{{ card.genre }}</span>
-              <span class="cover-mark">#{{ index + 1 }}</span>
-            </div>
-            <div class="beat-info">
-              <div>
-                <h2>{{ card.title }}</h2>
-                <p>prod. {{ card.producer }}</p>
-              </div>
-            </div>
-            <div class="beat-meta">
-              <span>{{ card.meta }}</span>
-              <strong>{{ card.price }}</strong>
-            </div>
-          </a>
-        }
+    @if (isLoading()) {
+      @for (layout of cardLayouts; track $index) {
+        <div
+          class="beat-card beat-card-skeleton"
+          aria-hidden="true"
+          [style.--tilt]="layout.tilt + 'deg'"
+          [style.--lift]="layout.lift + 'px'"
+          [style.--index]="$index"
+        ></div>
       }
-    </div>
+    } @else {
+      @for (card of beatCards(); track card.id; let index = $index) {
+        <a
+          [class]="'beat-card ' + card.className"
+          [routerLink]="['/', card.shortCode || card.id]"
+          [attr.aria-label]="'Open ' + card.title + ' by ' + card.producer"
+          [style.--tilt]="card.tilt + 'deg'"
+          [style.--lift]="card.lift + 'px'"
+          [style.--index]="index"
+        >
+          <div class="cover-art" [style.background-image]="'url(' + card.imageUrl + ')'">
+            <span class="beat-tag">{{ card.genre }}</span>
+            <span class="cover-mark">#{{ index + 1 }}</span>
+          </div>
+          <div class="beat-info">
+            <div>
+              <h2>{{ card.title }}</h2>
+              <p>prod. {{ card.producer }}</p>
+            </div>
+          </div>
+          <div class="beat-meta">
+            <span>{{ card.meta }}</span>
+            <strong>{{ card.price }}</strong>
+          </div>
+        </a>
+      }
+    }
   </div>
 </section>
