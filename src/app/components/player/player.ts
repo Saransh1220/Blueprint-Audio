@@ -543,80 +543,124 @@ export class PlayerComponent implements OnDestroy {
 
   private updateMobilePalette(track: Spec | null) {
     if (!track?.imageUrl || typeof Image === 'undefined' || typeof document === 'undefined') {
-      this.mobilePalette.set({ deep: '#11100d', mid: '#4f4739', accent: '#ff3d5a' });
+      this.mobilePalette.set(this.defaultMobilePalette());
       return;
     }
 
     const imageUrl = track.imageUrl;
-    const fallbackPalette = this.paletteFromTrack(track);
-    const img = new Image();
-    img.crossOrigin = 'anonymous';
+    const fallbackPalette = this.defaultMobilePalette();
+    this.mobilePalette.set(fallbackPalette);
 
-    img.onload = () => {
-      if (this.playerService.currentTrack()?.imageUrl !== imageUrl) return;
+    void this.loadPaletteImage(imageUrl)
+      .then(({ image, cleanup }) => {
+        try {
+          if (this.playerService.currentTrack()?.imageUrl !== imageUrl) return;
+          this.mobilePalette.set(this.extractPalette(image));
+        } finally {
+          cleanup();
+        }
+      })
+      .catch(() => {
+        if (this.playerService.currentTrack()?.imageUrl === imageUrl) {
+          this.mobilePalette.set(fallbackPalette);
+        }
+      });
+  }
 
+  private async loadPaletteImage(
+    imageUrl: string,
+  ): Promise<{ image: HTMLImageElement; cleanup: () => void }> {
+    if (typeof fetch === 'function' && typeof URL !== 'undefined' && !/^(data:|blob:)/i.test(imageUrl)) {
       try {
-        const canvas = document.createElement('canvas');
-        const size = 36;
-        canvas.width = size;
-        canvas.height = size;
-        const ctx = canvas.getContext('2d', { willReadFrequently: true });
-        if (!ctx) return;
+        const response = await fetch(imageUrl, {
+          mode: 'cors',
+          cache: 'reload',
+          credentials: 'omit',
+        });
 
-        ctx.drawImage(img, 0, 0, size, size);
-        const { data } = ctx.getImageData(0, 0, size, size);
-        let r = 0;
-        let g = 0;
-        let b = 0;
-        let accentR = 0;
-        let accentG = 0;
-        let accentB = 0;
-        let accentScore = -1;
-        let count = 0;
-
-        for (let i = 0; i < data.length; i += 16) {
-          const pr = data[i];
-          const pg = data[i + 1];
-          const pb = data[i + 2];
-          const max = Math.max(pr, pg, pb);
-          const min = Math.min(pr, pg, pb);
-          const saturation = max - min;
-          const luma = 0.2126 * pr + 0.7152 * pg + 0.0722 * pb;
-          const score = saturation * 1.35 + luma * 0.24;
-
-          r += pr;
-          g += pg;
-          b += pb;
-          count++;
-
-          if (score > accentScore && luma > 34) {
-            accentScore = score;
-            accentR = pr;
-            accentG = pg;
-            accentB = pb;
-          }
+        if (!response.ok) {
+          throw new Error(`Failed to fetch image: ${response.status}`);
         }
 
-        const avgR = r / count;
-        const avgG = g / count;
-        const avgB = b / count;
-        this.mobilePalette.set({
-          deep: this.rgbString(avgR * 0.24, avgG * 0.24, avgB * 0.24),
-          mid: this.rgbString(avgR * 0.9 + 18, avgG * 0.9 + 18, avgB * 0.9 + 18),
-          accent: this.rgbString(accentR * 1.08 + 12, accentG * 1.08 + 12, accentB * 1.08 + 12),
-        });
+        const objectUrl = URL.createObjectURL(await response.blob());
+        return {
+          image: await this.loadImageElement(objectUrl, false),
+          cleanup: () => URL.revokeObjectURL(objectUrl),
+        };
       } catch {
-        this.mobilePalette.set(fallbackPalette);
+        // Fall through to the browser image loader. This keeps desktop behavior intact
+        // when a CDN rejects CORS fetches but normal anonymous image loads still work.
       }
-    };
+    }
 
-    img.onerror = () => {
-      if (this.playerService.currentTrack()?.imageUrl === imageUrl) {
-        this.mobilePalette.set(fallbackPalette);
+    return {
+      image: await this.loadImageElement(imageUrl, true),
+      cleanup: () => undefined,
+    };
+  }
+
+  private loadImageElement(imageUrl: string, useAnonymousCors: boolean) {
+    return new Promise<HTMLImageElement>((resolve, reject) => {
+      const img = new Image();
+      if (useAnonymousCors) {
+        img.crossOrigin = 'anonymous';
       }
-    };
+      img.onload = () => resolve(img);
+      img.onerror = () => reject(new Error('Failed to load image'));
+      img.src = imageUrl;
+    });
+  }
 
-    img.src = imageUrl;
+  private extractPalette(img: HTMLImageElement) {
+    const canvas = document.createElement('canvas');
+    const size = 36;
+    canvas.width = size;
+    canvas.height = size;
+    const ctx = canvas.getContext('2d', { willReadFrequently: true });
+    if (!ctx) return this.defaultMobilePalette();
+
+    ctx.drawImage(img, 0, 0, size, size);
+    const { data } = ctx.getImageData(0, 0, size, size);
+    let r = 0;
+    let g = 0;
+    let b = 0;
+    let accentR = 0;
+    let accentG = 0;
+    let accentB = 0;
+    let accentScore = -1;
+    let count = 0;
+
+    for (let i = 0; i < data.length; i += 16) {
+      const pr = data[i];
+      const pg = data[i + 1];
+      const pb = data[i + 2];
+      const max = Math.max(pr, pg, pb);
+      const min = Math.min(pr, pg, pb);
+      const saturation = max - min;
+      const luma = 0.2126 * pr + 0.7152 * pg + 0.0722 * pb;
+      const score = saturation * 1.35 + luma * 0.24;
+
+      r += pr;
+      g += pg;
+      b += pb;
+      count++;
+
+      if (score > accentScore && luma > 34) {
+        accentScore = score;
+        accentR = pr;
+        accentG = pg;
+        accentB = pb;
+      }
+    }
+
+    const avgR = r / count;
+    const avgG = g / count;
+    const avgB = b / count;
+    return {
+      deep: this.rgbString(avgR * 0.24, avgG * 0.24, avgB * 0.24),
+      mid: this.rgbString(avgR * 0.9 + 18, avgG * 0.9 + 18, avgB * 0.9 + 18),
+      accent: this.rgbString(accentR * 1.08 + 12, accentG * 1.08 + 12, accentB * 1.08 + 12),
+    };
   }
 
   private rgbString(r: number, g: number, b: number) {
@@ -624,20 +668,11 @@ export class PlayerComponent implements OnDestroy {
     return `rgb(${clamp(r)}, ${clamp(g)}, ${clamp(b)})`;
   }
 
-  private paletteFromTrack(track: Spec) {
-    const source = `${track.title}|${track.imageUrl}|${track.id}`;
-    let hash = 0;
-    for (let i = 0; i < source.length; i++) {
-      hash = (hash * 31 + source.charCodeAt(i)) >>> 0;
-    }
-
-    const hue = hash % 360;
-    const accentHue = (hue + 26) % 360;
-
+  private defaultMobilePalette() {
     return {
-      deep: `hsl(${hue} 28% 8%)`,
-      mid: `hsl(${hue} 24% 25%)`,
-      accent: `hsl(${accentHue} 82% 58%)`,
+      deep: '#0c0c0c',
+      mid: '#2a2926',
+      accent: '#f0e9d6',
     };
   }
 }
