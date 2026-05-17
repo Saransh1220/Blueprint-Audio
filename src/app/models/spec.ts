@@ -37,6 +37,7 @@ export interface Spec {
   id: string;
   producerId: string;
   producerName: string;
+  producerAvatarUrl?: string;
   type: string;
   category: 'beat' | 'sample';
   imageUrl: string;

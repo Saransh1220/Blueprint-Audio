@@ -1,4 +1,4 @@
-<main class="beat-page" *ngIf="spec() as s; else notFound">
+<div class="beat-page" *ngIf="spec() as s; else notFound">
   <div class="top-ticker">
     <div class="ticker-track">
       @for (item of tickerItems; track item) {
@@ -12,338 +12,517 @@
 
   <div class="breadcrumb-bar">
     <a routerLink="/">Home</a>
-    <span class="sep">/</span>
+    <span class="crumb-sep">/</span>
     <a routerLink="/explore">Explore</a>
-    <span class="sep">/</span>
-    <span class="here">{{ s.title }}</span>
-    <span class="spacer"></span>
-    <div class="nav-btns">
-      <a class="nav-btn" routerLink="/explore">Back to rack</a>
-    </div>
+    <span class="crumb-sep">/</span>
+    <span class="crumb-current">{{ s.title }}</span>
   </div>
 
-  <section class="beat-hero">
-    <div class="hero-left">
-      <div class="eyebrow">
-        <span class="live-dot"></span>
-        {{ primaryGenre() }}
-        <em>live in catalog</em>
+  <main class="spec-main">
+    <section class="hero-grid desktop-flow">
+      <div class="beat-card-wrap">
+        <article class="beat-card">
+          <div class="bc-art">
+            <img [src]="s.imageUrl" [alt]="s.title" />
+            <span class="live-sticker">Live</span>
+            <span class="drop-tag">{{ s.bpm }} <em>bpm</em></span>
+            <button class="art-play" (click)="playSpec()" aria-label="Play {{ s.title }}">
+              <i class="fa-solid fa-play"></i>
+            </button>
+          </div>
+
+          <div class="bc-body">
+            <div class="bc-eyebrow"><span class="dot"></span>{{ primaryGenre() }}</div>
+            <h1 class="bc-title">
+              {{ getStyledBeatTitle(s.title).lead }}
+              <em *ngIf="getStyledBeatTitle(s.title).accent">{{
+                getStyledBeatTitle(s.title).accent
+              }}</em>
+            </h1>
+
+            <a class="bc-producer" href="#producer">
+              <span class="pa">{{ s.producerName.charAt(0) }}</span>
+              <span class="pn">
+                {{ s.producerName }}
+                <span class="verified"><i class="fa-solid fa-check"></i></span>
+              </span>
+            </a>
+
+            <div
+              class="bc-wave"
+              (click)="seekWaveform($event)"
+              [style.--wave-progress]="waveformProgress()"
+            >
+              <span
+                class="b"
+                *ngFor="let height of waveformBars(); let i = index"
+                [class.played]="i < waveformPlayheadIndex()"
+                [class.cur]="i === waveformPlayheadIndex()"
+                [style.height.%]="height"
+              ></span>
+            </div>
+            <div class="bc-wave-time">
+              <span>{{ formatDuration(waveformCurrentTime()) }}</span>
+              <em>{{ waveformDuration() ? formatDuration(waveformDuration()) : '0:00' }}</em>
+            </div>
+
+            <div class="bc-specs">
+              <div class="bc-spec accent">
+                <div class="lbl">Key</div>
+                <div class="val">{{ s.key }}</div>
+              </div>
+              <div class="bc-spec">
+                <div class="lbl">Tempo</div>
+                <div class="val">{{ s.bpm }} <em>bpm</em></div>
+              </div>
+              <div class="bc-spec">
+                <div class="lbl">Genre</div>
+                <div class="val">{{ primaryGenre() }}</div>
+              </div>
+              <div class="bc-spec">
+                <div class="lbl">Length</div>
+                <div class="val">{{ s.duration ? formatDuration(s.duration) : '2:41' }}</div>
+              </div>
+            </div>
+
+            <div class="bc-stats">
+              <div class="bc-stat">
+                <span class="lbl">Plays</span>
+                <span class="val">{{ formatCompactCount(s.analytics?.playCount ?? 0) }}</span>
+              </div>
+              <div class="bc-stat">
+                <span class="lbl">Likes</span>
+                <span class="val">{{ formatCompactCount(s.analytics?.favoriteCount ?? 0) }}</span>
+              </div>
+              <div class="bc-stat">
+                <span class="lbl">From</span>
+                <span class="val">{{
+                  displayPrice() | currency: currencyCode : 'symbol' : '1.0-0'
+                }}</span>
+              </div>
+            </div>
+
+            <div class="bc-actions">
+              <button class="bc-act" (click)="playSpec()">
+                <i class="fa-solid fa-play"></i>
+                Play
+              </button>
+              <button
+                class="bc-act"
+                [class.liked]="s.analytics?.isFavorited"
+                (click)="toggleFavorite()"
+                [disabled]="isFavoriting()"
+              >
+                <i
+                  [class]="s.analytics?.isFavorited ? 'fa-solid fa-heart' : 'fa-regular fa-heart'"
+                ></i>
+                Like
+              </button>
+              <button class="bc-act" *ngIf="s.freeMp3Enabled" (click)="downloadFreeMp3()">
+                <i class="fa-solid fa-download"></i>
+                MP3
+              </button>
+              <a class="bc-act" routerLink="/explore">
+                <i class="fa-solid fa-arrow-left"></i>
+                Rack
+              </a>
+            </div>
+          </div>
+        </article>
       </div>
 
-      <h1 class="beat-title">
-        {{ getStyledBeatTitle(s.title).lead }}
-        <em *ngIf="getStyledBeatTitle(s.title).accent">{{ getStyledBeatTitle(s.title).accent }}</em>
-      </h1>
+      <div class="lic-panel">
+        <div class="lp-header">
+          <div>
+            <div class="lp-h-eyebrow"><span class="dot"></span> Step 01 - pick a license</div>
+            <h2 class="lp-h-title">choose your <em>rights</em>.</h2>
+          </div>
+          <div class="lp-h-aside">
+            <a class="lp-h-help" href="" (click)="$event.preventDefault()">Compare terms</a>
+          </div>
+        </div>
 
-      <div class="by-line">
-        prod.
-        <span>{{ s.producerName }}</span>
-        <span class="verified">✓</span>
+        <div class="lic-tiers" *ngIf="s.licenses.length > 0; else noLicenses">
+          <article
+            class="lic-tier"
+            *ngFor="let license of s.licenses; let i = index"
+            [attr.data-num]="i + 1"
+            [class.selected]="selectedLicense()?.id === license.id"
+            (click)="selectLicense(license)"
+          >
+            <div class="lt-top">
+              <span class="lt-radio"></span>
+              <span
+                class="lt-flag"
+                [class.popular]="getLicenseVariant(license, i, s.licenses.length) === 'popular'"
+                [class.exclusive]="getLicenseVariant(license, i, s.licenses.length) === 'exclusive'"
+                [class.starter]="getLicenseVariant(license, i, s.licenses.length) === 'standard'"
+                [class.pro]="
+                  getLicenseVariant(license, i, s.licenses.length) !== 'standard' &&
+                  getLicenseVariant(license, i, s.licenses.length) !== 'popular' &&
+                  getLicenseVariant(license, i, s.licenses.length) !== 'exclusive'
+                "
+              >
+                {{ getLicenseVariant(license, i, s.licenses.length) }}
+              </span>
+            </div>
+
+            <h3 class="lt-name">
+              {{ license.name }} <em>{{ getLicenseFormatLabel(license) }}</em>
+            </h3>
+            <p class="lt-tagline">{{ getLicenseSubtitle(license, i, s.licenses.length) }}</p>
+
+            <div class="lt-price-block">
+              <span class="currency">{{
+                license.price | currency: currencyCode : 'symbol' : '1.0-0'
+              }}</span>
+              <span class="term">one-time</span>
+            </div>
+
+            <ul class="lt-feat">
+              <li
+                *ngFor="let feature of getLicenseFeatureRows(license, i, s.licenses.length)"
+                [class.no]="feature.muted"
+              >
+                <i
+                  class="fa-solid"
+                  [class.fa-check]="!feature.muted"
+                  [class.fa-xmark]="feature.muted"
+                ></i>
+                <span>{{ feature.text }}</span>
+              </li>
+            </ul>
+
+            <span class="lt-cta">
+              {{ selectedLicense()?.id === license.id ? 'Selected' : 'Select license' }}
+              <i class="fa-solid fa-arrow-right"></i>
+            </span>
+          </article>
+        </div>
+
+        <ng-template #noLicenses>
+          <div class="empty-licenses">No licenses available for this beat yet.</div>
+        </ng-template>
+
+        <div class="lic-summary" *ngIf="selectedLicense() as license">
+          <div class="ls-left">
+            <span class="ls-eyebrow">Selected license</span>
+            <div class="ls-line">
+              <span class="lic-name">{{ license.name }}</span>
+              <em>{{ getLicenseFormatLabel(license) }}</em>
+            </div>
+          </div>
+          <div class="ls-right">
+            <div class="ls-price">
+              {{ license.price | currency: currencyCode : 'symbol' : '1.0-0' }}
+            </div>
+            <button class="ls-cta" (click)="addSelectedLicenseToCart()">
+              Add to cart
+              <i class="fa-solid fa-cart-shopping"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="mobile-flow">
+      <div class="mobile-track-path">
+        <span>{{ primaryGenre() }}</span>
+        <i class="fa-solid fa-chevron-right"></i>
+        <strong>{{ s.title }}</strong>
       </div>
 
-      <div class="tag-row">
-        <span class="tr-tag genre">{{ primaryGenre() }}</span>
-        <span class="tr-tag" *ngFor="let tag of s.tags.slice(0, 3)">#{{ tag }}</span>
-        <span class="tr-tag new" *ngIf="s.freeMp3Enabled">Free MP3</span>
-      </div>
-
-      <div class="stat-strip">
-        <div class="ss-cell">
-          <div class="lbl">Tempo</div>
-          <div class="val">{{ s.bpm }} <em>bpm</em></div>
-        </div>
-        <div class="ss-cell">
-          <div class="lbl">Key</div>
-          <div class="val">{{ s.key }}</div>
-        </div>
-        <div class="ss-cell" *ngIf="s.duration">
-          <div class="lbl">Length</div>
-          <div class="val">{{ formatDuration(s.duration) }}</div>
-        </div>
-        <div class="ss-cell" *ngIf="!s.duration">
-          <div class="lbl">Format</div>
-          <div class="val">{{ s.category }}</div>
-        </div>
-        <div class="ss-cell">
-          <div class="lbl">Starting at</div>
-          <div class="val">{{ s.price | currency: currencyCode : 'symbol' : '1.0-0' }}</div>
-        </div>
-      </div>
-
-      <div class="beat-desc">
-        <span class="lead"> Built for writers who want atmosphere first, then impact. </span>
-        {{ s.title }} sits in that late-night pocket: focused drums, open space, and enough
-        character to spark a topline fast. The current license pick updates the price and files
-        below without changing your existing cart flow.
-      </div>
-
-      <div class="hero-actions">
-        <button
-          class="action-btn primary"
-          (click)="addSelectedLicenseToCart()"
-          [disabled]="!selectedLicense()"
-        >
-          <span>Add {{ selectedLicense()?.name ?? 'license' }}</span>
-          <strong>{{ displayPrice() | currency: currencyCode : 'symbol' : '1.0-0' }}</strong>
-        </button>
-        <button class="action-btn ghost" (click)="playSpec()">
+      <div class="mobile-art-stage">
+        <img [src]="s.imageUrl" [alt]="s.title" />
+        <button class="mobile-play" (click)="playSpec()" aria-label="Play {{ s.title }}">
           <i class="fa-solid fa-play"></i>
-          Preview
         </button>
+      </div>
+
+      <div class="mobile-actions">
         <button
-          class="action-btn ghost icon-only"
+          type="button"
+          class="mobile-icon-action"
           [class.active]="s.analytics?.isFavorited"
           (click)="toggleFavorite()"
           [disabled]="isFavoriting()"
-          aria-label="Favorite beat"
+          aria-label="Like beat"
         >
           <i [class]="s.analytics?.isFavorited ? 'fa-solid fa-heart' : 'fa-regular fa-heart'"></i>
+          <span>{{ formatCompactCount(s.analytics?.favoriteCount ?? 0) }}</span>
         </button>
-        <button *ngIf="s.freeMp3Enabled" class="action-btn ghost" (click)="downloadFreeMp3()">
+        <button
+          type="button"
+          class="mobile-icon-action"
+          (click)="playSpec()"
+          aria-label="Preview beat"
+        >
+          <i class="fa-solid fa-play"></i>
+        </button>
+        <button
+          type="button"
+          class="mobile-icon-action"
+          *ngIf="s.freeMp3Enabled"
+          (click)="downloadFreeMp3()"
+          aria-label="Download free MP3"
+        >
           <i class="fa-solid fa-download"></i>
-          Free MP3
         </button>
-      </div>
-    </div>
-
-    <div class="hero-right">
-      <div class="artwork">
-        <img [src]="s.imageUrl" [alt]="s.title" />
-        <div class="artwork-badge">{{ primaryGenre() }}</div>
-        <div class="artwork-sticker">{{ s.bpm }} bpm</div>
+        <a class="mobile-icon-action" routerLink="/explore" aria-label="Back to explore">
+          <i class="fa-solid fa-arrow-left"></i>
+        </a>
       </div>
 
-      <div class="player-module">
-        <div class="player-top">
-          <span class="preview-tag">Preview mode</span>
-          <span class="timer">{{ s.duration ? formatDuration(s.duration) : '2:41' }}</span>
+      <button
+        class="mobile-price-pill"
+        type="button"
+        (click)="addSelectedLicenseToCart()"
+        [disabled]="!selectedLicense()"
+      >
+        <i class="fa-solid fa-cart-shopping"></i>
+        <span>{{ displayPrice() | currency: currencyCode : 'symbol' : '1.0-0' }}</span>
+        <em>{{ selectedLicense()?.name || 'License' }}</em>
+      </button>
+
+      <section class="mobile-info">
+        <div class="mobile-kicker">
+          <span>{{ primaryGenre() }}</span>
+          <span>{{ s.bpm }} BPM</span>
+        </div>
+        <h1>
+          {{ getStyledBeatTitle(s.title).lead }}
+          <em *ngIf="getStyledBeatTitle(s.title).accent">{{
+            getStyledBeatTitle(s.title).accent
+          }}</em>
+        </h1>
+        <div class="mobile-producer">
+          <span class="mobile-producer-avatar">{{ s.producerName.charAt(0) }}</span>
+          <span>prod. {{ s.producerName }}</span>
+          <i class="fa-solid fa-circle-check"></i>
         </div>
 
-        <div class="waveform" (click)="playSpec()">
+        <div
+          class="mobile-wave"
+          (click)="seekWaveform($event)"
+          [style.--wave-progress]="waveformProgress()"
+        >
           <span
-            class="bar"
-            *ngFor="let height of waveformBars; let i = index"
-            [class.played]="i < 20"
+            *ngFor="let height of waveformBars(); let i = index"
+            [class.played]="i < waveformPlayheadIndex()"
+            [class.cur]="i === waveformPlayheadIndex()"
             [style.height.%]="height"
           ></span>
         </div>
-
-        <div class="player-times">
-          <span>0:00</span>
-          <span>{{ s.duration ? formatDuration(s.duration) : '2:41' }}</span>
+        <div class="mobile-wave-time">
+          <span>{{ formatDuration(waveformCurrentTime()) }}</span>
+          <em>{{ waveformDuration() ? formatDuration(waveformDuration()) : '0:00' }}</em>
         </div>
 
-        <div class="player-controls">
-          <button class="player-ctrl" aria-label="Previous">
-            <i class="fa-solid fa-backward-step"></i>
-          </button>
-          <button class="player-ctrl play" (click)="playSpec()" aria-label="Play beat">
-            <i class="fa-solid fa-play"></i>
-          </button>
-          <button class="player-ctrl" aria-label="Next">
-            <i class="fa-solid fa-forward-step"></i>
-          </button>
-
-          <div class="player-extras">
-            <span class="pill on">{{ s.analytics?.playCount ?? 0 }} plays</span>
-            <span class="pill">{{ s.analytics?.favoriteCount ?? 0 }} likes</span>
-            <span class="pill" *ngIf="selectedLicense()">{{ selectedLicense()!.name }}</span>
+        <div class="mobile-meta-grid">
+          <div>
+            <span>Genre</span>
+            <strong>{{ primaryGenre() }}</strong>
+          </div>
+          <div>
+            <span>BPM</span>
+            <strong>{{ s.bpm }}</strong>
+          </div>
+          <div>
+            <span>Key</span>
+            <strong>{{ s.key }}</strong>
+          </div>
+          <div>
+            <span>Duration</span>
+            <strong>{{ s.duration ? formatDuration(s.duration) : '0:00' }}</strong>
           </div>
         </div>
-      </div>
-    </div>
-  </section>
+      </section>
 
-  <section class="block licenses-block">
-    <div class="section-head">
-      <div>
-        <div class="section-num"><span class="dot"></span> 01 · Licenses</div>
-        <h2 class="section-h">pick the <em>rights</em>.</h2>
-      </div>
-      <p class="head-sub">
-        Same beat, different usage rights. Your selection below still powers the real cart flow.
-      </p>
-    </div>
-
-    <div class="license-grid" *ngIf="s.licenses.length > 0; else noLicenses">
-      <article
-        class="license-card"
-        *ngFor="let license of s.licenses; let i = index"
-        [class.popular]="getLicenseVariant(license, i, s.licenses.length) === 'popular'"
-        [class.exclusive]="getLicenseVariant(license, i, s.licenses.length) === 'exclusive'"
-        [class.selected]="selectedLicense()?.id === license.id"
-        (click)="selectLicense(license)"
-      >
-        <span
-          class="lc-badge"
-          *ngIf="getLicenseVariant(license, i, s.licenses.length) === 'popular'"
+      <section class="mobile-license-strip" *ngIf="s.licenses.length">
+        <button
+          type="button"
+          class="mobile-license-chip"
+          *ngFor="let license of s.licenses"
+          [class.selected]="selectedLicense()?.id === license.id"
+          (click)="selectLicense(license)"
         >
-          ★ Most picked
-        </span>
+          <span>{{ license.name }}</span>
+          <strong>{{ license.price | currency: currencyCode : 'symbol' : '1.0-0' }}</strong>
+          <em>{{ getLicenseFormatLabel(license) }}</em>
+        </button>
+      </section>
 
-        <div class="lc-name">
-          {{ license.name }} <em>{{ getLicenseFormatLabel(license) }}</em>
+      <section class="mobile-related" *ngIf="relatedDisplaySpecs().length">
+        <div class="mobile-section-head">
+          <span>Similar beats</span>
+          <strong>{{ relatedDisplaySpecs().length }}</strong>
         </div>
-        <div class="lc-sub">{{ getLicenseSubtitle(license, i, s.licenses.length) }}</div>
-        <div
-          class="lc-price"
-          [class.exclusive-price]="getLicenseVariant(license, i, s.licenses.length) === 'exclusive'"
-        >
-          <span class="cur">$</span>{{ license.price }}
-          <span class="term">one-time</span>
+        <div class="mobile-related-list">
+          <app-spec-list-item
+            *ngFor="let item of relatedDisplaySpecs(); let i = index"
+            [spec]="item"
+            [priority]="i < 4"
+            appearance="market"
+          ></app-spec-list-item>
         </div>
-        <div class="lc-divider"></div>
-        <ul class="lc-features">
-          <li
-            *ngFor="let feature of getLicenseFeatureRows(license, i, s.licenses.length)"
-            [class.muted]="feature.muted"
-          >
-            <i
-              class="fa-solid"
-              [class.fa-check]="!feature.muted"
-              [class.fa-xmark]="feature.muted"
-            ></i>
-            <span>{{ feature.text }}</span>
-          </li>
-        </ul>
-        <div class="lc-cta">
-          <button class="lc-btn buy" (click)="addLicenseToCart(license); $event.stopPropagation()">
-            {{ getLicenseButtonLabel(license, i, s.licenses.length) }}
-          </button>
-          <button
-            class="lc-btn add"
-            (click)="selectLicense(license); $event.stopPropagation()"
-            aria-label="Select {{ license.name }}"
-          >
-            <i class="fa-solid fa-plus"></i>
-          </button>
+      </section>
+    </section>
+
+    <section class="producer-section desktop-flow" id="producer">
+      <div class="section-head">
+        <div>
+          <div class="sh-eyebrow"><span class="dot"></span> The producer</div>
+          <h2 class="sh-title">
+            made by <em>{{ s.producerName }}</em
+            >.
+          </h2>
+        </div>
+        <a class="sh-link" href="#more">More tracks <i class="fa-solid fa-arrow-right"></i></a>
+      </div>
+
+      <article class="producer-card">
+        <div class="pc-grid">
+          <div class="pc-portrait">
+            <img
+              *ngIf="producerImageUrl(); else producerInitial"
+              [src]="producerImageUrl()"
+              [alt]="s.producerName"
+            />
+            <ng-template #producerInitial>
+              <span class="pc-initial">{{ s.producerName.charAt(0) }}</span>
+            </ng-template>
+          </div>
+          <div>
+            <div class="pc-eyebrow">Producer - Verified - Pro tier</div>
+            <h3 class="pc-name">{{ s.producerName }}</h3>
+            <p class="pc-bio">
+              Slow-burning beats from late-night sessions. Live marketplace data keeps this page
+              tied to the real catalog.
+            </p>
+            <div class="pc-stats">
+              <div class="st">
+                <div class="v">{{ producerStats().beatCount }}</div>
+                <div class="lbl">beats</div>
+              </div>
+              <div class="st">
+                <div class="v">{{ formatCompactCount(producerStats().plays) }}</div>
+                <div class="lbl">plays</div>
+              </div>
+              <div class="st">
+                <div class="v">{{ formatCompactCount(producerStats().likes) }}</div>
+                <div class="lbl">likes</div>
+              </div>
+            </div>
+          </div>
+          <div class="pc-actions">
+            <button class="pc-btn primary" (click)="toggleFavorite()">Follow vibe</button>
+            <a class="pc-btn ghost" routerLink="/explore">Open rack</a>
+          </div>
         </div>
       </article>
-    </div>
+    </section>
 
-    <ng-template #noLicenses>
-      <div class="empty-licenses">No licenses available for this beat yet.</div>
-    </ng-template>
-
-    <div class="license-footnote" *ngIf="s.licenses.length > 0">
-      Not sure which one fits?
-      <a href="" (click)="$event.preventDefault(); selectLicense(s.licenses[0])">
-        Read the full license comparison →
-      </a>
-    </div>
-  </section>
-
-  <section class="block">
-    <div class="section-head">
-      <div>
-        <div class="section-num"><span class="dot"></span> 02 · Deliverables</div>
-        <h2 class="section-h">what's in <em>the box</em>.</h2>
+    <section class="more-section desktop-flow" id="more" *ngIf="producerSpecs().length">
+      <div class="section-head">
+        <div>
+          <div class="sh-eyebrow"><span class="dot"></span> More from this producer</div>
+          <h2 class="sh-title">deeper into <em>the catalog</em>.</h2>
+        </div>
       </div>
-      <p class="head-sub">
-        Every purchase keeps your existing checkout flow, but this section mirrors the reference
-        style and reflects the selected license.
-      </p>
-    </div>
 
-    <div class="included-grid">
-      <article
-        class="included-card"
-        *ngFor="let item of includedItems()"
-        [class.off]="!item.active"
-      >
-        <div
-          class="icon-box"
-          [class.hot]="item.accent === 'hot'"
-          [class.lime]="item.accent === 'lime'"
-          [class.sun]="item.accent === 'sun'"
+      <div class="tracks-grid">
+        <a
+          class="tg-card"
+          *ngFor="let item of producerSpecs().slice(0, 6); let i = index"
+          [routerLink]="['/', item.shortCode || item.id]"
         >
-          <i
-            class="fa-solid"
-            [class.fa-file-waveform]="item.title === 'Master WAV'"
-            [class.fa-layer-group]="item.title === 'Trackouts / Stems'"
-            [class.fa-music]="item.title === 'Tag-free MP3'"
-            [class.fa-file-contract]="item.title === 'License PDF'"
-          ></i>
-        </div>
-        <h4>{{ item.title }}</h4>
-        <p>{{ item.description }}</p>
-        <div class="meta">{{ item.meta }}</div>
-      </article>
-    </div>
-  </section>
-
-  <section class="block">
-    <div class="section-head">
-      <div>
-        <div class="section-num"><span class="dot"></span> 03 · Maker</div>
-        <h2 class="section-h">made by <em>the hand</em>.</h2>
-      </div>
-    </div>
-
-    <div class="producer-card">
-      <div class="pc-avatar">{{ s.producerName.charAt(0) }}</div>
-      <div class="pc-info">
-        <div class="pc-eyebrow">Producer · catalog artist</div>
-        <div class="pc-name">{{ s.producerName }} <em>studio</em></div>
-        <p class="pc-bio">
-          This page keeps your live producer and catalog data, but presents it in the editorial Cult
-          Beats direction. More from this producer and related beats continue to update from the
-          same source below.
-        </p>
-        <div class="pc-stats">
-          <div class="st">{{ producerStats().beatCount }} <span class="lbl">beats</span></div>
-          <div class="st">
-            {{ formatCompactCount(producerStats().plays) }} <span class="lbl">plays</span>
-          </div>
-          <div class="st">
-            {{ formatCompactCount(producerStats().likes) }} <span class="lbl">likes</span>
-          </div>
-        </div>
-      </div>
-      <div class="pc-cta">
-        <button class="action-btn ghost" (click)="toggleFavorite()">Follow vibe</button>
-      </div>
-    </div>
-  </section>
-
-  <section class="block">
-    <div class="section-head">
-      <div>
-        <div class="section-num"><span class="dot"></span> 04 · More like this</div>
-        <h2 class="section-h">if you liked <em>this one</em>.</h2>
-      </div>
-    </div>
-
-    <div class="related-track">
-      <a
-        class="related-card"
-        *ngFor="let item of relatedDisplaySpecs()"
-        [routerLink]="['/', item.shortCode || item.id]"
-      >
-        <div class="rc-art">
-          <img [src]="item.imageUrl" [alt]="item.title" />
-          <button
-            class="rc-play"
-            (click)="trackPlayFor(item, $event)"
-            aria-label="Play {{ item.title }}"
+          <div
+            class="tg-art"
+            [ngClass]="'a' + ((i % 7) + 1)"
+            [attr.data-letter]="item.title.charAt(0)"
           >
-            <i class="fa-solid fa-play"></i>
-          </button>
-        </div>
-        <div class="rc-body">
-          <div class="rc-title">{{ item.title }}</div>
-          <div class="rc-producer">prod. {{ item.producerName }}</div>
-          <div class="rc-footer">
-            <span>{{ item.bpm }} BPM · {{ item.key }}</span>
-            <span class="rc-price">{{
-              item.price | currency: currencyCode : 'symbol' : '1.0-0'
-            }}</span>
+            <img [src]="item.imageUrl" [alt]="item.title" />
+            <span class="tg-corner">{{ item.bpm }} BPM</span>
+            <button
+              class="tg-play"
+              (click)="trackPlayFor(item, $event)"
+              aria-label="Play {{ item.title }}"
+            >
+              <i class="fa-solid fa-play"></i>
+            </button>
           </div>
+          <div class="tg-body">
+            <h3 class="tg-title">
+              {{ getStyledBeatTitle(item.title).lead }}
+              <em *ngIf="getStyledBeatTitle(item.title).accent">{{
+                getStyledBeatTitle(item.title).accent
+              }}</em>
+            </h3>
+            <div class="tg-meta">{{ item.key }} - {{ item.genres[0]?.name || item.category }}</div>
+            <div class="tg-foot">
+              <span class="tg-price">{{
+                item.price | currency: currencyCode : 'symbol' : '1.0-0'
+              }}</span>
+              <span class="tg-stat"
+                ><i class="fa-regular fa-heart"></i>{{ item.analytics?.favoriteCount ?? 0 }}</span
+              >
+            </div>
+          </div>
+        </a>
+      </div>
+    </section>
+
+    <section class="more-section desktop-flow" *ngIf="relatedDisplaySpecs().length">
+      <div class="section-head">
+        <div>
+          <div class="sh-eyebrow"><span class="dot"></span> You might also like</div>
+          <h2 class="sh-title">tracks in the <em>same lane</em>.</h2>
         </div>
-      </a>
-    </div>
-  </section>
-</main>
+      </div>
+
+      <div class="tracks-grid">
+        <a
+          class="tg-card"
+          *ngFor="let item of relatedDisplaySpecs(); let i = index"
+          [routerLink]="['/', item.shortCode || item.id]"
+        >
+          <div
+            class="tg-art"
+            [ngClass]="'a' + (((i + 3) % 7) + 1)"
+            [attr.data-letter]="item.title.charAt(0)"
+          >
+            <img [src]="item.imageUrl" [alt]="item.title" />
+            <span class="tg-corner">{{ item.bpm }} BPM</span>
+            <button
+              class="tg-play"
+              (click)="trackPlayFor(item, $event)"
+              aria-label="Play {{ item.title }}"
+            >
+              <i class="fa-solid fa-play"></i>
+            </button>
+          </div>
+          <div class="tg-body">
+            <h3 class="tg-title">
+              {{ getStyledBeatTitle(item.title).lead }}
+              <em *ngIf="getStyledBeatTitle(item.title).accent">{{
+                getStyledBeatTitle(item.title).accent
+              }}</em>
+            </h3>
+            <div class="tg-meta">{{ item.key }} - {{ item.genres[0]?.name || item.category }}</div>
+            <div class="tg-foot">
+              <span class="tg-price">{{
+                item.price | currency: currencyCode : 'symbol' : '1.0-0'
+              }}</span>
+              <span class="tg-stat"
+                ><i class="fa-regular fa-heart"></i>{{ item.analytics?.favoriteCount ?? 0 }}</span
+              >
+            </div>
+          </div>
+        </a>
+      </div>
+    </section>
+  </main>
+</div>
 
 <ng-template #notFound>
   <div class="not-found">

@@ -3,6 +3,7 @@ import { Component, computed, effect, inject, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { switchMap } from 'rxjs/operators';
+import { SpecListItemComponent } from '../../components/spec-list-item/spec-list-item.component';
 import { type LicenseOption, type Spec } from '../../models';
 import {
   AnalyticsService,
@@ -15,7 +16,7 @@ import {
 @Component({
   selector: 'app-spec-details',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, RouterLink, SpecListItemComponent],
   templateUrl: './spec-details.component.html',
   styleUrls: ['./spec-details.component.scss'],
 })
@@ -30,7 +31,35 @@ export class SpecDetailsComponent {
   currencyCode = 'INR';
   isFavoriting = signal(false);
   selectedLicense = signal<LicenseOption | null>(null);
-  waveformBars = Array.from({ length: 48 }, (_, i) => 18 + ((i * 17) % 58));
+  relatedViewMode = signal<'grid' | 'list'>('grid');
+  waveformBars = signal<number[]>([]);
+  waveformProgress = computed(() => {
+    const current = this.spec();
+    const active = this.getActivePlayerTrack();
+    if (!current || active?.id !== current.id) return 0;
+
+    const duration = this.getPlayerDuration() || current.duration || 0;
+    if (!duration) return 0;
+
+    return Math.max(0, Math.min(1, this.getPlayerCurrentTime() / duration));
+  });
+  waveformPlayheadIndex = computed(() =>
+    Math.floor(this.waveformBars().length * this.waveformProgress()),
+  );
+  waveformCurrentTime = computed(() => {
+    const current = this.spec();
+    const active = this.getActivePlayerTrack();
+    return current && active?.id === current.id ? this.getPlayerCurrentTime() : 0;
+  });
+  waveformDuration = computed(() => {
+    const current = this.spec();
+    const active = this.getActivePlayerTrack();
+    if (current && active?.id === current.id) {
+      return this.getPlayerDuration() || current.duration || 0;
+    }
+    return current?.duration || 0;
+  });
+  private waveformRequestId = 0;
   tickerItems = [
     'Instant license delivery',
     'Tag-free preview included',
@@ -62,6 +91,7 @@ export class SpecDetailsComponent {
 
   displayPrice = computed(() => this.selectedLicense()?.price ?? this.spec()?.price ?? 0);
   primaryGenre = computed(() => this.spec()?.genres[0]?.name ?? 'Beat');
+  producerImageUrl = computed(() => this.spec()?.producerAvatarUrl || '');
   relatedDisplaySpecs = computed(() => {
     const current = this.spec();
     const related = this.relatedSpecs() ?? [];
@@ -243,6 +273,11 @@ export class SpecDetailsComponent {
       );
       this.selectedLicense.set(cheapest);
     });
+
+    effect(() => {
+      const s = this.spec();
+      this.loadWaveformForSpec(s);
+    });
   }
 
   playSpec() {
@@ -256,8 +291,37 @@ export class SpecDetailsComponent {
     }
   }
 
+  seekWaveform(event: MouseEvent) {
+    const s = this.spec();
+    if (!s) return;
+
+    const rail = event.currentTarget as HTMLElement | null;
+    const rect = rail?.getBoundingClientRect();
+    if (!rect?.width) {
+      this.playSpec();
+      return;
+    }
+
+    const progress = Math.max(0, Math.min(1, (event.clientX - rect.left) / rect.width));
+    const isCurrent = this.getActivePlayerTrack()?.id === s.id;
+
+    if (!isCurrent) {
+      this.playSpec();
+      return;
+    }
+
+    const duration = this.getPlayerDuration() || s.duration || 0;
+    if (duration > 0) {
+      this.playerService.seekTo(progress * duration);
+    }
+  }
+
   selectLicense(license: LicenseOption) {
     this.selectedLicense.set(license);
+  }
+
+  setRelatedViewMode(mode: 'grid' | 'list') {
+    this.relatedViewMode.set(mode);
   }
 
   addLicenseToCart(license: LicenseOption) {
@@ -324,8 +388,9 @@ export class SpecDetailsComponent {
   }
 
   formatDuration(seconds: number): string {
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
+    const wholeSeconds = Math.max(0, Math.floor(seconds || 0));
+    const mins = Math.floor(wholeSeconds / 60);
+    const secs = wholeSeconds % 60;
     return `${mins}:${secs.toString().padStart(2, '0')}`;
   }
 
@@ -351,5 +416,86 @@ export class SpecDetailsComponent {
     this.analyticsService.trackPlay(spec.id).subscribe({
       error: (err) => console.error('Failed to track play:', err),
     });
+  }
+
+  private async loadWaveformForSpec(spec: Spec | undefined) {
+    const requestId = ++this.waveformRequestId;
+    if (!spec) {
+      this.waveformBars.set([]);
+      return;
+    }
+
+    const fallback = this.buildFallbackWaveform(spec);
+    if (!spec.audioUrl || typeof window === 'undefined') {
+      this.waveformBars.set(fallback);
+      return;
+    }
+
+    try {
+      const AudioContextCtor =
+        window.AudioContext ||
+        (window as typeof window & { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
+      if (!AudioContextCtor) {
+        this.waveformBars.set(fallback);
+        return;
+      }
+
+      const response = await fetch(spec.audioUrl);
+      if (!response.ok) {
+        throw new Error(`Waveform fetch failed: ${response.status}`);
+      }
+
+      const arrayBuffer = await response.arrayBuffer();
+      const audioContext = new AudioContextCtor();
+      const audioBuffer = await audioContext.decodeAudioData(arrayBuffer.slice(0));
+      await audioContext.close().catch(() => undefined);
+
+      if (requestId !== this.waveformRequestId) return;
+      this.waveformBars.set(this.sampleWaveform(audioBuffer, 64));
+    } catch (err) {
+      if (requestId === this.waveformRequestId) {
+        this.waveformBars.set(fallback);
+      }
+    }
+  }
+
+  private sampleWaveform(audioBuffer: AudioBuffer, bars: number) {
+    const channel = audioBuffer.getChannelData(0);
+    const blockSize = Math.max(1, Math.floor(channel.length / bars));
+    const samples = Array.from({ length: bars }, (_, index) => {
+      const start = index * blockSize;
+      let sum = 0;
+      for (let i = 0; i < blockSize && start + i < channel.length; i++) {
+        sum += Math.abs(channel[start + i]);
+      }
+      return sum / blockSize;
+    });
+
+    const peak = Math.max(...samples, 0.001);
+    return samples.map((sample) => Math.max(8, Math.round((sample / peak) * 100)));
+  }
+
+  private buildFallbackWaveform(spec: Spec) {
+    const seed = `${spec.id}:${spec.bpm}:${spec.key}`.split('').reduce((sum, char) => {
+      return (sum + char.charCodeAt(0) * 17) % 997;
+    }, 23);
+
+    return Array.from({ length: 64 }, (_, index) => {
+      const pulse = Math.sin((index + seed) * 0.52) * 0.5 + 0.5;
+      const chop = ((index * 29 + seed) % 100) / 100;
+      return Math.round(12 + Math.max(pulse, chop * 0.8) * 82);
+    });
+  }
+
+  private getActivePlayerTrack(): Spec | null {
+    return this.playerService.currentTrack?.() ?? null;
+  }
+
+  private getPlayerCurrentTime(): number {
+    return this.playerService.currentTime?.() ?? 0;
+  }
+
+  private getPlayerDuration(): number {
+    return this.playerService.duration?.() ?? 0;
   }
 }

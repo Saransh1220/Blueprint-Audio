@@ -570,7 +570,11 @@ export class PlayerComponent implements OnDestroy {
   private async loadPaletteImage(
     imageUrl: string,
   ): Promise<{ image: HTMLImageElement; cleanup: () => void }> {
-    if (typeof fetch === 'function' && typeof URL !== 'undefined' && !/^(data:|blob:)/i.test(imageUrl)) {
+    if (
+      typeof fetch === 'function' &&
+      typeof URL !== 'undefined' &&
+      !/^(data:|blob:)/i.test(imageUrl)
+    ) {
       try {
         const response = await fetch(imageUrl, {
           mode: 'cors',

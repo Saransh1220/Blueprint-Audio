@@ -116,6 +116,14 @@ describe('SpecDetailsComponent', () => {
     expect(component.selectedLicense()?.id).toBe('l2');
   });
 
+  it('should toggle related beat view mode', () => {
+    expect(component.relatedViewMode()).toBe('grid');
+
+    component.setRelatedViewMode('list');
+
+    expect(component.relatedViewMode()).toBe('list');
+  });
+
   it('should add selected license to cart and show toast', () => {
     component.selectLicense(mockSpec.licenses[1]);
     component.addSelectedLicenseToCart();
