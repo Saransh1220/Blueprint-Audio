@@ -17,6 +17,7 @@ describe('SpecDetailsComponent', () => {
 
   const mockSpec: Spec = {
     id: 'beat-1',
+    shortCode: '75d04817',
     producerId: 'p1',
     producerName: 'Test Producer',
     type: 'beat',
@@ -75,6 +76,7 @@ describe('SpecDetailsComponent', () => {
 
   const toastServiceMock = {
     success: vi.fn(),
+    info: vi.fn(),
   };
 
   beforeEach(async () => {
@@ -193,6 +195,25 @@ describe('SpecDetailsComponent', () => {
     analyticsServiceMock.downloadFreeMp3.mockReturnValueOnce(throwError(() => new Error('x')));
     component.downloadFreeMp3();
     expect(logSpy).toHaveBeenCalled();
+  });
+
+  it('copies the short beat link to the clipboard', async () => {
+    const writeText = vi.fn().mockResolvedValue(undefined);
+    const originalClipboard = navigator.clipboard;
+    Object.defineProperty(navigator, 'clipboard', {
+      configurable: true,
+      value: { writeText },
+    });
+
+    await component.copyBeatLink();
+
+    expect(writeText).toHaveBeenCalledWith(`${window.location.origin}/75d04817`);
+    expect(toastServiceMock.success).toHaveBeenCalledWith('Beat link copied');
+
+    Object.defineProperty(navigator, 'clipboard', {
+      configurable: true,
+      value: originalClipboard,
+    });
   });
 
   it('formats duration and no-ops when no selected license/spec', () => {

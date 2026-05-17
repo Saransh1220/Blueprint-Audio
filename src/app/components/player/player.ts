@@ -376,7 +376,8 @@ export class PlayerComponent implements OnDestroy {
     const track = this.playerService.currentTrack();
     if (!track) return;
 
-    const url = `${window.location.origin}/beats/${track.id.replace('#', '')}`;
+    const targetId = track.shortCode || track.id.replace('#', '');
+    const url = `${window.location.origin}/${targetId}`;
     if (navigator.clipboard?.writeText) {
       await navigator.clipboard.writeText(url);
       this.toastService.success('Beat link copied');
@@ -391,7 +392,8 @@ export class PlayerComponent implements OnDestroy {
     const track = this.playerService.currentTrack();
     if (!track) return;
 
-    const url = `${window.location.origin}/beats/${track.id.replace('#', '')}`;
+    const targetId = track.shortCode || track.id.replace('#', '');
+    const url = `${window.location.origin}/${targetId}`;
     if (navigator.share) {
       await navigator.share({ title: track.title, url });
       this.toastService.success('Shared successfully');

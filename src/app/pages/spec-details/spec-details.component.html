@@ -225,7 +225,12 @@
       </div>
     </section>
 
-    <section class="mobile-flow">
+    <section
+      class="mobile-flow"
+      [style.--mobile-art-deep]="mobileArtPalette().deep"
+      [style.--mobile-art-mid]="mobileArtPalette().mid"
+      [style.--mobile-art-accent]="mobileArtPalette().accent"
+    >
       <div class="mobile-track-path">
         <span>{{ primaryGenre() }}</span>
         <i class="fa-solid fa-chevron-right"></i>
@@ -268,9 +273,14 @@
         >
           <i class="fa-solid fa-download"></i>
         </button>
-        <a class="mobile-icon-action" routerLink="/explore" aria-label="Back to explore">
-          <i class="fa-solid fa-arrow-left"></i>
-        </a>
+        <button
+          type="button"
+          class="mobile-icon-action"
+          (click)="copyBeatLink()"
+          aria-label="Copy beat link"
+        >
+          <i class="fa-solid fa-share-nodes"></i>
+        </button>
       </div>
 
       <button

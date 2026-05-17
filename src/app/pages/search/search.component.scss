@@ -3669,6 +3669,14 @@
     grid-column: 2;
     min-width: 0;
     padding-left: 2px;
+    display: flex !important;
+    flex-direction: column;
+    justify-content: center;
+    gap: 4px;
+    overflow: visible !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    z-index: 2;
   }
 
   :host ::ng-deep app-spec-list-item .row-price-block,
@@ -3684,14 +3692,42 @@
   }
 
   :host ::ng-deep app-spec-list-item .row-title-block .t,
-  :host ::ng-deep app-spec-list-item .lr-title {
+  :host ::ng-deep app-spec-list-item .lr-title,
+  :host ::ng-deep app-spec-list-item .lr-title-link {
     color: var(--mobile-explore-text) !important;
+    display: block !important;
+    max-width: 100%;
+    overflow: hidden;
+    font-size: 13.5px;
+    font-weight: 900;
+    line-height: 1.05;
+    opacity: 1 !important;
     text-shadow: none;
+    text-overflow: ellipsis;
+    visibility: visible !important;
+    white-space: nowrap;
   }
 
   :host ::ng-deep app-spec-list-item .row-title-block .p,
   :host ::ng-deep app-spec-list-item .lr-producer-line {
     color: var(--mobile-explore-muted) !important;
+    display: block !important;
+    max-width: 100%;
+    overflow: hidden;
+    opacity: 1 !important;
+    text-overflow: ellipsis;
+    visibility: visible !important;
+    white-space: nowrap;
+  }
+
+  :host ::ng-deep app-spec-list-item .title-line {
+    display: block !important;
+    min-width: 0;
+    overflow: visible !important;
+  }
+
+  :host ::ng-deep app-spec-list-item .title-line .row-chip {
+    display: none !important;
   }
 
   :host ::ng-deep app-spec-list-item .market-row.playing .row-title-block .t,

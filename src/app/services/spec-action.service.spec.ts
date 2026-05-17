@@ -138,12 +138,15 @@ describe('SpecActionService', () => {
     });
   });
 
-  it('openDetails strips hash and navigates to beats detail route', () => {
+  it('openDetails navigates to short-code root route and strips hash fallback', () => {
     const { service, routerMock } = setup();
+
+    service.openDetails(makeSpec({ id: '#legacy', shortCode: 'abc12345' }));
+    expect(routerMock.navigate).toHaveBeenCalledWith(['/', 'abc12345']);
 
     service.openDetails(makeSpec({ id: '#abc' }));
 
-    expect(routerMock.navigate).toHaveBeenCalledWith(['/beats', 'abc']);
+    expect(routerMock.navigate).toHaveBeenLastCalledWith(['/', 'abc']);
   });
 
   it('toggleFavorite returns early when already favoriting', () => {

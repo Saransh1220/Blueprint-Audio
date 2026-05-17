@@ -1561,6 +1561,10 @@ a {
   }
 
   .mobile-flow {
+    --mobile-art-deep: #0c0c0c;
+    --mobile-art-mid: #2a2926;
+    --mobile-art-accent: #f0e9d6;
+    position: relative;
     display: block;
     min-height: 100vh;
     padding: 16px 18px 42px;
@@ -1570,10 +1574,92 @@ a {
       linear-gradient(180deg, transparent, rgba(20, 19, 16, 0.035));
   }
 
+  .mobile-flow::before {
+    position: absolute;
+    inset: 0 0 auto;
+    height: min(470px, 58vh);
+    background:
+      linear-gradient(
+        180deg,
+        rgba(255, 252, 245, 0.98) 0%,
+        rgba(255, 250, 240, 0.96) 42%,
+        rgba(255, 250, 240, 0.62) 70%,
+        transparent 100%
+      ),
+      radial-gradient(
+        circle at 50% 28%,
+        color-mix(in srgb, var(--mobile-art-accent) 12%, transparent),
+        transparent 46%
+      ),
+      radial-gradient(
+        circle at 18% 12%,
+        color-mix(in srgb, var(--mobile-art-mid) 8%, transparent),
+        transparent 42%
+      ),
+      radial-gradient(
+        circle at 84% 18%,
+        color-mix(in srgb, var(--mobile-art-accent) 8%, transparent),
+        transparent 40%
+      );
+    content: '';
+    filter: saturate(0.72) brightness(1.16);
+    opacity: 0.86;
+    pointer-events: none;
+  }
+
+  .mobile-flow::after {
+    position: absolute;
+    inset: 0 0 auto;
+    height: min(470px, 58vh);
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 160 160' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='.42'/%3E%3C/svg%3E");
+    background-size: 120px 120px;
+    content: '';
+    mix-blend-mode: multiply;
+    opacity: 0.075;
+    pointer-events: none;
+  }
+
+  .mobile-flow > * {
+    position: relative;
+    z-index: 1;
+  }
+
   :host-context(body.dark-theme) .mobile-flow {
     background:
       radial-gradient(circle at 50% 18%, rgba(255, 61, 90, 0.18), transparent 34%),
       linear-gradient(180deg, rgba(245, 241, 232, 0.02), rgba(0, 0, 0, 0.18));
+  }
+
+  :host-context(body.dark-theme) .mobile-flow::before {
+    background:
+      linear-gradient(
+        180deg,
+        color-mix(in srgb, var(--mobile-art-deep) 92%, #050504) 0%,
+        color-mix(in srgb, var(--mobile-art-mid) 52%, transparent) 36%,
+        color-mix(in srgb, var(--mobile-art-mid) 18%, transparent) 60%,
+        transparent 100%
+      ),
+      radial-gradient(
+        circle at 50% 27%,
+        color-mix(in srgb, var(--mobile-art-accent) 46%, transparent),
+        transparent 39%
+      ),
+      radial-gradient(
+        circle at 16% 12%,
+        color-mix(in srgb, var(--mobile-art-mid) 64%, transparent),
+        transparent 38%
+      ),
+      radial-gradient(
+        circle at 86% 18%,
+        color-mix(in srgb, var(--mobile-art-accent) 28%, transparent),
+        transparent 36%
+      );
+    opacity: 0.82;
+  }
+
+  :host-context(body.dark-theme) .mobile-flow::after {
+    mix-blend-mode: screen;
+    opacity: 0.075;
   }
 
   .mobile-track-path {
@@ -1581,7 +1667,7 @@ a {
     align-items: center;
     gap: 8px;
     margin: 4px 0 22px;
-    color: var(--ink-mute);
+    color: color-mix(in srgb, var(--ink) 64%, transparent);
     font-family: $font-tech;
     font-size: 10px;
     letter-spacing: 0.12em;
@@ -1592,12 +1678,12 @@ a {
     strong {
       min-width: 0;
       overflow: hidden;
-      color: var(--ink);
+      color: color-mix(in srgb, var(--ink) 94%, #000);
       text-overflow: ellipsis;
     }
 
     i {
-      color: var(--hot);
+      color: color-mix(in srgb, var(--hot) 82%, var(--ink));
       font-size: 8px;
     }
   }

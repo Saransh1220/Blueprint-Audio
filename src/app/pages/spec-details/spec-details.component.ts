@@ -33,6 +33,11 @@ export class SpecDetailsComponent {
   selectedLicense = signal<LicenseOption | null>(null);
   relatedViewMode = signal<'grid' | 'list'>('grid');
   waveformBars = signal<number[]>([]);
+  mobileArtPalette = signal({
+    deep: '#0c0c0c',
+    mid: '#2a2926',
+    accent: '#f0e9d6',
+  });
   waveformProgress = computed(() => {
     const current = this.spec();
     const active = this.getActivePlayerTrack();
@@ -278,6 +283,10 @@ export class SpecDetailsComponent {
       const s = this.spec();
       this.loadWaveformForSpec(s);
     });
+
+    effect(() => {
+      this.updateMobileArtPalette(this.spec());
+    });
   }
 
   playSpec() {
@@ -385,6 +394,20 @@ export class SpecDetailsComponent {
         console.error('Failed to download free MP3:', err);
       },
     });
+  }
+
+  async copyBeatLink() {
+    const s = this.spec();
+    if (!s || typeof window === 'undefined') return;
+
+    const targetId = s.shortCode || s.id.replace('#', '');
+    const url = `${window.location.origin}/${targetId}`;
+    if (navigator.clipboard?.writeText) {
+      await navigator.clipboard.writeText(url);
+      this.toastService.success('Beat link copied');
+    } else {
+      this.toastService.info('Clipboard support is unavailable here');
+    }
   }
 
   formatDuration(seconds: number): string {
@@ -497,5 +520,143 @@ export class SpecDetailsComponent {
 
   private getPlayerDuration(): number {
     return this.playerService.duration?.() ?? 0;
+  }
+
+  private updateMobileArtPalette(spec: Spec | undefined) {
+    if (!spec?.imageUrl || typeof Image === 'undefined' || typeof document === 'undefined') {
+      this.mobileArtPalette.set(this.defaultMobileArtPalette());
+      return;
+    }
+
+    const imageUrl = spec.imageUrl;
+    const fallbackPalette = this.defaultMobileArtPalette();
+    this.mobileArtPalette.set(fallbackPalette);
+
+    void this.loadPaletteImage(imageUrl)
+      .then(({ image, cleanup }) => {
+        try {
+          if (this.spec()?.imageUrl !== imageUrl) return;
+          this.mobileArtPalette.set(this.extractPalette(image));
+        } finally {
+          cleanup();
+        }
+      })
+      .catch(() => {
+        if (this.spec()?.imageUrl === imageUrl) {
+          this.mobileArtPalette.set(fallbackPalette);
+        }
+      });
+  }
+
+  private async loadPaletteImage(
+    imageUrl: string,
+  ): Promise<{ image: HTMLImageElement; cleanup: () => void }> {
+    if (
+      typeof fetch === 'function' &&
+      typeof URL !== 'undefined' &&
+      !/^(data:|blob:)/i.test(imageUrl)
+    ) {
+      try {
+        const response = await fetch(imageUrl, {
+          mode: 'cors',
+          cache: 'reload',
+          credentials: 'omit',
+        });
+
+        if (!response.ok) {
+          throw new Error(`Failed to fetch image: ${response.status}`);
+        }
+
+        const objectUrl = URL.createObjectURL(await response.blob());
+        return {
+          image: await this.loadImageElement(objectUrl, false),
+          cleanup: () => URL.revokeObjectURL(objectUrl),
+        };
+      } catch {
+        // Fall back to normal image loading when CORS fetch is rejected.
+      }
+    }
+
+    return {
+      image: await this.loadImageElement(imageUrl, true),
+      cleanup: () => undefined,
+    };
+  }
+
+  private loadImageElement(imageUrl: string, useAnonymousCors: boolean) {
+    return new Promise<HTMLImageElement>((resolve, reject) => {
+      const img = new Image();
+      if (useAnonymousCors) {
+        img.crossOrigin = 'anonymous';
+      }
+      img.onload = () => resolve(img);
+      img.onerror = () => reject(new Error('Failed to load image'));
+      img.src = imageUrl;
+    });
+  }
+
+  private extractPalette(img: HTMLImageElement) {
+    const canvas = document.createElement('canvas');
+    const size = 36;
+    canvas.width = size;
+    canvas.height = size;
+    const ctx = canvas.getContext('2d', { willReadFrequently: true });
+    if (!ctx) return this.defaultMobileArtPalette();
+
+    ctx.drawImage(img, 0, 0, size, size);
+    const { data } = ctx.getImageData(0, 0, size, size);
+    let r = 0;
+    let g = 0;
+    let b = 0;
+    let accentR = 0;
+    let accentG = 0;
+    let accentB = 0;
+    let accentScore = -1;
+    let count = 0;
+
+    for (let i = 0; i < data.length; i += 16) {
+      const pr = data[i];
+      const pg = data[i + 1];
+      const pb = data[i + 2];
+      const max = Math.max(pr, pg, pb);
+      const min = Math.min(pr, pg, pb);
+      const saturation = max - min;
+      const luma = 0.2126 * pr + 0.7152 * pg + 0.0722 * pb;
+      const score = saturation * 1.35 + luma * 0.24;
+
+      r += pr;
+      g += pg;
+      b += pb;
+      count++;
+
+      if (score > accentScore && luma > 34) {
+        accentScore = score;
+        accentR = pr;
+        accentG = pg;
+        accentB = pb;
+      }
+    }
+
+    const avgR = r / count;
+    const avgG = g / count;
+    const avgB = b / count;
+    return {
+      deep: this.rgbString(avgR * 0.22, avgG * 0.22, avgB * 0.22),
+      mid: this.rgbString(avgR * 0.82 + 16, avgG * 0.82 + 16, avgB * 0.82 + 16),
+      accent: this.rgbString(accentR * 1.04 + 10, accentG * 1.04 + 10, accentB * 1.04 + 10),
+    };
+  }
+
+  private rgbString(r: number, g: number, b: number) {
+    const clamp = (value: number) => Math.max(0, Math.min(255, Math.round(value)));
+    return `rgb(${clamp(r)}, ${clamp(g)}, ${clamp(b)})`;
+  }
+
+  private defaultMobileArtPalette() {
+    return {
+      deep: '#0c0c0c',
+      mid: '#2a2926',
+      accent: '#f0e9d6',
+    };
   }
 }
