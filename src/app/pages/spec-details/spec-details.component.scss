@@ -1474,6 +1474,7 @@ a {
   letter-spacing: 0.08em;
 }
 
+.beat-loading,
 .not-found {
   display: grid;
   min-height: 100vh;
@@ -1487,6 +1488,61 @@ a {
     font-family: $font-head;
     font-size: 42px;
   }
+}
+
+.beat-loading {
+  align-content: center;
+  color: #141310;
+
+  p {
+    margin: 0;
+    color: rgba(20, 19, 16, 0.62);
+    font-family: $font-tech;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+}
+
+.beat-loading-mark {
+  display: grid;
+  width: 38px;
+  height: 38px;
+  place-items: center;
+  border-radius: 50%;
+
+  span {
+    width: 28px;
+    height: 28px;
+    border: 2px solid rgba(20, 19, 16, 0.14);
+    border-top-color: #141310;
+    border-radius: 50%;
+    animation: beatLoadSpin 760ms linear infinite;
+  }
+}
+
+@keyframes beatLoadSpin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+:host-context(body.dark-theme) .beat-loading,
+:host-context(body.dark-theme) .not-found {
+  background: #0b0b0a;
+  color: #f5f1e8;
+}
+
+:host-context(body.dark-theme) .beat-loading-mark {
+  span {
+    border-color: rgba(245, 241, 232, 0.16);
+    border-top-color: #f5f1e8;
+  }
+}
+
+:host-context(body.dark-theme) .beat-loading p {
+  color: rgba(245, 241, 232, 0.62);
 }
 
 .btn-home {

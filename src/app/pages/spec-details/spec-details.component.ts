@@ -2,7 +2,8 @@ import { CommonModule } from '@angular/common';
 import { Component, computed, effect, inject, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-import { switchMap } from 'rxjs/operators';
+import { of } from 'rxjs';
+import { catchError, finalize, switchMap } from 'rxjs/operators';
 import { SpecListItemComponent } from '../../components/spec-list-item/spec-list-item.component';
 import { type LicenseOption, type Spec } from '../../models';
 import {
@@ -30,6 +31,7 @@ export class SpecDetailsComponent {
 
   currencyCode = 'INR';
   isFavoriting = signal(false);
+  specLoadSettled = signal(false);
   selectedLicense = signal<LicenseOption | null>(null);
   relatedViewMode = signal<'grid' | 'list'>('grid');
   waveformBars = signal<number[]>([]);
@@ -64,6 +66,8 @@ export class SpecDetailsComponent {
     }
     return current?.duration || 0;
   });
+  isSpecLoading = computed(() => !this.specLoadSettled() && !this.spec());
+  isSpecMissing = computed(() => this.specLoadSettled() && !this.spec());
   private waveformRequestId = 0;
   tickerItems = [
     'Instant license delivery',
@@ -76,8 +80,12 @@ export class SpecDetailsComponent {
   spec = toSignal(
     this.route.paramMap.pipe(
       switchMap((params) => {
+        this.specLoadSettled.set(false);
         const idOrCode = params.get('id') || params.get('shortCode');
-        return this.labService.getSpecById(idOrCode || '');
+        return this.labService.getSpecById(idOrCode || '').pipe(
+          catchError(() => of(undefined)),
+          finalize(() => this.specLoadSettled.set(true)),
+        );
       }),
     ),
   );

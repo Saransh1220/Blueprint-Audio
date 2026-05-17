@@ -1,4 +1,4 @@
-<div class="beat-page" *ngIf="spec() as s; else notFound">
+<div class="beat-page" *ngIf="spec() as s; else pendingOrNotFound">
   <div class="top-ticker">
     <div class="ticker-track">
       @for (item of tickerItems; track item) {
@@ -534,8 +534,17 @@
   </main>
 </div>
 
+<ng-template #pendingOrNotFound>
+  <div class="beat-loading" *ngIf="isSpecLoading(); else notFound">
+    <div class="beat-loading-mark">
+      <span></span>
+    </div>
+    <p>Loading beat</p>
+  </div>
+</ng-template>
+
 <ng-template #notFound>
-  <div class="not-found">
+  <div class="not-found" *ngIf="isSpecMissing()">
     <h1>Track Not Found</h1>
     <a routerLink="/" class="btn-home">Back to Lab</a>
   </div>
