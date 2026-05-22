@@ -7,6 +7,10 @@ export interface Order {
   amount: number; // in paise
   currency: string;
   razorpay_order_id: string | null;
+  provider?: 'razorpay' | 'dodo' | string;
+  provider_checkout_id?: string | null;
+  provider_payment_id?: string | null;
+  checkout_url?: string | null;
   status: OrderStatus;
   notes: Record<string, any>;
   created_at: string;
@@ -25,6 +29,7 @@ export interface License {
   license_option_id: string;
   license_type: string;
   purchase_price: number; // in paise
+  currency?: string;
   license_key: string;
   is_active: boolean;
   is_revoked: boolean;

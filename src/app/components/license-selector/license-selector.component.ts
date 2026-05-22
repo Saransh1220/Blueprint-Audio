@@ -5,11 +5,12 @@ import { CartService } from '../../services/cart.service';
 import { ModalService } from '../../services/modal.service';
 import { ToastService } from '../../services/toast.service';
 import { PaymentService } from '../../services/payment.service';
+import { MoneyPipe } from '../../shared/pipes/money.pipe';
 
 @Component({
   selector: 'app-license-selector',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, MoneyPipe],
   templateUrl: './license-selector.component.html',
   styleUrls: ['./license-selector.component.scss'],
 })

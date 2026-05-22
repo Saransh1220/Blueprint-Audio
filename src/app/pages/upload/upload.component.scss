@@ -11,12 +11,28 @@
 .upload-shell {
   --tangerine: #ff6b1a;
   --lavender: #c9b8ff;
+  --upload-grain-opacity: 0.04;
+  --upload-grain-blend: multiply;
 
   min-height: 100vh;
-  background: var(--cream);
+  background:
+    radial-gradient(circle at 16% 0%, rgba(255, 61, 90, 0.16), transparent 260px),
+    radial-gradient(circle at 88% 18%, rgba(255, 196, 57, 0.16), transparent 280px),
+    linear-gradient(180deg, #fffaf0 0%, var(--cream) 44%, #efe5d4 100%);
   color: var(--ink);
   position: relative;
   overflow: hidden;
+}
+
+.upload-shell::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: var(--upload-grain-opacity);
+  mix-blend-mode: var(--upload-grain-blend);
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 260 260' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='upload-grain'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.74' numOctaves='2' seed='23'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23upload-grain)'/%3E%3C/svg%3E");
 }
 
 .upload-header,
@@ -34,7 +50,8 @@
   align-items: center;
   justify-content: space-between;
   gap: 18px;
-  background: var(--cream);
+  background: color-mix(in srgb, var(--cream) 92%, transparent);
+  backdrop-filter: blur(10px);
 }
 
 .upload-logo {
@@ -116,7 +133,8 @@
   justify-content: center;
   gap: 0;
   border-bottom: 2px dashed var(--ink);
-  background: var(--cream);
+  background: color-mix(in srgb, var(--cream) 88%, transparent);
+  backdrop-filter: blur(10px);
 }
 
 .step {
@@ -170,7 +188,7 @@
   font-family: $font-head;
   font-size: 0.9rem;
   font-weight: 600;
-  color: var(--ink-mute);
+  color: color-mix(in srgb, var(--ink) 68%, transparent);
 }
 
 .step-line {
@@ -1476,6 +1494,62 @@ input:checked + .slider::before {
       var(--cream) calc(var(--progress) * 1%),
       color-mix(in srgb, var(--cream) 20%, transparent) 0
     );
+}
+
+:host-context(body.dark-theme) .upload-shell {
+  --cream: #0e0d0b;
+  --cream-2: #1a1814;
+  --cream-3: #262219;
+  --ink: #f0e9d6;
+  --ink-2: #c8bfa9;
+  --ink-mute: #b4aa96;
+  --hot: #ff4d68;
+  --tangerine: #ff7d2e;
+  --lime: #d9f561;
+  --lavender: #d4c5ff;
+  --sun: #ffd455;
+  --upload-grain-opacity: 0.055;
+  --upload-grain-blend: screen;
+
+  background:
+    radial-gradient(ellipse 900px 620px at 12% -8%, rgba(255, 77, 104, 0.12), transparent 58%),
+    radial-gradient(ellipse 720px 560px at 92% 16%, rgba(255, 125, 46, 0.1), transparent 58%),
+    radial-gradient(ellipse 920px 620px at 48% 112%, rgba(212, 197, 255, 0.09), transparent 56%),
+    linear-gradient(180deg, #17110f 0%, #0e0d0b 46%, #080807 100%);
+}
+
+:host-context(body.dark-theme) .upload-header,
+:host-context(body.dark-theme) .stepper {
+  background: color-mix(in srgb, #0e0d0b 84%, transparent);
+}
+
+:host-context(body.dark-theme) .step:not(.current):not(.done) .step-label {
+  color: rgba(240, 233, 214, 0.68);
+}
+
+:host-context(body.dark-theme) .step:not(.current):not(.done) .step-num {
+  color: rgba(240, 233, 214, 0.78);
+  border-color: rgba(240, 233, 214, 0.78);
+  background: rgba(14, 13, 11, 0.64);
+}
+
+:host-context(body.dark-theme) .step:hover {
+  background: rgba(240, 233, 214, 0.08);
+}
+
+:host-context(body.dark-theme) .step.current .step-label,
+:host-context(body.dark-theme) .step.done .step-label {
+  color: #f8f0df;
+}
+
+:host-context(body.dark-theme) .step.current .step-num {
+  color: #141310;
+  box-shadow: 2px 2px 0 rgba(240, 233, 214, 0.72);
+}
+
+:host-context(body.dark-theme) .step.done .step-num {
+  background: #f0e9d6;
+  color: #141310;
 }
 
 @media (max-width: 1100px) {

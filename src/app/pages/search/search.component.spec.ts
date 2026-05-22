@@ -4,6 +4,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { Subject, of, throwError } from 'rxjs';
 import { LabService } from '../../services/lab';
 import { ToastService } from '../../services/toast.service';
+import { AuthService } from '../../services/auth.service';
 import { SearchPageComponent } from './search.component';
 
 describe('SearchPageComponent', () => {
@@ -25,6 +26,7 @@ describe('SearchPageComponent', () => {
         { provide: Router, useValue: { navigate } },
         { provide: ActivatedRoute, useValue: { queryParams: queryParams$ } },
         { provide: ToastService, useValue: { show } },
+        { provide: AuthService, useValue: { currentUser: signal(null) } },
       ],
     });
 

@@ -14,10 +14,11 @@ import { CommonModule, NgOptimizedImage } from '@angular/common';
 
 import type { Spec } from '../../models';
 import { SpecActionService } from '../../services/spec-action.service';
+import { MoneyPipe } from '../../shared/pipes/money.pipe';
 
 @Component({
   selector: 'app-spec-list-item',
-  imports: [CommonModule, NgOptimizedImage],
+  imports: [CommonModule, NgOptimizedImage, MoneyPipe],
   templateUrl: './spec-list-item.component.html',
   styleUrls: ['./spec-list-item.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

@@ -1,7 +1,7 @@
 import { provideHttpClient } from '@angular/common/http';
 import { Component } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { provideAnimations } from '@angular/platform-browser/animations';
+import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { provideRouter, Router } from '@angular/router';
 import { SocialAuthService } from '@abacritt/angularx-social-login';
 import { AppComponent } from './app';
@@ -44,14 +44,14 @@ describe('AppComponent', () => {
           { path: 'dashboard', component: DummyRouteComponent },
         ]),
         provideHttpClient(),
-        provideAnimations(),
+        provideNoopAnimations(),
         { provide: SocialAuthService, useValue: { signOut: vi.fn().mockResolvedValue(undefined) } },
       ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(AppComponent);
     component = fixture.componentInstance;
-  });
+  }, 30000);
 
   it('should create the app', () => {
     expect(component).toBeTruthy();

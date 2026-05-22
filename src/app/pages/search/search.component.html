@@ -265,8 +265,11 @@
         </div>
         <div class="range-wrap">
           <div class="range-display">
-            <div class="range-val">${{ priceRange()[0] }} <em>to</em> ${{ priceRange()[1] }}</div>
-            <div class="range-unit">usd</div>
+            <div class="range-val">
+              {{ formatFilterPrice(priceRange()[0]) }} <em>to</em>
+              {{ formatFilterPrice(priceRange()[1]) }}
+            </div>
+            <div class="range-unit">{{ getCurrencyCode() }}</div>
           </div>
           <div class="slider-track-wrap">
             <div class="slider-bg"></div>
@@ -328,6 +331,33 @@
     @if (activeFilterChips().length) {
       <button class="clear-all-btn show" type="button" (click)="clearFilters()">Clear all</button>
     }
+
+    <div class="view-switch filter-view-switch">
+      <button [class.on]="viewMode() === 'grid'" (click)="setViewMode('grid')">
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor">
+          <rect x="3" y="3" width="8" height="8" rx="1"></rect>
+          <rect x="13" y="3" width="8" height="8" rx="1"></rect>
+          <rect x="3" y="13" width="8" height="8" rx="1"></rect>
+          <rect x="13" y="13" width="8" height="8" rx="1"></rect>
+        </svg>
+        Grid
+      </button>
+      <button [class.on]="viewMode() === 'list'" (click)="setViewMode('list')">
+        <svg
+          width="11"
+          height="11"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2.5"
+        >
+          <line x1="3" y1="6" x2="21" y2="6"></line>
+          <line x1="3" y1="12" x2="21" y2="12"></line>
+          <line x1="3" y1="18" x2="21" y2="18"></line>
+        </svg>
+        List
+      </button>
+    </div>
   </div>
 
   @if (activeFilterChips().length) {
@@ -487,33 +517,6 @@
               <span class="mfb-badge">{{ activeFilterChips().length }}</span>
             }
           </button>
-
-          <div class="view-switch">
-            <button [class.on]="viewMode() === 'grid'" (click)="setViewMode('grid')">
-              <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor">
-                <rect x="3" y="3" width="8" height="8" rx="1"></rect>
-                <rect x="13" y="3" width="8" height="8" rx="1"></rect>
-                <rect x="3" y="13" width="8" height="8" rx="1"></rect>
-                <rect x="13" y="13" width="8" height="8" rx="1"></rect>
-              </svg>
-              Grid
-            </button>
-            <button [class.on]="viewMode() === 'list'" (click)="setViewMode('list')">
-              <svg
-                width="11"
-                height="11"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2.5"
-              >
-                <line x1="3" y1="6" x2="21" y2="6"></line>
-                <line x1="3" y1="12" x2="21" y2="12"></line>
-                <line x1="3" y1="18" x2="21" y2="18"></line>
-              </svg>
-              List
-            </button>
-          </div>
         </div>
 
         @if (isLoading()) {
@@ -690,8 +693,11 @@
         @if (isGroupOpen('price')) {
           <div class="mfp-range">
             <div class="range-display">
-              <div class="range-val">${{ priceRange()[0] }} <em>to</em> ${{ priceRange()[1] }}</div>
-              <div class="range-unit">usd</div>
+              <div class="range-val">
+                {{ formatFilterPrice(priceRange()[0]) }} <em>to</em>
+                {{ formatFilterPrice(priceRange()[1]) }}
+              </div>
+              <div class="range-unit">{{ getCurrencyCode() }}</div>
             </div>
             <div class="slider-track-wrap">
               <div class="slider-bg"></div>

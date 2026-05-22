@@ -58,124 +58,213 @@
       </div>
     </div>
   </div>
-</div>
 
-<div class="ov-two" style="margin-top: 20px">
-  <!-- Notifications Card -->
-  <div class="card">
-    <div class="card-head"><h4>Notifications</h4></div>
-    <div style="display: flex; flex-direction: column; gap: 14px; padding: 4px 0">
-      @for (n of notifications; track n.label) {
-        <div style="display: flex; justify-content: space-between; align-items: center; gap: 12px">
-          <div>
-            <div class="title-m">{{ n.label }}</div>
-            <div class="meta-m">{{ n.desc }}</div>
-          </div>
-          <button class="toggle" [class.on]="n.on" type="button">
-            <span class="toggle-knob"></span>
+  <!-- Store Preferences Card -->
+  <div class="card" style="margin-top: 20px">
+    <div class="card-head">
+      <h4>Store <em>preferences</em></h4>
+      <span class="cnum">v1.0</span>
+    </div>
+
+    <div class="store-pref-grid">
+      <div class="pref-desc">
+        <h5 class="pref-title">Base Currency</h5>
+        <p class="pref-p">
+          Select the currency in which you will list and price your beats. This defines your default
+          pricing model.
+        </p>
+
+        <div class="currency-selector">
+          <button
+            class="currency-btn"
+            [class.active]="selectedCurrency() === 'USD'"
+            (click)="selectCurrency('USD')"
+            type="button"
+          >
+            <span class="symbol">$</span>
+            <span class="code">USD (US Dollar)</span>
+          </button>
+          <button
+            class="currency-btn"
+            [class.active]="selectedCurrency() === 'INR'"
+            (click)="selectCurrency('INR')"
+            type="button"
+          >
+            <span class="symbol">₹</span>
+            <span class="code">INR (Indian Rupee)</span>
           </button>
         </div>
-      }
+      </div>
+
+      <div class="pref-callout-wrap">
+        <div class="glass-callout" [class.inr]="selectedCurrency() === 'INR'">
+          <div class="callout-header">
+            <span class="callout-icon">✦</span>
+            <span class="callout-title">Exchange Flow Active</span>
+          </div>
+          <div class="callout-body">
+            @if (selectedCurrency() === 'USD') {
+              <p>You set your beat prices in <strong>USD ($)</strong>.</p>
+              <ul class="flow-list">
+                <li>International buyers see and pay exactly your USD price.</li>
+                <li>
+                  Indian buyers will see prices converted to <strong>INR (₹)</strong> based on
+                  current exchange rates (rounded to the nearest Rupee).
+                </li>
+              </ul>
+            } @else {
+              <p>You set your beat prices in <strong>INR (₹)</strong>.</p>
+              <ul class="flow-list">
+                <li>Indian buyers see and pay exactly your INR price.</li>
+                <li>
+                  International buyers will see prices converted to <strong>USD ($)</strong> based
+                  on current exchange rates (using smart marketplace rounding like ending in .99).
+                </li>
+              </ul>
+            }
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="pref-actions">
+      <button
+        class="btn primary save-btn"
+        [class.loading]="isSaving()"
+        [disabled]="isSaving() || savedCurrency() === selectedCurrency()"
+        (click)="savePreferences()"
+        type="button"
+      >
+        @if (isSaving()) {
+          Saving...
+        } @else {
+          Save Store Preferences
+        }
+      </button>
     </div>
   </div>
 
-  <!-- Linked Accounts Card -->
-  <div class="card">
+  <div class="ov-two" style="margin-top: 20px">
+    <!-- Notifications Card -->
+    <div class="card">
+      <div class="card-head"><h4>Notifications</h4></div>
+      <div style="display: flex; flex-direction: column; gap: 14px; padding: 4px 0">
+        @for (n of notifications; track n.label) {
+          <div
+            style="display: flex; justify-content: space-between; align-items: center; gap: 12px"
+          >
+            <div>
+              <div class="title-m">{{ n.label }}</div>
+              <div class="meta-m">{{ n.desc }}</div>
+            </div>
+            <button class="toggle" [class.on]="n.on" type="button">
+              <span class="toggle-knob"></span>
+            </button>
+          </div>
+        }
+      </div>
+    </div>
+
+    <!-- Linked Accounts Card -->
+    <div class="card">
+      <div class="card-head">
+        <h4>Linked <em>accounts</em></h4>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 10px; padding: 4px 0">
+        <div style="display: flex; justify-content: space-between; align-items: center; gap: 12px">
+          <div style="display: flex; align-items: center; gap: 10px">
+            <div class="platform-ico">G</div>
+            <div>
+              <div class="title-m">Google</div>
+              <div class="meta-m">Connected</div>
+            </div>
+          </div>
+          <span class="badge paid">Active</span>
+        </div>
+        <div style="display: flex; justify-content: space-between; align-items: center; gap: 12px">
+          <div style="display: flex; align-items: center; gap: 10px">
+            <div class="platform-ico" style="background: var(--ink); color: var(--cream)">SC</div>
+            <div>
+              <div class="title-m">SoundCloud</div>
+              <div class="meta-m">Not connected</div>
+            </div>
+          </div>
+          <button class="btn sm" type="button">Connect</button>
+        </div>
+        <div style="display: flex; justify-content: space-between; align-items: center; gap: 12px">
+          <div style="display: flex; align-items: center; gap: 10px">
+            <div class="platform-ico" style="background: var(--cobalt); color: var(--cream)">
+              Sp
+            </div>
+            <div>
+              <div class="title-m">Spotify for Artists</div>
+              <div class="meta-m">Not connected</div>
+            </div>
+          </div>
+          <button class="btn sm" type="button">Connect</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Brand Identity Card -->
+  <div class="card" style="margin-top: 20px">
     <div class="card-head">
-      <h4>Linked <em>accounts</em></h4>
+      <h4>Brand · <em>identity</em></h4>
+      <span class="cnum">v1.0</span>
     </div>
-    <div style="display: flex; flex-direction: column; gap: 10px; padding: 4px 0">
-      <div style="display: flex; justify-content: space-between; align-items: center; gap: 12px">
-        <div style="display: flex; align-items: center; gap: 10px">
-          <div class="platform-ico">G</div>
-          <div>
-            <div class="title-m">Google</div>
-            <div class="meta-m">Connected</div>
-          </div>
+
+    <div class="brand-grid">
+      <!-- Full wordmark (light) -->
+      <div class="brand-preview light">
+        <div class="logo">
+          <img class="logo-mark" src="/Logo-cropped.png" alt="" aria-hidden="true" />
+          <span class="logo-word">Waveyard</span>
         </div>
-        <span class="badge paid">Active</span>
+        <span class="brand-label">Primary · horizontal</span>
       </div>
-      <div style="display: flex; justify-content: space-between; align-items: center; gap: 12px">
-        <div style="display: flex; align-items: center; gap: 10px">
-          <div class="platform-ico" style="background: var(--ink); color: var(--cream)">SC</div>
-          <div>
-            <div class="title-m">SoundCloud</div>
-            <div class="meta-m">Not connected</div>
-          </div>
+
+      <!-- Dark variant -->
+      <div class="brand-preview dark">
+        <div class="logo on-dark">
+          <img class="logo-mark" src="/logo-dark-cropped.png" alt="" aria-hidden="true" />
+          <span class="logo-word">Waveyard</span>
         </div>
-        <button class="btn sm" type="button">Connect</button>
+        <span class="brand-label on-dark">on dark · reversed</span>
       </div>
-      <div style="display: flex; justify-content: space-between; align-items: center; gap: 12px">
-        <div style="display: flex; align-items: center; gap: 10px">
-          <div class="platform-ico" style="background: var(--cobalt); color: var(--cream)">Sp</div>
-          <div>
-            <div class="title-m">Spotify for Artists</div>
-            <div class="meta-m">Not connected</div>
-          </div>
-        </div>
-        <button class="btn sm" type="button">Connect</button>
+
+      <!-- Mark alone -->
+      <div class="brand-preview medium">
+        <img
+          class="logo-mark"
+          src="/logo-dark-cropped.png"
+          alt=""
+          aria-hidden="true"
+          style="width: 96px; height: 64px"
+        />
+        <span class="brand-label">Mark · avatar / favicon</span>
       </div>
     </div>
-  </div>
-</div>
 
-<!-- Brand Identity Card -->
-<div class="card" style="margin-top: 20px">
-  <div class="card-head">
-    <h4>Brand · <em>identity</em></h4>
-    <span class="cnum">v1.0</span>
-  </div>
-
-  <div class="brand-grid">
-    <!-- Full wordmark (light) -->
-    <div class="brand-preview light">
-      <div class="logo">
-        <img class="logo-mark" src="/Logo-cropped.png" alt="" aria-hidden="true" />
-        <span class="logo-word">Waveyard</span>
+    <!-- Mega wordmark preview -->
+    <div class="brand-preview mega">
+      <div class="brand-sub-header">Mega wordmark · footer & brand walls</div>
+      <div class="logo-mega on-dark" style="font-size: clamp(52px, 10vw, 128px); margin-top: 18px">
+        <span class="mega-audio">Wave</span><span class="mega-mesh">yard</span
+        ><span class="mega-star">✦</span>
       </div>
-      <span class="brand-label">Primary · horizontal</span>
-    </div>
-
-    <!-- Dark variant -->
-    <div class="brand-preview dark">
-      <div class="logo on-dark">
-        <img class="logo-mark" src="/logo-dark-cropped.png" alt="" aria-hidden="true" />
-        <span class="logo-word">Waveyard</span>
+      <div class="brand-footer-info">
+        <span>Pressed fresh in SF & Lagos</span>
+        <span>Est. 2026 ✦ #0241</span>
       </div>
-      <span class="brand-label on-dark">on dark · reversed</span>
     </div>
 
-    <!-- Mark alone -->
-    <div class="brand-preview medium">
-      <img
-        class="logo-mark"
-        src="/logo-dark-cropped.png"
-        alt=""
-        aria-hidden="true"
-        style="width: 96px; height: 64px"
-      />
-      <span class="brand-label">Mark · avatar / favicon</span>
+    <!-- Usage notes -->
+    <div class="usage-notes">
+      <div class="usage-item"><strong>≥ 900px</strong>Full wordmark + mark</div>
+      <div class="usage-item"><strong>520–899px</strong>Full wordmark</div>
+      <div class="usage-item"><strong>&lt; 520px</strong>Mark only</div>
+      <div class="usage-item"><strong>Favicon</strong>32px Mark</div>
     </div>
-  </div>
-
-  <!-- Mega wordmark preview -->
-  <div class="brand-preview mega">
-    <div class="brand-sub-header">Mega wordmark · footer & brand walls</div>
-    <div class="logo-mega on-dark" style="font-size: clamp(52px, 10vw, 128px); margin-top: 18px">
-      <span class="mega-audio">Wave</span><span class="mega-mesh">yard</span
-      ><span class="mega-star">✦</span>
-    </div>
-    <div class="brand-footer-info">
-      <span>Pressed fresh in SF & Lagos</span>
-      <span>Est. 2026 ✦ #0241</span>
-    </div>
-  </div>
-
-  <!-- Usage notes -->
-  <div class="usage-notes">
-    <div class="usage-item"><strong>≥ 900px</strong>Full wordmark + mark</div>
-    <div class="usage-item"><strong>520–899px</strong>Full wordmark</div>
-    <div class="usage-item"><strong>&lt; 520px</strong>Mark only</div>
-    <div class="usage-item"><strong>Favicon</strong>32px Mark</div>
   </div>
 </div>

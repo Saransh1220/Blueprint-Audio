@@ -1,4 +1,5 @@
 import { HttpEventType } from '@angular/common/http';
+import { signal } from '@angular/core';
 import { FormBuilder } from '@angular/forms';
 import { TestBed } from '@angular/core/testing';
 import { Router } from '@angular/router';
@@ -16,7 +17,7 @@ describe('StudioUploadComponent', () => {
     TestBed.configureTestingModule({
       providers: [
         FormBuilder,
-        { provide: AuthService, useValue: {} },
+        { provide: AuthService, useValue: { currentUser: signal(null) } },
         { provide: LabService, useValue: labService },
         { provide: Router, useValue: router },
         { provide: ToastService, useValue: toast },

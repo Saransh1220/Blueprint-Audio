@@ -1,5 +1,6 @@
 import { HttpParams } from '@angular/common/http';
 import { ApiRequest, HttpMethod } from './api-request';
+import type { Money } from '../../models/money';
 
 export interface PublicAnalyticsDto {
   play_count: number;
@@ -34,6 +35,8 @@ export interface SpecDto {
   wav_url?: string;
   stems_url?: string;
   price: number;
+  price_money?: Money;
+  display_price_money?: Money;
   duration?: number;
   free_mp3_enabled?: boolean;
   created_at: string;
@@ -64,6 +67,8 @@ export interface LicenseDto {
   type: string; // "Basic" etc
   name: string;
   price: number;
+  price_money?: Money;
+  display_price_money?: Money;
   features: string[];
   file_types: string[];
   created_at: string;

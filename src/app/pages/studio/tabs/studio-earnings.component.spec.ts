@@ -56,9 +56,9 @@ describe('StudioEarningsComponent', () => {
 
     expect(component.isLoading()).toBe(false);
     expect(component.orderTotal()).toBe(14);
-    expect(component.currency(1234)).toBe('$1,234');
-    expect(component.compactCurrency(123456)).toBe('$1.2L');
-    expect(component.compactCurrency(2500)).toBe('$2.5k');
+    expect(component.currency(1234)).toBe('₹1,234');
+    expect(component.compactCurrency(123456)).toBe('₹1.2L');
+    expect(component.compactCurrency(2500)).toBe('₹2.5k');
     expect(component.formatDate('2026-04-01')).toContain('2026');
 
     component.requestPayout();

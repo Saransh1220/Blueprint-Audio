@@ -129,8 +129,8 @@ describe('StudioOrdersComponent', () => {
     ] as any);
     component.total.set(35);
 
-    expect(component.monthlyRevenue()).toBe('2,300');
-    expect(component.avgOrderValue()).toBe('575');
+    expect(component.monthlyRevenue()).toBe('₹2,300');
+    expect(component.avgOrderValue()).toBe('₹575');
 
     component.setOrderFilter('paid');
     expect(component.filteredOrders().map((order) => order.id)).toEqual(['ord-2']);

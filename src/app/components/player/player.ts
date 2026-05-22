@@ -19,6 +19,7 @@ import { ToastService } from '../../services/toast.service';
 import { LicenseSelectorComponent } from '../license-selector/license-selector.component';
 import type { Spec } from '../../models';
 import { Subscription } from 'rxjs';
+import { CurrencyService } from '../../services/currency.service';
 
 @Component({
   selector: 'app-player',
@@ -34,6 +35,7 @@ export class PlayerComponent implements OnDestroy {
   analyticsService = inject(AnalyticsService);
   labService = inject(LabService);
   toastService = inject(ToastService);
+  currencyService = inject(CurrencyService);
   router = inject(Router);
   cdr = inject(ChangeDetectorRef);
 
@@ -89,6 +91,20 @@ export class PlayerComponent implements OnDestroy {
       (min, license) => Math.min(min, license.price),
       track.licenses[0].price,
     );
+  });
+
+  minimumLicensePriceLabel = computed(() => {
+    const track = this.expandedTrackDetail() ?? this.playerService.currentTrack();
+    if (!track) return this.currencyService.formatMoney(null, 0);
+    if (!track.licenses?.length) {
+      return this.currencyService.formatMoney(track.displayPriceMoney, track.price);
+    }
+    const cheapest = track.licenses.reduce((min, license) => {
+      const minAmount = min.displayPriceMoney?.amount_minor ?? min.price * 100;
+      const nextAmount = license.displayPriceMoney?.amount_minor ?? license.price * 100;
+      return nextAmount < minAmount ? license : min;
+    }, track.licenses[0]);
+    return this.currencyService.formatMoney(cheapest.displayPriceMoney, cheapest.price);
   });
 
   private lastVisibleState = false;

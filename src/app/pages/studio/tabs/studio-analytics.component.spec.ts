@@ -3,6 +3,7 @@ import { of, throwError } from 'rxjs';
 import { AnalyticsService } from '../../../services/analytics.service';
 import { CsvExportService } from '../../../core/services/csv-export.service';
 import { LabService } from '../../../services';
+import { PaymentService } from '../../../services/payment.service';
 import { StudioAnalyticsComponent } from './studio-analytics.component';
 
 describe('StudioAnalyticsComponent', () => {
@@ -10,6 +11,7 @@ describe('StudioAnalyticsComponent', () => {
   const getTopSpecs = vi.fn();
   const downloadAnalyticsCsv = vi.fn();
   const getSpecs = vi.fn();
+  const getProducerOrders = vi.fn();
 
   const overview = {
     total_plays: 10,
@@ -31,6 +33,7 @@ describe('StudioAnalyticsComponent', () => {
         { provide: AnalyticsService, useValue: { getOverview, getTopSpecs } },
         { provide: CsvExportService, useValue: { downloadAnalyticsCsv } },
         { provide: LabService, useValue: { getSpecs } },
+        { provide: PaymentService, useValue: { getProducerOrders } },
       ],
     });
 
@@ -47,6 +50,7 @@ describe('StudioAnalyticsComponent', () => {
       ]),
     );
     getSpecs.mockReturnValue(of([{ id: 's1', title: 'A', imageUrl: 'a.png' }]));
+    getProducerOrders.mockReturnValue(of({ orders: [{ currency: 'USD' }] }));
   });
 
   it('loads analytics and chart data on construction', () => {
@@ -136,7 +140,7 @@ describe('StudioAnalyticsComponent', () => {
       expect.objectContaining({ dash: '151 151', offset: -0 }),
     );
     expect(component.totalLicenseCount()).toBe(2);
-    expect(component.currency(1234.4)).toBe('$1,234');
+    expect(component.currency(1234.4)).toBe('$1,234.40');
     expect(component.rangeLabel()).toBe('last 30 days');
     component.currentDays.set(365);
     expect(component.rangeLabel()).toBe('last year');

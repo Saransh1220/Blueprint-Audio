@@ -7,10 +7,21 @@
   --tangerine: #ff6b1a;
   --cobalt: #2d4cff;
   --lavender: #c9b8ff;
+  --dashboard-grain-opacity: 0.032;
+  --dashboard-grain-blend: multiply;
+  --dashboard-card-grain-opacity: 0.055;
+  --dashboard-card-grain-blend: multiply;
 
   --display: 'Bricolage Grotesque', sans-serif;
   --italic: 'Instrument Serif', serif;
   --mono: 'DM Mono', ui-monospace, monospace;
+}
+
+:host-context(body.dark-theme) {
+  --dashboard-grain-opacity: 0.045;
+  --dashboard-grain-blend: screen;
+  --dashboard-card-grain-opacity: 0.07;
+  --dashboard-card-grain-blend: screen;
 }
 
 // ─── Keyframes ───
@@ -74,16 +85,35 @@
 
 // ─── Wrapper ───
 .lc-dashboard {
-  background: var(--cream);
+  background:
+    radial-gradient(ellipse 900px 620px at 8% -5%, rgba(255, 61, 90, 0.075), transparent 58%),
+    radial-gradient(ellipse 760px 560px at 100% 16%, rgba(45, 76, 255, 0.07), transparent 58%),
+    radial-gradient(ellipse 920px 640px at 50% 106%, rgba(200, 232, 79, 0.06), transparent 58%),
+    linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--cream) 96%, #fffaf0),
+      var(--cream) 42%,
+      color-mix(in srgb, var(--cream-2) 72%, var(--cream))
+    );
   color: var(--ink);
   font-family: var(--display);
   font-weight: 400;
   min-height: 100vh;
+  position: relative;
   -webkit-font-smoothing: antialiased;
   line-height: 1.5;
   overflow-x: hidden;
 
-  // Grain texture overlay
+  &::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    opacity: var(--dashboard-grain-opacity);
+    mix-blend-mode: var(--dashboard-grain-blend);
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 260 260' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='dashboard-grain'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.76' numOctaves='2' seed='31'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23dashboard-grain)'/%3E%3C/svg%3E");
+  }
 
   ::selection {
     background: var(--hot);
@@ -94,6 +124,14 @@
   app-genres-section .genres-section {
     padding: 0;
   }
+}
+
+.lc-sub-nav,
+.lc-main,
+.lc-footer,
+.lc-toast {
+  position: relative;
+  z-index: 1;
 }
 // (Nav and ticker are handled by the global app-header component)
 
@@ -1914,6 +1952,194 @@
 // 900–1100px: bento narrows col, hero still 2 col (handled above via grid rules)
 // < 900px: hero/bento stack (handled above)
 // < 768px: mobile
+
+// Subtle section texture and gradient washes
+.lc-hero-main,
+.lc-stat-cell,
+.lc-drops-card,
+.lc-side-card,
+.lc-dock-item {
+  isolation: isolate;
+}
+
+.lc-hero-main,
+.lc-drops-card,
+.lc-side-card,
+.lc-dock-item {
+  position: relative;
+}
+
+.lc-hero-main > *,
+.lc-stat-cell > *,
+.lc-drops-card > *,
+.lc-side-card > *,
+.lc-dock-item > * {
+  position: relative;
+  z-index: 1;
+}
+
+.lc-hero-main::before,
+.lc-stat-cell::before,
+.lc-drops-card::before,
+.lc-side-card::before,
+.lc-dock-item::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: var(--dashboard-card-grain-opacity);
+  mix-blend-mode: var(--dashboard-card-grain-blend);
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='dashboard-card-grain'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.78' numOctaves='2' seed='37'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23dashboard-card-grain)'/%3E%3C/svg%3E");
+}
+
+.lc-hero-main {
+  background:
+    radial-gradient(
+      circle at 12% 0%,
+      color-mix(in srgb, var(--hot) 10%, transparent),
+      transparent 36%
+    ),
+    radial-gradient(
+      circle at 96% 18%,
+      color-mix(in srgb, var(--sun) 10%, transparent),
+      transparent 34%
+    ),
+    var(--cream);
+}
+
+.lc-stat-cell.c1 {
+  background: linear-gradient(
+    135deg,
+    var(--hot),
+    color-mix(in srgb, var(--hot) 82%, var(--tangerine))
+  );
+}
+.lc-stat-cell.c2 {
+  background: linear-gradient(
+    135deg,
+    var(--cobalt),
+    color-mix(in srgb, var(--cobalt) 78%, var(--lavender))
+  );
+}
+.lc-stat-cell.c3 {
+  background: linear-gradient(135deg, var(--lime), color-mix(in srgb, var(--lime) 78%, var(--sun)));
+}
+.lc-stat-cell.c4 {
+  background: linear-gradient(135deg, var(--sun), color-mix(in srgb, var(--sun) 76%, var(--hot)));
+}
+
+.lc-drops-card {
+  background:
+    radial-gradient(
+      circle at 0% 0%,
+      color-mix(in srgb, var(--cobalt) 8%, transparent),
+      transparent 36%
+    ),
+    linear-gradient(135deg, color-mix(in srgb, var(--cream-3) 92%, var(--lavender)), var(--cream-3));
+}
+
+.lc-side-card {
+  background:
+    radial-gradient(
+      circle at 100% 0%,
+      color-mix(in srgb, var(--lavender) 12%, transparent),
+      transparent 42%
+    ),
+    linear-gradient(135deg, color-mix(in srgb, var(--cream) 96%, var(--sun)), var(--cream));
+  overflow: hidden;
+}
+
+.lc-side-card.dark {
+  background:
+    radial-gradient(
+      circle at 88% 0%,
+      color-mix(in srgb, var(--lime) 13%, transparent),
+      transparent 42%
+    ),
+    linear-gradient(135deg, color-mix(in srgb, var(--ink) 92%, var(--cobalt)), var(--ink));
+}
+
+.lc-dock-item {
+  background: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--cream) 96%, var(--hot)),
+    var(--cream)
+  );
+  overflow: hidden;
+}
+
+.lc-dock-item:nth-child(2n) {
+  background: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--cream) 95%, var(--cobalt)),
+    var(--cream)
+  );
+}
+
+.lc-dock-item:nth-child(3n) {
+  background: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--cream) 94%, var(--lime)),
+    var(--cream)
+  );
+}
+
+:host-context(body.dark-theme) .lc-dashboard {
+  background:
+    radial-gradient(ellipse 900px 620px at 8% -5%, rgba(255, 77, 104, 0.14), transparent 58%),
+    radial-gradient(ellipse 760px 560px at 100% 16%, rgba(91, 120, 255, 0.12), transparent 58%),
+    radial-gradient(ellipse 920px 640px at 50% 106%, rgba(217, 245, 97, 0.08), transparent 58%),
+    linear-gradient(180deg, #17110f 0%, var(--cream) 42%, #080807 100%);
+}
+
+:host-context(body.dark-theme) .lc-hero-main {
+  background:
+    radial-gradient(circle at 12% 0%, rgba(255, 77, 104, 0.11), transparent 36%),
+    radial-gradient(circle at 96% 18%, rgba(217, 245, 97, 0.075), transparent 34%), var(--cream-2);
+}
+
+:host-context(body.dark-theme) .lc-drops-card {
+  background:
+    radial-gradient(circle at 0% 0%, rgba(91, 120, 255, 0.1), transparent 36%),
+    linear-gradient(135deg, var(--cream-2), var(--cream-3));
+}
+
+:host-context(body.dark-theme) .lc-side-card {
+  background:
+    radial-gradient(circle at 100% 0%, rgba(212, 197, 255, 0.09), transparent 42%),
+    linear-gradient(135deg, var(--cream-2), var(--cream));
+}
+
+:host-context(body.dark-theme) .lc-side-card.dark {
+  background:
+    radial-gradient(circle at 88% 0%, rgba(217, 245, 97, 0.12), transparent 42%),
+    linear-gradient(135deg, color-mix(in srgb, var(--ink) 86%, var(--cobalt)), var(--ink));
+}
+
+:host-context(body.dark-theme) .lc-dock-item {
+  background: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--cream-2) 92%, var(--hot)),
+    var(--cream-2)
+  );
+}
+
+:host-context(body.dark-theme) .lc-dock-item:nth-child(2n) {
+  background: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--cream-2) 91%, var(--cobalt)),
+    var(--cream-2)
+  );
+}
+
+:host-context(body.dark-theme) .lc-dock-item:nth-child(3n) {
+  background: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--cream-2) 91%, var(--lime)),
+    var(--cream-2)
+  );
+}
 
 @media (max-width: 768px) {
   .lc-sub-nav {

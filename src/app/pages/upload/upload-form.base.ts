@@ -3,8 +3,7 @@ import { computed, Directive, inject, OnInit, signal } from '@angular/core';
 import { FormArray, FormBuilder, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { Genre, MusicalKey } from '../../models';
-import { LabService } from '../../services/lab';
-import { ToastService } from '../../services/toast.service';
+import { LabService, AuthService, ToastService } from '../../services';
 
 type UploadFileType = 'cover' | 'preview' | 'wav' | 'stems';
 
@@ -17,9 +16,12 @@ interface FileSummary {
 @Directive()
 export abstract class UploadFormBase implements OnInit {
   protected labService = inject(LabService);
+  protected authService = inject(AuthService);
   protected fb = inject(FormBuilder);
   protected router = inject(Router);
   protected toastService = inject(ToastService);
+
+  currentUser = this.authService.currentUser;
 
   abstract successRoute: string[];
   abstract closeRoute: string;
@@ -142,7 +144,7 @@ export abstract class UploadFormBase implements OnInit {
         type: 'Basic',
         name: 'Basic Lease',
         subtitle: 'mp3',
-        price: 1499,
+        price: 14.99,
         features: ['MP3', 'Untagged', 'Limited Streams (50k)'],
         file_types: ['MP3'],
       },
@@ -150,7 +152,7 @@ export abstract class UploadFormBase implements OnInit {
         type: 'Premium',
         name: 'Premium Lease',
         subtitle: 'mp3 + wav',
-        price: 2499,
+        price: 24.99,
         features: ['MP3', 'WAV', 'Untagged', 'Limited Streams (500k)'],
         file_types: ['MP3', 'WAV'],
       },
@@ -158,7 +160,7 @@ export abstract class UploadFormBase implements OnInit {
         type: 'Trackout',
         name: 'Trackout Lease',
         subtitle: 'wav + stems',
-        price: 4999,
+        price: 49.99,
         features: ['MP3', 'WAV', 'Stems', 'Untagged', 'Unlimited Streams'],
         file_types: ['MP3', 'WAV', 'ZIP'],
       },
@@ -166,7 +168,7 @@ export abstract class UploadFormBase implements OnInit {
         type: 'Unlimited',
         name: 'Unlimited Lease',
         subtitle: 'pro',
-        price: 9999,
+        price: 99.99,
         features: ['Exclusive Rights', 'All Files Included', 'Full Ownership'],
         file_types: ['MP3', 'WAV', 'ZIP'],
       },
@@ -179,7 +181,10 @@ export abstract class UploadFormBase implements OnInit {
           type: [lic.type],
           name: [lic.name, Validators.required],
           subtitle: [lic.subtitle],
-          price: [lic.price, [Validators.required, Validators.pattern(/^\d+(\.\d{1,2})?$/)]],
+          price: [
+            lic.price,
+            [Validators.required, Validators.min(0.01), Validators.pattern(/^\d+(\.\d{1,2})?$/)],
+          ],
           features: [lic.features],
           file_types: [lic.file_types],
         }),
@@ -377,6 +382,7 @@ export abstract class UploadFormBase implements OnInit {
 
     const formValue = this.uploadForm.getRawValue();
     const basePrice = Math.min(...enabledLicenses.map((license: any) => license.price));
+    const storeCurrency = this.authService.currentUser()?.store_currency || 'USD';
 
     const metadata = {
       title: formValue.title,
@@ -385,6 +391,7 @@ export abstract class UploadFormBase implements OnInit {
       bpm: formValue.bpm ? Number(formValue.bpm) : 0,
       key: formValue.key || 'Unknown',
       price: basePrice,
+      price_currency: storeCurrency,
       tags: formValue.tags,
       genres: [
         {
@@ -397,7 +404,10 @@ export abstract class UploadFormBase implements OnInit {
       moods: this.selectedMoods(),
       instruments: this.selectedInstruments(),
       duration: this.beatDuration(),
-      licenses: enabledLicenses.map(({ subtitle, ...license }: any) => license),
+      licenses: enabledLicenses.map(({ subtitle, ...license }: any) => ({
+        ...license,
+        price_currency: storeCurrency,
+      })),
     };
 
     const formData = new FormData();
@@ -477,7 +487,9 @@ export abstract class UploadFormBase implements OnInit {
 
   formatCurrency(value: number | string) {
     const amount = Number(value || 0);
-    return `\u20b9${Math.round(amount)}`;
+    const storeCurrency = this.authService.currentUser()?.store_currency || 'USD';
+    const symbol = storeCurrency === 'INR' ? '₹' : '$';
+    return `${symbol}${amount.toFixed(2)}`;
   }
 
   formatFileState(type: UploadFileType) {

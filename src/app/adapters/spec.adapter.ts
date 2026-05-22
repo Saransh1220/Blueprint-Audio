@@ -34,6 +34,8 @@ export class SpecAdapter {
       key: dto.key.toUpperCase() as MusicalKey,
       tags: dto.tags || [],
       price: dto.price,
+      priceMoney: dto.price_money,
+      displayPriceMoney: dto.display_price_money,
       audioUrl: dto.preview_url, // Mapping preview_url to audioUrl for playback
       genres: dto.genres ? dto.genres : [],
       licenses: dto.licenses ? dto.licenses.map((l) => this.mapLicenseDto(l)) : [],
@@ -54,6 +56,8 @@ export class SpecAdapter {
       type: dto.type as LicenseType,
       name: dto.name,
       price: dto.price,
+      priceMoney: dto.price_money,
+      displayPriceMoney: dto.display_price_money,
       features: dto.features,
       fileTypes: dto.file_types,
     };

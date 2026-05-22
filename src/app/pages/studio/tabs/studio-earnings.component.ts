@@ -3,6 +3,8 @@ import { CommonModule } from '@angular/common';
 import { PaymentService } from '../../../services/payment.service';
 import { AnalyticsService } from '../../../services/analytics.service';
 import { AnalyticsOverviewResponse } from '../../../core/api/analytics.requests';
+import { CurrencyService } from '../../../services/currency.service';
+import { AppCurrency } from '../../../models';
 
 @Component({
   selector: 'app-studio-earnings',
@@ -14,6 +16,7 @@ import { AnalyticsOverviewResponse } from '../../../core/api/analytics.requests'
 export class StudioEarningsComponent {
   private paymentService = inject(PaymentService);
   private analyticsService = inject(AnalyticsService);
+  private currencyService = inject(CurrencyService);
 
   isLoading = signal(true);
   analytics = signal<AnalyticsOverviewResponse | null>(null);
@@ -21,6 +24,7 @@ export class StudioEarningsComponent {
   balance = signal(124750);
   pendingClearance = signal(7900);
   lastPayout = signal({ amount: 194820, date: '2026-04-01' });
+  producerCurrency = signal<AppCurrency>('INR');
 
   payouts = signal([
     {
@@ -58,8 +62,8 @@ export class StudioEarningsComponent {
     const rows = this.analytics()?.revenue_by_day ?? [];
     return rows.reduce((sum, row) => sum + row.revenue, 0) || 218400;
   });
-  formattedBalance = computed(() => this.balance().toLocaleString('en-IN'));
-  formattedLifetime = computed(() => this.lifetimeRevenue().toLocaleString('en-IN'));
+  formattedBalance = computed(() => this.currency(this.balance()));
+  formattedLifetime = computed(() => this.currency(this.lifetimeRevenue()));
 
   licenseBreakdown = computed(() => {
     const entries = Object.entries(
@@ -136,7 +140,12 @@ export class StudioEarningsComponent {
     });
 
     this.paymentService.getProducerOrders(1, 20).subscribe({
-      next: (res) => this.orderTotal.set(res.total),
+      next: (res) => {
+        this.orderTotal.set(res.total);
+        if (res.orders && res.orders.length > 0 && res.orders[0].currency) {
+          this.producerCurrency.set(res.orders[0].currency as AppCurrency);
+        }
+      },
       error: () => this.orderTotal.set(14),
     });
   }
@@ -154,13 +163,20 @@ export class StudioEarningsComponent {
   }
 
   currency(value: number): string {
-    return `$${Math.round(value || 0).toLocaleString('en-IN')}`;
+    return this.currencyService.formatMoney(null, value, this.producerCurrency());
   }
 
   compactCurrency(value: number): string {
     const rounded = Math.round(value || 0);
-    if (rounded >= 100000) return `$${(rounded / 100000).toFixed(1)}L`;
-    if (rounded >= 1000) return `$${(rounded / 1000).toFixed(1)}k`;
-    return `$${rounded.toLocaleString('en-IN')}`;
+    const curr = this.producerCurrency();
+    if (curr === 'INR') {
+      if (rounded >= 100000) return `₹${(rounded / 100000).toFixed(1)}L`;
+      if (rounded >= 1000) return `₹${(rounded / 1000).toFixed(1)}k`;
+      return `₹${rounded.toLocaleString('en-IN')}`;
+    } else {
+      if (rounded >= 1000000) return `$${(rounded / 1000000).toFixed(1)}M`;
+      if (rounded >= 1000) return `$${(rounded / 1000).toFixed(1)}k`;
+      return `$${rounded.toLocaleString('en-US')}`;
+    }
   }
 }

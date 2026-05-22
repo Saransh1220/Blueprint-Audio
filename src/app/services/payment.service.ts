@@ -50,7 +50,10 @@ export class PaymentService {
       )
       .pipe(
         tap((order) => {
-          // Step 2: Open Razorpay checkout
+          if (order.provider === 'dodo' && order.checkout_url) {
+            window.location.assign(order.checkout_url);
+            return;
+          }
           this.openRazorpayCheckout(order, specTitle);
         }),
         catchError((error) => {

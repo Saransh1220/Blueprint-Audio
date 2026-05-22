@@ -16,10 +16,11 @@ import { NgOptimizedImage } from '@angular/common';
 
 import type { Spec } from '../../models';
 import { SpecActionService } from '../../services/spec-action.service';
+import { MoneyPipe } from '../../shared/pipes/money.pipe';
 
 @Component({
   selector: 'app-spec-card',
-  imports: [CommonModule, NgOptimizedImage],
+  imports: [CommonModule, NgOptimizedImage, MoneyPipe],
   templateUrl: './spec-card.html',
   styleUrls: ['./spec-card.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

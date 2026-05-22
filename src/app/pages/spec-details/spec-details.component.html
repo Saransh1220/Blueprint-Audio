@@ -96,9 +96,7 @@
               </div>
               <div class="bc-stat">
                 <span class="lbl">From</span>
-                <span class="val">{{
-                  displayPrice() | currency: currencyCode : 'symbol' : '1.0-0'
-                }}</span>
+                <span class="val">{{ displayPriceMoney() | money: displayPrice() }}</span>
               </div>
             </div>
 
@@ -173,9 +171,7 @@
             <p class="lt-tagline">{{ getLicenseSubtitle(license, i, s.licenses.length) }}</p>
 
             <div class="lt-price-block">
-              <span class="currency">{{
-                license.price | currency: currencyCode : 'symbol' : '1.0-0'
-              }}</span>
+              <span class="currency">{{ license.displayPriceMoney | money: license.price }}</span>
               <span class="term">one-time</span>
             </div>
 
@@ -214,7 +210,7 @@
           </div>
           <div class="ls-right">
             <div class="ls-price">
-              {{ license.price | currency: currencyCode : 'symbol' : '1.0-0' }}
+              {{ license.displayPriceMoney | money: license.price }}
             </div>
             <button class="ls-cta" (click)="addSelectedLicenseToCart()">
               Add to cart
@@ -290,7 +286,7 @@
         [disabled]="!selectedLicense()"
       >
         <i class="fa-solid fa-cart-shopping"></i>
-        <span>{{ displayPrice() | currency: currencyCode : 'symbol' : '1.0-0' }}</span>
+        <span>{{ displayPriceMoney() | money: displayPrice() }}</span>
         <em>{{ selectedLicense()?.name || 'License' }}</em>
       </button>
 
@@ -357,7 +353,7 @@
           (click)="selectLicense(license)"
         >
           <span>{{ license.name }}</span>
-          <strong>{{ license.price | currency: currencyCode : 'symbol' : '1.0-0' }}</strong>
+          <strong>{{ license.displayPriceMoney | money: license.price }}</strong>
           <em>{{ getLicenseFormatLabel(license) }}</em>
         </button>
       </section>
@@ -470,9 +466,7 @@
             </h3>
             <div class="tg-meta">{{ item.key }} - {{ item.genres[0]?.name || item.category }}</div>
             <div class="tg-foot">
-              <span class="tg-price">{{
-                item.price | currency: currencyCode : 'symbol' : '1.0-0'
-              }}</span>
+              <span class="tg-price">{{ item.displayPriceMoney | money: item.price }}</span>
               <span class="tg-stat"
                 ><i class="fa-regular fa-heart"></i>{{ item.analytics?.favoriteCount ?? 0 }}</span
               >
@@ -520,9 +514,7 @@
             </h3>
             <div class="tg-meta">{{ item.key }} - {{ item.genres[0]?.name || item.category }}</div>
             <div class="tg-foot">
-              <span class="tg-price">{{
-                item.price | currency: currencyCode : 'symbol' : '1.0-0'
-              }}</span>
+              <span class="tg-price">{{ item.displayPriceMoney | money: item.price }}</span>
               <span class="tg-stat"
                 ><i class="fa-regular fa-heart"></i>{{ item.analytics?.favoriteCount ?? 0 }}</span
               >

@@ -54,7 +54,7 @@
         </button>
       }
       <button class="purchase-pill" (click)="addToCart($event)" title="Add to cart">
-        <span class="beat-price">${{ spec.price }}</span>
+        <span class="beat-price">{{ spec.displayPriceMoney | money: spec.price }}</span>
         <span class="purchase-icon"><i class="fa-solid fa-cart-plus"></i></span>
       </button>
     </div>

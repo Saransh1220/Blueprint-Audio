@@ -9,12 +9,29 @@
   --sidebar-width: 300px;
   --nav-offset: 73px;
   --filter-offset: 176px;
+  --explore-grain-opacity: 0.035;
+  --explore-grain-blend: multiply;
+  --sidebar-grain-opacity: 0.075;
+  --sidebar-grain-blend: multiply;
+  --catalog-grain-opacity: 0.028;
+  --catalog-grain-blend: multiply;
 
   background: var(--cream);
   color: var(--ink);
   min-height: 100vh;
   position: relative;
   overflow-x: clip;
+}
+
+.search-page::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: var(--explore-grain-opacity);
+  mix-blend-mode: var(--explore-grain-blend);
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 260 260' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='grain'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.72' numOctaves='2' seed='11'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23grain)'/%3E%3C/svg%3E");
 }
 
 .top-ticker,
@@ -62,6 +79,12 @@
 }
 
 :host-context(body.dark-theme) .search-page {
+  --explore-grain-opacity: 0.055;
+  --explore-grain-blend: screen;
+  --sidebar-grain-opacity: 0.095;
+  --sidebar-grain-blend: screen;
+  --catalog-grain-opacity: 0.04;
+  --catalog-grain-blend: screen;
   --cream: #0e0d0b;
   --cream-2: #1a1814;
   --cream-3: #262219;
@@ -1066,10 +1089,28 @@
 .sb-card {
   box-sizing: border-box;
   position: relative;
+  isolation: isolate;
+  overflow: hidden;
   margin-bottom: 14px;
   padding: 18px;
   border: 2px solid var(--ink);
   border-radius: 16px;
+}
+
+.sb-card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: var(--sidebar-grain-opacity);
+  mix-blend-mode: var(--sidebar-grain-blend);
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='sidebar-grain'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.78' numOctaves='2' seed='15'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23sidebar-grain)'/%3E%3C/svg%3E");
+}
+
+.sb-card > * {
+  position: relative;
+  z-index: 1;
 }
 
 .sb-card.cream {
@@ -2332,19 +2373,34 @@
 }
 
 .catalog {
+  position: relative;
+  isolation: isolate;
   min-height: calc(100vh - 149px);
   min-width: 0;
   max-width: none;
   padding: 0;
 }
 
+.catalog::before {
+  content: '';
+  position: absolute;
+  inset: -10px -12px 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: var(--catalog-grain-opacity);
+  mix-blend-mode: var(--catalog-grain-blend);
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 220 220' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='catalog-grain'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.7' numOctaves='2' seed='19'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23catalog-grain)'/%3E%3C/svg%3E");
+}
+
 .catalog-inner {
+  position: relative;
+  z-index: 1;
   max-width: 1260px;
   margin: 0 auto;
 }
 
 .catalog-toolbar {
-  display: flex;
+  display: none;
   justify-content: space-between;
   align-items: center;
   gap: 16px;
@@ -2456,6 +2512,11 @@
     background: var(--ink);
     color: var(--cream);
   }
+}
+
+.filter-view-switch {
+  flex: 0 0 auto;
+  margin-left: auto;
 }
 
 :host-context(body.dark-theme) .catalog-toolbar {
@@ -2871,6 +2932,10 @@
   }
 
   /* Mobile filters button in catalog toolbar */
+  .catalog-toolbar {
+    display: block;
+  }
+
   .mob-filter-btn {
     display: inline-flex !important;
   }
@@ -3321,9 +3386,10 @@
     --mobile-explore-muted: rgba(20, 19, 16, 0.62);
     --mobile-explore-line: rgba(20, 19, 16, 0.24);
     --mobile-search-bg: rgba(255, 250, 238, 0.9);
-    --mobile-card-bg: rgba(255, 250, 238, 0.28);
-    --mobile-card-hover: rgba(255, 250, 238, 0.58);
+    --mobile-card-bg: rgba(255, 250, 238, 0.56);
+    --mobile-card-hover: rgba(255, 250, 238, 0.76);
     --mobile-accent: #ff3d5a;
+    --explore-grain-opacity: 0.025;
 
     background:
       radial-gradient(circle at 82% -60px, rgba(255, 61, 90, 0.16), transparent 210px),
@@ -3341,29 +3407,14 @@
     --mobile-explore-muted: rgba(255, 246, 230, 0.7);
     --mobile-explore-line: rgba(255, 246, 230, 0.16);
     --mobile-search-bg: rgba(14, 13, 11, 0.72);
-    --mobile-card-bg: transparent;
-    --mobile-card-hover: rgba(255, 246, 230, 0.055);
+    --mobile-card-bg: rgba(255, 246, 230, 0.035);
+    --mobile-card-hover: rgba(255, 246, 230, 0.07);
     --mobile-accent: #ff4d68;
+    --explore-grain-opacity: 0.04;
 
     background:
       linear-gradient(180deg, rgba(255, 77, 104, 0.12), transparent 150px),
       linear-gradient(180deg, #17110f 0%, #0e0d0b 42%, #080807 100%);
-  }
-
-  .search-page::before {
-    content: '';
-    position: fixed;
-    inset: 0;
-    z-index: 0;
-    pointer-events: none;
-    background: url("data:image/svg+xml,%3Csvg viewBox='0 0 220 220' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='grain'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' seed='11'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23grain)' opacity='0.34'/%3E%3C/svg%3E");
-    opacity: 0.12;
-    mix-blend-mode: multiply;
-  }
-
-  :host-context(body.dark-theme) .search-page::before {
-    opacity: 0.34;
-    mix-blend-mode: screen;
   }
 
   .top-ticker,
@@ -3609,8 +3660,11 @@
     overflow: hidden;
     border: 0;
     border-radius: 0;
-    background: transparent;
+    background: var(--mobile-card-bg);
     box-shadow: none;
+    margin-left: -8px;
+    margin-right: -8px;
+    padding: 0 8px 84px;
   }
 
   :host ::ng-deep app-spec-list-item .market-row,
@@ -3618,18 +3672,18 @@
     grid-template-columns: 58px minmax(0, 1fr) 38px;
     gap: 12px;
     min-height: 66px;
-    padding: 8px 0;
+    padding: 8px 2px;
     border: 0;
     border-bottom: 1px dashed var(--mobile-explore-line);
     border-radius: 0;
     margin-bottom: 0;
-    background: var(--mobile-card-bg) !important;
+    background: transparent !important;
     box-shadow: none;
   }
 
   :host ::ng-deep app-spec-list-item:nth-child(odd) .market-row,
   :host ::ng-deep app-spec-list-item:nth-child(odd) .list-row {
-    background: rgba(255, 250, 238, 0.42) !important;
+    background: color-mix(in srgb, var(--mobile-explore-text) 2%, transparent) !important;
   }
 
   :host ::ng-deep app-spec-list-item .market-row:hover,
@@ -3639,13 +3693,13 @@
 
   :host-context(body.dark-theme) ::ng-deep app-spec-list-item .market-row,
   :host-context(body.dark-theme) ::ng-deep app-spec-list-item .list-row {
-    background: var(--mobile-card-bg) !important;
+    background: transparent !important;
     box-shadow: none;
   }
 
   :host-context(body.dark-theme) ::ng-deep app-spec-list-item:nth-child(odd) .market-row,
   :host-context(body.dark-theme) ::ng-deep app-spec-list-item:nth-child(odd) .list-row {
-    background: var(--mobile-card-bg) !important;
+    background: color-mix(in srgb, var(--mobile-explore-text) 2%, transparent) !important;
   }
 
   :host ::ng-deep app-spec-list-item .market-row.playing,

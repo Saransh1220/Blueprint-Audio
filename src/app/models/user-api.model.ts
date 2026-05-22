@@ -1,4 +1,5 @@
 import { Role, SystemRole } from './enums';
+import type { AppCurrency } from './money';
 
 export interface UserApiResponse {
   id: string;
@@ -15,6 +16,7 @@ export interface UserApiResponse {
   twitter_url?: string;
   youtube_url?: string;
   spotify_url?: string;
+  store_currency?: AppCurrency;
   created_at: string;
   updated_at: string;
 }

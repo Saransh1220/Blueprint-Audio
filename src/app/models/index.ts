@@ -1,5 +1,6 @@
 export * from './enums';
 export * from './modal';
+export * from './money';
 export * from './particle';
 export * from './payment';
 export * from './producer';

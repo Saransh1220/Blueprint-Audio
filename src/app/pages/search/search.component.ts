@@ -20,6 +20,9 @@ import { PaginationComponent } from '../../shared/components/pagination/paginati
 import { Genre, MusicalKey, type Spec } from '../../models';
 import { LabService } from '../../services/lab';
 import { ToastService } from '../../services/toast.service';
+import { AuthService } from '../../services/auth.service';
+import { CurrencyService } from '../../services/currency.service';
+import type { AppCurrency } from '../../models/money';
 
 type GroupKey = 'genres' | 'bpm' | 'price' | 'key' | 'licenses' | 'moods' | 'extras';
 type KeyMode = 'any' | 'major' | 'minor';
@@ -45,6 +48,8 @@ export class SearchPageComponent implements OnInit, OnDestroy {
   private router = inject(Router);
   private route = inject(ActivatedRoute);
   private toastService = inject(ToastService);
+  private authService = inject(AuthService);
+  private currencyService = inject(CurrencyService);
   private document = inject(DOCUMENT);
 
   specs = signal<Spec[]>([]);
@@ -140,7 +145,10 @@ export class SearchPageComponent implements OnInit, OnDestroy {
     }
 
     if (this.priceRange()[0] !== 0 || this.priceRange()[1] !== 50000) {
-      chips.push({ id: 'price', label: `$${this.priceRange()[0]}-$${this.priceRange()[1]}` });
+      chips.push({
+        id: 'price',
+        label: `${this.formatFilterPrice(this.priceRange()[0])}-${this.formatFilterPrice(this.priceRange()[1])}`,
+      });
     }
 
     if (this.key() !== 'All') {
@@ -365,7 +373,15 @@ export class SearchPageComponent implements OnInit, OnDestroy {
   getPriceSummary() {
     const [min, max] = this.priceRange();
     if (min === 0 && max === 50000) return 'Any';
-    return `$${min} - $${max}`;
+    return `${this.formatFilterPrice(min)} - ${this.formatFilterPrice(max)}`;
+  }
+
+  formatFilterPrice(value: number) {
+    return this.currencyService.formatMoney(null, value, this.getCurrencyCode());
+  }
+
+  getCurrencyCode(): AppCurrency {
+    return this.authService.currentUser()?.store_currency ?? 'USD';
   }
 
   setViewMode(mode: 'grid' | 'list') {

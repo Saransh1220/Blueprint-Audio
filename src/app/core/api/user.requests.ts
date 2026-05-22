@@ -1,4 +1,5 @@
 import { ApiRequest, HttpMethod } from './api-request';
+import type { AppCurrency } from '../../models/money';
 
 export interface UpdateProfileDto {
   bio?: string;
@@ -8,6 +9,7 @@ export interface UpdateProfileDto {
   twitter_url?: string;
   youtube_url?: string;
   spotify_url?: string;
+  store_currency?: AppCurrency;
 }
 
 export interface PublicUserResponse {
@@ -22,6 +24,7 @@ export interface PublicUserResponse {
   twitter_url?: string;
   youtube_url?: string;
   spotify_url?: string;
+  store_currency?: AppCurrency;
   created_at: string;
   updated_at?: string;
 }

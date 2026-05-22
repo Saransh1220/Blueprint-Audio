@@ -4,6 +4,9 @@ import { AnalyticsService } from '../../../services/analytics.service';
 import { AnalyticsOverviewResponse, TopSpecStat } from '../../../core/api/analytics.requests';
 import { CsvExportService } from '../../../core/services/csv-export.service';
 import { LabService } from '../../../services';
+import { PaymentService } from '../../../services/payment.service';
+import { CurrencyService } from '../../../services/currency.service';
+import { AppCurrency } from '../../../models';
 
 @Component({
   selector: 'app-studio-analytics',
@@ -16,6 +19,10 @@ export class StudioAnalyticsComponent {
   private analyticsService = inject(AnalyticsService);
   private csvService = inject(CsvExportService);
   private labService = inject(LabService, { optional: true });
+  private paymentService = inject(PaymentService);
+  private currencyService = inject(CurrencyService);
+
+  producerCurrency = signal<AppCurrency>('INR');
 
   isLoading = signal(true);
   error = signal<string | null>(null);
@@ -237,6 +244,15 @@ export class StudioAnalyticsComponent {
   constructor() {
     this.loadData();
     this.loadTrackArtwork();
+
+    this.paymentService.getProducerOrders(1, 5).subscribe({
+      next: (res) => {
+        if (res.orders && res.orders.length > 0 && res.orders[0].currency) {
+          this.producerCurrency.set(res.orders[0].currency as AppCurrency);
+        }
+      },
+      error: () => {},
+    });
   }
 
   setFilter(days: number) {
@@ -357,7 +373,7 @@ export class StudioAnalyticsComponent {
   }
 
   currency(value: number): string {
-    return `$${Math.round(value || 0).toLocaleString('en-IN')}`;
+    return this.currencyService.formatMoney(null, value, this.producerCurrency());
   }
 
   private linePath(points: { x: number; y: number }[]): string {

@@ -6,6 +6,8 @@ import { PaymentService } from '../../../services/payment.service';
 import { AuthService, LabService } from '../../../services';
 import { AnalyticsOverviewResponse, TopSpecStat } from '../../../core/api/analytics.requests';
 import { ProducerOrderDto } from '../../../core/api/payment.requests';
+import { CurrencyService } from '../../../services/currency.service';
+import { AppCurrency } from '../../../models';
 
 @Component({
   selector: 'app-studio-overview',
@@ -19,6 +21,7 @@ export class StudioOverviewComponent {
   private paymentService = inject(PaymentService);
   private authService = inject(AuthService);
   private labService = inject(LabService, { optional: true });
+  private currencyService = inject(CurrencyService);
 
   currentUser = this.authService.currentUser;
   isLoadingAnalytics = signal(true);
@@ -29,6 +32,14 @@ export class StudioOverviewComponent {
   recentOrders = signal<ProducerOrderDto[]>([]);
   trackArtwork = signal<Record<string, string>>({});
   hoveredRevenuePoint = signal<{ x: number; y: number; value: number; label: string } | null>(null);
+
+  producerCurrency = computed<AppCurrency>(() => {
+    const orders = this.recentOrders();
+    if (orders.length > 0 && orders[0].currency) {
+      return orders[0].currency as AppCurrency;
+    }
+    return 'INR';
+  });
 
   // User computed helpers
   displayName = computed(() => {
@@ -87,7 +98,7 @@ export class StudioOverviewComponent {
     }
     return [
       { label: 'Plays', value: data.total_plays.toLocaleString('en-IN') },
-      { label: 'Revenue', value: `$${data.total_revenue.toLocaleString('en-IN')}` },
+      { label: 'Revenue', value: this.currency(data.total_revenue) },
       { label: 'Downloads', value: data.total_downloads.toLocaleString('en-IN') },
       { label: 'Favorites', value: data.total_favorites.toLocaleString('en-IN') },
     ];
@@ -324,7 +335,7 @@ export class StudioOverviewComponent {
   }
 
   currency(value: number): string {
-    return `$${Math.round(value || 0).toLocaleString('en-IN')}`;
+    return this.currencyService.formatMoney(null, value, this.producerCurrency());
   }
 
   private linePath(points: { x: number; y: number }[]): string {

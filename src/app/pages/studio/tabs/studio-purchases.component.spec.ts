@@ -42,7 +42,8 @@ describe('StudioPurchasesComponent', () => {
           spec_title: 'Paid Beat',
           license_key: 'ABCDEFGH1234',
           downloads_count: 2,
-          purchase_price: 5000,
+          purchase_price: 12000,
+          currency: 'USD',
         },
       ]),
     );
@@ -51,7 +52,44 @@ describe('StudioPurchasesComponent', () => {
 
     expect(component.currentPage()).toBe(2);
     expect(component.rows()[0].title).toBe('Paid Beat');
-    expect(component.totalSpent()).toContain('50');
+    expect(component.rows()[0].paid).toBe('$120');
+    expect(component.totalSpent()).toBe('$120');
+  });
+
+  it('keeps mixed historical purchase totals in their transaction currencies', () => {
+    const component = create();
+    fetchUserLicenses.mockReturnValueOnce(
+      of([
+        {
+          id: 'lic-usd',
+          issued_at: '2026-04-01',
+          created_at: '2026-04-01',
+          license_type: 'Premium WAV',
+          spec_title: 'USD Beat',
+          license_key: 'USD12345',
+          downloads_count: 0,
+          purchase_price: 1099,
+          currency: 'USD',
+        },
+        {
+          id: 'lic-inr',
+          issued_at: '2026-04-02',
+          created_at: '2026-04-02',
+          license_type: 'Basic MP3',
+          spec_title: 'INR Beat',
+          license_key: 'INR12345',
+          downloads_count: 0,
+          purchase_price: 89900,
+          currency: 'INR',
+        },
+      ]),
+    );
+
+    component.loadPurchases(1);
+
+    expect(component.rows()[0].paid).toBe('$10.99');
+    expect(component.rows()[1].paid).toBe('₹899');
+    expect(component.totalSpent()).toBe('₹899 + $10.99');
   });
 
   it('handles filters, paging, per-page changes, errors and downloads', () => {

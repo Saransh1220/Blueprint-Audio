@@ -20,6 +20,7 @@ import {
   PublicUserResponse,
 } from '../core/api/user.requests';
 import { User, UserAdapter, Role, SystemRole } from '../models';
+import type { AppCurrency } from '../models/money';
 import { ModalService } from './modal.service';
 import { AuthRequirementComponent } from '../components/modals/auth-requirement/auth-requirement.component';
 import { SocialAuthService } from '@abacritt/angularx-social-login';
@@ -127,6 +128,7 @@ export class AuthService {
     twitter_url?: string;
     youtube_url?: string;
     spotify_url?: string;
+    store_currency?: AppCurrency;
   }) {
     return this.api.execute(new UpdateProfileRequest(data)).pipe(
       tap((updatedUser) => {
@@ -159,6 +161,7 @@ export class AuthService {
       twitter_url: response.twitter_url || null,
       youtube_url: response.youtube_url || null,
       spotify_url: response.spotify_url || null,
+      store_currency: response.store_currency || 'USD',
       created_at: response.created_at,
       updated_at: response.updated_at,
     };

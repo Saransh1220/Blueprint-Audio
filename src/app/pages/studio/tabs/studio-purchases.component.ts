@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { PaymentService } from '../../../services/payment.service';
+import { CurrencyService } from '../../../services/currency.service';
 import { License } from '../../../models/payment';
 import { PaginationComponent } from '../../../shared/components/pagination/pagination.component';
 
@@ -28,6 +29,7 @@ interface PurchaseRow {
 })
 export class StudioPurchasesComponent implements OnInit {
   private paymentService = inject(PaymentService);
+  private currencyService = inject(CurrencyService);
 
   isLoading = signal(false);
   licenses = signal<License[]>([]);
@@ -168,10 +170,18 @@ export class StudioPurchasesComponent implements OnInit {
 
   totalSpent = computed(() => {
     const live = this.licenses();
-    const total = live.length
-      ? live.reduce((sum, item) => sum + (item.purchase_price || 0), 0)
-      : 132400;
-    return this.formatPaise(total);
+    if (!live.length) return this.currencyService.formatMinorMoney(132400, 'INR');
+
+    const totals = live.reduce<Record<string, number>>((sum, item) => {
+      const currency = this.currencyService.normalizeCurrency(item.currency);
+      sum[currency] = (sum[currency] || 0) + (item.purchase_price || 0);
+      return sum;
+    }, {});
+
+    return Object.entries(totals)
+      .sort(([a], [b]) => a.localeCompare(b))
+      .map(([currency, amount]) => this.currencyService.formatMinorMoney(amount, currency))
+      .join(' + ');
   });
 
   ngOnInit() {
@@ -269,7 +279,7 @@ export class StudioPurchasesComponent implements OnInit {
       license: licenseName,
       format,
       downloads: `${license.downloads_count || 0} of unlimited`,
-      paid: this.formatPaise(license.purchase_price || 0),
+      paid: this.currencyService.formatMinorMoney(license.purchase_price || 0, license.currency),
       letter: title.slice(0, 1).toLowerCase(),
       artClass: `a${(index % 6) + 1}`,
     };
@@ -299,17 +309,9 @@ export class StudioPurchasesComponent implements OnInit {
       license,
       format,
       downloads,
-      paid: this.formatPaise(paid),
+      paid: this.currencyService.formatMinorMoney(paid, 'INR'),
       letter,
       artClass,
     };
-  }
-
-  private formatPaise(value: number) {
-    return new Intl.NumberFormat('en-IN', {
-      style: 'currency',
-      currency: 'INR',
-      maximumFractionDigits: 0,
-    }).format(value / 100);
   }
 }

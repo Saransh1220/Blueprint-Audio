@@ -68,7 +68,7 @@ describe('HeroComponent', () => {
       producerHandle: '@kitasol',
       genre: 'R&B',
       meta: '92 BPM / Em',
-      price: '$29',
+      price: '₹29',
       imageUrl: '/assets/beat.jpg',
     });
   });

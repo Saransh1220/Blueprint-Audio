@@ -12,6 +12,7 @@ import { gsap } from 'gsap';
 import { catchError, finalize, of } from 'rxjs';
 import type { Spec } from '../../models';
 import { LabService } from '../../services';
+import { CurrencyService } from '../../services/currency.service';
 
 type BeatCard = {
   id: string;
@@ -50,6 +51,7 @@ const CARD_LAYOUTS = [
 export class HeroComponent implements OnInit, AfterViewInit {
   private el = inject(ElementRef);
   private labService = inject(LabService);
+  private currencyService = inject(CurrencyService);
 
   readonly cardLayouts = CARD_LAYOUTS;
   beatCards = signal<BeatCard[]>([]);
@@ -93,7 +95,7 @@ export class HeroComponent implements OnInit, AfterViewInit {
       producerHandle: this.toHandle(spec.producerName),
       genre,
       meta,
-      price: this.formatPrice(spec.price),
+      price: this.currencyService.formatMoney(spec.displayPriceMoney, spec.price),
       imageUrl: spec.imageUrl,
       shortCode: spec.shortCode,
       slug: spec.slug,
@@ -107,13 +109,5 @@ export class HeroComponent implements OnInit, AfterViewInit {
       .toLowerCase()
       .replace(/[^a-z0-9]+/g, '');
     return clean ? `@${clean.slice(0, 14)}` : '@producer';
-  }
-
-  private formatPrice(price: number): string {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-      maximumFractionDigits: 0,
-    }).format(price);
   }
 }

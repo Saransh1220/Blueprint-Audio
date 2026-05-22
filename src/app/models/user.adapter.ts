@@ -20,6 +20,7 @@ export class UserAdapter {
       twitter_url: apiResponse.twitter_url || null,
       youtube_url: apiResponse.youtube_url || null,
       spotify_url: apiResponse.spotify_url || null,
+      store_currency: apiResponse.store_currency || 'USD',
       created_at: apiResponse.created_at || new Date().toISOString(),
       updated_at: apiResponse.updated_at,
     };

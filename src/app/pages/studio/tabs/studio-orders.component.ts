@@ -4,6 +4,8 @@ import { PaymentService } from '../../../services/payment.service';
 import { ProducerOrderDto, ProducerOrderResponse } from '../../../core/api/payment.requests';
 import { CsvExportService } from '../../../core/services/csv-export.service';
 import { PaginationComponent } from '../../../shared/components/pagination/pagination.component';
+import { CurrencyService } from '../../../services/currency.service';
+import { AppCurrency } from '../../../models';
 
 @Component({
   selector: 'app-studio-orders',
@@ -15,6 +17,7 @@ import { PaginationComponent } from '../../../shared/components/pagination/pagin
 export class StudioOrdersComponent {
   private paymentService = inject(PaymentService);
   private csvService = inject(CsvExportService);
+  private currencyService = inject(CurrencyService);
 
   orders = signal<ProducerOrderDto[]>([]);
   total = signal(0);
@@ -35,15 +38,42 @@ export class StudioOrdersComponent {
   });
 
   monthlyRevenue = computed(() => {
-    const total = this.orders().reduce((sum, o) => sum + (o.amount || 0), 0);
-    return total.toLocaleString();
+    const orders = this.orders();
+    const sums: { [currency: string]: number } = {};
+    for (const o of orders) {
+      const curr = o.currency || 'INR';
+      sums[curr] = (sums[curr] || 0) + (o.amount || 0);
+    }
+    const keys = Object.keys(sums);
+    if (keys.length === 0) {
+      return this.currencyService.formatMoney(null, 0, 'INR');
+    }
+    return keys
+      .map((curr) => this.currencyService.formatMoney(null, sums[curr], curr as AppCurrency))
+      .join(' + ');
   });
 
   avgOrderValue = computed(() => {
     const orders = this.orders();
-    if (!orders.length) return '0';
-    const avg = orders.reduce((sum, o) => sum + (o.amount || 0), 0) / orders.length;
-    return Math.round(avg).toLocaleString();
+    if (!orders.length) {
+      return this.currencyService.formatMoney(null, 0, 'INR');
+    }
+    const groups: { [currency: string]: { sum: number; count: number } } = {};
+    for (const o of orders) {
+      const curr = o.currency || 'INR';
+      if (!groups[curr]) {
+        groups[curr] = { sum: 0, count: 0 };
+      }
+      groups[curr].sum += o.amount || 0;
+      groups[curr].count += 1;
+    }
+    const keys = Object.keys(groups);
+    return keys
+      .map((curr) => {
+        const avg = groups[curr].sum / groups[curr].count;
+        return this.currencyService.formatMoney(null, avg, curr as AppCurrency);
+      })
+      .join(' + ');
   });
 
   constructor() {
@@ -112,6 +142,14 @@ export class StudioOrdersComponent {
     } catch {
       return '';
     }
+  }
+
+  formatOrderAmount(amount: number, currency?: string): string {
+    return this.currencyService.formatMoney(
+      null,
+      amount,
+      this.currencyService.normalizeCurrency(currency),
+    );
   }
 
   buyerColor(name: string): string {

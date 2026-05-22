@@ -80,7 +80,7 @@ describe('StudioOverviewComponent', () => {
     expect(component.recentOrders()).toEqual(ordersResponse.orders);
     expect(component.isLoadingAnalytics()).toBe(false);
     expect(component.isLoadingOrders()).toBe(false);
-    expect(component.kpiCards().map((card) => card.value)).toEqual(['1,234', '$5,678', '90', '12']);
+    expect(component.kpiCards().map((card) => card.value)).toEqual(['1,234', '₹5,678', '90', '12']);
   });
 
   it('keeps loading flags and fallback KPI values consistent on service errors', () => {
@@ -109,7 +109,7 @@ describe('StudioOverviewComponent', () => {
     expect(component.liveBeatCount()).toBe(2);
     expect(component.readyToWithdraw()).toBe(1022);
     expect(component.recentOrderCount()).toBe(3);
-    expect(component.revenueTotalLabel()).toBe('$5,678');
+    expect(component.revenueTotalLabel()).toBe('₹5,678');
     expect(component.recentSales()[0]).toEqual(
       expect.objectContaining({ id: 'o1', title: 'First', buyer: 'Sam', license: 'Basic' }),
     );
@@ -170,6 +170,6 @@ describe('StudioOverviewComponent', () => {
     expect(component.formatDate('not-a-date')).toBe('Invalid Date');
     expect(component.buyerColor('')).toBe('var(--hot)');
     expect(component.buyerColor('A')).toBe('var(--tangerine)');
-    expect(component.currency(0)).toBe('$0');
+    expect(component.currency(0)).toBe('₹0');
   });
 });

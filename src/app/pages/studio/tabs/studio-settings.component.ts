@@ -1,6 +1,7 @@
-import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { AuthService } from '../../../services';
+import { AuthService, ToastService } from '../../../services';
+import type { AppCurrency } from '../../../models/money';
 
 @Component({
   selector: 'app-studio-settings',
@@ -11,6 +12,7 @@ import { AuthService } from '../../../services';
 })
 export class StudioSettingsComponent {
   private authService = inject(AuthService);
+  private toastService = inject(ToastService);
 
   currentUser = this.authService.currentUser;
 
@@ -27,4 +29,32 @@ export class StudioSettingsComponent {
     { label: 'Messages', desc: 'Buyer and collaborator DMs', on: true },
     { label: 'Payout confirmed', desc: 'When earnings are settled', on: true },
   ];
+
+  savedCurrency = computed<AppCurrency>(() => this.currentUser()?.store_currency ?? 'USD');
+  selectedCurrency = signal<AppCurrency>(this.savedCurrency());
+  isSaving = signal(false);
+
+  selectCurrency(currency: AppCurrency) {
+    this.selectedCurrency.set(currency);
+  }
+
+  savePreferences() {
+    if (this.isSaving()) return;
+
+    this.isSaving.set(true);
+    this.authService
+      .updateProfile({
+        store_currency: this.selectedCurrency(),
+      })
+      .subscribe({
+        next: () => {
+          this.isSaving.set(false);
+          this.toastService.success('Store preferences updated successfully.');
+        },
+        error: (err) => {
+          this.isSaving.set(false);
+          this.toastService.error(err?.message || 'Failed to update store preferences.');
+        },
+      });
+  }
 }

@@ -38,8 +38,9 @@
           stroke="currentColor"
           stroke-width="2.2"
         >
-          <line x1="12" y1="1" x2="12" y2="23" />
-          <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+          <path d="M20 12V8H6a2 2 0 0 1 2-2h12V4" />
+          <rect x="2" y="6" width="20" height="12" rx="2" />
+          <circle cx="17" cy="12" r="1.5" />
         </svg>
         Withdraw {{ currency(readyToWithdraw()) }}
       </a>
@@ -73,7 +74,7 @@
   </div>
   <div class="stat-cell c2">
     <div class="stat-top">
-      <span class="stat-lbl">Revenue · 30d</span><span class="stat-ic">$</span>
+      <span class="stat-lbl">Revenue · 30d</span><span class="stat-ic">💰</span>
     </div>
     <div class="stat-val">{{ revenueTotalLabel() }}</div>
     <div class="stat-foot">
@@ -206,7 +207,9 @@
       </div>
       <div class="chart-legend">
         <div class="lg-item">
-          <span class="lg-dot" style="background: var(--hot)"></span>Revenue (INR)
+          <span class="lg-dot" style="background: var(--hot)"></span>Revenue ({{
+            producerCurrency()
+          }})
         </div>
         <div class="lg-item" style="margin-left: auto; color: var(--ink)">
           <strong>{{ revenueTotalLabel() }} <em>+12%</em></strong>

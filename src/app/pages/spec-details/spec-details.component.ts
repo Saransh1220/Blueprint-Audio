@@ -6,6 +6,8 @@ import { of } from 'rxjs';
 import { catchError, finalize, switchMap } from 'rxjs/operators';
 import { SpecListItemComponent } from '../../components/spec-list-item/spec-list-item.component';
 import { type LicenseOption, type Spec } from '../../models';
+import type { Money } from '../../models/money';
+import { MoneyPipe } from '../../shared/pipes/money.pipe';
 import {
   AnalyticsService,
   CartService,
@@ -17,7 +19,7 @@ import {
 @Component({
   selector: 'app-spec-details',
   standalone: true,
-  imports: [CommonModule, RouterLink, SpecListItemComponent],
+  imports: [CommonModule, RouterLink, SpecListItemComponent, MoneyPipe],
   templateUrl: './spec-details.component.html',
   styleUrls: ['./spec-details.component.scss'],
 })
@@ -29,7 +31,6 @@ export class SpecDetailsComponent {
   private toastService = inject(ToastService);
   private analyticsService = inject(AnalyticsService);
 
-  currencyCode = 'INR';
   isFavoriting = signal(false);
   specLoadSettled = signal(false);
   selectedLicense = signal<LicenseOption | null>(null);
@@ -103,6 +104,9 @@ export class SpecDetailsComponent {
   });
 
   displayPrice = computed(() => this.selectedLicense()?.price ?? this.spec()?.price ?? 0);
+  displayPriceMoney = computed<Money | undefined>(
+    () => this.selectedLicense()?.displayPriceMoney ?? this.spec()?.displayPriceMoney,
+  );
   primaryGenre = computed(() => this.spec()?.genres[0]?.name ?? 'Beat');
   producerImageUrl = computed(() => this.spec()?.producerAvatarUrl || '');
   relatedDisplaySpecs = computed(() => {

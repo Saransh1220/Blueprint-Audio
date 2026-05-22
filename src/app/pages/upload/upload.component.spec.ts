@@ -1,4 +1,5 @@
 import { HttpEventType } from '@angular/common/http';
+import { signal } from '@angular/core';
 import { FormBuilder } from '@angular/forms';
 import { TestBed } from '@angular/core/testing';
 import { Router } from '@angular/router';
@@ -18,7 +19,7 @@ describe('UploadComponent', () => {
     TestBed.configureTestingModule({
       providers: [
         FormBuilder,
-        { provide: AuthService, useValue: {} },
+        { provide: AuthService, useValue: { currentUser: signal(null) } },
         { provide: LabService, useValue: labService },
         { provide: Router, useValue: router },
         { provide: ToastService, useValue: toast },
@@ -32,6 +33,23 @@ describe('UploadComponent', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
+    vi.stubGlobal(
+      'Image',
+      class {
+        width = 100;
+        height = 100;
+        onload: (() => void) | null = null;
+        onerror: (() => void) | null = null;
+
+        set src(_: string) {
+          setTimeout(() => this.onload?.(), 0);
+        }
+      },
+    );
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
   });
 
   it('initializes default licenses and allows tags up to limit', () => {
@@ -82,27 +100,42 @@ describe('UploadComponent', () => {
     expect(component.currentStep()).toBe(3);
   });
 
-  it('validates files by type and size', () => {
+  it('validates files by type and size', async () => {
     const component = create();
     const handleFile = (component as any).handleFile.bind(component);
+    const createElement = document.createElement.bind(document);
+    vi.spyOn(document, 'createElement').mockImplementation(((tagName: string) => {
+      if (tagName === 'audio') {
+        return {
+          duration: 60,
+          preload: '',
+          onloadedmetadata: null,
+          onerror: null,
+          set src(_: string) {
+            setTimeout(() => this.onloadedmetadata?.(), 0);
+          },
+        } as unknown as HTMLAudioElement;
+      }
+      return createElement(tagName);
+    }) as typeof document.createElement);
 
-    handleFile(new File(['a'], 'large.png', { type: 'image/png' }), 'cover');
+    await handleFile(new File(['a'], 'large.png', { type: 'image/png' }), 'cover');
     const hugeCover = new File([new Uint8Array(6 * 1024 * 1024)], 'large.png', {
       type: 'image/png',
     });
-    handleFile(hugeCover, 'cover');
+    await handleFile(hugeCover, 'cover');
     expect(toast.show).toHaveBeenCalled();
 
-    handleFile(new File(['a'], 'x.txt', { type: 'text/plain' }), 'preview');
-    handleFile(new File(['a'], 'x.mp3', { type: 'audio/mpeg' }), 'preview');
+    await handleFile(new File(['a'], 'x.txt', { type: 'text/plain' }), 'preview');
+    await handleFile(new File(['a'], 'x.mp3', { type: 'audio/mpeg' }), 'preview');
     expect(component.previewFile()?.name).toBe('x.mp3');
 
-    handleFile(new File(['a'], 'x.mp3', { type: 'audio/mpeg' }), 'wav');
-    handleFile(new File(['a'], 'x.wav', { type: 'audio/wav' }), 'wav');
+    await handleFile(new File(['a'], 'x.mp3', { type: 'audio/mpeg' }), 'wav');
+    await handleFile(new File(['a'], 'x.wav', { type: 'audio/wav' }), 'wav');
     expect(component.wavFile()?.name).toBe('x.wav');
 
-    handleFile(new File(['a'], 'x.txt', { type: 'text/plain' }), 'stems');
-    handleFile(new File(['a'], 'x.zip', { type: 'application/zip' }), 'stems');
+    await handleFile(new File(['a'], 'x.txt', { type: 'text/plain' }), 'stems');
+    await handleFile(new File(['a'], 'x.zip', { type: 'application/zip' }), 'stems');
     expect(component.stemsFile()?.name).toBe('x.zip');
 
     component.removeFile('preview');
