@@ -13,7 +13,7 @@ describe('SearchPageComponent', () => {
   const getSpecs = vi.fn();
   const show = vi.fn();
 
-  function create() {
+  function create(user: unknown = null) {
     TestBed.configureTestingModule({
       providers: [
         {
@@ -26,7 +26,7 @@ describe('SearchPageComponent', () => {
         { provide: Router, useValue: { navigate } },
         { provide: ActivatedRoute, useValue: { queryParams: queryParams$ } },
         { provide: ToastService, useValue: { show } },
-        { provide: AuthService, useValue: { currentUser: signal(null) } },
+        { provide: AuthService, useValue: { currentUser: signal(user) } },
       ],
     });
 
@@ -128,5 +128,83 @@ describe('SearchPageComponent', () => {
 
     component.ngOnDestroy();
     vi.useRealTimers();
+  });
+
+  it('summarizes filters, chips, key modes, and dropdown state', () => {
+    const component = create({ store_currency: 'USD' });
+    component.searchTerm.set('pads');
+    component.genre.set(['TRAP', 'DRILL']);
+    component.bpmRange.set([90, 150]);
+    component.priceRange.set([25, 250]);
+    component.key.set('A MINOR');
+
+    expect(component.activeFilterChips().map((chip) => chip.id)).toEqual([
+      'search',
+      'genre:TRAP',
+      'genre:DRILL',
+      'bpm',
+      'price',
+      'key',
+    ]);
+    expect(component.getGenreSummary()).toBe('TRAP +1');
+    expect(component.getPriceSummary()).toContain('$');
+
+    component.setKeyMode('major');
+    expect(component.key()).toBe('All');
+    component.setKey('C MAJOR');
+    component.setKeyMode('minor');
+    expect(component.key()).toBe('All');
+    expect(component.visibleKeys().every((key) => key === 'All' || key.includes('MINOR'))).toBe(
+      true,
+    );
+
+    component.toggleDropdown('genre');
+    expect(component.isDropdownOpen('genre')).toBe(true);
+    component.toggleDropdown('genre');
+    expect(component.isDropdownOpen('genre')).toBe(false);
+    component.toggleDropdown('sort' as any);
+    component.onDocumentClick({
+      target: document.createElement('button'),
+    } as unknown as MouseEvent);
+    expect(component.openDropdown()).toBeNull();
+
+    component.toggleMobileFilters();
+    component.toggleMobileFilterPanel(true);
+    component.onEscape();
+    expect(component.mobileFiltersOpen()).toBe(false);
+    expect(component.mobileFilterPanelOpen()).toBe(true);
+
+    expect(component.isGroupOpen('genres')).toBe(true);
+    component.toggleGroup('genres');
+    expect(component.isGroupOpen('genres')).toBe(false);
+  });
+
+  it('removes active filter chips and clamps crossed ranges', () => {
+    const component = create();
+    component.searchTerm.set('pads');
+    component.genre.set(['TRAP', 'DRILL']);
+    component.bpmRange.set([100, 120]);
+    component.priceRange.set([1000, 2000]);
+    component.key.set('A MINOR');
+    component.keyMode.set('minor');
+
+    component.updateBpm({ target: { value: '130' } } as any, 0);
+    expect(component.bpmRange()).toEqual([130, 130]);
+    component.updatePrice({ target: { value: '500' } } as any, 1);
+    expect(component.priceRange()).toEqual([500, 500]);
+
+    component.removeActiveChip('search');
+    component.removeActiveChip('genre:TRAP');
+    component.removeActiveChip('bpm');
+    component.removeActiveChip('price');
+    component.removeActiveChip('key');
+
+    expect(component.searchTerm()).toBe('');
+    expect(component.genre()).toEqual(['DRILL']);
+    expect(component.bpmRange()).toEqual([60, 200]);
+    expect(component.priceRange()).toEqual([0, 50000]);
+    expect(component.key()).toBe('All');
+    expect(component.keyMode()).toBe('any');
+    expect(navigate).toHaveBeenCalled();
   });
 });

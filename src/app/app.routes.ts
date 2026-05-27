@@ -1,5 +1,6 @@
 import type { Routes } from '@angular/router';
 import { inject } from '@angular/core';
+import { Router } from '@angular/router';
 import { authGuard } from './guards/auth.guard';
 import { adminGuard } from './guards/admin.guard';
 import { guestGuard } from './guards/guest.guard';
@@ -81,6 +82,24 @@ export const routes: Routes = [
           import('./pages/studio/tabs/studio-purchases.component').then(
             (m) => m.StudioPurchasesComponent,
           ),
+      },
+      {
+        path: 'tools',
+        canActivate: [
+          () =>
+            inject(AuthService).currentUser()?.role === Role.PRODUCER ||
+            inject(Router).parseUrl('/studio/purchases'),
+        ],
+        children: [
+          { path: '', redirectTo: 'visualizer', pathMatch: 'full' },
+          {
+            path: 'visualizer',
+            loadComponent: () =>
+              import('./pages/studio/tabs/studio-visualizer.component').then(
+                (m) => m.StudioVisualizerComponent,
+              ),
+          },
+        ],
       },
       {
         path: 'upload',

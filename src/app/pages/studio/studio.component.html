@@ -130,6 +130,27 @@
           </span>
           <span class="sn-label">Orders</span>
         </a>
+        <a
+          class="side-nav-item creator-tools-nav"
+          routerLink="tools"
+          routerLinkActive="active"
+          (click)="closeMobileNav()"
+        >
+          <span class="sn-ico">
+            <svg
+              width="15"
+              height="15"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2.2"
+            >
+              <path d="M3 12h4l3-8 4 16 3-8h4" />
+            </svg>
+          </span>
+          <span class="sn-label">Creator Tools</span>
+          <span class="sn-count">new</span>
+        </a>
       }
       <a
         class="side-nav-item"
@@ -276,7 +297,7 @@
           <polyline points="12 5 19 12 12 19" />
         </svg>
       </a>
-      <button class="tool-link" type="button">
+      <a class="tool-link creator-tools-link" routerLink="tools" (click)="closeMobileNav()">
         <span class="tl-ico">
           <svg
             width="15"
@@ -286,13 +307,11 @@
             stroke="currentColor"
             stroke-width="2.2"
           >
-            <rect x="3" y="3" width="18" height="18" rx="2" />
-            <circle cx="8.5" cy="8.5" r="1.5" />
-            <polyline points="21 15 16 10 5 21" />
+            <path d="M3 12h4l3-8 4 16 3-8h4" />
           </svg>
         </span>
-        AI cover art
-      </button>
+        Creator Tools
+      </a>
       <button class="tool-link" type="button">
         <span class="tl-ico">
           <svg

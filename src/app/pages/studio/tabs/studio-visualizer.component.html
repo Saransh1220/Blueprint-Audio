@@ -1,0 +1,335 @@
+<div class="visualizer-page">
+  <header class="visualizer-topbar">
+    <div>
+      <span class="eyebrow">Creator Tools / Visualizer</span>
+      <h1>Waveform Studio</h1>
+    </div>
+    <div class="session-meta">
+      <span>{{ statusMessage() }}</span>
+      @if (hasAudio()) {
+        <strong>{{ formatTime(currentTime()) }} / {{ formatTime(duration()) }}</strong>
+      }
+    </div>
+  </header>
+
+  <section class="visualizer-shell">
+    <aside class="tool-rail">
+      <label class="upload-line" [class.busy]="isDecoding()">
+        <input type="file" accept="audio/*" (change)="onAudioSelected($event)" />
+        <span>{{ isDecoding() ? 'Decoding' : 'Audio' }}</span>
+        <strong>{{ audioFileName() || 'Choose file' }}</strong>
+      </label>
+
+      <section class="tool-group">
+        <div class="group-head">
+          <span>Style</span>
+          <em>{{ settings.style }}</em>
+        </div>
+        <div class="style-list">
+          @for (preset of presets; track preset.style) {
+            <button
+              type="button"
+              class="style-btn"
+              [class.active]="settings.style === preset.style"
+              (click)="selectStyle(preset.style)"
+            >
+              <strong>{{ preset.label }}</strong>
+              <span>{{ preset.description }}</span>
+            </button>
+          }
+        </div>
+      </section>
+
+      <section class="tool-group compact-grid">
+        <div>
+          <div class="group-head"><span>Motion</span></div>
+          <div class="segmented">
+            <button
+              type="button"
+              [class.on]="settings.mode === 'static'"
+              (click)="setMode('static')"
+            >
+              Static
+            </button>
+            <button
+              type="button"
+              [class.on]="settings.mode === 'dynamic'"
+              (click)="setMode('dynamic')"
+            >
+              Dynamic
+            </button>
+          </div>
+        </div>
+
+        <div>
+          <div class="group-head"><span>Aspect</span></div>
+          <div class="format-grid">
+            @for (format of formats; track format.value) {
+              <button
+                type="button"
+                class="format-card"
+                [class.on]="settings.format === format.value"
+                (click)="setFormat(format.value)"
+                [attr.aria-label]="format.label + ' canvas'"
+              >
+                <span class="device-icon" [attr.data-format]="format.value"><span></span></span>
+              </button>
+            }
+          </div>
+        </div>
+      </section>
+
+      <section class="tool-group">
+        <div class="group-head">
+          <span>Shape</span>
+          <em>{{ settings.density }} / {{ settings.intensity }}%</em>
+        </div>
+        <div class="quick-shape">
+          <label>
+            <span>Density</span>
+            <input
+              type="range"
+              min="24"
+              max="180"
+              step="4"
+              [(ngModel)]="settings.density"
+              (ngModelChange)="updateSetting()"
+            />
+          </label>
+          <label>
+            <span>Intensity</span>
+            <input
+              type="range"
+              min="20"
+              max="86"
+              step="2"
+              [(ngModel)]="settings.intensity"
+              (ngModelChange)="updateSetting()"
+            />
+          </label>
+        </div>
+      </section>
+    </aside>
+
+    <main class="clip-desk">
+      <div class="desk-head">
+        <div>
+          <span>Selected Clip</span>
+          <strong>{{ formatTime(trimStart()) }} - {{ formatTime(trimEnd()) }}</strong>
+        </div>
+        <div class="actions-row">
+          <button
+            type="button"
+            class="btn dark"
+            [disabled]="!hasAudio() || isExporting()"
+            (click)="togglePlayback()"
+          >
+            {{ isPlaying() ? 'Pause' : 'Play Clip' }}
+          </button>
+        </div>
+      </div>
+
+      <section class="clip-player" [class.disabled]="!hasAudio()">
+        <div
+          class="track-waveform"
+          #trackWaveform
+          [class.ready]="hasAudio()"
+          (pointerdown)="seekFromWaveform($event)"
+        >
+          <div
+            class="trim-window"
+            [style.left.%]="trimStartPercent()"
+            [style.width.%]="trimEndPercent() - trimStartPercent()"
+          ></div>
+          <button
+            type="button"
+            class="playhead"
+            [style.left.%]="playheadPercent()"
+            [disabled]="!hasAudio()"
+            (pointerdown)="beginPlayheadDrag($event)"
+            aria-label="Drag playhead"
+          ></button>
+          <button
+            type="button"
+            class="trim-handle start"
+            [style.left.%]="trimStartPercent()"
+            [disabled]="!hasAudio()"
+            (pointerdown)="beginTrimDrag('start', $event)"
+            aria-label="Drag clip start"
+          ></button>
+          <button
+            type="button"
+            class="trim-handle end"
+            [style.left.%]="trimEndPercent()"
+            [disabled]="!hasAudio()"
+            (pointerdown)="beginTrimDrag('end', $event)"
+            aria-label="Drag clip end"
+          ></button>
+          <div class="wave-bars">
+            @for (peak of trimPeaks(); track $index) {
+              <span [style.height.%]="peak * 100 < 8 ? 8 : peak * 100"></span>
+            }
+          </div>
+        </div>
+        <div class="clip-times">
+          <span>Start {{ formatTime(trimStart()) }}</span>
+          <span>{{ formatTime(clipDuration()) }}</span>
+          <span>End {{ formatTime(trimEnd()) }}</span>
+        </div>
+      </section>
+
+      <section class="tool-group palette-panel">
+        <div class="group-head">
+          <span>Palette</span>
+          <em>{{ settings.backgroundMode }}</em>
+        </div>
+        <div class="background-row">
+          <div class="segmented">
+            <button
+              type="button"
+              [class.on]="settings.backgroundMode === 'solid'"
+              (click)="setBackgroundMode('solid')"
+            >
+              Solid
+            </button>
+            <button
+              type="button"
+              [class.on]="settings.backgroundMode === 'gradient'"
+              (click)="setBackgroundMode('gradient')"
+            >
+              Gradient
+            </button>
+          </div>
+          <label>
+            <span>Grain</span>
+            <input
+              type="range"
+              min="0"
+              max="14"
+              step="1"
+              [(ngModel)]="settings.grainAmount"
+              (ngModelChange)="updateSetting()"
+            />
+          </label>
+        </div>
+        <div class="gradient-presets">
+          @for (preset of gradientPresets; track preset.name) {
+            <button
+              type="button"
+              class="gradient-preset"
+              [class.active]="
+                settings.backgroundMode === 'gradient' &&
+                settings.backgroundColor === preset.backgroundColor &&
+                settings.gradientColor === preset.gradientColor
+              "
+              [style.--from]="preset.backgroundColor"
+              [style.--to]="preset.gradientColor"
+              [style.--wave]="preset.waveformColor"
+              [style.--accent]="preset.accentColor"
+              (click)="selectGradientPreset(preset)"
+            >
+              <i>
+                <b></b>
+                <b></b>
+                <b></b>
+                <b></b>
+                <b></b>
+              </i>
+              <span>{{ preset.name }}</span>
+            </button>
+          }
+        </div>
+        <div class="palette-grid">
+          <div class="swatch-group">
+            <span>Bg</span>
+            <div class="swatch-grid">
+              @for (swatch of backgroundSwatches; track swatch.value) {
+                <button
+                  type="button"
+                  class="swatch"
+                  [class.on]="settings.backgroundColor === swatch.value"
+                  [style.background]="swatch.value"
+                  [attr.aria-label]="'Background ' + swatch.name"
+                  (click)="setColor('backgroundColor', swatch.value)"
+                ></button>
+              }
+            </div>
+          </div>
+          <div class="swatch-group">
+            <span>Wave</span>
+            <div class="swatch-grid">
+              @for (swatch of waveformSwatches; track swatch.value) {
+                <button
+                  type="button"
+                  class="swatch"
+                  [class.on]="settings.waveformColor === swatch.value"
+                  [style.background]="swatch.value"
+                  [attr.aria-label]="'Waveform ' + swatch.name"
+                  (click)="setColor('waveformColor', swatch.value)"
+                ></button>
+              }
+            </div>
+          </div>
+          <div class="swatch-group">
+            <span>Accent</span>
+            <div class="swatch-grid">
+              @for (swatch of accentSwatches; track swatch.value) {
+                <button
+                  type="button"
+                  class="swatch"
+                  [class.on]="settings.accentColor === swatch.value"
+                  [style.background]="swatch.value"
+                  [attr.aria-label]="'Accent ' + swatch.name"
+                  (click)="setColor('accentColor', swatch.value)"
+                ></button>
+              }
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <aside class="preview-rail">
+      <div class="preview-stage" [attr.data-format]="settings.format">
+        <canvas #previewCanvas class="visualizer-canvas" aria-label="Visualizer preview"></canvas>
+      </div>
+
+      <label class="title-toggle">
+        <input type="checkbox" [(ngModel)]="settings.showTitle" (change)="updateSetting()" />
+        <span>Title overlay</span>
+      </label>
+      <input
+        class="title-input"
+        type="text"
+        placeholder="Track title"
+        [(ngModel)]="settings.title"
+        [disabled]="!settings.showTitle"
+        (ngModelChange)="updateSetting()"
+      />
+
+      <div class="export-row">
+        <button type="button" class="btn primary" [disabled]="!hasAudio()" (click)="exportPng()">
+          Export Still
+        </button>
+        <button
+          type="button"
+          class="btn lime"
+          [disabled]="!hasAudio() || isExporting()"
+          (click)="exportWebm()"
+        >
+          {{ isExporting() ? 'Exporting' : 'Export Clip' }}
+        </button>
+      </div>
+
+      @if (isExporting()) {
+        <div class="export-progress" role="status" aria-live="polite">
+          <div>
+            <span>Background render</span>
+            <strong>{{ exportProgress() * 100 | number: '1.0-0' }}%</strong>
+          </div>
+          <i [style.width.%]="exportProgress() * 100"></i>
+        </div>
+      }
+    </aside>
+  </section>
+</div>

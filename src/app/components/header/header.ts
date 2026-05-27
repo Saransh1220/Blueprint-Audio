@@ -196,7 +196,7 @@ export class HeaderComponent {
   }
 
   isStudioSection(path: string) {
-    return this.router.url === `/studio/${path}`;
+    return this.router.url === `/studio/${path}` || this.router.url.startsWith(`/studio/${path}/`);
   }
 
   submitGlobalSearch() {

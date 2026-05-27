@@ -24,6 +24,7 @@ export class StudioComponent {
     { path: 'analytics', label: 'Analytics' },
     { path: 'orders', label: 'Orders' },
     { path: 'purchases', label: 'Purchases' },
+    { path: 'tools', label: 'Creator Tools' },
     { path: 'profile', label: 'Profile' },
   ];
 

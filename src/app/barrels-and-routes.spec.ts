@@ -26,8 +26,10 @@ describe('Barrels and Routes', () => {
     const studioAnalyticsChild = studioChildren.find((r) => r.path === 'analytics');
     const studioOrdersChild = studioChildren.find((r) => r.path === 'orders');
     const studioPurchasesChild = studioChildren.find((r) => r.path === 'purchases');
+    const studioToolsChild = studioChildren.find((r) => r.path === 'tools');
     const studioUploadChild = studioChildren.find((r) => r.path === 'upload');
     const studioProfileChild = studioChildren.find((r) => r.path === 'profile');
+    const studioVisualizerChild = studioToolsChild?.children?.find((r) => r.path === 'visualizer');
 
     expect(studioRoute).toBeDefined();
     expect(studioRoute?.component).toBeDefined();
@@ -39,6 +41,7 @@ describe('Barrels and Routes', () => {
       'analytics',
       'orders',
       'purchases',
+      'tools',
       'upload',
       'profile',
       'earnings',
@@ -50,6 +53,9 @@ describe('Barrels and Routes', () => {
     expect(studioAnalyticsChild?.loadComponent).toBeTypeOf('function');
     expect(studioOrdersChild?.loadComponent).toBeTypeOf('function');
     expect(studioPurchasesChild?.loadComponent).toBeTypeOf('function');
+    expect(studioToolsChild?.canActivate?.length).toBe(1);
+    expect(studioToolsChild?.children?.map((r) => r.path)).toEqual(['', 'visualizer']);
+    expect(studioVisualizerChild?.loadComponent).toBeTypeOf('function');
     expect(studioUploadChild?.loadComponent).toBeTypeOf('function');
     expect(studioProfileChild?.loadComponent).toBeTypeOf('function');
 
@@ -59,6 +65,7 @@ describe('Barrels and Routes', () => {
       studioAnalyticsComponent,
       studioOrdersComponent,
       studioPurchasesComponent,
+      studioVisualizerComponent,
       studioUploadComponent,
       studioProfileComponent,
     ] = await Promise.all([
@@ -67,6 +74,7 @@ describe('Barrels and Routes', () => {
       studioAnalyticsChild?.loadComponent?.(),
       studioOrdersChild?.loadComponent?.(),
       studioPurchasesChild?.loadComponent?.(),
+      studioVisualizerChild?.loadComponent?.(),
       studioUploadChild?.loadComponent?.(),
       studioProfileChild?.loadComponent?.(),
     ]);
@@ -76,6 +84,7 @@ describe('Barrels and Routes', () => {
     expect(studioAnalyticsComponent).toBeTruthy();
     expect(studioOrdersComponent).toBeTruthy();
     expect(studioPurchasesComponent).toBeTruthy();
+    expect(studioVisualizerComponent).toBeTruthy();
     expect(studioUploadComponent).toBeTruthy();
     expect(studioProfileComponent).toBeTruthy();
   }, 10000);

@@ -39,6 +39,7 @@ describe('StudioComponent', () => {
       'analytics',
       'orders',
       'purchases',
+      'tools',
       'profile',
     ]);
   });
