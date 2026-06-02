@@ -1027,7 +1027,7 @@
   }
 
   .mp-title {
-    font-size: 1rem;
+    font-size: 0.88rem;
   }
 
   .mp-sub {
@@ -1406,8 +1406,8 @@
     h2 {
       margin: 0;
       font-family: $font-head;
-      font-size: clamp(1.8rem, 12vw, 2.8rem);
-      line-height: 0.95;
+      font-size: clamp(1.2rem, 5.8vw, 1.55rem);
+      line-height: 1.08;
       letter-spacing: 0;
       white-space: nowrap;
       overflow: hidden;
