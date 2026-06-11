@@ -1,8 +1,8 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ActivatedRoute, provideRouter } from '@angular/router';
+import { Role } from '../../models';
 import { SpecActionService } from '../../services/spec-action.service';
 import { SpecListItemComponent } from './spec-list-item.component';
-import { Role } from '../../models';
 
 describe('SpecListItemComponent', () => {
   let fixture: ComponentFixture<SpecListItemComponent>;

@@ -1,5 +1,5 @@
-import { ApiRequest, HttpMethod } from './api-request';
 import type { AppCurrency } from '../../models/money';
+import { ApiRequest, HttpMethod } from './api-request';
 
 export interface UpdateProfileDto {
   bio?: string;

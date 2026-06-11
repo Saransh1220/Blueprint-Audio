@@ -1,12 +1,12 @@
-import { ChangeDetectionStrategy, Component, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { AnalyticsService } from '../../../services/analytics.service';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { AnalyticsOverviewResponse, TopSpecStat } from '../../../core/api/analytics.requests';
 import { CsvExportService } from '../../../core/services/csv-export.service';
-import { LabService } from '../../../services';
-import { PaymentService } from '../../../services/payment.service';
-import { CurrencyService } from '../../../services/currency.service';
 import { AppCurrency } from '../../../models';
+import { LabService } from '../../../services';
+import { AnalyticsService } from '../../../services/analytics.service';
+import { CurrencyService } from '../../../services/currency.service';
+import { PaymentService } from '../../../services/payment.service';
 
 @Component({
   selector: 'app-studio-analytics',
@@ -279,7 +279,7 @@ export class StudioAnalyticsComponent {
 
   loadTopSpecs() {
     this.analyticsService.getTopSpecs(5, this.sortBy()).subscribe((res) => {
-      let sorted = [...res];
+      const sorted = [...res];
       if (this.sortDirection() === 'asc') sorted.reverse();
       this.topSpecs.set(sorted);
     });

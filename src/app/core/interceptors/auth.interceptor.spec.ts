@@ -2,8 +2,8 @@ import { HttpErrorResponse, HttpRequest } from '@angular/common/http';
 import { TestBed } from '@angular/core/testing';
 import { Router } from '@angular/router';
 import { of, Subject, throwError } from 'rxjs';
-import { authInterceptor } from './auth.interceptor';
 import { TokenRefreshService } from '../../services/token-refresh.service';
+import { authInterceptor } from './auth.interceptor';
 
 describe('authInterceptor', () => {
   beforeEach(() => {

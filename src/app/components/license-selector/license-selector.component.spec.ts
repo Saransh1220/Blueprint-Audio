@@ -2,8 +2,8 @@ import { TestBed } from '@angular/core/testing';
 import { of, throwError } from 'rxjs';
 import { CartService } from '../../services/cart.service';
 import { ModalService } from '../../services/modal.service';
-import { ToastService } from '../../services/toast.service';
 import { PaymentService } from '../../services/payment.service';
+import { ToastService } from '../../services/toast.service';
 import { LicenseSelectorComponent } from './license-selector.component';
 
 describe('LicenseSelectorComponent', () => {

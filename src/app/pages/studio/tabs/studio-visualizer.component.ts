@@ -4,22 +4,22 @@ import {
   ChangeDetectionStrategy,
   ChangeDetectorRef,
   Component,
+  computed,
   ElementRef,
   HostListener,
-  OnDestroy,
-  ViewChild,
-  computed,
   inject,
+  OnDestroy,
   signal,
+  ViewChild,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { ToastService, VisualizerService } from '../../../services';
 import type {
   VisualizerFormat,
   VisualizerMode,
   VisualizerSettings,
   VisualizerStyle,
 } from '../../../services';
+import { ToastService, VisualizerService } from '../../../services';
 
 interface VisualizerPreset {
   style: VisualizerStyle;

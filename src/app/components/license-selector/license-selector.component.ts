@@ -1,10 +1,10 @@
 import { CommonModule } from '@angular/common';
-import { Component, Input, computed, inject, signal } from '@angular/core';
+import { Component, computed, Input, inject, signal } from '@angular/core';
 import type { LicenseOption, Spec } from '../../models';
 import { CartService } from '../../services/cart.service';
 import { ModalService } from '../../services/modal.service';
-import { ToastService } from '../../services/toast.service';
 import { PaymentService } from '../../services/payment.service';
+import { ToastService } from '../../services/toast.service';
 import { MoneyPipe } from '../../shared/pipes/money.pipe';
 
 @Component({

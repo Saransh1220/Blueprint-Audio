@@ -2,11 +2,11 @@ import { signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { of, throwError } from 'rxjs';
-import { PlayerService } from '../../services/player.service';
-import { AuthService } from '../../services/auth.service';
-import { ModalService } from '../../services/modal.service';
 import { AnalyticsService } from '../../services/analytics.service';
+import { AuthService } from '../../services/auth.service';
 import { LabService } from '../../services/lab';
+import { ModalService } from '../../services/modal.service';
+import { PlayerService } from '../../services/player.service';
 import { ToastService } from '../../services/toast.service';
 import { PlayerComponent } from './player';
 

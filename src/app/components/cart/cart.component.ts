@@ -1,8 +1,8 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject, signal } from '@angular/core';
+import type { AppCurrency, Money } from '../../models/money';
 import { CartService } from '../../services';
 import { MoneyPipe } from '../../shared/pipes/money.pipe';
-import type { AppCurrency, Money } from '../../models/money';
 
 @Component({
   selector: 'app-cart',

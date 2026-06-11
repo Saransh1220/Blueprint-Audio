@@ -1,9 +1,9 @@
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { of, throwError } from 'rxjs';
+import { AuthService, LabService } from '../../../services';
 import { AnalyticsService } from '../../../services/analytics.service';
 import { PaymentService } from '../../../services/payment.service';
-import { AuthService, LabService } from '../../../services';
 import { StudioOverviewComponent } from './studio-overview.component';
 
 describe('StudioOverviewComponent', () => {

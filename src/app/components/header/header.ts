@@ -1,21 +1,21 @@
 import { CommonModule } from '@angular/common';
 import {
   Component,
+  computed,
   ElementRef,
   HostListener,
-  ViewChild,
-  computed,
   inject,
   output,
   signal,
+  ViewChild,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
-import { AuthService, AuthzService, CartService, NotificationService } from '../../services';
 import { Role } from '../../models';
-import { ThemeToggleComponent } from '../theme-toggle/theme-toggle';
 import { StudioShellService } from '../../pages/studio/studio-shell.service';
+import { AuthService, AuthzService, CartService, NotificationService } from '../../services';
+import { ThemeToggleComponent } from '../theme-toggle/theme-toggle';
 
 type NotificationKind =
   | 'all'

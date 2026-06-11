@@ -1,5 +1,5 @@
-import { Component, input, output, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Component, computed, input, output } from '@angular/core';
 
 @Component({
   selector: 'app-pagination',

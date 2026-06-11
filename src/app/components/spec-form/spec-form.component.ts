@@ -2,14 +2,14 @@ import { CommonModule } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
-  input,
-  output,
-  signal,
   effect,
   inject,
+  input,
   OnInit,
+  output,
+  signal,
 } from '@angular/core';
-import { ReactiveFormsModule, FormBuilder, Validators, FormArray, FormGroup } from '@angular/forms';
+import { FormArray, FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Genre, MusicalKey, Spec, SpecFormData } from '../../models';
 
 @Component({
@@ -178,7 +178,7 @@ export class SpecFormComponent implements OnInit {
     if (!file) return;
 
     switch (type) {
-      case 'cover':
+      case 'cover': {
         this.coverFile.set(file);
         const reader = new FileReader();
         reader.onload = (e) => {
@@ -186,6 +186,7 @@ export class SpecFormComponent implements OnInit {
         };
         reader.readAsDataURL(file);
         break;
+      }
       case 'preview':
         this.previewFile.set(file);
         break;

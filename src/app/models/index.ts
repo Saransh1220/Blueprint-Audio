@@ -6,6 +6,6 @@ export * from './payment';
 export * from './producer';
 export * from './spec';
 export * from './spec-form.model';
+export * from './user.adapter';
 export * from './user.model';
 export * from './user-api.model';
-export * from './user.adapter';

@@ -1,41 +1,38 @@
 @use '../../styles/variables' as *;
 
 .genres-section {
-  padding: 56px 20px;
+  padding: 42px 20px 46px;
   background: var(--bg-color);
   color: var(--text-color);
+  border-top: 2px solid var(--ink);
+  border-bottom: 2px solid var(--ink);
 }
 
 .section-head {
   display: flex;
   justify-content: space-between;
   align-items: flex-end;
-  gap: 40px;
-  margin-bottom: 34px;
+  gap: 28px;
+  margin-bottom: 24px;
   flex-wrap: wrap;
   text-transform: none;
 }
 
 .section-num {
   font-family: $font-tech;
-  font-size: 12px;
-  letter-spacing: 0.2em;
-  color: #6b635a;
-  padding: 6px 12px;
-  background: #ece5d3;
-  border: 1.5px solid #141310;
-  border-radius: 100px;
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  color: var(--ink-mute);
+  padding-left: 12px;
+  border-left: 3px solid var(--brand-color);
   display: inline-flex;
   align-items: center;
-  gap: 10px;
-  margin-bottom: 20px;
+  gap: 8px;
+  margin-bottom: 14px;
   text-transform: uppercase;
 
   .dot {
-    width: 6px;
-    height: 6px;
-    background: var(--brand-color);
-    border-radius: 50%;
+    display: none;
   }
 }
 
@@ -43,10 +40,10 @@
   font-family: $font-head;
   font-weight: 700;
   font-variation-settings: 'opsz' 96;
-  font-size: clamp(38px, 5.8vw, 76px);
-  letter-spacing: -0.04em;
-  line-height: 0.92;
-  max-width: 800px;
+  font-size: clamp(26px, 3.2vw, 42px);
+  letter-spacing: -0.035em;
+  line-height: 0.96;
+  max-width: 650px;
 
   em {
     font-family: 'Instrument Serif', serif;
@@ -60,8 +57,8 @@
   display: flex;
   flex-direction: column;
   align-items: flex-end;
-  gap: 12px;
-  max-width: 320px;
+  gap: 10px;
+  max-width: 300px;
 
   p {
     font-size: 14px;
@@ -81,7 +78,8 @@
   text-transform: uppercase;
   color: #141310;
   text-decoration: none;
-  padding: 9px 16px;
+  min-height: 34px;
+  padding: 7px 13px;
   border: 1.5px solid #141310;
   border-radius: 100px;
   transition: all 0.2s ease;
@@ -105,14 +103,14 @@
 .category-grid {
   display: grid;
   grid-template-columns: repeat(6, 1fr);
-  gap: 14px;
+  gap: 10px;
 }
 
 .cat-tile {
-  aspect-ratio: 3 / 4;
+  aspect-ratio: 1 / 1.16;
   border: 2px solid #141310;
-  border-radius: 22px;
-  padding: 18px;
+  border-radius: 14px;
+  padding: 14px;
   position: relative;
   overflow: hidden;
   cursor: pointer;
@@ -225,7 +223,7 @@
   font-family: $font-head;
   font-weight: 700;
   font-variation-settings: 'opsz' 96;
-  font-size: 30px;
+  font-size: 24px;
   letter-spacing: -0.035em;
   line-height: 0.9;
 
@@ -253,7 +251,7 @@
 
 @media (max-width: 768px) {
   .genres-section {
-    padding: 60px 20px;
+    padding: 42px 20px;
   }
 
   .section-head {
@@ -276,7 +274,7 @@
 
 @media (max-width: 560px) {
   .genres-section {
-    padding: 52px 12px;
+    padding: 38px 12px;
   }
 
   .section-head {
@@ -285,7 +283,7 @@
   }
 
   .section-h {
-    font-size: clamp(28px, 8.5vw, 38px);
+    font-size: clamp(24px, 7vw, 32px);
     line-height: 1;
     letter-spacing: -0.025em;
   }

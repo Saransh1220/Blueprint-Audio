@@ -1,14 +1,14 @@
-import { Component, OnInit, computed, effect, inject, signal, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Component, computed, effect, inject, OnInit, signal, ViewChild } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { switchMap, tap } from 'rxjs';
-import { AuthService } from '../../../services/auth.service';
-import { UserService } from '../../../services/user.service';
-import { ToastService } from '../../../services/toast.service';
-import { Role } from '../../../models';
-import { PublicUserResponse } from '../../../core/api/user.requests';
 import { ConfirmDialogComponent } from '../../../components/confirm-dialog/confirm-dialog.component';
+import { PublicUserResponse } from '../../../core/api/user.requests';
+import { Role } from '../../../models';
+import { AuthService } from '../../../services/auth.service';
+import { ToastService } from '../../../services/toast.service';
+import { UserService } from '../../../services/user.service';
 import { resolveMediaUrl } from '../../../utils/media-url';
 
 @Component({

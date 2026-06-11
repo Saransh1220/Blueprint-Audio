@@ -7,7 +7,6 @@ import { catchError, finalize, switchMap } from 'rxjs/operators';
 import { SpecListItemComponent } from '../../components/spec-list-item/spec-list-item.component';
 import { type LicenseOption, type Spec } from '../../models';
 import type { Money } from '../../models/money';
-import { MoneyPipe } from '../../shared/pipes/money.pipe';
 import {
   AnalyticsService,
   CartService,
@@ -15,6 +14,7 @@ import {
   PlayerService,
   ToastService,
 } from '../../services';
+import { MoneyPipe } from '../../shared/pipes/money.pipe';
 
 @Component({
   selector: 'app-spec-details',

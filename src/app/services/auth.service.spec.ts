@@ -1,12 +1,12 @@
-import { of, throwError } from 'rxjs';
+import { SocialAuthService } from '@abacritt/angularx-social-login';
 import { TestBed } from '@angular/core/testing';
 import { Router } from '@angular/router';
-import { SocialAuthService } from '@abacritt/angularx-social-login';
-import { Role } from '../models/enums';
+import { of, throwError } from 'rxjs';
+import { AuthRequirementComponent } from '../components/modals/auth-requirement/auth-requirement.component';
 import { ApiService } from '../core/services/api.service';
+import { Role } from '../models/enums';
 import { AuthService } from './auth.service';
 import { ModalService } from './modal.service';
-import { AuthRequirementComponent } from '../components/modals/auth-requirement/auth-requirement.component';
 import { TokenRefreshService } from './token-refresh.service';
 
 describe('AuthService', () => {

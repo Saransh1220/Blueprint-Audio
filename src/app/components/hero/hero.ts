@@ -59,7 +59,7 @@ export class HeroComponent implements OnInit, AfterViewInit {
 
   ngOnInit(): void {
     this.labService
-      .getSpecs({ category: 'beat', page: 1, per_page: CARD_LAYOUTS.length, sort: 'newest' })
+      .getSpecs({ category: 'beat', page: 1, per_page: 7, sort: 'newest' })
       .pipe(
         catchError(() => of([] as Spec[])),
         finalize(() => this.isLoading.set(false)),

@@ -1,85 +1,31 @@
-<section class="lab-section container block catalog-block">
-  <div class="section-head">
+<section class="lab-section block marketplace-home">
+  <div class="section-head releases-head">
     <div>
-      <div class="section-num"><span class="dot"></span> 02 &#183; Catalog</div>
-      <h2 class="section-h">
-        the <em>{{ type === 'beat' ? 'whole' : 'sample' }}</em> rack.
-      </h2>
+      <div class="section-num"><span class="dot"></span> 02 / New releases</div>
+      <h2 class="section-h">fresh from the <em>yard.</em></h2>
     </div>
     <div class="head-meta">
-      <p>Filter, sort, preview, collect. Grid or list &#8212; your call.</p>
-      <button class="btn-view-all btn-view-all-top" (click)="navigateToSearch()">
-        View catalog <i class="fas fa-long-arrow-alt-right"></i>
-      </button>
-    </div>
-  </div>
-
-  <div class="chip-row">
-    @for (chip of filterChips; track chip) {
-      <button class="chip" [class.on]="activeChip() === chip" (click)="setActiveChip(chip)">
-        {{ chip }}
-      </button>
-    }
-  </div>
-
-  <div class="toolbar">
-    <div class="toolbar-left">
-      <span
-        ><strong>{{ specs().length }}</strong> featured {{ type }}s</span
-      >
-      <select class="sort-select" [ngModel]="sortMode()" (ngModelChange)="sortMode.set($event)">
-        <option>Sort: Newest</option>
-        <option>Sort: Trending</option>
-        <option>Sort: Price &#8593;</option>
-        <option>Sort: Price &#8595;</option>
-      </select>
-      <div class="search-bar">
-        <i class="fas fa-search"></i>
-        <input
-          type="text"
-          placeholder="Search the rack..."
-          [ngModel]="searchTerm()"
-          (ngModelChange)="searchTerm.set($event)"
-          (keydown.enter)="onSearch()"
-        />
-      </div>
-    </div>
-
-    <div class="toolbar-actions">
-      <div class="view-switch">
-        <button [class.on]="viewMode() === 'grid'" (click)="setViewMode('grid')" title="Grid View">
-          <svg
-            width="12"
-            height="12"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2.5"
+      <div class="release-actions">
+        <div class="rail-controls" aria-label="Scroll new releases">
+          <button
+            class="rail-btn"
+            type="button"
+            aria-label="Scroll releases left"
+            (click)="scrollReleaseRailBy(-1)"
           >
-            <rect x="3" y="3" width="7" height="7"></rect>
-            <rect x="14" y="3" width="7" height="7"></rect>
-            <rect x="3" y="14" width="7" height="7"></rect>
-            <rect x="14" y="14" width="7" height="7"></rect>
-          </svg>
-          Grid
-        </button>
-        <button [class.on]="viewMode() === 'list'" (click)="setViewMode('list')" title="List View">
-          <svg
-            width="12"
-            height="12"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2.5"
+            <i class="fas fa-chevron-left"></i>
+          </button>
+          <button
+            class="rail-btn"
+            type="button"
+            aria-label="Scroll releases right"
+            (click)="scrollReleaseRailBy(1)"
           >
-            <line x1="8" y1="6" x2="21" y2="6"></line>
-            <line x1="8" y1="12" x2="21" y2="12"></line>
-            <line x1="8" y1="18" x2="21" y2="18"></line>
-            <line x1="3" y1="6" x2="3.01" y2="6"></line>
-            <line x1="3" y1="12" x2="3.01" y2="12"></line>
-            <line x1="3" y1="18" x2="3.01" y2="18"></line>
-          </svg>
-          List
+            <i class="fas fa-chevron-right"></i>
+          </button>
+        </div>
+        <button class="btn-view-all btn-view-all-top" type="button" (click)="navigateToSearch()">
+          View catalog <i class="fas fa-long-arrow-alt-right"></i>
         </button>
       </div>
     </div>
@@ -88,31 +34,123 @@
   @if (isLoading()) {
     <div class="loading-container">
       <app-loading-spinner size="60px"></app-loading-spinner>
-      <div class="loading-text">Loading...</div>
+      <div class="loading-text">Loading releases...</div>
     </div>
   } @else {
-    @if (viewMode() === 'grid') {
-      <div class="spec-grid">
-        @for (spec of specs(); track spec.id; let i = $index) {
-          <app-spec-card [spec]="spec" [priority]="i < 4"></app-spec-card>
-        }
-      </div>
-    }
-
-    @if (viewMode() === 'list') {
-      <div class="list-container">
-        @for (spec of specs(); track spec.id; let i = $index) {
-          <app-spec-list-item
-            [spec]="spec"
-            appearance="market"
-            [priority]="i < 6"
-          ></app-spec-list-item>
-        }
-      </div>
-    }
+    <div class="spec-grid">
+      @for (spec of specs(); track spec.id; let i = $index) {
+        <app-spec-card [spec]="spec" [priority]="i < 4"></app-spec-card>
+      }
+    </div>
 
     @if (specs().length === 0) {
-      <div class="empty-copy">NO DATA AVAILABLE.</div>
+      <div class="empty-copy">NO RELEASES AVAILABLE.</div>
     }
   }
+
+  <section class="charts-section gs-item" aria-labelledby="top-charts-heading">
+    <div class="section-head compact charts-head">
+      <div>
+        <div class="section-num"><span class="dot"></span> 03 / Top charts</div>
+        <h2 id="top-charts-heading" class="section-h">top <em>charts.</em></h2>
+      </div>
+      <div class="head-meta">
+        <button class="chart-link" type="button" (click)="navigateToSearch()">
+          See all <i class="fas fa-chevron-right"></i>
+        </button>
+      </div>
+    </div>
+
+    <div class="chart-grid">
+      @for (spec of topChartSpecs(); track spec.id; let i = $index) {
+        <button
+          type="button"
+          class="chart-row"
+          [class.featured]="isChartPlaying(spec)"
+          (click)="playSong(spec)"
+        >
+          <span class="rank">{{ i + 1 }}</span>
+          <span class="chart-art">
+            <img [src]="spec.imageUrl || 'assets/images/placeholder.jpg'" [alt]="spec.title" />
+            <span class="play-dot"><i class="fas fa-play"></i></span>
+          </span>
+          <span class="chart-title">
+            <strong>{{ spec.title }}</strong>
+            <em>{{ spec.producerName }} &#183; {{ getPrimaryGenre(spec) }}</em>
+          </span>
+          <span class="trend" [attr.data-trend]="chartTrend(i)">
+            @if (chartTrend(i) === 'up') {
+              <i class="fas fa-arrow-up"></i>
+            } @else if (chartTrend(i) === 'down') {
+              <i class="fas fa-arrow-down"></i>
+            } @else {
+              &ndash;
+            }
+          </span>
+          <span class="plays">{{ formatPlays(spec) }}</span>
+          <span class="price">{{ startingPrice(spec) }}</span>
+        </button>
+      }
+    </div>
+  </section>
+
+  <section class="type-beats-section gs-item" aria-labelledby="type-beats-heading">
+    <div class="section-head compact type-head">
+      <div>
+        <div class="section-num"><span class="dot"></span> 04 / Type beats</div>
+        <h2 id="type-beats-heading" class="section-h">type <em>beats.</em></h2>
+      </div>
+      <div class="head-meta">
+        <button class="chart-link" type="button" (click)="navigateToSearch()">View all</button>
+      </div>
+    </div>
+
+    <div class="type-grid">
+      @for (artist of typeBeatArtists; track artist.name; let i = $index) {
+        <button
+          type="button"
+          class="type-tile"
+          [attr.data-accent]="(i % 6) + 1"
+          (click)="navigateToTypeBeat(artist.name)"
+        >
+          <span class="type-art">
+            <img [src]="artist.image" [alt]="artist.name + ' type beats'" />
+          </span>
+          <span class="type-index">Type artist</span>
+          <strong>{{ artist.name }} Type Beats</strong>
+          <em>{{ artist.note }}</em>
+        </button>
+      }
+    </div>
+  </section>
+
+  <section class="licensing-section gs-item" aria-labelledby="licensing-heading">
+    <div class="license-heading">
+      <div class="section-num"><span class="dot"></span> 05 / Licensing</div>
+      <h2 id="licensing-heading">Simple, transparent licensing</h2>
+      <p>Every beat, clear ways to use it</p>
+    </div>
+
+    <div class="license-grid">
+      @for (license of licenseTiers; track license.type; let i = $index) {
+        <article class="license-card" [class.featured]="license.type === 'Premium'">
+          <div class="license-top">
+            <h3>{{ license.name }}</h3>
+            @if (license.type === 'Premium') {
+              <em>Most popular</em>
+            }
+          </div>
+          <p>{{ license.note }}</p>
+          <ul>
+            @for (feature of license.features; track feature) {
+              <li><i class="fas fa-check"></i>{{ feature }}</li>
+            }
+          </ul>
+          <button class="license-cta" type="button" (click)="navigateToSearch()">
+            Choose {{ license.name }}
+          </button>
+        </article>
+      }
+    </div>
+  </section>
 </section>

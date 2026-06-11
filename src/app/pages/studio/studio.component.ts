@@ -1,8 +1,8 @@
 import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
 import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
+import { Role } from '../../models';
 import { AuthService } from '../../services';
 import { StudioShellService } from './studio-shell.service';
-import { Role } from '../../models';
 
 @Component({
   selector: 'app-studio',

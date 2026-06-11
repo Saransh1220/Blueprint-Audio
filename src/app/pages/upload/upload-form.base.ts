@@ -3,7 +3,7 @@ import { computed, Directive, inject, OnInit, signal } from '@angular/core';
 import { FormArray, FormBuilder, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { Genre, MusicalKey } from '../../models';
-import { LabService, AuthService, ToastService } from '../../services';
+import { AuthService, LabService, ToastService } from '../../services';
 
 type UploadFileType = 'cover' | 'preview' | 'wav' | 'stems';
 

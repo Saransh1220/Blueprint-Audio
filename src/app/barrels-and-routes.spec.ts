@@ -1,7 +1,7 @@
 import { routes } from './app.routes';
 import * as components from './components';
-import * as pages from './pages';
 import * as models from './models';
+import * as pages from './pages';
 import './core/api/api-request';
 
 describe('Barrels and Routes', () => {

@@ -212,9 +212,7 @@ describe('StudioVisualizerComponent', () => {
     const anchor = document.createElement('a');
     vi.spyOn(anchor, 'click').mockImplementation(downloadClick);
     vi.spyOn(document, 'createElement').mockReturnValue(anchor);
-    vi.spyOn(HTMLCanvasElement.prototype, 'toBlob').mockImplementation(function (
-      callback: BlobCallback,
-    ) {
+    vi.spyOn(HTMLCanvasElement.prototype, 'toBlob').mockImplementation((callback: BlobCallback) => {
       callback(new Blob(['png'], { type: 'image/png' }));
     });
 
@@ -224,11 +222,11 @@ describe('StudioVisualizerComponent', () => {
     expect(downloadClick).toHaveBeenCalled();
     expect(toast.success).toHaveBeenCalledWith('PNG exported.');
 
-    vi.mocked(HTMLCanvasElement.prototype.toBlob).mockImplementationOnce(function (
-      callback: BlobCallback,
-    ) {
-      callback(null);
-    });
+    vi.mocked(HTMLCanvasElement.prototype.toBlob).mockImplementationOnce(
+      (callback: BlobCallback) => {
+        callback(null);
+      },
+    );
     component.exportPng();
 
     expect(toast.error).toHaveBeenCalledWith('Could not export PNG.');

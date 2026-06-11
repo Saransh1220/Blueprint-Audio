@@ -1,5 +1,5 @@
-import { convertToParamMap, ActivatedRoute, Router } from '@angular/router';
 import { TestBed } from '@angular/core/testing';
+import { ActivatedRoute, convertToParamMap, Router } from '@angular/router';
 import { of, throwError } from 'rxjs';
 import { AuthService } from '../../../services/auth.service';
 import { ToastService } from '../../../services/toast.service';

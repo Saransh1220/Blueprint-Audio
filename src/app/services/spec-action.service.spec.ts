@@ -1,10 +1,10 @@
 import { ChangeDetectorRef, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { Router } from '@angular/router';
-import { Subject, of, throwError } from 'rxjs';
+import { of, Subject, throwError } from 'rxjs';
+import { LicenseSelectorComponent } from '../components/license-selector/license-selector.component';
 import { MusicalKey } from '../models/enums';
 import type { Spec } from '../models/spec';
-import { LicenseSelectorComponent } from '../components/license-selector/license-selector.component';
 import { AnalyticsService, FavoriteChangeEvent } from './analytics.service';
 import { AuthService } from './auth.service';
 import { ModalService } from './modal.service';

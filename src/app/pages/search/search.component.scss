@@ -2558,62 +2558,7 @@
 .beat-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-  gap: 12px;
-}
-
-:host ::ng-deep app-spec-card .spec-card {
-  border-radius: 14px;
-}
-
-:host ::ng-deep app-spec-card .beat-body {
-  padding: 10px;
-}
-
-:host ::ng-deep app-spec-card .beat-overlay {
-  padding: 7px;
-}
-
-:host ::ng-deep app-spec-card .beat-tag {
-  font-size: 9px;
-  padding: 3px 8px;
-}
-
-:host ::ng-deep app-spec-card .beat-play {
-  width: 32px;
-  height: 32px;
-}
-
-:host ::ng-deep app-spec-card .beat-title {
-  font-size: 14px;
-}
-
-:host ::ng-deep app-spec-card .beat-producer {
-  font-size: 11px;
-  margin-bottom: 8px;
-}
-
-:host ::ng-deep app-spec-card .card-meta {
-  font-size: 9px;
-  margin-bottom: 8px;
-}
-
-:host ::ng-deep app-spec-card .custom-actions-row {
-  grid-template-columns: 30px minmax(0, 1fr);
-  gap: 7px;
-  padding-top: 8px;
-}
-
-:host ::ng-deep app-spec-card .icon-btn {
-  width: 30px;
-  height: 28px;
-}
-
-:host ::ng-deep app-spec-card .purchase-pill {
-  min-height: 28px;
-}
-
-:host ::ng-deep app-spec-card .purchase-pill .beat-price {
-  font-size: 15px;
+  gap: 24px;
 }
 
 .beat-list {
@@ -2706,34 +2651,6 @@
   i::before {
     color: #141310 !important;
   }
-}
-
-:host-context(body.dark-theme) ::ng-deep app-spec-card .spec-card {
-  background: linear-gradient(180deg, var(--cream-2), var(--cream-3));
-  border-color: var(--ink);
-}
-
-:host-context(body.dark-theme) ::ng-deep app-spec-card .spec-card:hover {
-  box-shadow:
-    4px 4px 0 var(--hot),
-    0 0 30px rgba(255, 77, 104, 0.18);
-}
-
-:host-context(body.dark-theme) ::ng-deep app-spec-card .beat-body {
-  background: transparent;
-}
-
-:host-context(body.dark-theme) ::ng-deep app-spec-card .beat-footer,
-:host-context(body.dark-theme) ::ng-deep app-spec-card .custom-actions-row {
-  background: var(--cream-3);
-  border-top-color: var(--ink);
-}
-
-:host-context(body.dark-theme) ::ng-deep app-spec-card .beat-tag,
-:host-context(body.dark-theme) ::ng-deep app-spec-card .card-meta span {
-  background: var(--cream-3);
-  border-color: var(--ink-mute);
-  color: var(--ink-2);
 }
 
 :host-context(body.dark-theme) ::ng-deep app-spec-list-item .list-row {
@@ -2842,8 +2759,27 @@
   }
 }
 
-.pagination {
-  margin-top: 28px;
+.infinite-status {
+  min-height: 92px;
+  margin-top: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  font-family: $font-tech;
+  font-size: 12px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-mute);
+}
+
+.infinite-status.end {
+  min-height: 70px;
+
+  span {
+    border-top: 1px solid var(--line);
+    padding-top: 18px;
+  }
 }
 
 @media (max-width: 1100px) {
@@ -3021,6 +2957,7 @@
 
   .beat-grid {
     grid-template-columns: 1fr 1fr;
+    gap: 16px;
   }
 
   .list-head {

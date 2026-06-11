@@ -1,8 +1,8 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, computed, inject, signal } from '@angular/core';
-import { PaymentService } from '../../../services/payment.service';
-import { CurrencyService } from '../../../services/currency.service';
+import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { License } from '../../../models/payment';
+import { CurrencyService } from '../../../services/currency.service';
+import { PaymentService } from '../../../services/payment.service';
 import { PaginationComponent } from '../../../shared/components/pagination/pagination.component';
 
 interface PurchaseRow {

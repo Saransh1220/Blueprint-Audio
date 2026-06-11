@@ -3,23 +3,23 @@ import {
   ChangeDetectorRef,
   Component,
   computed,
-  HostListener,
   effect,
+  HostListener,
   inject,
   OnDestroy,
   signal,
 } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
-import { PlayerService } from '../../services/player.service';
-import { AuthService } from '../../services/auth.service';
-import { ModalService } from '../../services/modal.service';
+import { Subscription } from 'rxjs';
+import type { Spec } from '../../models';
 import { AnalyticsService } from '../../services/analytics.service';
+import { AuthService } from '../../services/auth.service';
+import { CurrencyService } from '../../services/currency.service';
 import { LabService } from '../../services/lab';
+import { ModalService } from '../../services/modal.service';
+import { PlayerService } from '../../services/player.service';
 import { ToastService } from '../../services/toast.service';
 import { LicenseSelectorComponent } from '../license-selector/license-selector.component';
-import type { Spec } from '../../models';
-import { Subscription } from 'rxjs';
-import { CurrencyService } from '../../services/currency.service';
 
 @Component({
   selector: 'app-player',

@@ -1,12 +1,12 @@
 import { signal } from '@angular/core';
-import { FormBuilder } from '@angular/forms';
 import { TestBed } from '@angular/core/testing';
+import { FormBuilder } from '@angular/forms';
 import { Router } from '@angular/router';
 import { of, throwError } from 'rxjs';
-import { AuthService } from '../../../services/auth.service';
-import { UserService } from '../../../services/user.service';
-import { ToastService } from '../../../services/toast.service';
 import { Role } from '../../../models';
+import { AuthService } from '../../../services/auth.service';
+import { ToastService } from '../../../services/toast.service';
+import { UserService } from '../../../services/user.service';
 import { StudioProfileComponent } from './studio-profile.component';
 
 describe('StudioProfileComponent', () => {

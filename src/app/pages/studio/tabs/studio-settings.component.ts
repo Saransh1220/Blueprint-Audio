@@ -1,7 +1,7 @@
-import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { AuthService, ToastService } from '../../../services';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import type { AppCurrency } from '../../../models/money';
+import { AuthService, ToastService } from '../../../services';
 
 @Component({
   selector: 'app-studio-settings',

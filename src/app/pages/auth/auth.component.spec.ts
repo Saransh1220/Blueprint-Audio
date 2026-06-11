@@ -1,13 +1,13 @@
+import { SocialAuthService } from '@abacritt/angularx-social-login';
+import { Location } from '@angular/common';
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { ActivatedRoute, Router } from '@angular/router';
-import { Location } from '@angular/common';
-import { Subject, of, throwError } from 'rxjs';
+import { of, Subject, throwError } from 'rxjs';
 import { AuthService } from '../../services/auth.service';
 import { ThemeService } from '../../services/theme.service';
 import { ToastService } from '../../services/toast.service';
 import { AuthComponent } from './auth.component';
-import { SocialAuthService } from '@abacritt/angularx-social-login';
 
 describe('AuthComponent', () => {
   const authState$ = new Subject<any>();

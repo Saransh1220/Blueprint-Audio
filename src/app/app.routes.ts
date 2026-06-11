@@ -1,23 +1,23 @@
-import type { Routes } from '@angular/router';
 import { inject } from '@angular/core';
+import type { Routes } from '@angular/router';
 import { Router } from '@angular/router';
-import { authGuard } from './guards/auth.guard';
 import { adminGuard } from './guards/admin.guard';
+import { authGuard } from './guards/auth.guard';
 import { guestGuard } from './guards/guest.guard';
+import { Role } from './models';
 import { AuthComponent } from './pages/auth/auth.component';
+import { ForgotPasswordComponent } from './pages/auth/forgot-password/forgot-password.component';
+import { ResetPasswordComponent } from './pages/auth/reset-password/reset-password.component';
+import { VerifyEmailComponent } from './pages/auth/verify-email/verify-email.component';
 import { BattleDetailsComponent } from './pages/battle-details/battle-details.component';
 import { BattlesComponent } from './pages/battles/battles.component';
 import { DashboardComponent } from './pages/dashboard/dashboard.component';
 import { HomeComponent } from './pages/home/home.component';
-import { SettingsComponent } from './pages/settings/settings.component';
-import { UploadComponent } from './pages/upload/upload.component';
 import { SearchPageComponent } from './pages/search/search.component';
+import { SettingsComponent } from './pages/settings/settings.component';
 import { StudioComponent } from './pages/studio/studio.component';
-import { VerifyEmailComponent } from './pages/auth/verify-email/verify-email.component';
-import { ForgotPasswordComponent } from './pages/auth/forgot-password/forgot-password.component';
-import { ResetPasswordComponent } from './pages/auth/reset-password/reset-password.component';
+import { UploadComponent } from './pages/upload/upload.component';
 import { AuthService } from './services';
-import { Role } from './models';
 
 export const routes: Routes = [
   { path: '', component: HomeComponent },

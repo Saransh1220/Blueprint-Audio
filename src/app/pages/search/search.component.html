@@ -554,15 +554,14 @@
               }
             </div>
 
-            @if (pagination()) {
-              <div class="pagination">
-                <app-pagination
-                  [currentPage]="currentPage()"
-                  [total]="pagination()!.total"
-                  [perPage]="pagination()!.per_page"
-                  [variant]="'waveyard'"
-                  (pageChange)="updatePage($event)"
-                ></app-pagination>
+            @if (isLoadingMore()) {
+              <div class="infinite-status">
+                <app-loading-spinner size="34px"></app-loading-spinner>
+                <span>Loading more beats</span>
+              </div>
+            } @else if (!hasMoreResults()) {
+              <div class="infinite-status end">
+                <span>You're caught up</span>
               </div>
             }
           }

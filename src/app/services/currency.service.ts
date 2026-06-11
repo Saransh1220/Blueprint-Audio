@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { minorToMajor, type AppCurrency, type Money } from '../models/money';
+import { type AppCurrency, type Money, minorToMajor } from '../models/money';
 
 @Injectable({ providedIn: 'root' })
 export class CurrencyService {

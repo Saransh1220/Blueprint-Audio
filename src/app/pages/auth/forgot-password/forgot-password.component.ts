@@ -1,9 +1,9 @@
 import { Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
+import { LoadingSpinnerComponent } from '../../../components';
 import { AuthService } from '../../../services/auth.service';
 import { ToastService } from '../../../services/toast.service';
-import { LoadingSpinnerComponent } from '../../../components';
 
 @Component({
   selector: 'app-forgot-password',

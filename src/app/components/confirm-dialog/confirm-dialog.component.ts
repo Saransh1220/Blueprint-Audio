@@ -1,5 +1,5 @@
-import { Component, signal, output } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Component, output, signal } from '@angular/core';
 
 export interface ConfirmDialogData {
   title: string;

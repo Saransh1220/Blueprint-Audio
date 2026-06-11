@@ -1,21 +1,20 @@
 import { CommonModule } from '@angular/common';
-import { RouterLink } from '@angular/router';
 import {
   ChangeDetectionStrategy,
   Component,
   computed,
+  effect,
   inject,
   type OnInit,
   signal,
-  effect,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-
-import { AuthService, LabService, AnalyticsService } from '../../services';
-import { PlayerService } from '../../services/player.service';
-import { Role } from '../../models';
-import type { Spec } from '../../models';
+import { RouterLink } from '@angular/router';
 import type { AnalyticsOverviewResponse, TopSpecStat } from '../../core/api/analytics.requests';
+import type { Spec } from '../../models';
+import { Role } from '../../models';
+import { AnalyticsService, AuthService, LabService } from '../../services';
+import { PlayerService } from '../../services/player.service';
 
 @Component({
   selector: 'app-dashboard',

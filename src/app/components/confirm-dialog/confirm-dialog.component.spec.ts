@@ -1,5 +1,5 @@
-import { ConfirmDialogComponent } from './confirm-dialog.component';
 import { TestBed } from '@angular/core/testing';
+import { ConfirmDialogComponent } from './confirm-dialog.component';
 
 describe('ConfirmDialogComponent', () => {
   it('opens with defaults and handles confirm/cancel', () => {

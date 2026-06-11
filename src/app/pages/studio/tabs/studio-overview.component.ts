@@ -1,13 +1,13 @@
-import { ChangeDetectionStrategy, Component, inject, signal, computed } from '@angular/core';
-import { RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { AnalyticsService } from '../../../services/analytics.service';
-import { PaymentService } from '../../../services/payment.service';
-import { AuthService, LabService } from '../../../services';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { RouterLink } from '@angular/router';
 import { AnalyticsOverviewResponse, TopSpecStat } from '../../../core/api/analytics.requests';
 import { ProducerOrderDto } from '../../../core/api/payment.requests';
-import { CurrencyService } from '../../../services/currency.service';
 import { AppCurrency } from '../../../models';
+import { AuthService, LabService } from '../../../services';
+import { AnalyticsService } from '../../../services/analytics.service';
+import { CurrencyService } from '../../../services/currency.service';
+import { PaymentService } from '../../../services/payment.service';
 
 @Component({
   selector: 'app-studio-overview',

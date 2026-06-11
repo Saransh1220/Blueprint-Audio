@@ -1,28 +1,27 @@
+import { CommonModule, DOCUMENT } from '@angular/common';
 import {
   Component,
   computed,
   HostListener,
   inject,
-  signal,
   type OnDestroy,
   type OnInit,
+  signal,
 } from '@angular/core';
-import { CommonModule, DOCUMENT } from '@angular/common';
-import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { Subject, Subscription } from 'rxjs';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 
 import { SpecCardComponent } from '../../components/spec-card/spec-card';
 import { SpecListItemComponent } from '../../components/spec-list-item/spec-list-item.component';
 import { LoadingSpinnerComponent } from '../../components/ui/loading-spinner/loading-spinner.component';
-import { PaginationComponent } from '../../shared/components/pagination/pagination.component';
 import { Genre, MusicalKey, type Spec } from '../../models';
-import { LabService } from '../../services/lab';
-import { ToastService } from '../../services/toast.service';
+import type { AppCurrency } from '../../models/money';
 import { AuthService } from '../../services/auth.service';
 import { CurrencyService } from '../../services/currency.service';
-import type { AppCurrency } from '../../models/money';
+import { LabService } from '../../services/lab';
+import { ToastService } from '../../services/toast.service';
 
 type GroupKey = 'genres' | 'bpm' | 'price' | 'key' | 'licenses' | 'moods' | 'extras';
 type KeyMode = 'any' | 'major' | 'minor';
@@ -38,7 +37,6 @@ type ExploreDropdown = 'genre' | 'mood' | 'instr' | 'bpm' | 'price' | 'extras';
     SpecCardComponent,
     SpecListItemComponent,
     LoadingSpinnerComponent,
-    PaginationComponent,
   ],
   templateUrl: './search.component.html',
   styleUrls: ['./search.component.scss'],
@@ -54,9 +52,11 @@ export class SearchPageComponent implements OnInit, OnDestroy {
 
   specs = signal<Spec[]>([]);
   isLoading = signal(true);
+  isLoadingMore = signal(false);
   viewMode = signal<'grid' | 'list'>('list');
   pagination = this.labService.specsPagination;
   currentPage = signal(1);
+  readonly explorePageSize = 10;
 
   searchTerm = signal('');
   genre = signal<string[]>([]);
@@ -161,7 +161,13 @@ export class SearchPageComponent implements OnInit, OnDestroy {
   resultCount = computed(() => this.pagination()?.total ?? this.specs().length);
   totalPages = computed(() => {
     const meta = this.pagination();
-    return meta ? Math.max(1, Math.ceil(meta.total / meta.per_page)) : 1;
+    if (!meta) return 1;
+    return meta.total_pages ?? Math.max(1, Math.ceil(meta.total / meta.per_page));
+  });
+  hasMoreResults = computed(() => {
+    const meta = this.pagination();
+    if (!meta) return false;
+    return this.currentPage() < this.totalPages() && this.specs().length < meta.total;
   });
 
   bpmFillLeft = computed(() => ((this.bpmRange()[0] - 60) / (200 - 60)) * 100);
@@ -183,6 +189,7 @@ export class SearchPageComponent implements OnInit, OnDestroy {
   private searchSubject = new Subject<string>();
   private searchSubscription?: Subscription;
   private routeSubscription?: Subscription;
+  private fetchRequestId = 0;
   private scrollToTopOnNextFetch = false;
 
   ngOnInit() {
@@ -223,8 +230,17 @@ export class SearchPageComponent implements OnInit, OnDestroy {
     });
   }
 
-  fetchSpecs() {
-    this.isLoading.set(true);
+  fetchSpecs(options: { append?: boolean } = {}) {
+    const append = options.append === true;
+    const requestId = ++this.fetchRequestId;
+
+    if (append) {
+      this.isLoadingMore.set(true);
+    } else {
+      this.isLoading.set(true);
+      this.isLoadingMore.set(false);
+    }
+
     this.labService
       .getSpecs({
         search: this.searchTerm(),
@@ -235,24 +251,45 @@ export class SearchPageComponent implements OnInit, OnDestroy {
         max_price: this.priceRange()[1],
         key: this.key(),
         page: this.currentPage(),
+        per_page: this.explorePageSize,
         sort: this.sortOption(),
       })
       .subscribe({
         next: (specs) => {
-          this.specs.set(specs);
+          if (requestId !== this.fetchRequestId) return;
+
+          if (append) {
+            const seen = new Set(this.specs().map((spec) => spec.id));
+            const nextSpecs = specs.filter((spec) => !seen.has(spec.id));
+            this.specs.update((current) => [...current, ...nextSpecs]);
+          } else {
+            this.specs.set(specs);
+          }
+
           this.isLoading.set(false);
+          this.isLoadingMore.set(false);
           if (this.scrollToTopOnNextFetch) {
             window.scrollTo({ top: 0, behavior: 'smooth' });
             this.scrollToTopOnNextFetch = false;
           }
         },
         error: (err) => {
+          if (requestId !== this.fetchRequestId) return;
+
           console.error('Error fetching specs:', err);
           this.isLoading.set(false);
+          this.isLoadingMore.set(false);
           this.scrollToTopOnNextFetch = false;
           this.toastService.show('Failed to load results. Please try again.', 'error');
         },
       });
+  }
+
+  loadNextPage() {
+    if (this.isLoading() || this.isLoadingMore() || !this.hasMoreResults()) return;
+
+    this.currentPage.update((page) => page + 1);
+    this.fetchSpecs({ append: true });
   }
 
   applyFilters() {
@@ -420,6 +457,18 @@ export class SearchPageComponent implements OnInit, OnDestroy {
   onEscape() {
     this.closeDropdown();
     this.toggleMobileFilters(false);
+  }
+
+  @HostListener('window:scroll')
+  onWindowScroll() {
+    const viewport = this.document.defaultView;
+    const root = this.document.documentElement;
+    if (!viewport || !root) return;
+
+    const remaining = root.scrollHeight - (viewport.scrollY + viewport.innerHeight);
+    if (remaining < 700) {
+      this.loadNextPage();
+    }
   }
 
   toggleGroup(group: GroupKey) {

@@ -1,9 +1,8 @@
-import { ChangeDetectionStrategy, Component, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
-
-import { LabService, AuthService } from '../../../services';
 import { Spec } from '../../../models';
+import { AuthService, LabService } from '../../../services';
 
 @Component({
   selector: 'app-studio-tracks',

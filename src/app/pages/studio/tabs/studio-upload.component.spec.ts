@@ -1,7 +1,7 @@
 import { HttpEventType } from '@angular/common/http';
 import { signal } from '@angular/core';
-import { FormBuilder } from '@angular/forms';
 import { TestBed } from '@angular/core/testing';
+import { FormBuilder } from '@angular/forms';
 import { Router } from '@angular/router';
 import { of, throwError } from 'rxjs';
 import { Genre, MusicalKey } from '../../../models';

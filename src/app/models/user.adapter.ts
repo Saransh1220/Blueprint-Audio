@@ -1,7 +1,7 @@
-import { User } from './user.model';
-import { UserApiResponse } from './user-api.model';
 import { resolveMediaUrl } from '../utils/media-url';
 import { SystemRole } from './enums';
+import { User } from './user.model';
+import { UserApiResponse } from './user-api.model';
 
 export class UserAdapter {
   static toUser(apiResponse: UserApiResponse): User {

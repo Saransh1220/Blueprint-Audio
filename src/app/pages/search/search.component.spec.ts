@@ -1,10 +1,10 @@
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { ActivatedRoute, Router } from '@angular/router';
-import { Subject, of, throwError } from 'rxjs';
+import { of, Subject, throwError } from 'rxjs';
+import { AuthService } from '../../services/auth.service';
 import { LabService } from '../../services/lab';
 import { ToastService } from '../../services/toast.service';
-import { AuthService } from '../../services/auth.service';
 import { SearchPageComponent } from './search.component';
 
 describe('SearchPageComponent', () => {
@@ -12,15 +12,22 @@ describe('SearchPageComponent', () => {
   const navigate = vi.fn();
   const getSpecs = vi.fn();
   const show = vi.fn();
+  let paginationSignal = signal<any>(null);
+
+  function spec(id: string) {
+    return { id, title: id } as any;
+  }
 
   function create(user: unknown = null) {
+    paginationSignal = signal<any>(null);
+
     TestBed.configureTestingModule({
       providers: [
         {
           provide: LabService,
           useValue: {
             getSpecs,
-            specsPagination: signal(null),
+            specsPagination: paginationSignal,
           },
         },
         { provide: Router, useValue: { navigate } },
@@ -62,7 +69,12 @@ describe('SearchPageComponent', () => {
     expect(component.searchTerm()).toBe('drill');
     expect(component.genre()).toEqual(['TRAP', 'DRILL']);
     expect(component.currentPage()).toBe(3);
-    expect(getSpecs).toHaveBeenCalled();
+    expect(getSpecs).toHaveBeenCalledWith(
+      expect.objectContaining({
+        page: 3,
+        per_page: 10,
+      }),
+    );
   });
 
   it('handles fetch success and error states', () => {
@@ -100,6 +112,28 @@ describe('SearchPageComponent', () => {
     component.setKey('All');
     expect(component.key()).toBe('All');
     component.onFilterChange();
+  });
+
+  it('loads the next result page on scroll and appends unique specs', () => {
+    const component = create();
+    paginationSignal.set({ total: 25, page: 1, per_page: 10 });
+    getSpecs.mockReturnValueOnce(of([spec('beat-1'), spec('beat-2')]));
+
+    component.fetchSpecs();
+    expect(component.specs().map((item) => item.id)).toEqual(['beat-1', 'beat-2']);
+
+    paginationSignal.set({ total: 25, page: 2, per_page: 10 });
+    getSpecs.mockReturnValueOnce(of([spec('beat-2'), spec('beat-3')]));
+    component.loadNextPage();
+
+    expect(component.currentPage()).toBe(2);
+    expect(getSpecs).toHaveBeenLastCalledWith(
+      expect.objectContaining({
+        page: 2,
+        per_page: 10,
+      }),
+    );
+    expect(component.specs().map((item) => item.id)).toEqual(['beat-1', 'beat-2', 'beat-3']);
   });
 
   it('updates range and search interactions', () => {

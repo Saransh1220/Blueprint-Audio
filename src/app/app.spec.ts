@@ -1,9 +1,9 @@
+import { SocialAuthService } from '@abacritt/angularx-social-login';
 import { provideHttpClient } from '@angular/common/http';
 import { Component } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { provideRouter, Router } from '@angular/router';
-import { SocialAuthService } from '@abacritt/angularx-social-login';
 import { AppComponent } from './app';
 
 @Component({ template: '', standalone: true })

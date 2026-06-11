@@ -1,31 +1,31 @@
+import { SocialAuthService } from '@abacritt/angularx-social-login';
 import { Injectable, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { catchError, map, of, switchMap, tap } from 'rxjs';
-import { ApiService } from '../core/services/api.service';
+import { AuthRequirementComponent } from '../components/modals/auth-requirement/auth-requirement.component';
 import {
-  LoginRequest,
-  RegisterRequest,
+  ForgotPasswordApiRequest,
   GetMeRequest,
   GoogleLoginRequest,
-  RefreshRequest,
+  LoginRequest,
   LogoutApiRequest,
-  VerifyEmailApiRequest,
+  RefreshRequest,
+  RegisterRequest,
   ResendVerificationApiRequest,
-  ForgotPasswordApiRequest,
   ResetPasswordApiRequest,
+  VerifyEmailApiRequest,
 } from '../core/api/auth.requests';
 import {
+  PublicUserResponse,
   UpdateProfileRequest,
   UploadAvatarRequest,
-  PublicUserResponse,
 } from '../core/api/user.requests';
-import { User, UserAdapter, Role, SystemRole } from '../models';
+import { ApiService } from '../core/services/api.service';
+import { Role, SystemRole, User, UserAdapter } from '../models';
 import type { AppCurrency } from '../models/money';
-import { ModalService } from './modal.service';
-import { AuthRequirementComponent } from '../components/modals/auth-requirement/auth-requirement.component';
-import { SocialAuthService } from '@abacritt/angularx-social-login';
-import { TokenRefreshService } from './token-refresh.service';
 import { resolveMediaUrl } from '../utils/media-url';
+import { ModalService } from './modal.service';
+import { TokenRefreshService } from './token-refresh.service';
 
 @Injectable({
   providedIn: 'root',

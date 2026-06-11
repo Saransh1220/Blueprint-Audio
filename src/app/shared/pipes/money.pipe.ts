@@ -1,6 +1,6 @@
-import { Pipe, PipeTransform, inject } from '@angular/core';
-import { CurrencyService } from '../../services/currency.service';
+import { inject, Pipe, PipeTransform } from '@angular/core';
 import type { Money } from '../../models/money';
+import { CurrencyService } from '../../services/currency.service';
 
 @Pipe({
   name: 'money',

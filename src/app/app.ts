@@ -1,16 +1,16 @@
 import { CommonModule } from '@angular/common';
 import { type AfterViewInit, Component, ElementRef, inject, ViewChild } from '@angular/core';
 import { NavigationEnd, Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
-import { filter } from 'rxjs/operators';
 import { gsap } from 'gsap';
+import { filter } from 'rxjs/operators';
 import { HeaderComponent } from './components';
 import { CartComponent } from './components/cart/cart.component';
 import { FooterComponent } from './components/footer/footer';
+import { LoadingBarComponent } from './components/loading-bar/loading-bar.component';
 import { ModalComponent } from './components/modal/modal.component';
 import { PlayerComponent } from './components/player/player';
-import { PlayerService } from './services/player.service';
 import { ToastComponent } from './components/toast/toast.component';
-import { LoadingBarComponent } from './components/loading-bar/loading-bar.component';
+import { PlayerService } from './services/player.service';
 
 @Component({
   selector: 'app-root',

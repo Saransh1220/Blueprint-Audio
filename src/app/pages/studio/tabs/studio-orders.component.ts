@@ -1,11 +1,11 @@
-import { Component, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { PaymentService } from '../../../services/payment.service';
+import { Component, computed, inject, signal } from '@angular/core';
 import { ProducerOrderDto, ProducerOrderResponse } from '../../../core/api/payment.requests';
 import { CsvExportService } from '../../../core/services/csv-export.service';
-import { PaginationComponent } from '../../../shared/components/pagination/pagination.component';
-import { CurrencyService } from '../../../services/currency.service';
 import { AppCurrency } from '../../../models';
+import { CurrencyService } from '../../../services/currency.service';
+import { PaymentService } from '../../../services/payment.service';
+import { PaginationComponent } from '../../../shared/components/pagination/pagination.component';
 
 @Component({
   selector: 'app-studio-orders',

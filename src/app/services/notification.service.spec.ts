@@ -1,13 +1,13 @@
-import { TestBed } from '@angular/core/testing';
-import { signal } from '@angular/core';
-import { Subject, of, throwError } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
-import { NotificationService } from './notification.service';
+import { signal } from '@angular/core';
+import { TestBed } from '@angular/core/testing';
+import { of, Subject, throwError } from 'rxjs';
 import { Notification } from '../models/notification.model';
-import { WebSocketService } from './websocket.service';
-import { ToastService } from './toast.service';
-import { LabService } from './lab';
 import { AuthService } from './auth.service';
+import { LabService } from './lab';
+import { NotificationService } from './notification.service';
+import { ToastService } from './toast.service';
+import { WebSocketService } from './websocket.service';
 
 describe('NotificationService', () => {
   const makeNotification = (overrides?: Partial<Notification>): Notification => ({

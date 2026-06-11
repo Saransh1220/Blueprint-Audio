@@ -13,6 +13,7 @@ describe('GetSpecsRequest', () => {
       max_price: 100,
       key: 'C MINOR',
       page: 2,
+      per_page: 10,
       sort: 'price_asc',
     });
 
@@ -22,6 +23,8 @@ describe('GetSpecsRequest', () => {
     expect(request.params.get('tags')).toBe('dark,melodic');
     expect(request.params.get('key')).toBe('C MINOR');
     expect(request.params.get('page')).toBe('2');
+    expect(request.params.get('per_page')).toBe('10');
+    expect(request.params.get('limit')).toBe('10');
   });
 
   it('does not set key when key is All', () => {

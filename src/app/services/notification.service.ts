@@ -1,14 +1,14 @@
-import { Injectable, inject, signal, computed, effect } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { computed, effect, Injectable, inject, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { of } from 'rxjs';
+import { catchError, map } from 'rxjs/operators';
 import { environment } from '../../environments/environment';
 import { Notification } from '../models/notification.model';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { catchError, map } from 'rxjs/operators';
-import { of } from 'rxjs';
-import { WebSocketService } from './websocket.service';
-import { ToastService } from './toast.service';
-import { LabService } from './lab';
 import { AuthService } from './auth.service';
+import { LabService } from './lab';
+import { ToastService } from './toast.service';
+import { WebSocketService } from './websocket.service';
 
 @Injectable({
   providedIn: 'root',

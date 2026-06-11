@@ -1,12 +1,12 @@
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { Subject, of, throwError } from 'rxjs';
+import { of, Subject, throwError } from 'rxjs';
+import { Role } from '../../models';
+import { AnalyticsService } from '../../services/analytics.service';
 import { AuthService } from '../../services/auth.service';
 import { LabService } from '../../services/lab';
-import { AnalyticsService } from '../../services/analytics.service';
 import { PlayerService } from '../../services/player.service';
 import { DashboardComponent } from './dashboard.component';
-import { Role } from '../../models';
 
 describe('DashboardComponent', () => {
   const getSpecs = vi.fn();

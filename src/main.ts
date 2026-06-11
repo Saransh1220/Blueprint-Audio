@@ -1,19 +1,18 @@
+import {
+  GoogleLoginProvider,
+  SOCIAL_AUTH_CONFIG,
+  SocialAuthServiceConfig,
+} from '@abacritt/angularx-social-login';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
-import { provideZoneChangeDetection } from '@angular/core';
+import { importProvidersFrom, provideZoneChangeDetection } from '@angular/core';
 import { bootstrapApplication } from '@angular/platform-browser';
-import { importProvidersFrom } from '@angular/core';
 import { provideAnimations } from '@angular/platform-browser/animations';
 import { provideRouter, withInMemoryScrolling, withRouterConfig } from '@angular/router';
+import { provideCharts, withDefaultRegisterables } from 'ng2-charts';
 import { AppComponent } from './app/app';
 import { routes } from './app/app.routes';
 import { authInterceptor } from './app/core/interceptors/auth.interceptor';
 import { loadingInterceptor } from './app/core/interceptors/loading.interceptor';
-import { provideCharts, withDefaultRegisterables } from 'ng2-charts';
-import {
-  SocialAuthServiceConfig,
-  GoogleLoginProvider,
-  SOCIAL_AUTH_CONFIG,
-} from '@abacritt/angularx-social-login';
 import { environment } from './environments/environment';
 
 bootstrapApplication(AppComponent, {

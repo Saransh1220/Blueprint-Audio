@@ -1,13 +1,13 @@
 import { HttpParams } from '@angular/common/http';
-import { ApiRequest, HttpMethod } from './api-request';
 import {
-  Order,
   License,
+  LicenseDownloadsResponse,
+  Order,
+  PaginatedResponse,
   PaymentVerificationRequest,
   PaymentVerificationResponse,
-  LicenseDownloadsResponse,
-  PaginatedResponse,
 } from '../../models/payment';
+import { ApiRequest, HttpMethod } from './api-request';
 
 // Get License Downloads Request
 export class GetLicenseDownloadsRequest implements ApiRequest<LicenseDownloadsResponse> {

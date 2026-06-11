@@ -108,6 +108,9 @@ export interface PaginationMetadata {
   total: number;
   page: number;
   per_page: number;
+  limit?: number;
+  offset?: number;
+  total_pages?: number;
 }
 
 export interface PaginatedResponse<T> {

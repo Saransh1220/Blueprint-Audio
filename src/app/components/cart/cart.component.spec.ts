@@ -1,7 +1,7 @@
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { CartComponent } from './cart.component';
 import { CartService } from '../../services';
+import { CartComponent } from './cart.component';
 
 describe('CartComponent', () => {
   const removeItem = vi.fn();

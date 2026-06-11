@@ -1,16 +1,16 @@
+import { CommonModule, NgOptimizedImage } from '@angular/common';
 import {
   ChangeDetectionStrategy,
+  ChangeDetectorRef,
   Component,
+  computed,
   Input,
   inject,
-  computed,
-  signal,
-  ChangeDetectorRef,
-  OnInit,
   OnDestroy,
+  OnInit,
+  signal,
 } from '@angular/core';
 import { Subscription } from 'rxjs';
-import { CommonModule, NgOptimizedImage } from '@angular/common';
 
 import type { Spec } from '../../models';
 import { SpecActionService } from '../../services/spec-action.service';

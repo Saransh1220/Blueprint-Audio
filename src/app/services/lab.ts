@@ -1,14 +1,14 @@
 import { Injectable, inject, signal } from '@angular/core';
-import { type Observable, map, tap, Subject } from 'rxjs';
-import { ApiService } from '../core/services/api.service';
+import { map, type Observable, Subject, shareReplay, tap } from 'rxjs';
+import { SpecAdapter } from '../adapters/spec.adapter';
 import {
+  CreateSpecRequest,
   GetSpecRequest,
   GetSpecsRequest,
-  CreateSpecRequest,
   type SpecDto,
 } from '../core/api/spec.requests';
+import { ApiService } from '../core/services/api.service';
 import { type Spec } from '../models';
-import { SpecAdapter } from '../adapters/spec.adapter';
 
 import { PaginationMetadata } from '../models/payment';
 
@@ -21,10 +21,12 @@ export class LabService {
 
   private _refreshTrigger = new Subject<void>();
   refresh$ = this._refreshTrigger.asObservable();
+  private specsCache = new Map<string, Observable<Spec[]>>();
 
   specsPagination = signal<PaginationMetadata | null>(null);
 
   notifyRefresh() {
+    this.specsCache.clear();
     this._refreshTrigger.next();
   }
 
@@ -41,7 +43,11 @@ export class LabService {
     per_page?: number;
     sort?: string;
   }): Observable<Spec[]> {
-    return this.api.execute(new GetSpecsRequest(filters)).pipe(
+    const cacheKey = this.specsCacheKey(filters);
+    const cached = this.specsCache.get(cacheKey);
+    if (cached) return cached;
+
+    const request$ = this.api.execute(new GetSpecsRequest(filters)).pipe(
       tap((response: any) => {
         const metadata = response?.metadata || null;
         this.specsPagination.set(metadata);
@@ -50,6 +56,21 @@ export class LabService {
         const data = response?.data || (Array.isArray(response) ? response : []);
         return data.map((dto: any) => this.adapter.adapt(dto));
       }),
+      shareReplay({ bufferSize: 1, refCount: false }),
+    );
+    this.specsCache.set(cacheKey, request$);
+    return request$;
+  }
+
+  private specsCacheKey(filters?: Record<string, unknown>): string {
+    if (!filters) return 'all';
+    return JSON.stringify(
+      Object.keys(filters)
+        .sort()
+        .reduce<Record<string, unknown>>((acc, key) => {
+          acc[key] = filters[key];
+          return acc;
+        }, {}),
     );
   }
 

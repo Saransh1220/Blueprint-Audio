@@ -1,10 +1,10 @@
-import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { PaymentService } from '../../../services/payment.service';
-import { AnalyticsService } from '../../../services/analytics.service';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { AnalyticsOverviewResponse } from '../../../core/api/analytics.requests';
-import { CurrencyService } from '../../../services/currency.service';
 import { AppCurrency } from '../../../models';
+import { AnalyticsService } from '../../../services/analytics.service';
+import { CurrencyService } from '../../../services/currency.service';
+import { PaymentService } from '../../../services/payment.service';
 
 @Component({
   selector: 'app-studio-earnings',

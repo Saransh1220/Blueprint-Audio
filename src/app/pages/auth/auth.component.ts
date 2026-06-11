@@ -1,8 +1,8 @@
+import { GoogleSigninButtonModule, SocialAuthService } from '@abacritt/angularx-social-login';
 import { Location } from '@angular/common';
 import { Component, effect, inject, type OnDestroy, type OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { SocialAuthService, GoogleSigninButtonModule } from '@abacritt/angularx-social-login';
 import { Subscription } from 'rxjs';
 import { AuthService } from '../../services/auth.service';
 import { ThemeService } from '../../services/theme.service';

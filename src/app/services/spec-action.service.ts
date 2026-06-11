@@ -1,12 +1,12 @@
-import { inject, Injectable, WritableSignal, ChangeDetectorRef } from '@angular/core';
+import { ChangeDetectorRef, Injectable, inject, WritableSignal } from '@angular/core';
 import { Router } from '@angular/router';
 import { Subscription } from 'rxjs';
+import { LicenseSelectorComponent } from '../components/license-selector/license-selector.component';
 import { Spec } from '../models';
-import { PlayerService } from './player.service';
-import { ModalService } from './modal.service';
 import { AnalyticsService } from './analytics.service';
 import { AuthService } from './auth.service';
-import { LicenseSelectorComponent } from '../components/license-selector/license-selector.component';
+import { ModalService } from './modal.service';
+import { PlayerService } from './player.service';
 
 @Injectable({ providedIn: 'root' })
 export class SpecActionService {

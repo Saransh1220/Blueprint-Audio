@@ -1,8 +1,8 @@
 import { TestBed } from '@angular/core/testing';
 import { of, throwError } from 'rxjs';
-import { AnalyticsService } from '../../../services/analytics.service';
 import { CsvExportService } from '../../../core/services/csv-export.service';
 import { LabService } from '../../../services';
+import { AnalyticsService } from '../../../services/analytics.service';
 import { PaymentService } from '../../../services/payment.service';
 import { StudioAnalyticsComponent } from './studio-analytics.component';
 

@@ -1,4 +1,4 @@
-<div class="spec-card gs-item" (click)="openDetails()">
+<div class="spec-card" [class.playing]="isCurrentlyPlaying()" (click)="openDetails()">
   <div class="beat-artwork">
     <img
       [ngSrc]="imageUrl"
@@ -12,11 +12,11 @@
       @if (spec.genres && spec.genres.length > 0) {
         <span class="beat-tag">{{ spec.genres[0].name }}</span>
       }
-
-      <button class="beat-play" (click)="playSong($event)" aria-label="Play {{ spec.title }}">
-        <i [class]="isCurrentlyPlaying() ? 'fa-solid fa-pause' : 'fa-solid fa-play'"></i>
-      </button>
     </div>
+
+    <button class="beat-play" (click)="playSong($event)" aria-label="Play {{ spec.title }}">
+      <i [class]="isCurrentlyPlaying() ? 'fa-solid fa-pause' : 'fa-solid fa-play'"></i>
+    </button>
 
     @if (spec.processingStatus === 'processing' || spec.processingStatus === 'pending') {
       <div class="processing-overlay">
@@ -38,25 +38,25 @@
 
   <div class="beat-body">
     <div class="beat-title">{{ spec.title }}</div>
-    <span class="beat-producer"> prod. {{ spec.producerName }} </span>
+    <span class="beat-producer">{{ spec.producerName || 'Waveyard producer' }}</span>
 
-    <div class="card-meta">{{ spec.bpm }} BPM · {{ spec.key }}</div>
+    <div class="card-meta">{{ spec.bpm }} BPM / {{ spec.key }}</div>
 
     <div class="custom-actions-row">
+      <button class="purchase-pill" (click)="addToCart($event)" title="Add to cart">
+        <span class="purchase-icon"><i class="fa-solid fa-cart-plus"></i></span>
+        <span class="beat-price">{{ spec.displayPriceMoney | money: spec.price }}</span>
+      </button>
+
       @if (spec.freeMp3Enabled) {
         <button
           class="icon-btn download-btn"
-          style="background: #d9f561; color: #141310; border-color: #d9f561"
           (click)="downloadFreeMp3($event)"
           title="Download Free MP3"
         >
-          <i class="fa-solid fa-download" style="color: #141310"></i>
+          <i class="fa-solid fa-download"></i>
         </button>
       }
-      <button class="purchase-pill" (click)="addToCart($event)" title="Add to cart">
-        <span class="beat-price">{{ spec.displayPriceMoney | money: spec.price }}</span>
-        <span class="purchase-icon"><i class="fa-solid fa-cart-plus"></i></span>
-      </button>
     </div>
   </div>
 </div>

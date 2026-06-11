@@ -1,6 +1,6 @@
 import { HttpParams } from '@angular/common/http';
-import { ApiRequest, HttpMethod } from './api-request';
 import type { Money } from '../../models/money';
+import { ApiRequest, HttpMethod } from './api-request';
 
 export interface PublicAnalyticsDto {
   play_count: number;
@@ -58,8 +58,6 @@ export interface GenreDto {
   name: string;
   slug: string;
 }
-
-export interface LicenseDto {}
 
 export interface LicenseDto {
   id: string;
