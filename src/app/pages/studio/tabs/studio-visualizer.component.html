@@ -1,335 +1,503 @@
-<div class="visualizer-page">
-  <header class="visualizer-topbar">
-    <div>
-      <span class="eyebrow">Creator Tools / Visualizer</span>
-      <h1>Waveform Studio</h1>
-    </div>
-    <div class="session-meta">
-      <span>{{ statusMessage() }}</span>
-      @if (hasAudio()) {
-        <strong>{{ formatTime(currentTime()) }} / {{ formatTime(duration()) }}</strong>
-      }
-    </div>
-  </header>
-
-  <section class="visualizer-shell">
-    <aside class="tool-rail">
-      <label class="upload-line" [class.busy]="isDecoding()">
-        <input type="file" accept="audio/*" (change)="onAudioSelected($event)" />
-        <span>{{ isDecoding() ? 'Decoding' : 'Audio' }}</span>
-        <strong>{{ audioFileName() || 'Choose file' }}</strong>
-      </label>
-
-      <section class="tool-group">
-        <div class="group-head">
-          <span>Style</span>
-          <em>{{ settings.style }}</em>
-        </div>
-        <div class="style-list">
-          @for (preset of presets; track preset.style) {
-            <button
-              type="button"
-              class="style-btn"
-              [class.active]="settings.style === preset.style"
-              (click)="selectStyle(preset.style)"
-            >
-              <strong>{{ preset.label }}</strong>
-              <span>{{ preset.description }}</span>
-            </button>
-          }
-        </div>
-      </section>
-
-      <section class="tool-group compact-grid">
-        <div>
-          <div class="group-head"><span>Motion</span></div>
-          <div class="segmented">
-            <button
-              type="button"
-              [class.on]="settings.mode === 'static'"
-              (click)="setMode('static')"
-            >
-              Static
-            </button>
-            <button
-              type="button"
-              [class.on]="settings.mode === 'dynamic'"
-              (click)="setMode('dynamic')"
-            >
-              Dynamic
-            </button>
-          </div>
-        </div>
-
-        <div>
-          <div class="group-head"><span>Aspect</span></div>
-          <div class="format-grid">
-            @for (format of formats; track format.value) {
-              <button
-                type="button"
-                class="format-card"
-                [class.on]="settings.format === format.value"
-                (click)="setFormat(format.value)"
-                [attr.aria-label]="format.label + ' canvas'"
-              >
-                <span class="device-icon" [attr.data-format]="format.value"><span></span></span>
-              </button>
-            }
-          </div>
-        </div>
-      </section>
-
-      <section class="tool-group">
-        <div class="group-head">
-          <span>Shape</span>
-          <em>{{ settings.density }} / {{ settings.intensity }}%</em>
-        </div>
-        <div class="quick-shape">
-          <label>
-            <span>Density</span>
-            <input
-              type="range"
-              min="24"
-              max="180"
-              step="4"
-              [(ngModel)]="settings.density"
-              (ngModelChange)="updateSetting()"
-            />
-          </label>
-          <label>
-            <span>Intensity</span>
-            <input
-              type="range"
-              min="20"
-              max="86"
-              step="2"
-              [(ngModel)]="settings.intensity"
-              (ngModelChange)="updateSetting()"
-            />
-          </label>
-        </div>
-      </section>
-    </aside>
-
-    <main class="clip-desk">
-      <div class="desk-head">
-        <div>
-          <span>Selected Clip</span>
-          <strong>{{ formatTime(trimStart()) }} - {{ formatTime(trimEnd()) }}</strong>
-        </div>
-        <div class="actions-row">
-          <button
-            type="button"
-            class="btn dark"
-            [disabled]="!hasAudio() || isExporting()"
-            (click)="togglePlayback()"
-          >
-            {{ isPlaying() ? 'Pause' : 'Play Clip' }}
-          </button>
-        </div>
+<div class="visualizer-page" [class.library-view]="!selectedKind()">
+  @if (!selectedKind()) {
+    <header class="library-header">
+      <div>
+        <span class="eyebrow">Creator Tools</span>
+        <h1>Audio visualizer</h1>
       </div>
+      <p>Choose a visual style to begin. You can change it later without losing your audio.</p>
+    </header>
 
-      <section class="clip-player" [class.disabled]="!hasAudio()">
-        <div
-          class="track-waveform"
-          #trackWaveform
-          [class.ready]="hasAudio()"
-          (pointerdown)="seekFromWaveform($event)"
-        >
-          <div
-            class="trim-window"
-            [style.left.%]="trimStartPercent()"
-            [style.width.%]="trimEndPercent() - trimStartPercent()"
-          ></div>
-          <button
-            type="button"
-            class="playhead"
-            [style.left.%]="playheadPercent()"
-            [disabled]="!hasAudio()"
-            (pointerdown)="beginPlayheadDrag($event)"
-            aria-label="Drag playhead"
-          ></button>
-          <button
-            type="button"
-            class="trim-handle start"
-            [style.left.%]="trimStartPercent()"
-            [disabled]="!hasAudio()"
-            (pointerdown)="beginTrimDrag('start', $event)"
-            aria-label="Drag clip start"
-          ></button>
-          <button
-            type="button"
-            class="trim-handle end"
-            [style.left.%]="trimEndPercent()"
-            [disabled]="!hasAudio()"
-            (pointerdown)="beginTrimDrag('end', $event)"
-            aria-label="Drag clip end"
-          ></button>
-          <div class="wave-bars">
-            @for (peak of trimPeaks(); track $index) {
-              <span [style.height.%]="peak * 100 < 8 ? 8 : peak * 100"></span>
-            }
-          </div>
-        </div>
-        <div class="clip-times">
-          <span>Start {{ formatTime(trimStart()) }}</span>
-          <span>{{ formatTime(clipDuration()) }}</span>
-          <span>End {{ formatTime(trimEnd()) }}</span>
-        </div>
-      </section>
-
-      <section class="tool-group palette-panel">
-        <div class="group-head">
-          <span>Palette</span>
-          <em>{{ settings.backgroundMode }}</em>
-        </div>
-        <div class="background-row">
-          <div class="segmented">
-            <button
-              type="button"
-              [class.on]="settings.backgroundMode === 'solid'"
-              (click)="setBackgroundMode('solid')"
-            >
-              Solid
-            </button>
-            <button
-              type="button"
-              [class.on]="settings.backgroundMode === 'gradient'"
-              (click)="setBackgroundMode('gradient')"
-            >
-              Gradient
-            </button>
-          </div>
-          <label>
-            <span>Grain</span>
-            <input
-              type="range"
-              min="0"
-              max="14"
-              step="1"
-              [(ngModel)]="settings.grainAmount"
-              (ngModelChange)="updateSetting()"
-            />
-          </label>
-        </div>
-        <div class="gradient-presets">
-          @for (preset of gradientPresets; track preset.name) {
-            <button
-              type="button"
-              class="gradient-preset"
-              [class.active]="
-                settings.backgroundMode === 'gradient' &&
-                settings.backgroundColor === preset.backgroundColor &&
-                settings.gradientColor === preset.gradientColor
-              "
-              [style.--from]="preset.backgroundColor"
-              [style.--to]="preset.gradientColor"
-              [style.--wave]="preset.waveformColor"
-              [style.--accent]="preset.accentColor"
-              (click)="selectGradientPreset(preset)"
-            >
-              <i>
-                <b></b>
-                <b></b>
-                <b></b>
-                <b></b>
-                <b></b>
-              </i>
-              <span>{{ preset.name }}</span>
-            </button>
-          }
-        </div>
-        <div class="palette-grid">
-          <div class="swatch-group">
-            <span>Bg</span>
-            <div class="swatch-grid">
-              @for (swatch of backgroundSwatches; track swatch.value) {
-                <button
-                  type="button"
-                  class="swatch"
-                  [class.on]="settings.backgroundColor === swatch.value"
-                  [style.background]="swatch.value"
-                  [attr.aria-label]="'Background ' + swatch.name"
-                  (click)="setColor('backgroundColor', swatch.value)"
-                ></button>
-              }
-            </div>
-          </div>
-          <div class="swatch-group">
-            <span>Wave</span>
-            <div class="swatch-grid">
-              @for (swatch of waveformSwatches; track swatch.value) {
-                <button
-                  type="button"
-                  class="swatch"
-                  [class.on]="settings.waveformColor === swatch.value"
-                  [style.background]="swatch.value"
-                  [attr.aria-label]="'Waveform ' + swatch.name"
-                  (click)="setColor('waveformColor', swatch.value)"
-                ></button>
-              }
-            </div>
-          </div>
-          <div class="swatch-group">
-            <span>Accent</span>
-            <div class="swatch-grid">
-              @for (swatch of accentSwatches; track swatch.value) {
-                <button
-                  type="button"
-                  class="swatch"
-                  [class.on]="settings.accentColor === swatch.value"
-                  [style.background]="swatch.value"
-                  [attr.aria-label]="'Accent ' + swatch.name"
-                  (click)="setColor('accentColor', swatch.value)"
-                ></button>
-              }
-            </div>
-          </div>
-        </div>
-      </section>
-    </main>
-
-    <aside class="preview-rail">
-      <div class="preview-stage" [attr.data-format]="settings.format">
-        <canvas #previewCanvas class="visualizer-canvas" aria-label="Visualizer preview"></canvas>
-      </div>
-
-      <label class="title-toggle">
-        <input type="checkbox" [(ngModel)]="settings.showTitle" (change)="updateSetting()" />
-        <span>Title overlay</span>
-      </label>
-      <input
-        class="title-input"
-        type="text"
-        placeholder="Track title"
-        [(ngModel)]="settings.title"
-        [disabled]="!settings.showTitle"
-        (ngModelChange)="updateSetting()"
-      />
-
-      <div class="export-row">
-        <button type="button" class="btn primary" [disabled]="!hasAudio()" (click)="exportPng()">
-          Export Still
-        </button>
+    <section class="visualizer-library" aria-label="Visualizer types">
+      @for (choice of visualizerChoices; track choice.kind; let i = $index) {
         <button
           type="button"
-          class="btn lime"
-          [disabled]="!hasAudio() || isExporting()"
-          (click)="exportWebm()"
+          class="visualizer-choice"
+          [attr.data-kind]="choice.kind"
+          [style.--delay]="i * 70 + 'ms'"
+          (click)="selectVisualizer(choice.kind)"
+          [attr.aria-label]="'Open ' + choice.label + ' editor'"
         >
-          {{ isExporting() ? 'Exporting' : 'Export Clip' }}
-        </button>
-      </div>
+          <span class="choice-preview" aria-hidden="true">
+            <span class="choice-number">{{ choice.index }}</span>
+            @if (choice.kind === 'waveform') {
+              <span class="mini-wave">
+                @for (bar of [18, 42, 68, 35, 76, 52, 88, 44, 66, 28, 58, 38]; track $index) {
+                  <i [style.--h.%]="bar"></i>
+                }
+              </span>
+            } @else if (choice.kind === 'fluid-gradient') {
+              <span class="mini-fluid"><i></i><b></b><em></em></span>
+            } @else {
+              <span class="mini-vinyl"
+                ><i><b>W</b></i></span
+              >
+              <span class="mini-eq">
+                @for (bar of [24, 54, 32, 68, 46, 82, 38, 62, 28, 50]; track $index) {
+                  <i [style.--h.%]="bar"></i>
+                }
+              </span>
+            }
+          </span>
 
-      @if (isExporting()) {
-        <div class="export-progress" role="status" aria-live="polite">
-          <div>
-            <span>Background render</span>
-            <strong>{{ exportProgress() * 100 | number: '1.0-0' }}%</strong>
-          </div>
-          <i [style.width.%]="exportProgress() * 100"></i>
-        </div>
+          <span class="choice-body">
+            <span class="choice-title-row">
+              <strong>{{ choice.label }}</strong>
+              <i aria-hidden="true">↗</i>
+            </span>
+            <span>{{ choice.description }}</span>
+            <small>{{ choice.formats }}</small>
+          </span>
+        </button>
       }
-    </aside>
-  </section>
+    </section>
+
+    @if (hasAudio()) {
+      <div class="saved-session">
+        <span>Session ready</span>
+        <strong>{{ audioFileName() }}</strong>
+        <em>{{ formatTime(trimStart()) }} — {{ formatTime(trimEnd()) }}</em>
+      </div>
+    }
+  } @else {
+    <header class="editor-header">
+      <div class="editor-title">
+        <button
+          type="button"
+          class="back-button"
+          (click)="changeVisualizer()"
+          aria-label="Change visualizer"
+        >
+          ←
+        </button>
+        <div>
+          <span class="eyebrow">Visualizer / {{ selectedChoice()?.label }}</span>
+          <h1>{{ selectedChoice()?.label }}</h1>
+        </div>
+      </div>
+      <div class="editor-status">
+        <span>{{ statusMessage() }}</span>
+        @if (hasAudio()) {
+          <strong>{{ formatTime(currentTime()) }} / {{ formatTime(duration()) }}</strong>
+        }
+      </div>
+    </header>
+
+    <section class="editor-layout">
+      <main class="workspace-column">
+        <label class="audio-upload" [class.loaded]="hasAudio()" [class.busy]="isDecoding()">
+          <input type="file" accept="audio/*" (change)="onAudioSelected($event)" />
+          <span class="upload-icon" aria-hidden="true">
+            @if (hasAudio()) {
+              ✓
+            } @else {
+              ↑
+            }
+          </span>
+          <span class="upload-copy">
+            <small>{{
+              isDecoding() ? 'Reading audio' : hasAudio() ? 'Audio loaded' : 'Start with audio'
+            }}</small>
+            <strong>{{ audioFileName() || 'Upload an MP3 or WAV file' }}</strong>
+            <em>{{
+              hasAudio() ? 'Click to replace this file' : 'Your file stays in this browser'
+            }}</em>
+          </span>
+          <span class="upload-action">{{ hasAudio() ? 'Replace' : 'Choose file' }}</span>
+        </label>
+
+        <section class="preview-card">
+          <div class="preview-toolbar">
+            <div>
+              <span class="live-dot"></span>
+              <strong>Preview</strong>
+              <em>{{ settings.format }}</em>
+            </div>
+            <button
+              type="button"
+              class="transport-button"
+              [disabled]="!hasAudio() || isExporting()"
+              (click)="togglePlayback()"
+            >
+              <span>{{ isPlaying() ? 'Ⅱ' : '▶' }}</span>
+              {{ isPlaying() ? 'Pause' : 'Play' }}
+            </button>
+          </div>
+
+          <div
+            class="preview-stage"
+            [attr.data-format]="settings.format"
+            [attr.data-kind]="settings.kind"
+          >
+            <canvas
+              #previewCanvas
+              class="visualizer-canvas"
+              aria-label="Visualizer preview"
+            ></canvas>
+          </div>
+        </section>
+
+        <section class="timeline-card" [class.disabled]="!hasAudio()">
+          <div class="timeline-header">
+            <div>
+              <span>Clip range</span>
+              <strong>{{ formatTime(trimStart()) }} — {{ formatTime(trimEnd()) }}</strong>
+            </div>
+            <span>{{ formatTime(clipDuration()) }} selected</span>
+          </div>
+
+          <div
+            class="track-waveform"
+            #trackWaveform
+            [class.ready]="hasAudio()"
+            (pointerdown)="seekFromWaveform($event)"
+          >
+            <div
+              class="trim-window"
+              [style.left.%]="trimStartPercent()"
+              [style.width.%]="trimEndPercent() - trimStartPercent()"
+            ></div>
+            <button
+              type="button"
+              class="playhead"
+              [style.left.%]="playheadPercent()"
+              [disabled]="!hasAudio()"
+              (pointerdown)="beginPlayheadDrag($event)"
+              aria-label="Drag playhead"
+            ></button>
+            <button
+              type="button"
+              class="trim-handle start"
+              [style.left.%]="trimStartPercent()"
+              [disabled]="!hasAudio()"
+              (pointerdown)="beginTrimDrag('start', $event)"
+              aria-label="Drag clip start"
+            ></button>
+            <button
+              type="button"
+              class="trim-handle end"
+              [style.left.%]="trimEndPercent()"
+              [disabled]="!hasAudio()"
+              (pointerdown)="beginTrimDrag('end', $event)"
+              aria-label="Drag clip end"
+            ></button>
+            <div class="wave-bars">
+              @for (peak of trimPeaks(); track $index) {
+                <span [style.height.%]="peak * 100 < 8 ? 8 : peak * 100"></span>
+              }
+            </div>
+          </div>
+
+          <div class="clip-times">
+            <span>0:00</span>
+            <span>{{ formatTime(duration()) }}</span>
+          </div>
+        </section>
+      </main>
+
+      <aside class="inspector">
+        <div class="inspector-heading">
+          <div>
+            <span>Customize</span><strong>{{ selectedChoice()?.label }}</strong>
+          </div>
+          <span class="inspector-kind">{{ selectedChoice()?.kicker }}</span>
+        </div>
+
+        @if (settings.kind === 'waveform') {
+          <section class="inspector-section">
+            <div class="section-title">
+              <span>Style</span><em>{{ waveformSettings.style }}</em>
+            </div>
+            <div class="style-list">
+              @for (preset of presets; track preset.style) {
+                <button
+                  type="button"
+                  class="style-btn"
+                  [class.active]="waveformSettings.style === preset.style"
+                  (click)="selectStyle(preset.style)"
+                >
+                  <strong>{{ preset.label }}</strong
+                  ><span>{{ preset.description }}</span>
+                </button>
+              }
+            </div>
+          </section>
+
+          <section class="inspector-section control-stack">
+            <div class="section-title"><span>Shape</span></div>
+            <label
+              ><span>Density</span><em>{{ waveformSettings.density }}</em
+              ><input
+                type="range"
+                min="24"
+                max="180"
+                step="4"
+                [(ngModel)]="waveformSettings.density"
+                (ngModelChange)="updateSetting()"
+            /></label>
+            <label
+              ><span>Intensity</span><em>{{ waveformSettings.intensity }}%</em
+              ><input
+                type="range"
+                min="20"
+                max="86"
+                step="2"
+                [(ngModel)]="waveformSettings.intensity"
+                (ngModelChange)="updateSetting()"
+            /></label>
+          </section>
+        } @else if (settings.kind === 'fluid-gradient') {
+          <section class="inspector-section control-stack">
+            <div class="section-title"><span>Surface motion</span><em>3D reactive</em></div>
+            <label
+              ><span>Deformation</span><em>{{ fluidSettings.deformation }}%</em
+              ><input
+                type="range"
+                min="10"
+                max="100"
+                step="2"
+                [(ngModel)]="fluidSettings.deformation"
+                (ngModelChange)="updateSetting()"
+            /></label>
+            <label
+              ><span>Rotation</span><em>{{ fluidSettings.rotation }}%</em
+              ><input
+                type="range"
+                min="0"
+                max="100"
+                step="2"
+                [(ngModel)]="fluidSettings.rotation"
+                (ngModelChange)="updateSetting()"
+            /></label>
+            <label
+              ><span>Response</span><em>{{ fluidSettings.responsiveness }}%</em
+              ><input
+                type="range"
+                min="10"
+                max="100"
+                step="2"
+                [(ngModel)]="fluidSettings.responsiveness"
+                (ngModelChange)="updateSetting()"
+            /></label>
+            <label
+              ><span>Softness</span><em>{{ fluidSettings.blendSoftness }}%</em
+              ><input
+                type="range"
+                min="10"
+                max="100"
+                step="2"
+                [(ngModel)]="fluidSettings.blendSoftness"
+                (ngModelChange)="updateSetting()"
+            /></label>
+          </section>
+        } @else {
+          <section class="inspector-section control-stack">
+            <div class="section-title"><span>Deck motion</span><em>33 rpm inspired</em></div>
+            <label
+              ><span>Record speed</span><em>{{ vinylSettings.speed }}%</em
+              ><input
+                type="range"
+                min="10"
+                max="100"
+                step="2"
+                [(ngModel)]="vinylSettings.speed"
+                (ngModelChange)="updateSetting()"
+            /></label>
+            <label
+              ><span>Groove response</span><em>{{ vinylSettings.grooveResponse }}%</em
+              ><input
+                type="range"
+                min="10"
+                max="100"
+                step="2"
+                [(ngModel)]="vinylSettings.grooveResponse"
+                (ngModelChange)="updateSetting()"
+            /></label>
+            <label
+              ><span>Bar density</span><em>{{ vinylSettings.density }}</em
+              ><input
+                type="range"
+                min="24"
+                max="120"
+                step="4"
+                [(ngModel)]="vinylSettings.density"
+                (ngModelChange)="updateSetting()"
+            /></label>
+            <label
+              ><span>Bar intensity</span><em>{{ vinylSettings.intensity }}%</em
+              ><input
+                type="range"
+                min="20"
+                max="86"
+                step="2"
+                [(ngModel)]="vinylSettings.intensity"
+                (ngModelChange)="updateSetting()"
+            /></label>
+          </section>
+        }
+
+        <section class="inspector-section two-up">
+          <div>
+            <div class="section-title"><span>Motion</span></div>
+            <div class="segmented">
+              <button
+                type="button"
+                [class.on]="settings.mode === 'static'"
+                (click)="setMode('static')"
+              >
+                Still
+              </button>
+              <button
+                type="button"
+                [class.on]="settings.mode === 'dynamic'"
+                (click)="setMode('dynamic')"
+              >
+                Live
+              </button>
+            </div>
+          </div>
+          <div>
+            <div class="section-title"><span>Format</span></div>
+            <div class="format-grid">
+              @for (format of formats; track format.value) {
+                <button
+                  type="button"
+                  class="format-card"
+                  [class.on]="settings.format === format.value"
+                  (click)="setFormat(format.value)"
+                  [attr.aria-label]="format.label + ' canvas'"
+                >
+                  <span class="device-icon" [attr.data-format]="format.value"><span></span></span>
+                </button>
+              }
+            </div>
+          </div>
+        </section>
+
+        <section class="inspector-section palette-panel">
+          <div class="section-title">
+            <span>Color</span><em>{{ settings.backgroundMode }}</em>
+          </div>
+          @if (settings.kind !== 'fluid-gradient') {
+            <div class="segmented background-mode">
+              <button
+                type="button"
+                [class.on]="settings.backgroundMode === 'solid'"
+                (click)="setBackgroundMode('solid')"
+              >
+                Solid
+              </button>
+              <button
+                type="button"
+                [class.on]="settings.backgroundMode === 'gradient'"
+                (click)="setBackgroundMode('gradient')"
+              >
+                Gradient
+              </button>
+            </div>
+          }
+          <div class="preset-strip">
+            @for (preset of gradientPresets | slice: 0 : 5; track preset.name) {
+              <button
+                type="button"
+                class="preset-dot"
+                [class.active]="
+                  settings.backgroundColor === preset.backgroundColor &&
+                  settings.gradientColor === preset.gradientColor
+                "
+                [style.background]="
+                  'linear-gradient(135deg,' +
+                  preset.backgroundColor +
+                  ',' +
+                  preset.gradientColor +
+                  ')'
+                "
+                (click)="selectGradientPreset(preset)"
+                [attr.aria-label]="preset.name"
+                [attr.title]="preset.name"
+              ></button>
+            }
+          </div>
+          <div class="color-fields">
+            <label
+              ><span>Background</span
+              ><input
+                type="color"
+                [ngModel]="settings.backgroundColor"
+                (ngModelChange)="setColor('backgroundColor', $event)"
+            /></label>
+            <label
+              ><span>{{ settings.kind === 'fluid-gradient' ? 'Highlight' : 'Wave' }}</span
+              ><input
+                type="color"
+                [ngModel]="settings.waveformColor"
+                (ngModelChange)="setColor('waveformColor', $event)"
+            /></label>
+            <label
+              ><span>Accent</span
+              ><input
+                type="color"
+                [ngModel]="settings.accentColor"
+                (ngModelChange)="setColor('accentColor', $event)"
+            /></label>
+          </div>
+          <div class="single-control">
+            <label
+              ><span>Grain</span><em>{{ settings.grainAmount }}</em
+              ><input
+                type="range"
+                min="0"
+                max="14"
+                step="1"
+                [(ngModel)]="settings.grainAmount"
+                (ngModelChange)="updateSetting()"
+            /></label>
+          </div>
+        </section>
+
+        <section class="inspector-section title-section">
+          <label class="title-toggle"
+            ><input
+              type="checkbox"
+              [(ngModel)]="settings.showTitle"
+              (change)="updateSetting()"
+            /><span>Show title</span></label
+          >
+          <input
+            class="title-input"
+            type="text"
+            placeholder="Track title"
+            [(ngModel)]="settings.title"
+            [disabled]="!settings.showTitle && settings.kind !== 'vinyl'"
+            (ngModelChange)="updateSetting()"
+          />
+        </section>
+
+        <div class="export-panel">
+          <button
+            type="button"
+            class="btn secondary"
+            [disabled]="!hasAudio()"
+            (click)="exportPng()"
+          >
+            Export still
+          </button>
+          <button
+            type="button"
+            class="btn primary export-clip"
+            [disabled]="!hasAudio() || isExporting()"
+            (click)="exportWebm()"
+          >
+            {{ isExporting() ? 'Exporting…' : 'Export clip' }}
+          </button>
+          @if (isExporting()) {
+            <div class="export-progress" role="status" aria-live="polite">
+              <i [style.width.%]="exportProgress() * 100"></i
+              ><span>{{ exportProgress() * 100 | number: '1.0-0' }}%</span>
+            </div>
+          }
+        </div>
+      </aside>
+    </section>
+  }
 </div>

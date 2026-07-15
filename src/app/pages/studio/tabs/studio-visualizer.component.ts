@@ -14,10 +14,16 @@ import {
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import type {
+  CommonVisualizerSettings,
+  FluidGradientVisualizerSettings,
+  VinylVisualizerSettings,
   VisualizerFormat,
+  VisualizerFrameData,
+  VisualizerKind,
   VisualizerMode,
   VisualizerSettings,
   VisualizerStyle,
+  WaveformVisualizerSettings,
 } from '../../../services';
 import { ToastService, VisualizerService } from '../../../services';
 
@@ -25,6 +31,15 @@ interface VisualizerPreset {
   style: VisualizerStyle;
   label: string;
   description: string;
+}
+
+interface VisualizerChoice {
+  kind: VisualizerKind;
+  index: string;
+  label: string;
+  kicker: string;
+  description: string;
+  formats: string;
 }
 
 interface ColorSwatch {
@@ -56,17 +71,42 @@ export class StudioVisualizerComponent implements AfterViewInit, OnDestroy {
   private toastService = inject(ToastService);
   private cdr = inject(ChangeDetectorRef);
 
+  readonly visualizerChoices: VisualizerChoice[] = [
+    {
+      kind: 'waveform',
+      index: '01',
+      label: 'Waveform',
+      kicker: 'Graphic rhythm',
+      description: 'Clean bars, mirrored motion, and line pulses for sharp social-ready visuals.',
+      formats: 'Square · Story · Wide',
+    },
+    {
+      kind: 'fluid-gradient',
+      index: '02',
+      label: 'Fluid Gradient',
+      kicker: 'Dimensional colour',
+      description:
+        'A living gradient surface that folds, rotates, and blooms with every frequency band.',
+      formats: 'WebGL · All formats',
+    },
+    {
+      kind: 'vinyl',
+      index: '03',
+      label: 'Vinyl Deck',
+      kicker: 'Analog motion',
+      description:
+        'A rotating record, responsive grooves, and a bottom equalizer made for beat reveals.',
+      formats: 'Square · Story · Wide',
+    },
+  ];
+
   readonly presets: VisualizerPreset[] = [
     {
       style: 'classic-bars',
       label: 'Classic Bar',
-      description: 'Rounded bars with progress color.',
+      description: 'Rounded bars with progress colour.',
     },
-    {
-      style: 'mirror-wave',
-      label: 'Mirror Wave',
-      description: 'Symmetric top and bottom motion.',
-    },
+    { style: 'mirror-wave', label: 'Mirror Wave', description: 'Symmetric top and bottom motion.' },
     {
       style: 'line-pulse',
       label: 'Line Pulse',
@@ -197,21 +237,8 @@ export class StudioVisualizerComponent implements AfterViewInit, OnDestroy {
     { name: 'Lime', value: '#d9f561' },
   ];
 
-  settings: VisualizerSettings = {
-    style: 'classic-bars',
-    mode: 'dynamic',
-    format: '1:1',
-    backgroundMode: 'solid',
-    backgroundColor: '#10100e',
-    gradientColor: '#3b0710',
-    waveformColor: '#f0e9d6',
-    accentColor: '#ff4d68',
-    grainAmount: 6,
-    density: 84,
-    intensity: 54,
-    showTitle: false,
-    title: '',
-  };
+  selectedKind = signal<VisualizerKind | null>(null);
+  settings: VisualizerSettings = this.visualizerService.createDefaultSettings('waveform');
 
   audioFileName = signal('');
   isDecoding = signal(false);
@@ -222,23 +249,19 @@ export class StudioVisualizerComponent implements AfterViewInit, OnDestroy {
   currentTime = signal(0);
   trimStart = signal(0);
   trimEnd = signal(0);
-  statusMessage = signal('Load an audio file to start shaping the visual.');
-  peaks = signal<number[]>(this.visualizerService.createIdlePeaks(this.settings.density));
+  statusMessage = signal('Choose a visual direction to begin.');
+  peaks = signal<number[]>(this.visualizerService.createIdlePeaks(84));
   trimPeaks = signal<number[]>(this.visualizerService.createIdlePeaks(140));
 
   hasAudio = computed(() => !!this.audioFileName());
-  progress = computed(() => {
-    const duration = this.duration();
-    return duration > 0 ? this.currentTime() / duration : 0;
-  });
+  progress = computed(() => (this.duration() > 0 ? this.currentTime() / this.duration() : 0));
   trimStartPercent = computed(() => this.timeToPercent(this.trimStart()));
   trimEndPercent = computed(() => this.timeToPercent(this.trimEnd()));
   playheadPercent = computed(() => this.timeToPercent(this.currentTime()));
   clipDuration = computed(() => Math.max(0, this.trimEnd() - this.trimStart()));
-  videoExportSupported = computed(() => {
-    const canvas = this.previewCanvas?.nativeElement;
-    return typeof MediaRecorder !== 'undefined' && !!canvas?.captureStream;
-  });
+  selectedChoice = computed(() =>
+    this.visualizerChoices.find((choice) => choice.kind === this.selectedKind()),
+  );
 
   private audio = new Audio();
   private audioContext: AudioContext | null = null;
@@ -249,6 +272,7 @@ export class StudioVisualizerComponent implements AfterViewInit, OnDestroy {
   private objectUrl: string | null = null;
   private frameId: number | null = null;
   private activeWaveformHandle: 'start' | 'end' | 'playhead' | null = null;
+  private previousFrame: VisualizerFrameData | undefined;
 
   constructor() {
     this.audio.addEventListener('loadedmetadata', () => {
@@ -262,7 +286,9 @@ export class StudioVisualizerComponent implements AfterViewInit, OnDestroy {
         this.audio.currentTime = this.trimStart();
         this.currentTime.set(this.trimStart());
       }
-      this.renderPreview();
+      // Playback has its own requestAnimationFrame loop. Rendering again from
+      // the much slower media timeupdate event creates uneven frame pacing.
+      if (!this.isPlaying()) this.renderPreview();
       this.cdr.markForCheck();
     });
     this.audio.addEventListener('ended', () => {
@@ -273,36 +299,61 @@ export class StudioVisualizerComponent implements AfterViewInit, OnDestroy {
     });
   }
 
+  get waveformSettings() {
+    return this.settings as WaveformVisualizerSettings;
+  }
+  get fluidSettings() {
+    return this.settings as FluidGradientVisualizerSettings;
+  }
+  get vinylSettings() {
+    return this.settings as VinylVisualizerSettings;
+  }
+
   ngAfterViewInit() {
-    this.resizePreviewCanvas();
-    this.renderPreview();
+    this.prepareCanvas();
   }
 
   ngOnDestroy() {
     this.stopAnimation();
     this.audio.pause();
+    this.visualizerService.disposeCanvas(this.previewCanvas?.nativeElement);
     this.releaseObjectUrl();
-    if (this.audioContext?.state !== 'closed') {
-      void this.audioContext?.close();
-    }
+    if (this.audioContext?.state !== 'closed') void this.audioContext?.close();
+  }
+
+  selectVisualizer(kind: VisualizerKind) {
+    const shared = this.commonSettings();
+    this.visualizerService.disposeCanvas(this.previewCanvas?.nativeElement);
+    this.settings = this.visualizerService.createDefaultSettings(kind, shared);
+    this.selectedKind.set(kind);
+    this.previousFrame = undefined;
+    this.statusMessage.set(
+      this.hasAudio() ? 'Preview ready.' : 'Load an audio file to start shaping the visual.',
+    );
+    this.cdr.detectChanges();
+    this.prepareCanvas();
+  }
+
+  changeVisualizer() {
+    this.stopPlayback();
+    this.visualizerService.disposeCanvas(this.previewCanvas?.nativeElement);
+    this.selectedKind.set(null);
+    this.statusMessage.set('Choose a visual direction. Your audio and clip are saved.');
   }
 
   async onAudioSelected(event: Event) {
     const input = event.target as HTMLInputElement;
     const file = input.files?.[0];
     if (!file) return;
-
     this.isDecoding.set(true);
     this.statusMessage.set('Reading waveform peaks...');
     this.stopPlayback();
     this.releaseObjectUrl();
     this.resetAudioGraph();
-
     this.objectUrl = URL.createObjectURL(file);
     this.audio.src = this.objectUrl;
     this.audioFileName.set(file.name);
-    this.settings.title = this.settings.title || file.name.replace(/\.[^/.]+$/, '');
-
+    this.settings.title ||= file.name.replace(/\.[^/.]+$/, '');
     try {
       const audioBuffer = await this.visualizerService.decodeAudioData(await file.arrayBuffer());
       this.audioBuffer = audioBuffer;
@@ -311,7 +362,7 @@ export class StudioVisualizerComponent implements AfterViewInit, OnDestroy {
       this.trimEnd.set(Math.min(audioBuffer.duration, 15));
       this.audio.currentTime = 0;
       this.currentTime.set(0);
-      this.peaks.set(this.visualizerService.extractPeaks(audioBuffer, this.settings.density));
+      this.peaks.set(this.visualizerService.extractPeaks(audioBuffer, this.sampleCount()));
       this.trimPeaks.set(this.visualizerService.extractPeaks(audioBuffer, 140));
       this.statusMessage.set('Preview ready.');
       this.renderPreview();
@@ -326,28 +377,25 @@ export class StudioVisualizerComponent implements AfterViewInit, OnDestroy {
   }
 
   selectStyle(style: VisualizerStyle) {
+    if (this.settings.kind !== 'waveform') return;
     this.settings = { ...this.settings, style };
     this.renderPreview();
   }
 
   setMode(mode: VisualizerMode) {
-    this.settings = { ...this.settings, mode };
-    if (mode === 'static') {
-      this.stopAnimation();
-    } else if (this.isPlaying()) {
-      this.startAnimation();
-    }
+    this.settings = { ...this.settings, mode } as VisualizerSettings;
+    if (mode === 'static') this.stopAnimation();
+    else if (this.isPlaying()) this.startAnimation();
     this.renderPreview();
   }
 
   setFormat(format: VisualizerFormat) {
-    this.settings = { ...this.settings, format };
-    this.resizePreviewCanvas();
-    this.renderPreview();
+    this.settings = { ...this.settings, format } as VisualizerSettings;
+    this.prepareCanvas();
   }
 
-  setBackgroundMode(backgroundMode: VisualizerSettings['backgroundMode']) {
-    this.settings = { ...this.settings, backgroundMode };
+  setBackgroundMode(backgroundMode: CommonVisualizerSettings['backgroundMode']) {
+    this.settings = { ...this.settings, backgroundMode } as VisualizerSettings;
     this.updateSetting();
   }
 
@@ -359,7 +407,7 @@ export class StudioVisualizerComponent implements AfterViewInit, OnDestroy {
       gradientColor: preset.gradientColor,
       waveformColor: preset.waveformColor,
       accentColor: preset.accentColor,
-    };
+    } as VisualizerSettings;
     this.updateSetting();
   }
 
@@ -367,27 +415,26 @@ export class StudioVisualizerComponent implements AfterViewInit, OnDestroy {
     target: 'backgroundColor' | 'gradientColor' | 'waveformColor' | 'accentColor',
     value: string,
   ) {
-    this.settings = { ...this.settings, [target]: value };
+    this.settings = { ...this.settings, [target]: value } as VisualizerSettings;
     this.updateSetting();
   }
 
   updateSetting() {
-    if (this.hasAudio()) {
-      this.peaks.set(this.resampleValues(this.peaks(), this.settings.density));
-    } else {
-      this.peaks.set(this.visualizerService.createIdlePeaks(this.settings.density));
-    }
+    const count = this.sampleCount();
+    this.peaks.set(
+      this.hasAudio()
+        ? this.resampleValues(this.peaks(), count)
+        : this.visualizerService.createIdlePeaks(count),
+    );
     this.renderPreview();
   }
 
   async togglePlayback() {
     if (!this.hasAudio()) return;
-
     if (this.isPlaying()) {
       this.stopPlayback();
       return;
     }
-
     try {
       this.setupAudioGraph();
       if (this.audio.currentTime < this.trimStart() || this.audio.currentTime >= this.trimEnd()) {
@@ -421,9 +468,8 @@ export class StudioVisualizerComponent implements AfterViewInit, OnDestroy {
   }
 
   updateTrimEnd(value: string | number) {
-    const duration = this.duration();
     const next = Math.max(Number(value), this.trimStart() + 0.25);
-    const end = Math.min(duration, Number.isFinite(next) ? next : duration);
+    const end = Math.min(this.duration(), Number.isFinite(next) ? next : this.duration());
     this.trimEnd.set(end);
     if (this.currentTime() > end) {
       this.audio.currentTime = this.trimStart();
@@ -448,17 +494,22 @@ export class StudioVisualizerComponent implements AfterViewInit, OnDestroy {
 
   seekFromWaveform(event: PointerEvent) {
     if (!this.hasAudio()) return;
-    const time = this.pointerToTime(event);
-    const nextTime = Math.max(this.trimStart(), Math.min(this.trimEnd(), time));
+    const nextTime = Math.max(
+      this.trimStart(),
+      Math.min(this.trimEnd(), this.pointerToTime(event)),
+    );
     this.audio.currentTime = nextTime;
     this.currentTime.set(nextTime);
     this.renderPreview();
   }
 
   exportPng() {
-    if (!this.hasAudio() || !this.previewCanvas?.nativeElement) return;
-    this.renderPreview();
-    this.previewCanvas.nativeElement.toBlob((blob) => {
+    if (!this.hasAudio()) return;
+    const canvas = this.createExportCanvas();
+    const frame = this.createCurrentFrame();
+    this.visualizerService.renderFrame(canvas, this.settings, frame);
+    canvas.toBlob((blob) => {
+      this.visualizerService.disposeCanvas(canvas);
       if (!blob) {
         this.toastService.error('Could not export PNG.');
         return;
@@ -469,41 +520,35 @@ export class StudioVisualizerComponent implements AfterViewInit, OnDestroy {
   }
 
   async exportWebm() {
-    if (!this.hasAudio() || !this.previewCanvas?.nativeElement) return;
+    if (!this.hasAudio()) return;
     const canvas = this.createExportCanvas();
-    const exportCtx = canvas.getContext('2d');
-
-    if (typeof MediaRecorder === 'undefined' || !canvas.captureStream || !exportCtx) {
+    if (typeof MediaRecorder === 'undefined' || !canvas.captureStream) {
+      this.visualizerService.disposeCanvas(canvas);
       this.toastService.info('Video export is not supported in this browser. PNG export is ready.');
       return;
     }
-
     this.stopPlayback();
     this.isExporting.set(true);
     this.exportProgress.set(0);
     this.statusMessage.set('Exporting selected clip...');
-
     const stream = canvas.captureStream(30);
     const exportAudio = this.createExportAudioGraph();
     if (!exportAudio) {
       stream.getTracks().forEach((track) => track.stop());
+      this.visualizerService.disposeCanvas(canvas);
       this.isExporting.set(false);
-      this.exportProgress.set(0);
       this.toastService.error('Could not prepare background audio export.');
-      this.cdr.markForCheck();
       return;
     }
-
     exportAudio.destination.stream.getAudioTracks().forEach((track) => stream.addTrack(track));
-
     const chunks: BlobPart[] = [];
     const recorder = new MediaRecorder(stream, { mimeType: this.pickWebmMimeType() });
     let exportFrameId: number | null = null;
     let stopTimer: number | null = null;
     let stopped = false;
+    let previous: VisualizerFrameData | undefined;
     const clipDuration = this.clipDuration();
     const startedAt = performance.now();
-
     const stopRecording = () => {
       if (stopped) return;
       stopped = true;
@@ -512,38 +557,33 @@ export class StudioVisualizerComponent implements AfterViewInit, OnDestroy {
       try {
         exportAudio.source.stop();
       } catch {
-        // The source may already be stopped by the natural clip end.
+        /* source already ended */
       }
       if (recorder.state === 'recording') recorder.stop();
     };
-
     const renderExportTick = () => {
       const elapsed = Math.min(clipDuration, (performance.now() - startedAt) / 1000);
       const progress = clipDuration > 0 ? elapsed / clipDuration : 1;
-      exportAudio.analyser.getByteFrequencyData(exportAudio.frequencyData);
-      const values = this.visualizerService.normalizeFrequencyData(
+      exportAudio.analyser.getByteFrequencyData(
+        exportAudio.frequencyData as Uint8Array<ArrayBuffer>,
+      );
+      const frame = this.visualizerService.createFrameData(
         exportAudio.frequencyData,
-        this.settings.density,
-      );
-      this.visualizerService.drawVisualizerFrame(
-        exportCtx,
-        canvas.width,
-        canvas.height,
-        this.settings,
-        values,
+        this.sampleCount(),
         progress,
+        elapsed,
+        undefined,
+        previous,
       );
-      this.renderFrameWithValues(values, progress);
+      previous = frame;
+      this.visualizerService.renderFrame(canvas, this.settings, frame);
+      this.renderFrame(frame);
       this.currentTime.set(this.trimStart() + elapsed);
       this.exportProgress.set(progress);
       this.cdr.markForCheck();
-      if (progress >= 1) {
-        stopRecording();
-      } else if (!stopped) {
-        exportFrameId = requestAnimationFrame(renderExportTick);
-      }
+      if (progress >= 1) stopRecording();
+      else if (!stopped) exportFrameId = requestAnimationFrame(renderExportTick);
     };
-
     recorder.ondataavailable = (event) => {
       if (event.data.size > 0) chunks.push(event.data);
     };
@@ -554,9 +594,8 @@ export class StudioVisualizerComponent implements AfterViewInit, OnDestroy {
       exportAudio.source.disconnect();
       exportAudio.analyser.disconnect();
       exportAudio.destination.disconnect();
-      if (exportAudio.context.state !== 'closed') {
-        void exportAudio.context.close();
-      }
+      if (exportAudio.context.state !== 'closed') void exportAudio.context.close();
+      this.visualizerService.disposeCanvas(canvas);
       this.downloadBlob(new Blob(chunks, { type: 'video/webm' }), this.exportName('webm'));
       this.isExporting.set(false);
       this.exportProgress.set(1);
@@ -566,37 +605,33 @@ export class StudioVisualizerComponent implements AfterViewInit, OnDestroy {
       this.renderPreview();
       this.cdr.markForCheck();
     };
-
     try {
       recorder.start();
-      const initialValues = this.resampleValues(this.peaks(), this.settings.density);
-      this.visualizerService.drawVisualizerFrame(
-        exportCtx,
-        canvas.width,
-        canvas.height,
-        this.settings,
-        initialValues,
+      const initial = this.visualizerService.createFrameData(
+        null,
+        this.sampleCount(),
         0,
+        0,
+        this.peaks(),
       );
-      this.renderFrameWithValues(initialValues, 0);
+      this.visualizerService.renderFrame(canvas, this.settings, initial);
       exportAudio.source.start(0, this.trimStart(), clipDuration);
       exportFrameId = requestAnimationFrame(renderExportTick);
-      const exportMs = Math.max(1000, clipDuration * 1000 + 500);
-      stopTimer = window.setTimeout(stopRecording, exportMs);
+      stopTimer = window.setTimeout(stopRecording, Math.max(1000, clipDuration * 1000 + 500));
     } catch {
       stopRecording();
+      this.visualizerService.disposeCanvas(canvas);
       this.isExporting.set(false);
       this.exportProgress.set(0);
       this.toastService.error('Could not start WebM export.');
-      this.cdr.markForCheck();
     }
   }
 
   formatTime(seconds: number) {
     if (!Number.isFinite(seconds) || seconds <= 0) return '0:00';
-    const mins = Math.floor(seconds / 60);
-    const secs = Math.floor(seconds % 60);
-    return `${mins}:${secs.toString().padStart(2, '0')}`;
+    return `${Math.floor(seconds / 60)}:${Math.floor(seconds % 60)
+      .toString()
+      .padStart(2, '0')}`;
   }
 
   @HostListener('document:pointermove', ['$event'])
@@ -611,98 +646,107 @@ export class StudioVisualizerComponent implements AfterViewInit, OnDestroy {
     this.activeWaveformHandle = null;
   }
 
-  private resizePreviewCanvas() {
+  private commonSettings(): Partial<CommonVisualizerSettings> {
+    return {
+      mode: this.settings.mode,
+      format: this.settings.format,
+      backgroundMode: this.settings.backgroundMode,
+      backgroundColor: this.settings.backgroundColor,
+      gradientColor: this.settings.gradientColor,
+      waveformColor: this.settings.waveformColor,
+      accentColor: this.settings.accentColor,
+      grainAmount: this.settings.grainAmount,
+      showTitle: this.settings.showTitle,
+      title: this.settings.title,
+    };
+  }
+
+  private sampleCount() {
+    return this.settings.kind === 'waveform' || this.settings.kind === 'vinyl'
+      ? this.settings.density
+      : 96;
+  }
+
+  private prepareCanvas() {
     const canvas = this.previewCanvas?.nativeElement;
     if (!canvas) return;
-    const { width, height } = this.visualizerService.getCanvasSize(this.settings.format, 1080);
+    // The live canvas is sized for the on-screen preview. Export canvases remain
+    // full 1080p, so reducing this buffer improves motion without lowering output quality.
+    const { width, height } = this.visualizerService.getCanvasSize(this.settings.format, 720);
     canvas.width = width;
     canvas.height = height;
+    this.renderPreview();
+  }
+
+  private createCurrentFrame() {
+    const data =
+      this.settings.mode === 'dynamic' && this.isPlaying() ? this.readFrequencyData() : null;
+    const elapsed = this.isPlaying() ? this.audio.currentTime : this.currentTime();
+    const progress = this.duration() > 0 ? elapsed / this.duration() : 0;
+    return this.visualizerService.createFrameData(
+      data,
+      this.sampleCount(),
+      progress,
+      elapsed,
+      this.peaks(),
+      this.previousFrame,
+    );
   }
 
   private renderPreview() {
-    const canvas = this.previewCanvas?.nativeElement;
-    const ctx = canvas?.getContext('2d');
-    if (!canvas || !ctx) return;
-
-    const values =
-      this.settings.mode === 'dynamic' && this.isPlaying()
-        ? this.visualizerService.normalizeFrequencyData(
-            this.readFrequencyData(),
-            this.settings.density,
-          )
-        : this.resampleValues(this.peaks(), this.settings.density);
-
-    this.renderFrameWithValues(values, this.progress());
+    if (!this.selectedKind()) return;
+    const frame = this.createCurrentFrame();
+    this.previousFrame = frame;
+    this.renderFrame(frame);
   }
 
-  private renderFrameWithValues(values: number[], progress: number) {
+  private renderFrame(frame: VisualizerFrameData) {
     const canvas = this.previewCanvas?.nativeElement;
-    const ctx = canvas?.getContext('2d');
-    if (!canvas || !ctx) return;
-
-    this.visualizerService.drawVisualizerFrame(
-      ctx,
-      canvas.width,
-      canvas.height,
-      this.settings,
-      values,
-      progress,
-    );
+    if (canvas) this.visualizerService.renderFrame(canvas, this.settings, frame);
   }
 
   private createExportCanvas() {
     const canvas = document.createElement('canvas');
-    const { width, height } = this.visualizerService.getCanvasSize(this.settings.format, 1080);
-    canvas.width = width;
-    canvas.height = height;
+    const size = this.visualizerService.getCanvasSize(this.settings.format, 1080);
+    canvas.width = size.width;
+    canvas.height = size.height;
     return canvas;
   }
 
   private updateWaveformHandleFromPointer(event: PointerEvent) {
-    if (!this.activeWaveformHandle) return;
     const time = this.pointerToTime(event);
-    if (this.activeWaveformHandle === 'start') {
-      this.updateTrimStart(time);
-    } else if (this.activeWaveformHandle === 'end') {
-      this.updateTrimEnd(time);
-    } else {
-      const nextTime = Math.max(this.trimStart(), Math.min(this.trimEnd(), time));
-      this.audio.currentTime = nextTime;
-      this.currentTime.set(nextTime);
+    if (this.activeWaveformHandle === 'start') this.updateTrimStart(time);
+    else if (this.activeWaveformHandle === 'end') this.updateTrimEnd(time);
+    else {
+      const next = Math.max(this.trimStart(), Math.min(this.trimEnd(), time));
+      this.audio.currentTime = next;
+      this.currentTime.set(next);
       this.renderPreview();
     }
   }
 
   private pointerToTime(event: PointerEvent) {
     const element = this.trackWaveform?.nativeElement;
-    const duration = this.duration();
-    if (!element || duration <= 0) return 0;
+    if (!element || this.duration() <= 0) return 0;
     const rect = element.getBoundingClientRect();
-    const percent = Math.max(0, Math.min(1, (event.clientX - rect.left) / rect.width));
-    return percent * duration;
+    return Math.max(0, Math.min(1, (event.clientX - rect.left) / rect.width)) * this.duration();
   }
 
   private timeToPercent(time: number) {
-    const duration = this.duration();
-    if (!duration || !Number.isFinite(time)) return 0;
-    return Math.max(0, Math.min(100, (time / duration) * 100));
+    return !this.duration() || !Number.isFinite(time)
+      ? 0
+      : Math.max(0, Math.min(100, (time / this.duration()) * 100));
   }
 
   private setupAudioGraph() {
     if (this.audioContext && this.analyser && this.source) {
-      if (this.audioContext.state === 'suspended') {
-        void this.audioContext.resume();
-      }
+      if (this.audioContext.state === 'suspended') void this.audioContext.resume();
       return;
     }
-
     const AudioContextCtor =
       window.AudioContext ||
       (window as typeof window & { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
-    if (!AudioContextCtor) {
-      throw new Error('Audio playback analysis is unavailable.');
-    }
-
+    if (!AudioContextCtor) throw new Error('Audio playback analysis is unavailable.');
     this.audioContext = new AudioContextCtor();
     this.analyser = this.audioContext.createAnalyser();
     this.analyser.fftSize = 256;
@@ -714,7 +758,7 @@ export class StudioVisualizerComponent implements AfterViewInit, OnDestroy {
 
   private readFrequencyData() {
     if (!this.analyser || !this.frequencyData) return null;
-    this.analyser.getByteFrequencyData(this.frequencyData as any);
+    this.analyser.getByteFrequencyData(this.frequencyData as Uint8Array<ArrayBuffer>);
     return this.frequencyData;
   }
 
@@ -722,18 +766,14 @@ export class StudioVisualizerComponent implements AfterViewInit, OnDestroy {
     this.stopAnimation();
     const tick = () => {
       this.renderPreview();
-      if (this.isPlaying()) {
-        this.frameId = requestAnimationFrame(tick);
-      }
+      if (this.isPlaying()) this.frameId = requestAnimationFrame(tick);
     };
     this.frameId = requestAnimationFrame(tick);
   }
 
   private stopAnimation() {
-    if (this.frameId !== null) {
-      cancelAnimationFrame(this.frameId);
-      this.frameId = null;
-    }
+    if (this.frameId !== null) cancelAnimationFrame(this.frameId);
+    this.frameId = null;
   }
 
   private stopPlayback() {
@@ -749,31 +789,25 @@ export class StudioVisualizerComponent implements AfterViewInit, OnDestroy {
     this.frequencyData = null;
     this.source = null;
     this.analyser = null;
-    if (this.audioContext?.state !== 'closed') {
-      void this.audioContext?.close();
-    }
+    if (this.audioContext?.state !== 'closed') void this.audioContext?.close();
     this.audioContext = null;
     this.audioBuffer = null;
   }
 
   private createExportAudioGraph() {
     if (!this.audioBuffer) return null;
-
     const AudioContextCtor =
       window.AudioContext ||
       (window as typeof window & { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
     if (!AudioContextCtor) return null;
-
     const context = new AudioContextCtor();
     const source = context.createBufferSource();
     const analyser = context.createAnalyser();
     const destination = context.createMediaStreamDestination();
-
     source.buffer = this.audioBuffer;
     analyser.fftSize = 256;
     source.connect(analyser);
     analyser.connect(destination);
-
     return {
       context,
       source,
@@ -784,10 +818,9 @@ export class StudioVisualizerComponent implements AfterViewInit, OnDestroy {
   }
 
   private releaseObjectUrl() {
-    if (this.objectUrl) {
-      URL.revokeObjectURL(this.objectUrl);
-      this.objectUrl = null;
-    }
+    if (!this.objectUrl) return;
+    URL.revokeObjectURL(this.objectUrl);
+    this.objectUrl = null;
   }
 
   private resampleValues(values: number[], count: number) {
@@ -800,10 +833,9 @@ export class StudioVisualizerComponent implements AfterViewInit, OnDestroy {
 
   private pickWebmMimeType() {
     const preferred = 'video/webm;codecs=vp9,opus';
-    if (typeof MediaRecorder !== 'undefined' && MediaRecorder.isTypeSupported?.(preferred)) {
-      return preferred;
-    }
-    return 'video/webm';
+    return typeof MediaRecorder !== 'undefined' && MediaRecorder.isTypeSupported?.(preferred)
+      ? preferred
+      : 'video/webm';
   }
 
   private downloadBlob(blob: Blob, filename: string) {

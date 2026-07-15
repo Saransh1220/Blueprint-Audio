@@ -1,10 +1,9 @@
 import { CommonModule } from '@angular/common';
-import { Component, computed, effect, inject, signal } from '@angular/core';
+import { Component, computed, effect, HostListener, inject, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { of } from 'rxjs';
 import { catchError, finalize, switchMap } from 'rxjs/operators';
-import { SpecListItemComponent } from '../../components/spec-list-item/spec-list-item.component';
 import { type LicenseOption, type Spec } from '../../models';
 import type { Money } from '../../models/money';
 import {
@@ -19,7 +18,7 @@ import { MoneyPipe } from '../../shared/pipes/money.pipe';
 @Component({
   selector: 'app-spec-details',
   standalone: true,
-  imports: [CommonModule, RouterLink, SpecListItemComponent, MoneyPipe],
+  imports: [CommonModule, RouterLink, MoneyPipe],
   templateUrl: './spec-details.component.html',
   styleUrls: ['./spec-details.component.scss'],
 })
@@ -32,6 +31,72 @@ export class SpecDetailsComponent {
   private analyticsService = inject(AnalyticsService);
 
   isFavoriting = signal(false);
+  stickyBuyVisible = signal(false);
+  openFaqIndex = signal<number | null>(null);
+  commentSort = signal<'top' | 'newest'>('top');
+  commentDraft = signal('');
+  comments = signal([
+    {
+      id: 1,
+      initial: 'j',
+      name: 'Jamie O.',
+      badge: 'Premium buyer',
+      time: '2m',
+      text: 'Mix is insanely clean straight out of the box. Barely had to touch EQ before dropping vocals on it.',
+      likes: 24,
+      liked: false,
+      color: '#ff4d68',
+      reply: false,
+    },
+    {
+      id: 2,
+      initial: 'k',
+      name: 'Kita Sol',
+      badge: 'Producer',
+      time: '1m',
+      text: 'Appreciate it! Was going for something that sits under vocals without fighting them.',
+      likes: 9,
+      liked: false,
+      color: '#ffd455',
+      reply: true,
+    },
+    {
+      id: 3,
+      initial: 's',
+      name: 'Sam L.',
+      badge: 'Unlimited buyer',
+      time: '18m',
+      text: 'Stems were perfectly labeled and in tune with everything else in my session. Worth the Unlimited price.',
+      likes: 11,
+      liked: false,
+      color: '#5b78ff',
+      reply: false,
+    },
+    {
+      id: 4,
+      initial: 'a',
+      name: 'Alex K.',
+      badge: 'Basic buyer',
+      time: '1h',
+      text: "Great atmosphere, exactly the vibe from the preview. Would've liked a slightly louder master honestly.",
+      likes: 4,
+      liked: false,
+      color: '#ffd455',
+      reply: false,
+    },
+    {
+      id: 5,
+      initial: 'n',
+      name: 'Noa R.',
+      badge: '',
+      time: '6h',
+      text: 'The piano loop at 0:47 is criminal. Bought it just for that transition into the second half.',
+      likes: 7,
+      liked: false,
+      color: '#d4c5ff',
+      reply: false,
+    },
+  ]);
   specLoadSettled = signal(false);
   selectedLicense = signal<LicenseOption | null>(null);
   relatedViewMode = signal<'grid' | 'list'>('grid');
@@ -108,6 +173,14 @@ export class SpecDetailsComponent {
     () => this.selectedLicense()?.displayPriceMoney ?? this.spec()?.displayPriceMoney,
   );
   primaryGenre = computed(() => this.spec()?.genres[0]?.name ?? 'Beat');
+  displayTags = computed(() => {
+    const current = this.spec();
+    if (!current) return [];
+
+    return Array.from(
+      new Set([...(current.moods ?? []), ...(current.tags ?? []), ...(current.instruments ?? [])]),
+    ).slice(0, 6);
+  });
   producerImageUrl = computed(() => this.spec()?.producerAvatarUrl || '');
   relatedDisplaySpecs = computed(() => {
     const current = this.spec();
@@ -299,6 +372,80 @@ export class SpecDetailsComponent {
     effect(() => {
       this.updateMobileArtPalette(this.spec());
     });
+  }
+
+  @HostListener('window:scroll')
+  onWindowScroll() {
+    if (typeof window === 'undefined') return;
+    const y = window.scrollY || 0;
+    this.stickyBuyVisible.set(y > 560);
+  }
+
+  scrollToLicenses() {
+    if (typeof document === 'undefined') return;
+    document.getElementById('licenses')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  scrollToFaq() {
+    if (typeof document === 'undefined') return;
+    document.getElementById('faq')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  toggleFaq(index: number) {
+    this.openFaqIndex.update((current) => (current === index ? null : index));
+  }
+
+  setCommentSort(sort: 'top' | 'newest') {
+    this.commentSort.set(sort);
+    this.toastService.info(sort === 'top' ? 'Sorted by top' : 'Sorted by newest');
+  }
+
+  updateCommentDraft(event: Event) {
+    const input = event.target as HTMLTextAreaElement;
+    this.commentDraft.set(input.value);
+    input.style.height = 'auto';
+    input.style.height = `${input.scrollHeight}px`;
+  }
+
+  postComment() {
+    const text = this.commentDraft().trim();
+    if (!text) return;
+
+    this.comments.update((comments) => [
+      {
+        id: Date.now(),
+        initial: 'y',
+        name: 'You',
+        badge: '',
+        time: 'now',
+        text,
+        likes: 0,
+        liked: false,
+        color: '#5b78ff',
+        reply: false,
+      },
+      ...comments,
+    ]);
+    this.commentDraft.set('');
+    this.toastService.success('Comment posted');
+  }
+
+  toggleCommentLike(id: number) {
+    this.comments.update((comments) =>
+      comments.map((comment) =>
+        comment.id === id
+          ? {
+              ...comment,
+              liked: !comment.liked,
+              likes: comment.likes + (comment.liked ? -1 : 1),
+            }
+          : comment,
+      ),
+    );
+  }
+
+  showReferenceNotice(message: string) {
+    this.toastService.info(message);
   }
 
   playSpec() {

@@ -10,18 +10,11 @@ describe('StudioVisualizerComponent', () => {
     error: ReturnType<typeof vi.fn>;
     info: ReturnType<typeof vi.fn>;
   };
-  let visualizer: {
-    createIdlePeaks: ReturnType<typeof vi.fn>;
-    getCanvasSize: ReturnType<typeof vi.fn>;
-    drawVisualizerFrame: ReturnType<typeof vi.fn>;
-    decodeAudioData: ReturnType<typeof vi.fn>;
-    extractPeaks: ReturnType<typeof vi.fn>;
-    normalizeFrequencyData: ReturnType<typeof vi.fn>;
-  };
-  const canvasContext = {
-    clearRect: vi.fn(),
-    fillRect: vi.fn(),
-  };
+
+  function select(kind: 'waveform' | 'fluid-gradient' | 'vinyl' = 'waveform') {
+    component.selectVisualizer(kind);
+    fixture.detectChanges();
+  }
 
   function makePointer(clientX: number) {
     return {
@@ -32,23 +25,8 @@ describe('StudioVisualizerComponent', () => {
   }
 
   beforeEach(async () => {
-    toast = {
-      success: vi.fn(),
-      error: vi.fn(),
-      info: vi.fn(),
-    };
-    visualizer = {
-      createIdlePeaks: vi.fn((count: number) => Array.from({ length: count }, () => 0.2)),
-      getCanvasSize: vi.fn(() => ({ width: 1080, height: 1080 })),
-      drawVisualizerFrame: vi.fn(),
-      decodeAudioData: vi.fn(async () => ({ duration: 12 })),
-      extractPeaks: vi.fn(() => [0.1, 0.4, 0.8, 0.2]),
-      normalizeFrequencyData: vi.fn(() => [0.2, 0.6]),
-    };
-
-    vi.spyOn(HTMLCanvasElement.prototype, 'getContext').mockReturnValue(
-      canvasContext as unknown as CanvasRenderingContext2D,
-    );
+    toast = { success: vi.fn(), error: vi.fn(), info: vi.fn() };
+    vi.spyOn(HTMLCanvasElement.prototype, 'getContext').mockImplementation(() => null);
     vi.spyOn(HTMLMediaElement.prototype, 'pause').mockImplementation(() => undefined);
     vi.spyOn(HTMLMediaElement.prototype, 'play').mockResolvedValue(undefined);
     vi.spyOn(URL, 'createObjectURL').mockReturnValue('blob:audio');
@@ -56,12 +34,8 @@ describe('StudioVisualizerComponent', () => {
 
     await TestBed.configureTestingModule({
       imports: [StudioVisualizerComponent],
-      providers: [
-        { provide: ToastService, useValue: toast },
-        { provide: VisualizerService, useValue: visualizer },
-      ],
+      providers: [VisualizerService, { provide: ToastService, useValue: toast }],
     }).compileComponents();
-
     fixture = TestBed.createComponent(StudioVisualizerComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
@@ -72,97 +46,94 @@ describe('StudioVisualizerComponent', () => {
     vi.restoreAllMocks();
   });
 
-  it('disables preview and export actions until audio is loaded', () => {
-    const buttons = Array.from(
-      fixture.nativeElement.querySelectorAll('.actions-row button, .export-row button'),
-    ) as HTMLButtonElement[];
-
-    expect(buttons.every((button) => button.disabled)).toBe(true);
-    expect(component.settings.mode).toBe('dynamic');
+  it('opens on the three-option visualizer library', () => {
+    expect(component.selectedKind()).toBeNull();
+    expect(fixture.nativeElement.querySelectorAll('.visualizer-choice')).toHaveLength(3);
+    expect(fixture.nativeElement.textContent).toContain('Audio visualizer');
   });
 
-  it('loads a local audio file and enables controls', async () => {
-    const file = {
-      name: 'midnight-loop.wav',
-      arrayBuffer: vi.fn(async () => new ArrayBuffer(8)),
-    };
+  it('opens each renderer-specific editor with disabled export controls', () => {
+    select('fluid-gradient');
+    expect(component.settings.kind).toBe('fluid-gradient');
+    expect(fixture.nativeElement.textContent).toContain('Surface motion');
+    const buttons = Array.from(
+      fixture.nativeElement.querySelectorAll('.export-panel button'),
+    ) as HTMLButtonElement[];
+    expect(buttons.every((button) => button.disabled)).toBe(true);
+  });
 
+  it('preserves shared project state while resetting renderer-specific controls', () => {
+    select('waveform');
+    component.settings.title = 'Late Night';
+    component.setFormat('9:16');
+    component.audioFileName.set('beat.wav');
+    component.duration.set(20);
+    component.trimStart.set(4);
+    component.trimEnd.set(12);
+    component.currentTime.set(7);
+    component.changeVisualizer();
+    component.selectVisualizer('vinyl');
+    expect(component.settings).toMatchObject({
+      kind: 'vinyl',
+      title: 'Late Night',
+      format: '9:16',
+      speed: 54,
+    });
+    expect(component.audioFileName()).toBe('beat.wav');
+    expect(component.trimStart()).toBe(4);
+    expect(component.trimEnd()).toBe(12);
+    expect(component.currentTime()).toBe(7);
+  });
+
+  it('loads a local audio file and enables export controls', async () => {
+    select();
+    const service = TestBed.inject(VisualizerService);
+    vi.spyOn(service, 'decodeAudioData').mockResolvedValue({ duration: 12 } as AudioBuffer);
+    vi.spyOn(service, 'extractPeaks').mockReturnValue([0.1, 0.4, 0.8, 0.2]);
+    const file = { name: 'midnight-loop.wav', arrayBuffer: vi.fn(async () => new ArrayBuffer(8)) };
     await component.onAudioSelected({
       target: { files: [file], value: 'selected' },
     } as unknown as Event);
     fixture.detectChanges();
-
     expect(component.audioFileName()).toBe('midnight-loop.wav');
     expect(component.settings.title).toBe('midnight-loop');
-    expect(component.hasAudio()).toBe(true);
-    expect(component.trimStart()).toBe(0);
     expect(component.trimEnd()).toBe(12);
-    expect(component.clipDuration()).toBe(12);
-    expect(visualizer.decodeAudioData).toHaveBeenCalled();
-    expect(visualizer.extractPeaks).toHaveBeenCalled();
-    expect(visualizer.extractPeaks).toHaveBeenCalledWith({ duration: 12 }, 140);
-
     const exportButtons = Array.from(
-      fixture.nativeElement.querySelectorAll('.export-row button'),
+      fixture.nativeElement.querySelectorAll('.export-panel button'),
     ) as HTMLButtonElement[];
     expect(exportButtons.every((button) => button.disabled)).toBe(false);
   });
 
-  it('shows a decode error and resets the file input when audio decoding fails', async () => {
-    visualizer.decodeAudioData.mockRejectedValueOnce(new Error('bad audio'));
-    const file = {
-      name: 'broken.wav',
-      arrayBuffer: vi.fn(async () => new ArrayBuffer(8)),
+  it('shows a decode error and resets the file input', async () => {
+    select();
+    vi.spyOn(TestBed.inject(VisualizerService), 'decodeAudioData').mockRejectedValueOnce(
+      new Error('bad audio'),
+    );
+    const input = {
+      files: [{ name: 'broken.wav', arrayBuffer: async () => new ArrayBuffer(8) }],
+      value: 'selected',
     };
-    const input = { files: [file], value: 'selected' };
-
     await component.onAudioSelected({ target: input } as unknown as Event);
-
     expect(component.statusMessage()).toBe('Could not decode this audio file.');
-    expect(component.isDecoding()).toBe(false);
     expect(input.value).toBe('');
     expect(toast.error).toHaveBeenCalledWith('bad audio');
   });
 
   it('clamps trim handles and seeks to the selected clip start', () => {
+    select();
     component.duration.set(20);
     component.trimStart.set(4);
     component.trimEnd.set(12);
-
     component.updateTrimStart(13);
-    expect(component.trimStart()).toBe(11.75);
-
     component.updateTrimEnd(6);
-    expect(component.trimEnd()).toBe(12);
-
     component.seekToStart();
+    expect(component.trimStart()).toBe(11.75);
+    expect(component.trimEnd()).toBe(12);
     expect(component.currentTime()).toBe(11.75);
   });
 
-  it('drags the playhead within the selected clip range', () => {
-    component.audioFileName.set('beat.wav');
-    component.duration.set(20);
-    component.trimStart.set(4);
-    component.trimEnd.set(12);
-    const waveform = fixture.nativeElement.querySelector('.track-waveform') as HTMLElement;
-    Object.defineProperty(waveform, 'getBoundingClientRect', {
-      value: () => ({ left: 0, width: 200 }),
-    });
-
-    component.beginPlayheadDrag({
-      preventDefault: vi.fn(),
-      stopPropagation: vi.fn(),
-    } as unknown as PointerEvent);
-    component.onDocumentPointerMove({
-      preventDefault: vi.fn(),
-      clientX: 180,
-    } as unknown as PointerEvent);
-    component.onDocumentPointerUp();
-
-    expect(component.currentTime()).toBe(12);
-  });
-
-  it('drags start and end handles directly on the trim waveform', () => {
+  it('drags playhead and trim handles within the waveform bounds', () => {
+    select();
     component.audioFileName.set('beat.wav');
     component.duration.set(20);
     component.trimStart.set(2);
@@ -171,68 +142,61 @@ describe('StudioVisualizerComponent', () => {
     Object.defineProperty(waveform, 'getBoundingClientRect', {
       value: () => ({ left: 0, width: 200 }),
     });
-
     component.beginTrimDrag('start', makePointer(0));
     component.onDocumentPointerMove(makePointer(80));
     component.onDocumentPointerUp();
     expect(component.trimStart()).toBe(8);
-
-    component.beginTrimDrag('end', makePointer(0));
-    component.onDocumentPointerMove(makePointer(140));
+    component.beginPlayheadDrag(makePointer(0));
+    component.onDocumentPointerMove(makePointer(180));
     component.onDocumentPointerUp();
-    expect(component.trimEnd()).toBe(14);
+    expect(component.currentTime()).toBe(16);
   });
 
-  it('keeps trim waveform independent from visualizer density changes', () => {
-    component.audioFileName.set('beat.wav');
-    component.trimPeaks.set([0.1, 0.5, 0.9]);
-    component.settings.density = 180;
-
-    component.updateSetting();
-
-    expect(component.trimPeaks()).toEqual([0.1, 0.5, 0.9]);
-  });
-
-  it('updates style, mode, and format settings', () => {
+  it('updates waveform, fluid, and vinyl-specific settings', () => {
+    select('waveform');
     component.selectStyle('mirror-wave');
-    component.setMode('dynamic');
-    component.setFormat('9:16');
-
-    expect(component.settings.style).toBe('mirror-wave');
-    expect(component.settings.mode).toBe('dynamic');
-    expect(component.settings.format).toBe('9:16');
-    expect(visualizer.getCanvasSize).toHaveBeenCalledWith('9:16', 1080);
-    expect(visualizer.drawVisualizerFrame).toHaveBeenCalled();
+    expect(component.waveformSettings.style).toBe('mirror-wave');
+    component.changeVisualizer();
+    component.selectVisualizer('fluid-gradient');
+    component.fluidSettings.deformation = 88;
+    component.updateSetting();
+    expect(component.fluidSettings.deformation).toBe(88);
+    component.changeVisualizer();
+    component.selectVisualizer('vinyl');
+    component.vinylSettings.speed = 70;
+    component.updateSetting();
+    expect(component.vinylSettings.speed).toBe(70);
   });
 
-  it('exports PNG files and reports a blank canvas failure', () => {
+  it('exports PNG files and reports blank canvas failures', () => {
+    select();
     component.audioFileName.set('beat.wav');
     component.settings.title = 'Late Night Loop';
-    const downloadClick = vi.fn();
+    const click = vi.fn();
     const anchor = document.createElement('a');
-    vi.spyOn(anchor, 'click').mockImplementation(downloadClick);
-    vi.spyOn(document, 'createElement').mockReturnValue(anchor);
-    vi.spyOn(HTMLCanvasElement.prototype, 'toBlob').mockImplementation((callback: BlobCallback) => {
-      callback(new Blob(['png'], { type: 'image/png' }));
-    });
-
-    component.exportPng();
-
-    expect(anchor.download).toBe('late-night-loop-1:1.png');
-    expect(downloadClick).toHaveBeenCalled();
-    expect(toast.success).toHaveBeenCalledWith('PNG exported.');
-
-    vi.mocked(HTMLCanvasElement.prototype.toBlob).mockImplementationOnce(
-      (callback: BlobCallback) => {
-        callback(null);
-      },
+    vi.spyOn(anchor, 'click').mockImplementation(click);
+    vi.spyOn(document, 'createElement').mockImplementation(((tag: string) =>
+      tag === 'a'
+        ? anchor
+        : document.createElementNS(
+            'http://www.w3.org/1999/xhtml',
+            tag,
+          )) as typeof document.createElement);
+    vi.spyOn(HTMLCanvasElement.prototype, 'toBlob').mockImplementation((callback: BlobCallback) =>
+      callback(new Blob(['png'], { type: 'image/png' })),
     );
     component.exportPng();
-
+    expect(anchor.download).toBe('late-night-loop-1:1.png');
+    expect(click).toHaveBeenCalled();
+    vi.mocked(HTMLCanvasElement.prototype.toBlob).mockImplementationOnce((callback: BlobCallback) =>
+      callback(null),
+    );
+    component.exportPng();
     expect(toast.error).toHaveBeenCalledWith('Could not export PNG.');
   });
 
-  it('starts and stops playback with analyser-driven dynamic preview values', async () => {
+  it('starts and stops analyser-driven playback', async () => {
+    select();
     const analyser = {
       fftSize: 0,
       frequencyBinCount: 4,
@@ -262,47 +226,33 @@ describe('StudioVisualizerComponent', () => {
     component.trimStart.set(4);
     component.trimEnd.set(10);
     component.currentTime.set(12);
-
     await component.togglePlayback();
-
     expect(component.isPlaying()).toBe(true);
     expect(component.currentTime()).toBe(4);
-    expect(source.connect).toHaveBeenCalledWith(analyser);
-
     await component.togglePlayback();
-
     expect(component.isPlaying()).toBe(false);
   });
 
-  it('reports playback startup failures', async () => {
-    vi.stubGlobal('AudioContext', undefined);
+  it('uses the live audio clock for animation frames while playing', () => {
+    select('vinyl');
     component.audioFileName.set('beat.wav');
+    component.duration.set(20);
+    component.isPlaying.set(true);
+    const audio = (component as unknown as { audio: HTMLAudioElement }).audio;
+    audio.currentTime = 7.25;
 
-    await component.togglePlayback();
+    const frame = (
+      component as unknown as { createCurrentFrame: () => { elapsed: number; progress: number } }
+    ).createCurrentFrame();
 
-    expect(toast.error).toHaveBeenCalledWith('Playback could not start.');
-    expect(component.isPlaying()).toBe(false);
-  });
-
-  it('updates gradient background and film grain settings', () => {
-    component.selectGradientPreset(component.gradientPresets[1]);
-    component.settings.grainAmount = 10;
-    component.updateSetting();
-
-    expect(component.settings.backgroundMode).toBe('gradient');
-    expect(component.settings.backgroundColor).toBe('#10100e');
-    expect(component.settings.gradientColor).toBe('#132a83');
-    expect(component.settings.waveformColor).toBe('#d4c5ff');
-    expect(component.settings.accentColor).toBe('#86d7ff');
-    expect(component.settings.grainAmount).toBe(10);
-    expect(visualizer.drawVisualizerFrame).toHaveBeenCalled();
+    expect(frame.elapsed).toBe(7.25);
+    expect(frame.progress).toBeCloseTo(7.25 / 20);
   });
 
   it('falls back cleanly when WebM export is unsupported', async () => {
+    select('vinyl');
     component.audioFileName.set('beat.wav');
-
     await component.exportWebm();
-
     expect(toast.info).toHaveBeenCalledWith(
       'Video export is not supported in this browser. PNG export is ready.',
     );

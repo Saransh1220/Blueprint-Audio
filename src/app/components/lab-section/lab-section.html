@@ -94,10 +94,61 @@
     </div>
   </section>
 
+  <section class="trending-section gs-item" aria-labelledby="trending-heading">
+    <div class="section-head releases-head">
+      <div>
+        <div class="section-num"><span class="dot"></span> 04 / Trending</div>
+        <h2 id="trending-heading" class="section-h">trending <em>beats.</em></h2>
+      </div>
+      <div class="head-meta">
+        <div class="release-actions">
+          <div class="rail-controls" aria-label="Scroll trending beats">
+            <button
+              class="rail-btn"
+              type="button"
+              aria-label="Scroll trending beats left"
+              (click)="scrollReleaseRailBy(-1, '.trending-grid')"
+            >
+              <i class="fas fa-chevron-left"></i>
+            </button>
+            <button
+              class="rail-btn"
+              type="button"
+              aria-label="Scroll trending beats right"
+              (click)="scrollReleaseRailBy(1, '.trending-grid')"
+            >
+              <i class="fas fa-chevron-right"></i>
+            </button>
+          </div>
+          <button class="btn-view-all btn-view-all-top" type="button" (click)="navigateToSearch()">
+            Explore heat <i class="fas fa-long-arrow-alt-right"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    @if (isLoading()) {
+      <div class="loading-container trending-loading">
+        <app-loading-spinner size="54px"></app-loading-spinner>
+        <div class="loading-text">Loading trending...</div>
+      </div>
+    } @else {
+      <div class="spec-grid trending-grid">
+        @for (spec of trending(); track spec.id; let i = $index) {
+          <app-spec-card [spec]="spec" [priority]="i < 4"></app-spec-card>
+        }
+      </div>
+
+      @if (trending().length === 0) {
+        <div class="empty-copy">NO TRENDING BEATS YET.</div>
+      }
+    }
+  </section>
+
   <section class="type-beats-section gs-item" aria-labelledby="type-beats-heading">
     <div class="section-head compact type-head">
       <div>
-        <div class="section-num"><span class="dot"></span> 04 / Type beats</div>
+        <div class="section-num"><span class="dot"></span> 05 / Type beats</div>
         <h2 id="type-beats-heading" class="section-h">type <em>beats.</em></h2>
       </div>
       <div class="head-meta">
@@ -126,7 +177,7 @@
 
   <section class="licensing-section gs-item" aria-labelledby="licensing-heading">
     <div class="license-heading">
-      <div class="section-num"><span class="dot"></span> 05 / Licensing</div>
+      <div class="section-num"><span class="dot"></span> 06 / Licensing</div>
       <h2 id="licensing-heading">Simple, transparent licensing</h2>
       <p>Every beat, clear ways to use it</p>
     </div>

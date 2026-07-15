@@ -3,14 +3,52 @@ import { map, type Observable, Subject, shareReplay, tap } from 'rxjs';
 import { SpecAdapter } from '../adapters/spec.adapter';
 import {
   CreateSpecRequest,
+  GetCatalogHomeRequest,
   GetSpecRequest,
   GetSpecsRequest,
+  type HomepageDto,
+  type HomepageItemDto,
   type SpecDto,
 } from '../core/api/spec.requests';
 import { ApiService } from '../core/services/api.service';
 import { type Spec } from '../models';
 
 import { PaginationMetadata } from '../models/payment';
+
+export interface HomepageMetrics {
+  plays: number;
+  uniqueListeners?: number;
+  favorites: number;
+  downloads: number;
+  purchases: number;
+  revenue: number;
+}
+
+export interface HomepageItem {
+  rank: number;
+  score: number;
+  movement: 'up' | 'down' | '-';
+  metrics: HomepageMetrics;
+  spec: Spec;
+}
+
+export interface HomepageSection {
+  title: string;
+  source: 'fallback' | 'query' | 'algorithmic' | 'curated';
+  period?: '24h' | '7d' | '30d';
+  items: HomepageItem[];
+}
+
+export interface HomepageData {
+  generatedAt: string;
+  cacheTtlSeconds: number;
+  stats: {
+    totalLiveBeats: number;
+    newReleases7d: number;
+    totalProducers: number;
+  };
+  sections: Record<string, HomepageSection>;
+}
 
 @Injectable({
   providedIn: 'root',
@@ -62,6 +100,17 @@ export class LabService {
     return request$;
   }
 
+  getHome(params?: {
+    limit?: number;
+    sections?: string[];
+    period?: '24h' | '7d' | '30d';
+  }): Observable<HomepageData> {
+    return this.api.execute(new GetCatalogHomeRequest(params)).pipe(
+      map((dto) => this.adaptHomepage(dto)),
+      shareReplay({ bufferSize: 1, refCount: true }),
+    );
+  }
+
   private specsCacheKey(filters?: Record<string, unknown>): string {
     if (!filters) return 'all';
     return JSON.stringify(
@@ -98,5 +147,45 @@ export class LabService {
         return event;
       }),
     );
+  }
+
+  private adaptHomepage(dto: HomepageDto): HomepageData {
+    const sections: Record<string, HomepageSection> = {};
+    for (const [key, section] of Object.entries(dto.sections || {})) {
+      sections[key] = {
+        title: section.title,
+        source: section.source,
+        period: section.period,
+        items: (section.items || []).map((item) => this.adaptHomepageItem(item)),
+      };
+    }
+
+    return {
+      generatedAt: dto.generated_at,
+      cacheTtlSeconds: dto.cache_ttl_seconds,
+      stats: {
+        totalLiveBeats: dto.stats?.total_live_beats ?? 0,
+        newReleases7d: dto.stats?.new_releases_7d ?? 0,
+        totalProducers: dto.stats?.total_producers ?? 0,
+      },
+      sections,
+    };
+  }
+
+  private adaptHomepageItem(dto: HomepageItemDto): HomepageItem {
+    return {
+      rank: dto.rank,
+      score: dto.score,
+      movement: dto.movement,
+      metrics: {
+        plays: dto.metrics?.plays ?? 0,
+        uniqueListeners: dto.metrics?.unique_listeners,
+        favorites: dto.metrics?.favorites ?? 0,
+        downloads: dto.metrics?.downloads ?? 0,
+        purchases: dto.metrics?.purchases ?? 0,
+        revenue: dto.metrics?.revenue ?? 0,
+      },
+      spec: this.adapter.adapt(dto.spec),
+    };
   }
 }

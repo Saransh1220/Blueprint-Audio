@@ -104,6 +104,14 @@ export class AppComponent implements AfterViewInit {
     return this.router.url === '/explore' || this.router.url.startsWith('/explore?');
   }
 
+  isBeatRoute(): boolean {
+    const path = this.router.url.split(/[?#]/, 1)[0];
+    if (path.startsWith('/beats/')) return true;
+
+    const activeRoute = this.router.routerState.snapshot.root.firstChild?.routeConfig?.path;
+    return activeRoute === 'beats/:id' || activeRoute === ':shortCode';
+  }
+
   isAuthRoute(): boolean {
     return (
       this.router.url.startsWith('/login') ||

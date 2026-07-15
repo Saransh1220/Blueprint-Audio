@@ -53,6 +53,43 @@ export interface SpecDto {
   instruments?: string[];
 }
 
+export interface HomepageMetricsDto {
+  plays: number;
+  unique_listeners?: number;
+  favorites: number;
+  downloads: number;
+  purchases: number;
+  revenue: number;
+}
+
+export interface HomepageItemDto {
+  rank: number;
+  score: number;
+  movement: 'up' | 'down' | '-';
+  metrics: HomepageMetricsDto;
+  spec: SpecDto;
+}
+
+export interface HomepageSectionDto {
+  title: string;
+  source: 'fallback' | 'query' | 'algorithmic' | 'curated';
+  period?: '24h' | '7d' | '30d';
+  items: HomepageItemDto[];
+}
+
+export interface HomepageStatsDto {
+  total_live_beats: number;
+  new_releases_7d: number;
+  total_producers: number;
+}
+
+export interface HomepageDto {
+  generated_at: string;
+  cache_ttl_seconds: number;
+  stats: HomepageStatsDto;
+  sections: Record<string, HomepageSectionDto>;
+}
+
 export interface GenreDto {
   id: string;
   name: string;
@@ -115,6 +152,22 @@ export class GetSpecsRequest implements ApiRequest<PaginatedResponse<SpecDto>> {
     }
     if (filters?.sort) params = params.set('sort', filters.sort);
     this.params = params;
+  }
+}
+
+export class GetCatalogHomeRequest implements ApiRequest<HomepageDto> {
+  readonly path = '/catalog/home';
+  readonly method: HttpMethod = 'GET';
+  readonly params: HttpParams;
+  readonly _responseType?: HomepageDto;
+
+  constructor(params?: { limit?: number; sections?: string[]; period?: '24h' | '7d' | '30d' }) {
+    let httpParams = new HttpParams();
+    if (params?.limit) httpParams = httpParams.set('limit', params.limit);
+    if (params?.sections?.length)
+      httpParams = httpParams.set('sections', params.sections.join(','));
+    if (params?.period) httpParams = httpParams.set('period', params.period);
+    this.params = httpParams;
   }
 }
 

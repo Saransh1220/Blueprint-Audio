@@ -485,6 +485,36 @@ export abstract class UploadFormBase implements OnInit {
     return control.get('name')?.value || control.get('type')?.value || 'License';
   }
 
+  getReferenceLicenseName(type: string) {
+    const names: Record<string, string> = {
+      Basic: 'Basic',
+      Premium: 'Premium',
+      Trackout: 'Unlimited',
+      Unlimited: 'Exclusive',
+    };
+    return names[type] || type || 'License';
+  }
+
+  getReferenceLicenseFormat(type: string) {
+    const formats: Record<string, string> = {
+      Basic: 'MP3',
+      Premium: 'WAV',
+      Trackout: 'Pro',
+      Unlimited: '*',
+    };
+    return formats[type] || '';
+  }
+
+  getReferenceLicenseSub(type: string) {
+    const subtitles: Record<string, string> = {
+      Basic: 'demos & drafts',
+      Premium: 'full release',
+      Trackout: 'labels & sync',
+      Unlimited: 'yours alone',
+    };
+    return subtitles[type] || '';
+  }
+
   formatCurrency(value: number | string) {
     const amount = Number(value || 0);
     const storeCurrency = this.authService.currentUser()?.store_currency || 'USD';

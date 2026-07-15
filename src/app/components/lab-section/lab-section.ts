@@ -36,7 +36,54 @@ export class LabSectionComponent implements OnInit, AfterViewInit {
 
   @Input() type: 'beat' | 'sample' = 'beat';
   specs = signal<Spec[]>([]);
+  trending = signal<Spec[]>([]);
+  private externalTopCharts = signal<Spec[] | null>(null);
   isLoading = signal(true);
+  private initialized = false;
+  private fallbackLoaded = false;
+  private _useExternalData = false;
+  private externalLoading = true;
+
+  @Input()
+  set useExternalData(value: boolean) {
+    this._useExternalData = value;
+    if (!value && this.initialized && !this.fallbackLoaded) {
+      this.loadFeaturedSpecs();
+    }
+  }
+
+  @Input()
+  set homepageLoading(value: boolean) {
+    this.externalLoading = value;
+    if (this._useExternalData) {
+      this.isLoading.set(value);
+    }
+  }
+
+  @Input()
+  set newReleaseSpecs(specs: Spec[] | null | undefined) {
+    if (!this._useExternalData || !specs) return;
+    if (this.externalLoading && specs.length === 0) return;
+    this.specs.set(specs);
+    this.isLoading.set(false);
+    this.refreshAnimations();
+  }
+
+  @Input()
+  set topChartSpecsInput(specs: Spec[] | null | undefined) {
+    if (!this._useExternalData || !specs) return;
+    if (this.externalLoading && specs.length === 0) return;
+    this.externalTopCharts.set(specs);
+    this.refreshAnimations();
+  }
+
+  @Input()
+  set trendingSpecs(specs: Spec[] | null | undefined) {
+    if (!this._useExternalData || !specs) return;
+    if (this.externalLoading && specs.length === 0) return;
+    this.trending.set(specs);
+    this.refreshAnimations();
+  }
   readonly typeBeatArtists = [
     { name: 'J. Cole', note: 'warm drums, honest piano', image: 'assets/images/genres/rnb.png' },
     {
@@ -101,8 +148,9 @@ export class LabSectionComponent implements OnInit, AfterViewInit {
   ];
 
   topChartSpecs = computed(() =>
-    [...this.specs()]
+    [...(this.externalTopCharts() ?? this.specs())]
       .sort((a, b) => {
+        if (this.externalTopCharts()) return 0;
         const aScore = (a.analytics?.playCount ?? 0) * 100 + (a.analytics?.favoriteCount ?? 0);
         const bScore = (b.analytics?.playCount ?? 0) * 100 + (b.analytics?.favoriteCount ?? 0);
         return bScore - aScore || (b.price ?? 0) - (a.price ?? 0);
@@ -111,10 +159,15 @@ export class LabSectionComponent implements OnInit, AfterViewInit {
   );
 
   ngOnInit(): void {
+    this.initialized = true;
+    if (this._useExternalData) {
+      return;
+    }
     this.loadFeaturedSpecs();
   }
 
   loadFeaturedSpecs() {
+    this.fallbackLoaded = true;
     this.isLoading.set(true);
     this.labService
       .getSpecs({
@@ -130,8 +183,8 @@ export class LabSectionComponent implements OnInit, AfterViewInit {
       });
   }
 
-  scrollReleaseRailBy(direction: -1 | 1) {
-    const rail = this.host.nativeElement.querySelector('.spec-grid') as HTMLElement | null;
+  scrollReleaseRailBy(direction: -1 | 1, selector = '.spec-grid') {
+    const rail = this.host.nativeElement.querySelector(selector) as HTMLElement | null;
     if (!rail) return;
 
     rail.scrollBy({

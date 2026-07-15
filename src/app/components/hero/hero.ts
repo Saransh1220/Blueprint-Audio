@@ -3,6 +3,7 @@ import {
   ChangeDetectionStrategy,
   Component,
   ElementRef,
+  Input,
   inject,
   type OnInit,
   signal,
@@ -56,8 +57,47 @@ export class HeroComponent implements OnInit, AfterViewInit {
   readonly cardLayouts = CARD_LAYOUTS;
   beatCards = signal<BeatCard[]>([]);
   isLoading = signal(true);
+  private initialized = false;
+  private fallbackLoaded = false;
+  private _useExternalData = false;
+  private externalLoading = true;
+
+  @Input()
+  set useExternalData(value: boolean) {
+    this._useExternalData = value;
+    if (!value && this.initialized && !this.fallbackLoaded) {
+      this.loadFeaturedSpecs();
+    }
+  }
+
+  @Input()
+  set homepageLoading(value: boolean) {
+    this.externalLoading = value;
+    if (this._useExternalData) {
+      this.isLoading.set(value);
+    }
+  }
+
+  @Input()
+  set featuredSpecs(specs: Spec[] | null | undefined) {
+    if (!this._useExternalData || !specs) return;
+    if (this.externalLoading && specs.length === 0) return;
+    this.beatCards.set(
+      specs.slice(0, CARD_LAYOUTS.length).map((spec, index) => this.toBeatCard(spec, index)),
+    );
+    this.isLoading.set(false);
+  }
 
   ngOnInit(): void {
+    this.initialized = true;
+    if (this._useExternalData) {
+      return;
+    }
+    this.loadFeaturedSpecs();
+  }
+
+  private loadFeaturedSpecs(): void {
+    this.fallbackLoaded = true;
     this.labService
       .getSpecs({ category: 'beat', page: 1, per_page: 7, sort: 'newest' })
       .pipe(

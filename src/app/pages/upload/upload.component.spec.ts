@@ -201,4 +201,81 @@ describe('UploadComponent', () => {
     expect(component.getKeyRootLabel('C#')).toBe('C♯');
     expect(component.getKeyRootLabel('A')).toBe('A');
   });
+  it('manages metadata selections and display helpers', () => {
+    const component = create();
+    component.goToStep(0);
+    component.goToStep(5);
+    expect(component.currentStep()).toBe(1);
+    component.goToStep(3);
+    expect(component.isStepDone(2)).toBe(true);
+    expect(component.isStepCurrent(3)).toBe(true);
+    expect(component.getStepHint()).toContain('licenses');
+    expect(component.getStepLabel(4)).toBe('Review');
+
+    component.toggleMood('Cinematic');
+    component.toggleMood('Moody');
+    expect(component.isMoodSelected('Cinematic')).toBe(true);
+    component.selectedMoods.set(component.moodOptions.slice(0, 5));
+    component.toggleMood('Soulful');
+    expect(toast.show).toHaveBeenCalledWith('Pick up to 5 mood tags.', 'info');
+
+    component.toggleInstrument('Piano');
+    component.toggleInstrument('Piano');
+    component.selectedInstruments.set(component.instrumentOptions.slice(0, 5));
+    component.toggleInstrument('808');
+    expect(toast.show).toHaveBeenCalledWith('Pick up to 5 instruments.', 'info');
+    component.selectKeyRoot('C#');
+    component.setScale('major');
+    expect(component.uploadForm.value.key).toBe('C# MAJOR');
+    expect(component.getKeyPreview()).toEqual({ root: 'C#', mode: 'major' });
+  });
+
+  it('formats upload and license details', () => {
+    const component = create();
+    const basic = component.licenses.at(0);
+    expect(component.getLicenseDisplayFormat(basic)).toBe('MP3');
+    expect(component.getLicenseSummaryName(basic)).toBe('Basic Lease');
+    expect(component.getReferenceLicenseName('Trackout')).toBe('Unlimited');
+    expect(component.getReferenceLicenseFormat('Unlimited')).toBe('*');
+    expect(component.getReferenceLicenseSub('Premium')).toBe('full release');
+    expect(component.formatCurrency(12)).toBe('$12.00');
+    component.coverSummary.set({ name: 'cover.png', size: '1KB', detail: '100x100' });
+    component.previewSummary.set({ name: 'preview.mp3', size: '2KB' });
+    expect(component.getCoverSummaryText()).toBe('cover.png - 100x100');
+    expect(component.formatFileState('cover')).toBe('cover.png - 1KB - 100x100');
+    expect(component.formatFileState('preview')).toBe('preview.mp3 - 2KB');
+    component.coverSummary.set(null);
+    expect(component.formatFileState('cover')).toContain('Required');
+    expect(component.formatFileState('wav')).toContain('Optional');
+    expect(component.formatFileState('stems')).toContain('Optional');
+    component.saveDraft();
+    expect(toast.show).toHaveBeenCalledWith(expect.stringContaining('Draft saving'), 'info');
+  });
+
+  it('handles drag input, cover removal, and license-derived previews', async () => {
+    const component = create();
+    const handleFile = vi.spyOn(component as any, 'handleFile').mockResolvedValue(undefined);
+    const file = new File(['a'], 'cover.png', { type: 'image/png' });
+    component.onFileSelected({ target: { files: [file] } } as unknown as Event, 'cover');
+    const preventDefault = vi.fn();
+    const stopPropagation = vi.fn();
+    component.onFileDropped(
+      { preventDefault, stopPropagation, dataTransfer: { files: [file] } } as unknown as DragEvent,
+      'preview',
+    );
+    component.onDragOver({ preventDefault, stopPropagation } as unknown as DragEvent);
+    await Promise.resolve();
+    expect(handleFile).toHaveBeenCalledWith(file, 'cover');
+    expect(handleFile).toHaveBeenCalledWith(file, 'preview');
+    component.coverFile.set(file);
+    component.coverPreviewUrl.set('data:image');
+    component.coverSummary.set({ name: 'cover.png', size: '1B' });
+    component.removeFile('cover');
+    expect(component.coverFile()).toBeNull();
+    component.licenses.controls.forEach((control) => control.get('enabled')?.setValue(false));
+    expect(component.selectedLicenses()).toHaveLength(0);
+    expect(component.minimumEnabledPrice()).toBe(0);
+    component.stemsFile.set(new File(['a'], 'stems.zip'));
+    expect(component.beatPreviewTags()).toContain('+ stems');
+  });
 });

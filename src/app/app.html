@@ -96,7 +96,9 @@
   <div class="app-route-layer">
     <router-outlet></router-outlet>
   </div>
-  @if (!isStudioRoute() && !isAuthRoute() && !isUploadRoute() && !isExploreRoute()) {
+  @if (
+    !isStudioRoute() && !isAuthRoute() && !isUploadRoute() && !isExploreRoute() && !isBeatRoute()
+  ) {
     <app-footer></app-footer>
   }
 </div>

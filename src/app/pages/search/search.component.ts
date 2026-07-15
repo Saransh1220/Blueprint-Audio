@@ -53,7 +53,7 @@ export class SearchPageComponent implements OnInit, OnDestroy {
   specs = signal<Spec[]>([]);
   isLoading = signal(true);
   isLoadingMore = signal(false);
-  viewMode = signal<'grid' | 'list'>('list');
+  viewMode = signal<'grid' | 'list'>('grid');
   pagination = this.labService.specsPagination;
   currentPage = signal(1);
   readonly explorePageSize = 10;

@@ -38,6 +38,7 @@
 .release-strip,
 .spec-grid,
 .charts-section,
+.trending-section,
 .type-beats-section,
 .licensing-section,
 .loading-container,
@@ -229,6 +230,26 @@
 .charts-section + .type-beats-section {
   margin-top: 0;
   padding-top: 26px;
+}
+
+.charts-section + .trending-section {
+  margin-top: 0;
+}
+
+.trending-section {
+  padding-top: 34px;
+}
+
+.trending-section + .type-beats-section {
+  margin-top: 44px;
+}
+
+.trending-grid {
+  padding-bottom: 10px;
+}
+
+.trending-loading {
+  padding: 54px 0;
 }
 
 .charts-section {

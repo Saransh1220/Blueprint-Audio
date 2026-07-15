@@ -37,7 +37,20 @@ describe('HomeComponent', () => {
         provideHttpClient(),
         provideAnimations(),
         provideRouter([]),
-        { provide: LabService, useValue: { getSpecs: vi.fn().mockReturnValue(of([])) } },
+        {
+          provide: LabService,
+          useValue: {
+            getHome: vi.fn().mockReturnValue(
+              of({
+                generatedAt: new Date().toISOString(),
+                cacheTtlSeconds: 900,
+                stats: { totalLiveBeats: 0, newReleases7d: 0, totalProducers: 0 },
+                sections: {},
+              }),
+            ),
+            getSpecs: vi.fn().mockReturnValue(of([])),
+          },
+        },
         { provide: PlayerService, useValue: { showPlayer: vi.fn() } },
       ],
       schemas: [NO_ERRORS_SCHEMA],
