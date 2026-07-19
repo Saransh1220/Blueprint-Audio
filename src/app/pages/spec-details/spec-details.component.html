@@ -54,7 +54,12 @@
 
       <div class="hero-by">
         <span class="by-avatar">{{ s.producerName.charAt(0).toLowerCase() }}</span>
-        prod. <a href="#producer">{{ s.producerName }}</a>
+        prod.
+        <a
+          [routerLink]="['/@', s.producerName.toLowerCase().replaceAll(' ', '-')]"
+          [queryParams]="{ id: s.producerId }"
+          >{{ s.producerName }}</a
+        >
         <span class="verified">✓</span>
       </div>
 
@@ -285,9 +290,11 @@
             What's the actual difference between the licenses?<span class="plus">+</span>
           </button>
           <div class="faq-a" id="faq-answer-0" [attr.aria-hidden]="openFaqIndex() !== 0">
-            Basic gets you the tagged MP3 for demos and limited streams. Premium unlocks the
-            untagged WAV plus trackouts and broader usage. Higher tiers add wider commercial rights,
-            while an exclusive license removes the beat from the store entirely.
+            <div class="faq-a-inner">
+              Basic gets you the tagged MP3 for demos and limited streams. Premium unlocks the
+              untagged WAV plus trackouts and broader usage. Higher tiers add wider commercial
+              rights, while an exclusive license removes the beat from the store entirely.
+            </div>
           </div>
         </div>
         <div class="faq-item" [class.open]="openFaqIndex() === 1">
@@ -301,8 +308,10 @@
             Do I get the stems with every license?<span class="plus">+</span>
           </button>
           <div class="faq-a" id="faq-answer-1" [attr.aria-hidden]="openFaqIndex() !== 1">
-            Stems or trackouts are included only when the selected license lists them. Entry-level
-            MP3 licenses normally do not include separated files.
+            <div class="faq-a-inner">
+              Stems or trackouts are included only when the selected license lists them. Entry-level
+              MP3 licenses normally do not include separated files.
+            </div>
           </div>
         </div>
         <div class="faq-item" [class.open]="openFaqIndex() === 2">
@@ -316,8 +325,10 @@
             Can I use this beat commercially right away?<span class="plus">+</span>
           </button>
           <div class="faq-a" id="faq-answer-2" [attr.aria-hidden]="openFaqIndex() !== 2">
-            Yes. Every paid license is cleared for commercial release once your purchase completes,
-            within the usage limits shown for that tier.
+            <div class="faq-a-inner">
+              Yes. Every paid license is cleared for commercial release once your purchase
+              completes, within the usage limits shown for that tier.
+            </div>
           </div>
         </div>
         <div class="faq-item" [class.open]="openFaqIndex() === 3">
@@ -331,8 +342,10 @@
             What happens if I outgrow my license later?<span class="plus">+</span>
           </button>
           <div class="faq-a" id="faq-answer-3" [attr.aria-hidden]="openFaqIndex() !== 3">
-            You can move to a wider license when your release grows. Contact the producer directly
-            for custom rights or an exclusive buyout.
+            <div class="faq-a-inner">
+              You can move to a wider license when your release grows. Contact the producer directly
+              for custom rights or an exclusive buyout.
+            </div>
           </div>
         </div>
       </div>
@@ -359,7 +372,14 @@
             <ng-template #producerLetter>{{ s.producerName.charAt(0).toLowerCase() }}</ng-template>
           </div>
           <div>
-            <div class="prod-name">{{ s.producerName }} <span class="verified">✓</span></div>
+            <div class="prod-name">
+              <a
+                [routerLink]="['/@', s.producerName.toLowerCase().replaceAll(' ', '-')]"
+                [queryParams]="{ id: s.producerId }"
+                >{{ s.producerName }}</a
+              >
+              <span class="verified">✓</span>
+            </div>
             <div class="prod-stats">
               {{ producerStats().beatCount }} beats ·
               {{ formatCompactCount(producerStats().likes) }} followers

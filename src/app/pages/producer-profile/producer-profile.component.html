@@ -1,0 +1,272 @@
+<main class="producer-page">
+  @if (loading()) {
+    <div class="state">Loading producer profile…</div>
+  } @else if (error()) {
+    <div class="state">
+      <h1>Producer not found.</h1>
+      <a routerLink="/explore">Explore the catalog</a>
+    </div>
+  } @else {
+    <section
+      class="p-banner"
+      [style.background-image]="profile()?.banner_url ? 'url(' + profile()!.banner_url + ')' : null"
+    >
+      <span class="banner-sticker">★ pro producer</span>
+    </section>
+
+    <section class="p-hero">
+      <div class="p-avatar">
+        @if (profile()?.avatar_url) {
+          <img [src]="profile()!.avatar_url" [alt]="displayName()" />
+        } @else {
+          {{ initials() }}
+        }
+      </div>
+      <div class="p-identity">
+        <h1>{{ displayName() }} <i>✓</i></h1>
+        <div class="handle-row">
+          <span>@{{ handle() }}</span
+          ><b>PRODUCER</b>
+        </div>
+      </div>
+      <div class="p-actions">
+        <button class="message-btn"><i class="fa-regular fa-envelope"></i> Message</button
+        ><button class="follow-btn" [class.following]="following()" (click)="toggleFollow()">
+          <i class="fa-solid" [class.fa-plus]="!following()" [class.fa-check]="following()"></i
+          >{{ following() ? 'Following' : 'Follow' }}
+        </button>
+      </div>
+    </section>
+
+    <p class="p-bio">
+      {{
+        profile()?.bio ||
+          'Producer crafting moody instrumentals, warm textures, and records built to leave room for the artist.'
+      }}
+    </p>
+    <div class="socials">
+      @if (profile()?.instagram_url) {
+        <a [href]="profile()!.instagram_url" target="_blank" rel="noreferrer"
+          ><i class="fa-brands fa-instagram"></i
+        ></a>
+      }
+      @if (profile()?.twitter_url) {
+        <a [href]="profile()!.twitter_url" target="_blank" rel="noreferrer"
+          ><i class="fa-brands fa-x-twitter"></i
+        ></a>
+      }
+      @if (profile()?.youtube_url) {
+        <a [href]="profile()!.youtube_url" target="_blank" rel="noreferrer"
+          ><i class="fa-brands fa-youtube"></i
+        ></a>
+      }
+      @if (profile()?.spotify_url) {
+        <a [href]="profile()!.spotify_url" target="_blank" rel="noreferrer"
+          ><i class="fa-brands fa-spotify"></i
+        ></a>
+      }
+    </div>
+
+    <section class="stats-grid">
+      <div class="c1">
+        <small>Beats live</small><b>{{ totalSpecs() }}</b>
+      </div>
+      <div class="c2">
+        <small>Total plays</small><b>{{ compact(totalPlays()) }}</b>
+      </div>
+      <div class="c3">
+        <small>Favorites</small><b>{{ compact(totalFavorites()) }}</b>
+      </div>
+      <div class="c4">
+        <small>Member since</small><b>{{ profile()?.created_at?.slice(0, 4) }}</b>
+      </div>
+    </section>
+
+    <section class="content-section catalog">
+      <header class="section-head">
+        <div>
+          <small><i></i>01 · Catalog</small>
+          <h2>the <em>beats</em>.</h2>
+        </div>
+        <p>{{ totalSpecs() }} tracks · updated regularly</p>
+      </header>
+      <div class="filter-bar">
+        <div class="chips">
+          @for (genre of genres(); track genre) {
+            <button [class.on]="activeGenre() === genre" (click)="activeGenre.set(genre)">
+              {{ genre }}
+            </button>
+          }
+        </div>
+        <span>All prices in {{ profile()?.store_currency || 'USD' }}</span>
+      </div>
+      @if (filteredSpecs().length) {
+        <div class="tracks-grid">
+          @for (spec of filteredSpecs(); track spec.id) {
+            <article class="track-card">
+              <a class="track-art" [routerLink]="['/', spec.shortCode || spec.id]">
+                <img [src]="spec.imageUrl" [alt]="spec.title" />
+                <span class="badge">{{ spec.freeMp3Enabled ? 'Free DL' : 'Live' }}</span>
+                <button
+                  type="button"
+                  class="play"
+                  (click)="play($event, spec)"
+                  [attr.aria-label]="'Play ' + spec.title"
+                >
+                  <i class="fa-solid fa-play"></i>
+                </button>
+              </a>
+              <div class="track-body">
+                <a class="track-title" [routerLink]="['/', spec.shortCode || spec.id]">{{
+                  spec.title
+                }}</a>
+                <div class="track-meta">{{ spec.bpm }} BPM · {{ spec.key }}</div>
+                <div class="track-bottom">
+                  <span
+                    >from <b>{{ price(spec) }}</b></span
+                  ><button type="button" (click)="addToCart($event, spec)">
+                    <i class="fa-solid fa-cart-plus"></i>
+                  </button>
+                </div>
+              </div>
+            </article>
+          }
+        </div>
+        <div class="view-all">
+          <button type="button">
+            View all {{ totalSpecs() }} beats <i class="fa-solid fa-arrow-right"></i>
+          </button>
+        </div>
+      } @else {
+        <div class="empty">No releases in this category yet.</div>
+      }
+    </section>
+
+    <section class="content-section">
+      <header class="section-head">
+        <div>
+          <small><i></i>02 · Beat packs</small>
+          <h2>bundled <em>drops</em>.</h2>
+        </div>
+        <div class="carousel-buttons"><button>‹</button><button>›</button></div>
+      </header>
+      <div class="packs-row">
+        <article>
+          <div class="pack-art p1"><span>12 beats</span><b>✦</b></div>
+          <h3>After Hours Pack</h3>
+          <p>Dark trap · cinematic · late-night</p>
+          <strong>$149</strong>
+        </article>
+        <article>
+          <div class="pack-art p2"><span>8 beats</span><b>◇</b></div>
+          <h3>Soft Focus</h3>
+          <p>Lo-fi · dusty drums · warm keys</p>
+          <strong>$99</strong>
+        </article>
+        <article>
+          <div class="pack-art p3"><span>10 beats</span><b>◌</b></div>
+          <h3>Glasshouse Vol. 1</h3>
+          <p>R&amp;B · synths · live bass</p>
+          <strong>$129</strong>
+        </article>
+        <article>
+          <div class="pack-art p4"><span>6 beats</span><b>△</b></div>
+          <h3>Open Roads</h3>
+          <p>Guitar · soul · indie textures</p>
+          <strong>$79</strong>
+        </article>
+      </div>
+    </section>
+
+    <section class="content-section">
+      <header class="section-head">
+        <div>
+          <small><i></i>03 · Reviews</small>
+          <h2>what <em>buyers</em> say.</h2>
+        </div>
+      </header>
+      <div class="reviews-layout">
+        <aside class="rating-summary">
+          <div class="score">4.9<em>/ 5</em></div>
+          <div class="stars">★★★★★</div>
+          <p>38 verified purchases</p>
+          @for (row of [82, 13, 3, 1, 1]; track $index) {
+            <div class="rating-bar">
+              <span>{{ 5 - $index }}</span
+              ><i><b [style.width.%]="row"></b></i><span>{{ row }}%</span>
+            </div>
+          }
+        </aside>
+        <div class="review-list">
+          <article>
+            <header>
+              <span class="reviewer r1">j</span>
+              <div><b>Jamie O. ✓</b><small>3 days ago</small></div>
+              <strong>★★★★★</strong>
+            </header>
+            <p>
+              Bought the Premium license and the mix is pristine — the low end sits perfectly and
+              every file was organized.
+            </p>
+            <em>Premium · WAV</em>
+          </article>
+          <article>
+            <header>
+              <span class="reviewer r2">s</span>
+              <div><b>Sam L. ✓</b><small>1 week ago</small></div>
+              <strong>★★★★★</strong>
+            </header>
+            <p>
+              Turned my whole release around. Fast delivery and a quick answer when I had a
+              licensing question.
+            </p>
+            <em>Unlimited Pro</em>
+          </article>
+          <article>
+            <header>
+              <span class="reviewer r3">a</span>
+              <div><b>Alex K.</b><small>2 weeks ago</small></div>
+              <strong>★★★★☆</strong>
+            </header>
+            <p>
+              Great tone, strong drums, and plenty of room for vocals. Exactly what I was looking
+              for.
+            </p>
+            <em>Basic · MP3</em>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="content-section">
+      <header class="section-head">
+        <div>
+          <small><i></i>04 · Similar</small>
+          <h2>producers you'll <em>like</em>.</h2>
+        </div>
+        <div class="carousel-buttons"><button>‹</button><button>›</button></div>
+      </header>
+      <div class="similar-row">
+        @for (
+          person of [
+            { n: 'Meridian', h: '@meridian', s: '18 beats · 612 followers', c: 'blue' },
+            { n: 'Rufio Ash', h: '@rufioash', s: '31 beats · 1.2k followers', c: 'lavender' },
+            { n: 'Noa Reyes', h: '@noareyes', s: '9 beats · 340 followers', c: 'yellow' },
+            { n: 'Dara O.', h: '@dara.o', s: '15 beats · 498 followers', c: 'orange' },
+          ];
+          track person.n
+        ) {
+          <article>
+            <div class="similar-avatar" [class]="person.c">
+              {{ person.n.charAt(0).toLowerCase() }}
+            </div>
+            <h3>{{ person.n }}</h3>
+            <small>{{ person.h }}</small>
+            <p>{{ person.s }}</p>
+            <button>Follow</button>
+          </article>
+        }
+      </div>
+    </section>
+  }
+</main>

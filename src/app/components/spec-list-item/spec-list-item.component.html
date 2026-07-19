@@ -68,8 +68,13 @@
         <span class="row-chip lr-tag">free mp3</span>
       }
     </div>
-    <span class="p" [class.lr-producer-line]="appearance === 'market'"
-      >prod. {{ spec.producerName }}</span
+    <a
+      class="p"
+      [class.lr-producer-line]="appearance === 'market'"
+      [routerLink]="['/@', spec.producerName.toLowerCase().replaceAll(' ', '-')]"
+      [queryParams]="{ id: spec.producerId }"
+      (click)="$event.stopPropagation()"
+      >prod. {{ spec.producerName }}</a
     >
   </div>
 

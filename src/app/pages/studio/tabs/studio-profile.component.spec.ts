@@ -14,6 +14,7 @@ describe('StudioProfileComponent', () => {
   const show = vi.fn();
   const updateProfile = vi.fn();
   const uploadAvatar = vi.fn();
+  const getMe = vi.fn();
   const currentUser = signal<any>({
     id: 'u1',
     name: 'Blaze',
@@ -29,7 +30,7 @@ describe('StudioProfileComponent', () => {
       providers: [
         FormBuilder,
         { provide: Router, useValue: { navigate } },
-        { provide: AuthService, useValue: { currentUser, uploadAvatar } },
+        { provide: AuthService, useValue: { currentUser, uploadAvatar, getMe } },
         { provide: UserService, useValue: { updateProfile } },
         { provide: ToastService, useValue: { show } },
       ],
@@ -53,6 +54,7 @@ describe('StudioProfileComponent', () => {
     });
     updateProfile.mockReturnValue(of({ display_name: 'New Blaze', bio: 'New bio' }));
     uploadAvatar.mockReturnValue(of({}));
+    getMe.mockReturnValue(of(currentUser()));
   });
 
   it('initializes and saves profile updates back into the auth signal', () => {
@@ -126,21 +128,20 @@ describe('StudioProfileComponent', () => {
     expect(component.isSaving()).toBe(false);
   });
 
-  it('navigates to the catalog and validates avatar file selection', () => {
+  it('validates avatar file selection', async () => {
     const component = create();
-    component.navigateToCatalog();
-    expect(navigate).toHaveBeenCalledWith(['/explore']);
 
     const tooLarge = new File([new Uint8Array(6 * 1024 * 1024)], 'a.png', { type: 'image/png' });
-    component.onAvatarFileSelected({ target: { files: [tooLarge] } } as any);
+    await component.onAvatarFileSelected({ target: { files: [tooLarge] } } as any);
     expect(show).toHaveBeenCalledWith('File size must be less than 5MB', 'error');
 
     const badType = new File(['x'], 'a.txt', { type: 'text/plain' });
-    component.onAvatarFileSelected({ target: { files: [badType] } } as any);
-    expect(show).toHaveBeenCalledWith('Please select an image file', 'error');
+    await component.onAvatarFileSelected({ target: { files: [badType] } } as any);
+    expect(show).toHaveBeenCalledWith('Please select a JPEG, PNG, or WebP image', 'error');
 
     const good = new File(['x'], 'a.png', { type: 'image/png' });
-    component.onAvatarFileSelected({ target: { files: [good] } } as any);
+    vi.spyOn(component as any, 'hasImageShape').mockResolvedValueOnce(true);
+    await component.onAvatarFileSelected({ target: { files: [good] } } as any);
     expect(component.selectedAvatarFile()?.name).toBe('a.png');
   });
 

@@ -47,6 +47,7 @@ export abstract class UploadFormBase implements OnInit {
   selectedMoods = signal<string[]>(['Moody', 'Dark']);
   selectedInstruments = signal<string[]>([]);
   beatDuration = signal<number>(0);
+  tagInputError = signal<string | null>(null);
   royaltySplit = signal('50/50');
   contractType = signal('Standard');
   territory = signal('Worldwide');
@@ -121,6 +122,19 @@ export abstract class UploadFormBase implements OnInit {
 
   get f() {
     return this.uploadForm.controls;
+  }
+
+  fieldError(field: 'title' | 'genre' | 'bpm' | 'description') {
+    const control = this.uploadForm.get(field);
+    if (!control?.invalid || !(control.touched || control.dirty)) return null;
+    if (control.hasError('required'))
+      return `${field === 'title' ? 'Track name' : 'Genre'} is required.`;
+    if (control.hasError('maxlength'))
+      return `${field === 'description' ? 'Description' : 'Track name'} is too long.`;
+    if (control.hasError('min') || control.hasError('max'))
+      return 'BPM must be between 60 and 300.';
+    if (control.hasError('pattern')) return 'BPM must be a whole number.';
+    return 'Please enter a valid value.';
   }
 
   get licenses() {
@@ -239,14 +253,27 @@ export abstract class UploadFormBase implements OnInit {
     const input = event.target;
     const value = input.value.trim();
 
-    if (value && this.tags.length < 3) {
-      this.tags.push(this.fb.control(value));
+    if (!value) return;
+    if (value.length > 30) {
+      this.tagInputError.set('Tags must be 30 characters or fewer.');
+      return;
+    }
+    if (this.tags.controls.some((tag) => tag.value.toLowerCase() === value.toLowerCase())) {
+      this.tagInputError.set('That tag has already been added.');
+      return;
+    }
+    if (this.tags.length < 3) {
+      this.tagInputError.set(null);
+      this.tags.push(this.fb.control(value, [Validators.maxLength(30)]));
       input.value = '';
+    } else {
+      this.tagInputError.set('You can add up to 3 tags.');
     }
   }
 
   removeTag(index: number) {
     this.tags.removeAt(index);
+    this.tagInputError.set(null);
   }
 
   toggleMood(mood: string) {
@@ -533,7 +560,7 @@ export abstract class UploadFormBase implements OnInit {
     if (type === 'cover') return 'Required - upload cover art';
     if (type === 'preview') return 'Required - tagged MP3 preview';
     if (type === 'wav') return 'Optional - master WAV';
-    return 'Optional - ZIP / RAR trackouts';
+    return 'Optional - ZIP trackouts';
   }
 
   private validateDetailsStep() {
@@ -601,8 +628,12 @@ export abstract class UploadFormBase implements OnInit {
 
     switch (type) {
       case 'cover':
-        if (!file.type.startsWith('image/')) {
-          this.toastService.show('Invalid file type. Please upload an image.', 'error');
+        if (!['image/jpeg', 'image/png'].includes(file.type)) {
+          this.toastService.show('Cover art must be a JPG or PNG image.', 'error');
+          return;
+        }
+        if (!(await this.hasImageShape(file, 'square'))) {
+          this.toastService.show('Cover art must be square.', 'error');
           return;
         }
         this.coverFile.set(file);
@@ -614,8 +645,8 @@ export abstract class UploadFormBase implements OnInit {
         });
         break;
       case 'preview':
-        if (!file.type.startsWith('audio/')) {
-          this.toastService.show('Invalid file type. Please upload an audio file.', 'error');
+        if (file.type !== 'audio/mpeg' && !file.name.toLowerCase().endsWith('.mp3')) {
+          this.toastService.show('Preview audio must be an MP3 file.', 'error');
           return;
         }
         this.previewFile.set(file);
@@ -638,10 +669,7 @@ export abstract class UploadFormBase implements OnInit {
         });
         break;
       case 'stems':
-        if (
-          !file.name.toLowerCase().endsWith('.zip') &&
-          !file.name.toLowerCase().endsWith('.rar')
-        ) {
+        if (!/\.(zip|rar)$/i.test(file.name)) {
           this.toastService.show('Invalid file type. Please upload a ZIP or RAR file.', 'error');
           return;
         }
@@ -686,6 +714,22 @@ export abstract class UploadFormBase implements OnInit {
         URL.revokeObjectURL(url);
       };
       img.src = url;
+    });
+  }
+
+  private hasImageShape(file: File, shape: 'square' | 'landscape') {
+    return new Promise<boolean>((resolve) => {
+      const url = URL.createObjectURL(file);
+      const image = new Image();
+      image.onload = () => {
+        resolve(shape === 'square' ? image.width === image.height : image.width > image.height);
+        URL.revokeObjectURL(url);
+      };
+      image.onerror = () => {
+        resolve(false);
+        URL.revokeObjectURL(url);
+      };
+      image.src = url;
     });
   }
 

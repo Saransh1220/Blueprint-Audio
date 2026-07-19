@@ -19,6 +19,7 @@ import {
   PublicUserResponse,
   UpdateProfileRequest,
   UploadAvatarRequest,
+  UploadBannerRequest,
 } from '../core/api/user.requests';
 import { ApiService } from '../core/services/api.service';
 import { Role, SystemRole, User, UserAdapter } from '../models';
@@ -145,6 +146,12 @@ export class AuthService {
     );
   }
 
+  uploadBanner(file: File) {
+    return this.api
+      .execute(new UploadBannerRequest(file))
+      .pipe(tap((updatedUser) => this.currentUser.set(this.mapToUser(updatedUser))));
+  }
+
   private mapToUser(response: PublicUserResponse): User {
     return {
       id: response.id,
@@ -157,6 +164,7 @@ export class AuthService {
       email_verified: response.email_verified ?? true,
       bio: response.bio || null,
       avatar_url: resolveMediaUrl(response.avatar_url),
+      banner_url: resolveMediaUrl(response.banner_url),
       instagram_url: response.instagram_url || null,
       twitter_url: response.twitter_url || null,
       youtube_url: response.youtube_url || null,

@@ -16,8 +16,12 @@ import { PaginatedResponse } from '../models/payment';
 export class SpecService {
   private api = inject(ApiService);
 
-  getUserSpecs(userId: string, page: number = 1): Observable<PaginatedResponse<SpecDto>> {
-    return this.api.execute(new GetUserSpecsRequest(userId, page));
+  getUserSpecs(
+    userId: string,
+    page: number = 1,
+    limit: number = 20,
+  ): Observable<PaginatedResponse<SpecDto>> {
+    return this.api.execute(new GetUserSpecsRequest(userId, page, limit));
   }
 
   updateSpec(specId: string, data: UpdateSpecDto | FormData): Observable<SpecDto> {

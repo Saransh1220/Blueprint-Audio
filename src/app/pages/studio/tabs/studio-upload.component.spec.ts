@@ -109,10 +109,7 @@ describe('StudioUploadComponent', () => {
       { target: { files: [new File(['a'], 'x.txt', { type: 'text/plain' })] } } as any,
       'preview',
     );
-    expect(toast.show).toHaveBeenCalledWith(
-      'Invalid file type. Please upload an audio file.',
-      'error',
-    );
+    expect(toast.show).toHaveBeenCalledWith('Preview audio must be an MP3 file.', 'error');
 
     component.onFileSelected(
       { target: { files: [new File(['a'], 'x.wav', { type: 'audio/wav' })] } } as any,
@@ -125,6 +122,12 @@ describe('StudioUploadComponent', () => {
 
     expect(component.wavFile()?.name).toBe('x.wav');
     expect(component.stemsFile()?.name).toBe('x.zip');
+
+    component.onFileSelected(
+      { target: { files: [new File(['a'], 'x.rar', { type: 'application/vnd.rar' })] } } as any,
+      'stems',
+    );
+    expect(component.stemsFile()?.name).toBe('x.rar');
 
     component.removeFile('preview');
     component.removeFile('wav');

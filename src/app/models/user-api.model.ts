@@ -12,6 +12,7 @@ export interface UserApiResponse {
   email_verified?: boolean;
   bio?: string;
   avatar_url?: string;
+  banner_url?: string;
   instagram_url?: string;
   twitter_url?: string;
   youtube_url?: string;

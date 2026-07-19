@@ -84,9 +84,7 @@
   }
 </style>
 
-@if (!isUploadRoute()) {
-  <app-header (cartClick)="toggleCart()"></app-header>
-}
+<app-header (cartClick)="toggleCart()"></app-header>
 <app-cart></app-cart>
 <div
   class="app-shell"

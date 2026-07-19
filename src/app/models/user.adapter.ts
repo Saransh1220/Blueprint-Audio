@@ -16,6 +16,7 @@ export class UserAdapter {
       email_verified: apiResponse.email_verified ?? true,
       bio: apiResponse.bio || null,
       avatar_url: resolveMediaUrl(apiResponse.avatar_url),
+      banner_url: resolveMediaUrl(apiResponse.banner_url),
       instagram_url: apiResponse.instagram_url || null,
       twitter_url: apiResponse.twitter_url || null,
       youtube_url: apiResponse.youtube_url || null,

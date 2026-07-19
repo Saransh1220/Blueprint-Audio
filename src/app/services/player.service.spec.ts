@@ -5,6 +5,7 @@ import { PlayerService } from './player.service';
 class FakeAudio {
   paused = true;
   src = '';
+  preload = '';
   volume = 1;
   currentTime = 0;
   duration = 0;
@@ -92,6 +93,14 @@ describe('PlayerService', () => {
     expect(service.currentTrack()?.id).toBe('spec-1');
     expect(audio.src).toContain('track.mp3');
     expect(playSpy).toHaveBeenCalled();
+  });
+
+  it('does not assign an audio URL before playback is requested', () => {
+    const service = new PlayerService();
+    const audio = (service as any).audio as FakeAudio;
+
+    expect(audio.preload).toBe('metadata');
+    expect(audio.src).toBe('');
   });
 
   it('toggles play/pause and hides player', () => {

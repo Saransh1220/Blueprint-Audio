@@ -51,6 +51,7 @@ export interface SpecDto {
   slug?: string;
   moods?: string[];
   instruments?: string[];
+  waveform_peaks?: number[];
 }
 
 export interface HomepageMetricsDto {
@@ -207,10 +208,12 @@ export interface UpdateSpecDto {
 export class GetUserSpecsRequest implements ApiRequest<PaginatedResponse<SpecDto>> {
   readonly method: HttpMethod = 'GET';
   readonly path: string;
+  readonly params: HttpParams;
   readonly _responseType?: PaginatedResponse<SpecDto>;
 
-  constructor(userId: string, page: number = 1) {
-    this.path = `/users/${userId}/specs?page=${page}`;
+  constructor(userId: string, page: number = 1, limit: number = 20) {
+    this.path = `/users/${userId}/specs`;
+    this.params = new HttpParams().set('page', page).set('limit', limit);
   }
 }
 

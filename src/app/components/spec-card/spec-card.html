@@ -38,7 +38,13 @@
 
   <div class="beat-body">
     <div class="beat-title">{{ spec.title }}</div>
-    <span class="beat-producer">{{ spec.producerName || 'Waveyard producer' }}</span>
+    <a
+      class="beat-producer"
+      [routerLink]="['/@', producerHandle()]"
+      [queryParams]="{ id: spec.producerId }"
+      (click)="$event.stopPropagation()"
+      >{{ spec.producerName || 'Waveyard producer' }}</a
+    >
 
     <div class="card-meta">{{ spec.bpm }} BPM / {{ spec.key }}</div>
 

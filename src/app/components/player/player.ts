@@ -383,8 +383,18 @@ export class PlayerComponent implements OnDestroy {
     event?.stopPropagation();
     const track = this.playerService.currentTrack();
     if (!track?.producerId) return;
-    void this.router.navigate(['/explore']);
+    void this.router.navigate(['/@', this.toProducerHandle(track.producerName)], {
+      queryParams: { id: track.producerId },
+    });
     this.isMenuOpen.set(false);
+  }
+
+  private toProducerHandle(name: string) {
+    return (name || 'producer')
+      .toLowerCase()
+      .trim()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-|-$/g, '');
   }
 
   async copyBeatLink(event?: Event) {

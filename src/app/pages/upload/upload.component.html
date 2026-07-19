@@ -1,467 +1,344 @@
-<div class="upload-page-container">
-  <section class="upload-shell" [formGroup]="uploadForm">
-    <header class="upload-topbar">
-      <a routerLink="/" class="loop-logo">
-        <span class="logo-mark"> <span class="lc">C</span><span class="lb">B</span> </span>
-        <span class="logo-word">
-          <span class="wc">cult</span>
-          <span class="wd">.</span>
-          <span class="wb">beats</span>
-          <span class="ws">*</span>
-        </span>
-      </a>
-      <div class="header-center">
-        <span class="dot"></span>
-        upload new beat
+<main class="upload-page-container" [formGroup]="uploadForm">
+  <section class="upload-shell">
+    <header class="page-head">
+      <div>
+        <div class="page-num"><i></i> upload · new beat</div>
+        <h1>press <em>something</em> new.</h1>
       </div>
-      <div class="header-right">
-        <a class="btn-ghost" [routerLink]="closeRoute">
-          <i class="fa-solid fa-xmark"></i>
-          Cancel
-        </a>
-      </div>
+      <p>
+        Fill in the details, set your licenses, and drop it into the catalog whenever you're ready.
+      </p>
     </header>
-
-    <main class="upload-wrap">
-      <div class="left-col">
-        <label
-          class="cover-drop"
-          [class.has-art]="coverFile()"
-          (drop)="onFileDropped($event, 'cover')"
-          (dragover)="onDragOver($event)"
-          (click)="coverInput.click()"
-        >
-          <input
-            #coverInput
-            type="file"
-            hidden
-            accept="image/*"
-            (change)="onFileSelected($event, 'cover')"
-          />
-          @if (coverPreviewUrl()) {
-            <img class="cover-preview" [src]="coverPreviewUrl()" alt="Cover preview" />
-          } @else {
-            <div class="cover-ico">
-              <i class="fa-regular fa-image"></i>
-            </div>
-            <h4>Cover <em>art</em></h4>
-            <p>Drop image or click to browse</p>
-            <span class="cover-spec">JPG . PNG . min 1000x1000</span>
-          }
-          @if (coverFile()) {
-            <button
-              type="button"
-              class="cover-replace"
-              (click)="removeFile('cover'); $event.preventDefault(); $event.stopPropagation()"
+    <div class="upload-layout">
+      <div class="form-card">
+        <section class="fc-section">
+          <div class="fc-sec-head">
+            <h4><span>01</span> Cover <em>art</em></h4>
+            <p>square, min 1000×1000px.</p>
+          </div>
+          <div class="cover-zone">
+            <label
+              class="cover-drop"
+              [class.has-art]="coverFile()"
+              (drop)="onFileDropped($event, 'cover')"
+              (dragover)="onDragOver($event)"
+              ><input
+                type="file"
+                hidden
+                accept="image/jpeg,image/png"
+                (change)="onFileSelected($event, 'cover')"
+              />
+              @if (coverPreviewUrl()) {
+                <img [src]="coverPreviewUrl()" alt="Cover preview" />
+              } @else {
+                <i class="fa-solid fa-sparkles"></i>
+              }
+              <span class="cover-overlay">{{ coverFile() ? 'Replace' : 'Upload' }}</span></label
             >
-              <i class="fa-solid fa-rotate-right"></i>
-              Replace
-            </button>
-          }
-        </label>
-
-        <div class="file-slots">
-          <label
-            class="file-slot"
-            [class.uploaded]="previewFile()"
-            (drop)="onFileDropped($event, 'preview')"
-            (dragover)="onDragOver($event)"
-            (click)="previewInput.click()"
-          >
-            <input
-              #previewInput
-              type="file"
-              hidden
-              accept="audio/mp3,audio/mpeg,audio/*"
-              (change)="onFileSelected($event, 'preview')"
-            />
-            <span class="req-badge req">Required</span>
-            <div class="slot-ico s-mp3"><i class="fa-solid fa-music"></i></div>
-            <div class="slot-info">
-              <h5>Tagged <em>MP3</em> preview</h5>
-              <p class="slot-sub">30-60s tagged demo</p>
-              <p class="slot-meta">{{ previewSummary()?.name || 'MP3 . 320kbps . max 20MB' }}</p>
-            </div>
-            <div class="slot-cta">
-              <i class="fa-solid fa-upload"></i>
-              Upload
-            </div>
-            <div class="slot-actions">
-              <button
-                type="button"
-                class="slot-action-btn del"
-                (click)="removeFile('preview'); $event.preventDefault(); $event.stopPropagation()"
-                title="Remove"
-              >
-                <i class="fa-solid fa-trash"></i>
-              </button>
-            </div>
-          </label>
-
-          <label
-            class="file-slot"
-            [class.uploaded]="wavFile()"
-            (drop)="onFileDropped($event, 'wav')"
-            (dragover)="onDragOver($event)"
-            (click)="wavInput.click()"
-          >
-            <input
-              #wavInput
-              type="file"
-              hidden
-              accept="audio/wav,audio/x-wav,.wav"
-              (change)="onFileSelected($event, 'wav')"
-            />
-            <span class="req-badge req">Required</span>
-            <div class="slot-ico s-wav"><i class="fa-solid fa-wave-square"></i></div>
-            <div class="slot-info">
+            <p class="cover-specs">
+              <strong>JPG or PNG</strong> · up to 5MB<br />Square artwork only. No borders or
+              watermarks.
+            </p>
+          </div>
+        </section>
+        <section class="fc-section">
+          <div class="fc-sec-head">
+            <h4><span>02</span> Audio <em>files</em></h4>
+            <p>what buyers actually download.</p>
+          </div>
+          <div class="upload-grid">
+            <label
+              class="upload-tile"
+              [class.filled]="previewFile()"
+              (drop)="onFileDropped($event, 'preview')"
+              (dragover)="onDragOver($event)"
+              ><input
+                type="file"
+                hidden
+                accept="audio/mpeg,.mp3"
+                (change)="onFileSelected($event, 'preview')"
+              />
+              <div class="ut-top"><i class="fa-solid fa-music"></i><b>Required</b></div>
+              <h5>MP3 <em>preview</em></h5>
+              <p>Tagged stream file used on the beat page player.</p>
+              @if (previewSummary()) {
+                <small>{{ previewSummary()!.name }} · {{ previewSummary()!.size }}</small>
+              }
+            </label>
+            <label
+              class="upload-tile"
+              [class.filled]="wavFile()"
+              (drop)="onFileDropped($event, 'wav')"
+              (dragover)="onDragOver($event)"
+              ><input
+                type="file"
+                hidden
+                accept="audio/wav,.wav"
+                (change)="onFileSelected($event, 'wav')"
+              />
+              <div class="ut-top"><i class="fa-solid fa-wave-square"></i><b>Required</b></div>
               <h5>Untagged <em>WAV</em></h5>
-              <p class="slot-sub">Full-quality master for buyers</p>
-              <p class="slot-meta">
-                {{ wavSummary()?.name || 'WAV . 24-bit / 44.1kHz . max 100MB' }}
-              </p>
-            </div>
-            <div class="slot-cta">
-              <i class="fa-solid fa-upload"></i>
-              Upload
-            </div>
-            <div class="slot-actions">
-              <button
-                type="button"
-                class="slot-action-btn del"
-                (click)="removeFile('wav'); $event.preventDefault(); $event.stopPropagation()"
-                title="Remove"
-              >
-                <i class="fa-solid fa-trash"></i>
-              </button>
-            </div>
-          </label>
-
-          <label
-            class="file-slot"
-            [class.uploaded]="stemsFile()"
-            (drop)="onFileDropped($event, 'stems')"
-            (dragover)="onDragOver($event)"
-            (click)="stemsInput.click()"
-          >
-            <input
-              #stemsInput
-              type="file"
-              hidden
-              accept=".zip,.rar"
-              (change)="onFileSelected($event, 'stems')"
-            />
-            <span class="req-badge opt">Optional</span>
-            <div class="slot-ico s-stems"><i class="fa-solid fa-layer-group"></i></div>
-            <div class="slot-info">
-              <h5><em>Stems</em> / Trackouts</h5>
-              <p class="slot-sub">ZIP of separated tracks</p>
-              <p class="slot-meta">{{ stemsSummary()?.name || 'ZIP . WAV stems . max 500MB' }}</p>
-            </div>
-            <div class="slot-cta">
-              <i class="fa-solid fa-upload"></i>
-              Upload
-            </div>
-            <div class="slot-actions">
-              <button
-                type="button"
-                class="slot-action-btn del"
-                (click)="removeFile('stems'); $event.preventDefault(); $event.stopPropagation()"
-                title="Remove"
-              >
-                <i class="fa-solid fa-trash"></i>
-              </button>
-            </div>
-          </label>
-        </div>
-      </div>
-
-      <div class="right-col">
-        <div class="sec">
-          <div class="sec-eyebrow"><span class="dot"></span> Identity</div>
+              <p>Clean master delivered to buyers with eligible licenses.</p>
+              @if (wavSummary()) {
+                <small>{{ wavSummary()!.name }} · {{ wavSummary()!.size }}</small>
+              }
+            </label>
+            <label
+              class="upload-tile"
+              [class.filled]="stemsFile()"
+              (drop)="onFileDropped($event, 'stems')"
+              (dragover)="onDragOver($event)"
+              ><input
+                type="file"
+                hidden
+                accept=".zip,.rar,application/zip,application/vnd.rar,application/x-rar-compressed"
+                (change)="onFileSelected($event, 'stems')"
+              />
+              <div class="ut-top">
+                <i class="fa-solid fa-layer-group"></i><b class="optional">Optional</b>
+              </div>
+              <h5><em>Stems</em> (.zip or .rar)</h5>
+              <p>Individual trackouts for unlimited licenses.</p>
+              @if (stemsSummary()) {
+                <small>{{ stemsSummary()!.name }} · {{ stemsSummary()!.size }}</small>
+              }
+            </label>
+          </div>
+        </section>
+        <section class="fc-section">
+          <div class="fc-sec-head">
+            <h4><span>03</span> <em>Metadata</em></h4>
+            <p>how listeners find this beat.</p>
+          </div>
           <div class="form-grid">
-            <div class="form-group span-full">
-              <label class="form-label">
-                <span>Beat title <span class="req">*</span></span>
-                <em>keep it sharp</em>
-              </label>
-              <input
-                type="text"
+            <label class="form-group full"
+              ><span>Track name <b>*</b></span
+              ><input
                 class="form-input"
                 formControlName="title"
+                maxlength="100"
                 placeholder="e.g. Violet Hour"
-                maxlength="60"
               />
-              <div class="char-count">{{ f['title'].value?.length || 0 }} / 60</div>
-            </div>
-
-            <div class="form-grid two span-full">
-              <div class="form-group">
-                <label class="form-label">
-                  <span>Genre <span class="req">*</span></span>
-                </label>
-                <select class="form-select" formControlName="genre">
+              @if (fieldError('title')) {
+                <small class="field-error">{{ fieldError('title') }}</small>
+              }
+            </label>
+            <div class="form-grid three">
+              <label class="form-group"
+                ><span>Genre <b>*</b></span
+                ><select class="form-select" formControlName="genre">
                   <option value="">Select genre</option>
                   @for (g of genres(); track g) {
                     <option [value]="g">{{ g }}</option>
                   }
                 </select>
-              </div>
-
-              <div class="form-group">
-                <label class="form-label">
-                  <span>Tempo <span class="req">*</span></span>
-                </label>
-                <div class="input-sfx">
-                  <input
-                    type="number"
-                    class="form-input"
-                    formControlName="bpm"
-                    placeholder="92"
-                    min="40"
-                    max="260"
-                  />
-                  <span class="sfx">BPM</span>
-                </div>
-              </div>
+                @if (fieldError('genre')) {
+                  <small class="field-error">{{ fieldError('genre') }}</small>
+                }</label
+              ><label class="form-group"
+                ><span>BPM <b>*</b></span
+                ><input class="form-input" type="number" formControlName="bpm" placeholder="140" />
+                @if (fieldError('bpm')) {
+                  <small class="field-error">{{ fieldError('bpm') }}</small>
+                }</label
+              ><label class="form-group"
+                ><span>Key</span
+                ><select class="form-select" formControlName="key">
+                  @for (key of keys; track key) {
+                    <option [value]="key">{{ key }}</option>
+                  }
+                </select></label
+              >
             </div>
-
-            <div class="form-group span-full">
-              <label class="form-label">
-                <span>Description</span>
-                <em>optional - adds character</em>
-              </label>
-              <textarea
+            <label class="form-group full"
+              ><span>Description <em>optional</em></span
+              ><textarea
                 class="form-textarea"
                 formControlName="description"
-                placeholder="What's this beat about? Energy, vibe, who it's for..."
-                maxlength="400"
-              ></textarea>
-              <div class="char-count">{{ f['description'].value?.length || 0 }} / 400</div>
-            </div>
+                maxlength="500"
+                placeholder="What's this beat about?"
+              ></textarea
+              ><small class="field-count"
+                >{{ uploadForm.get('description')?.value?.length || 0 }} / 500</small
+              >
+              @if (fieldError('description')) {
+                <small class="field-error">{{ fieldError('description') }}</small>
+              }
+            </label>
           </div>
-        </div>
-
-        <div class="sec">
-          <div class="sec-eyebrow"><span class="dot"></span> Key</div>
-          <div class="key-picker">
-            <div class="mode-btns">
-              <button
-                type="button"
-                class="mode-btn"
-                [class.on]="currentScale() === 'major'"
-                (click)="setScale('major')"
-              >
-                Major
-              </button>
-              <button
-                type="button"
-                class="mode-btn"
-                [class.on]="currentScale() === 'minor'"
-                (click)="setScale('minor')"
-              >
-                Minor
-              </button>
-            </div>
-            <div class="key-chips">
-              @for (root of keyRoots; track root) {
+          <label class="form-group chips"
+            ><span>Mood <em>pick up to 5</em></span>
+            <div>
+              @for (mood of moodOptions; track mood) {
                 <button
                   type="button"
-                  class="key-chip"
-                  [class.on]="currentKeyRoot() === root"
-                  (click)="selectKeyRoot(root)"
+                  class="pick-chip"
+                  [class.on]="isMoodSelected(mood)"
+                  (click)="toggleMood(mood)"
                 >
-                  {{ getKeyRootLabel(root) }}
+                  {{ mood }}
                 </button>
               }
-            </div>
-          </div>
-        </div>
-
-        <div class="sec">
-          <div class="sec-eyebrow"><span class="dot"></span> Mood <em>pick up to 5</em></div>
-          <div class="pill-tags">
-            @for (mood of moodOptions; track mood) {
-              <button
-                type="button"
-                class="pill-tag"
-                [class.on]="isMoodSelected(mood)"
-                (click)="toggleMood(mood)"
-              >
-                <span class="plus">+</span>{{ mood }}
-              </button>
-            }
-          </div>
-        </div>
-
-        <div class="sec">
-          <div class="sec-eyebrow"><span class="dot"></span> Instruments</div>
-          <div class="pill-tags">
-            @for (instrument of instrumentOptions; track instrument) {
-              <button
-                type="button"
-                class="pill-tag"
-                [class.on]="isInstrumentSelected(instrument)"
-                (click)="toggleInstrument(instrument)"
-              >
-                <span class="plus">+</span>{{ instrument }}
-              </button>
-            }
-          </div>
-        </div>
-
-        <div class="sec">
-          <div class="sec-eyebrow"><span class="dot"></span> Search tags</div>
-          <div class="tag-wrap" (click)="tagInput.focus()">
-            @for (tag of tags.controls; track tag; let i = $index) {
-              <span class="tag-chip-el">
-                {{ tag.value }}
-                <button type="button" class="tx" (click)="removeTag(i); $event.stopPropagation()">
-                  x
+            </div></label
+          ><label class="form-group chips"
+            ><span>Instruments</span>
+            <div>
+              @for (instrument of instrumentOptions; track instrument) {
+                <button
+                  type="button"
+                  class="pick-chip"
+                  [class.on]="isInstrumentSelected(instrument)"
+                  (click)="toggleInstrument(instrument)"
+                >
+                  {{ instrument }}
                 </button>
-              </span>
+              }
+            </div></label
+          >
+        </section>
+        <section class="fc-section">
+          <div class="fc-sec-head">
+            <h4><span>04</span> <em>Tags</em></h4>
+            <p>max 3 — used for search.</p>
+          </div>
+          <div class="tag-input-wrap" (click)="tagInput.focus()">
+            @for (tag of tags.controls; track tag; let i = $index) {
+              <span>{{ tag.value }} <button type="button" (click)="removeTag(i)">×</button></span>
             }
             <input
               #tagInput
-              type="text"
-              class="tag-input-el"
-              placeholder="type & press enter..."
+              placeholder="add a tag and hit enter..."
               (keydown.enter)="$event.preventDefault(); addTag({ target: tagInput })"
               [disabled]="tags.length >= 3"
             />
           </div>
-        </div>
-
-        <div class="sec">
-          <div class="sec-eyebrow">
-            <span class="dot"></span> Licenses <em>toggle to enable each tier</em>
+          <small class="tag-count">{{ tags.length }} / 3 used</small>
+          @if (tagInputError()) {
+            <small class="field-error">{{ tagInputError() }}</small>
+          }
+        </section>
+        <section class="fc-section">
+          <div class="fc-sec-head">
+            <h4><span>05</span> <em>Licenses</em></h4>
+            <p>toggle on/off and set your prices.</p>
           </div>
-
-          <div class="license-grid" formArrayName="licenses">
+          <div class="license-stack" formArrayName="licenses">
             @for (license of licenses.controls; track license; let i = $index) {
               <div
-                class="lic-card"
+                class="license-card"
                 [class.off]="!license.get('enabled')?.value"
                 [formGroupName]="i"
               >
-                <div class="lic-top">
-                  <div>
-                    <div class="lic-name">
-                      {{ getReferenceLicenseName(license.get('type')?.value) }}
-                      <em>{{ getReferenceLicenseFormat(license.get('type')?.value) }}</em>
-                    </div>
-                    <div class="lic-sub">
-                      {{ getReferenceLicenseSub(license.get('type')?.value) }}
-                    </div>
-                  </div>
-                  <button
-                    type="button"
-                    class="tog"
-                    [class.on]="license.get('enabled')?.value"
-                    (click)="license.patchValue({ enabled: !license.get('enabled')?.value })"
-                  ></button>
+                <button
+                  type="button"
+                  class="lic-toggle"
+                  [class.on]="license.get('enabled')?.value"
+                  (click)="license.patchValue({ enabled: !license.get('enabled')?.value })"
+                ></button>
+                <div>
+                  <h5>
+                    {{ getReferenceLicenseName(license.get('type')?.value) }}
+                    <em>{{ getReferenceLicenseFormat(license.get('type')?.value) }}</em>
+                  </h5>
+                  <label
+                    >Price
+                    <input
+                      type="number"
+                      formControlName="price"
+                      [disabled]="!license.get('enabled')?.value" /></label
+                  ><small>{{ getReferenceLicenseSub(license.get('type')?.value) }}</small>
                 </div>
-                <div class="lic-price-wrap">
-                  <span class="lic-cur">{{
-                    currentUser()?.store_currency === 'INR' ? 'Rs' : '$'
-                  }}</span>
-                  <input
-                    type="number"
-                    class="lic-price-input"
-                    formControlName="price"
-                    step="0.01"
-                    min="0"
-                    [disabled]="!license.get('enabled')?.value"
-                  />
-                </div>
-                <ul class="lic-feats">
-                  @for (feature of license.get('features')?.value; track feature) {
-                    <li>
-                      <i class="fa-solid fa-check"></i>
-                      {{ feature }}
-                    </li>
-                  }
-                </ul>
+                <i class="fa-solid fa-pen-to-square"></i>
               </div>
             }
           </div>
-
-          <div class="lic-settings-row">
-            <div class="lic-sett">
-              <h6>/ Royalty split</h6>
-              <div class="radio-row">
-                @for (option of royaltyOptions; track option) {
-                  <button
-                    type="button"
-                    class="radio-btn"
-                    [class.on]="royaltySplit() === option"
-                    (click)="pickRoyalty(option)"
-                  >
-                    {{ option }}
-                  </button>
-                }
-              </div>
+        </section>
+        <section class="fc-section">
+          <div class="fc-sec-head">
+            <h4><span>06</span> Free <em>download</em></h4>
+            <p>gives away reach, not rights.</p>
+          </div>
+          <div class="free-dl-row">
+            <div>
+              <h5>Enable free MP3 download <em>· non-commercial</em></h5>
+              <p>Listeners can grab a tagged MP3 with no commercial license.</p>
             </div>
-            <div class="lic-sett">
-              <h6>/ Contract</h6>
-              <div class="radio-row">
-                @for (option of contractOptions; track option) {
-                  <button
-                    type="button"
-                    class="radio-btn"
-                    [class.on]="contractType() === option"
-                    (click)="pickContract(option)"
-                  >
-                    {{ option }}
-                  </button>
-                }
-              </div>
+            <button
+              type="button"
+              class="toggle"
+              [class.on]="f['freeMp3Enabled'].value"
+              (click)="f['freeMp3Enabled'].setValue(!f['freeMp3Enabled'].value)"
+            ></button>
+          </div>
+        </section>
+      </div>
+      <aside class="preview-wrap">
+        <div class="preview-card">
+          <div class="preview-head"><span>● Live preview</span><em>draft</em></div>
+          <div class="preview-art">
+            @if (coverPreviewUrl()) {
+              <img [src]="coverPreviewUrl()" alt="Cover preview" />
+            } @else {
+              ✦
+            }
+          </div>
+          <div class="preview-body">
+            <h2>{{ f['title'].value || 'Untitled beat' }}</h2>
+            <p>
+              {{ f['bpm'].value || '—' }} BPM · {{ f['key'].value || '—' }} ·
+              {{ f['genre'].value || '—' }}
+            </p>
+            <div class="preview-tags">
+              @for (tag of beatPreviewTags(); track tag) {
+                <span>{{ tag }}</span>
+              } @empty {
+                <small>no tags yet</small>
+              }
             </div>
-            <div class="lic-sett">
-              <h6>/ Territory</h6>
-              <div class="radio-row">
-                @for (option of territoryOptions; track option) {
-                  <button
-                    type="button"
-                    class="radio-btn"
-                    [class.on]="territory() === option"
-                    (click)="pickTerritory(option)"
-                  >
-                    {{ option }}
-                  </button>
-                }
+            @for (license of selectedLicenses(); track license) {
+              <div class="preview-license">
+                <span>{{ getReferenceLicenseName(license.get('type')?.value) }}</span
+                ><b>{{ formatCurrency(license.get('price')?.value) }}</b>
               </div>
-            </div>
+            }
           </div>
         </div>
-      </div>
-    </main>
-
-    <div class="sticky-footer">
-      <div class="footer-status">
-        <span class="status-dot"></span>
-        <p>Draft in progress - <strong>fill required fields</strong> to publish</p>
-      </div>
-      <div class="footer-btns">
-        <button type="button" class="save-draft-btn" (click)="saveDraft()">Save draft</button>
-        <button type="button" class="btn-ghost">
-          <i class="fa-regular fa-eye"></i>
-          Preview
-        </button>
-        <button type="button" class="btn-lime" (click)="submitUpload()" [disabled]="isSubmitting()">
-          @if (isSubmitting()) {
-            @if (uploadProgress() > 0 && uploadProgress() < 100) {
-              <span>{{ uploadProgress() }}%</span>
-            } @else {
-              <i class="fa-solid fa-spinner fa-spin"></i>
-            }
-            <span>{{ uploadProgress() === 100 ? 'Finalizing...' : 'Uploading...' }}</span>
-          } @else {
-            <i class="fa-solid fa-play"></i>
-            Publish beat
-          }
-        </button>
-      </div>
+        <div class="status-card">
+          <div>
+            <span>Required audio</span
+            ><b [class.ok]="previewFile() && wavFile()"
+              >{{ (previewFile() ? 1 : 0) + (wavFile() ? 1 : 0) }} / 2</b
+            >
+          </div>
+          <div>
+            <span>Cover art</span
+            ><b [class.ok]="coverFile()">{{ coverFile() ? 'ready' : 'missing' }}</b>
+          </div>
+          <div>
+            <span>Metadata</span
+            ><b [class.ok]="f['title'].valid && f['genre'].valid">{{
+              f['title'].valid && f['genre'].valid ? 'ready' : 'incomplete'
+            }}</b>
+          </div>
+          <div>
+            <span>Active licenses</span><b class="ok">{{ selectedLicenses().length }}</b>
+          </div>
+        </div>
+      </aside>
     </div>
   </section>
-</div>
+  <footer class="sticky-footer">
+    <p>Draft <em>saved automatically</em>. Fix required fields to publish.</p>
+    <div>
+      <button type="button" class="btn ghost" (click)="saveDraft()">Save draft</button
+      ><button
+        type="button"
+        class="btn primary"
+        (click)="submitUpload()"
+        [disabled]="isSubmitting()"
+      >
+        {{ isSubmitting() ? 'Uploading…' : 'Publish beat →' }}
+      </button>
+    </div>
+  </footer>
+</main>

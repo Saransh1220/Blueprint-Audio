@@ -1,4 +1,5 @@
 import { CommonModule, NgOptimizedImage } from '@angular/common';
+import { RouterLink } from '@angular/router';
 import {
   ChangeDetectionStrategy,
   ChangeDetectorRef,
@@ -18,7 +19,7 @@ import { MoneyPipe } from '../../shared/pipes/money.pipe';
 
 @Component({
   selector: 'app-spec-list-item',
-  imports: [CommonModule, NgOptimizedImage, MoneyPipe],
+  imports: [CommonModule, NgOptimizedImage, RouterLink, MoneyPipe],
   templateUrl: './spec-list-item.component.html',
   styleUrls: ['./spec-list-item.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

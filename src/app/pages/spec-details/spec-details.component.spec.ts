@@ -108,6 +108,36 @@ describe('SpecDetailsComponent', () => {
     expect(component).toBeTruthy();
   });
 
+  it('opens one FAQ answer at a time and collapses it on a second click', () => {
+    component.toggleFaq(0);
+    fixture.detectChanges();
+    expect(component.openFaqIndex()).toBe(0);
+    expect(
+      (fixture.nativeElement as HTMLElement)
+        .querySelector('#faq-answer-0')
+        ?.getAttribute('aria-hidden'),
+    ).toBe('false');
+
+    component.toggleFaq(1);
+    expect(component.openFaqIndex()).toBe(1);
+
+    component.toggleFaq(1);
+    expect(component.openFaqIndex()).toBeNull();
+  });
+
+  it('uses backend waveform peaks without fetching the preview audio', () => {
+    const fetchSpy = vi.spyOn(globalThis, 'fetch');
+
+    (component as any).loadWaveformForSpec({
+      ...mockSpec,
+      waveformPeaks: [12, 48, 100],
+    });
+
+    expect(component.waveformBars()).toEqual([12, 48, 100]);
+    expect(fetchSpy).not.toHaveBeenCalled();
+    fetchSpy.mockRestore();
+  });
+
   it('should select the cheapest license by default', () => {
     expect(component.selectedLicense()?.id).toBe('l1');
   });

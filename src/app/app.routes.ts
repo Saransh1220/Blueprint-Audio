@@ -22,6 +22,13 @@ import { AuthService } from './services';
 export const routes: Routes = [
   { path: '', component: HomeComponent },
   { path: 'explore', component: SearchPageComponent },
+  {
+    path: '@/:handle',
+    loadComponent: () =>
+      import('./pages/producer-profile/producer-profile.component').then(
+        (m) => m.ProducerProfileComponent,
+      ),
+  },
   { path: 'search', redirectTo: 'explore', pathMatch: 'full' },
   { path: 'battles', component: BattlesComponent },
   { path: 'battles/:id', component: BattleDetailsComponent },

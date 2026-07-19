@@ -64,7 +64,7 @@ describe('AppComponent', () => {
     expect(compiled.querySelector('.loader')).toBeTruthy();
   });
 
-  it('shows footer on normal pages and hides it on studio/auth/upload/explore routes', async () => {
+  it('shows the global header and hides the footer on studio/auth/upload/explore routes', async () => {
     const router = TestBed.inject(Router);
 
     await router.navigateByUrl('/');
@@ -83,7 +83,7 @@ describe('AppComponent', () => {
     await router.navigateByUrl('/upload');
     fixture.detectChanges();
     expect((fixture.nativeElement as HTMLElement).querySelector('app-footer')).toBeNull();
-    expect((fixture.nativeElement as HTMLElement).querySelector('app-header')).toBeNull();
+    expect((fixture.nativeElement as HTMLElement).querySelector('app-header')).toBeTruthy();
 
     await router.navigateByUrl('/explore');
     fixture.detectChanges();

@@ -12,6 +12,7 @@ export interface User {
   email_verified?: boolean;
   bio?: string | null;
   avatar_url?: string | null;
+  banner_url?: string | null;
   instagram_url?: string | null;
   twitter_url?: string | null;
   youtube_url?: string | null;

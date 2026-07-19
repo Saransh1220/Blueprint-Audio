@@ -39,6 +39,7 @@ export class PlayerService {
 
   constructor() {
     this.audio.crossOrigin = 'anonymous';
+    this.audio.preload = 'metadata';
     this.audio.volume = this.volume();
     this.audio.playbackRate = this.playbackRate();
 

@@ -137,6 +137,8 @@ describe('UploadComponent', () => {
     await handleFile(new File(['a'], 'x.txt', { type: 'text/plain' }), 'stems');
     await handleFile(new File(['a'], 'x.zip', { type: 'application/zip' }), 'stems');
     expect(component.stemsFile()?.name).toBe('x.zip');
+    await handleFile(new File(['a'], 'x.rar', { type: 'application/vnd.rar' }), 'stems');
+    expect(component.stemsFile()?.name).toBe('x.rar');
 
     component.removeFile('preview');
     component.removeFile('wav');

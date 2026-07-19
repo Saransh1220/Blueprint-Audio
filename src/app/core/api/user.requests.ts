@@ -5,6 +5,7 @@ export interface UpdateProfileDto {
   bio?: string;
   display_name?: string;
   avatar_url?: string;
+  banner_url?: string;
   instagram_url?: string;
   twitter_url?: string;
   youtube_url?: string;
@@ -20,6 +21,7 @@ export interface PublicUserResponse {
   email_verified?: boolean;
   bio?: string;
   avatar_url?: string;
+  banner_url?: string;
   instagram_url?: string;
   twitter_url?: string;
   youtube_url?: string;
@@ -59,6 +61,19 @@ export class UploadAvatarRequest implements ApiRequest<PublicUserResponse> {
   constructor(file: File) {
     const formData = new FormData();
     formData.append('avatar', file);
+    this.body = formData;
+  }
+}
+
+export class UploadBannerRequest implements ApiRequest<PublicUserResponse> {
+  readonly method: HttpMethod = 'POST';
+  readonly path = '/users/profile/banner';
+  readonly body: FormData;
+  readonly _responseType?: PublicUserResponse;
+
+  constructor(file: File) {
+    const formData = new FormData();
+    formData.append('banner', file);
     this.body = formData;
   }
 }

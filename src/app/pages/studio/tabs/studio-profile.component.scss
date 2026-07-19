@@ -149,10 +149,27 @@
   position: relative;
   overflow: hidden;
   background: linear-gradient(135deg, var(--cobalt) 0%, var(--lavender) 50%, var(--hot) 100%);
+  background-size: cover;
+  background-position: center;
+}
+
+.banner-image,
+.preview-banner img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+  object-position: center;
+}
+
+.banner-image {
+  position: absolute;
+  inset: 0;
 }
 
 .banner-change {
   position: absolute;
+  z-index: 1;
   bottom: 12px;
   right: 12px;
   background: var(--cream);

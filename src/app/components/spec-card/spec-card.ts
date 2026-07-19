@@ -1,4 +1,5 @@
 import { CommonModule, NgOptimizedImage } from '@angular/common';
+import { RouterLink } from '@angular/router';
 import {
   ChangeDetectionStrategy,
   ChangeDetectorRef,
@@ -18,7 +19,7 @@ import { MoneyPipe } from '../../shared/pipes/money.pipe';
 
 @Component({
   selector: 'app-spec-card',
-  imports: [CommonModule, NgOptimizedImage, MoneyPipe],
+  imports: [CommonModule, NgOptimizedImage, RouterLink, MoneyPipe],
   templateUrl: './spec-card.html',
   styleUrls: ['./spec-card.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -68,5 +69,13 @@ export class SpecCardComponent implements OnInit, OnDestroy {
 
   formatDuration(seconds: number): string {
     return this.actionService.formatDuration(seconds);
+  }
+
+  producerHandle() {
+    return (this.spec.producerName || 'producer')
+      .toLowerCase()
+      .trim()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-|-$/g, '');
   }
 }

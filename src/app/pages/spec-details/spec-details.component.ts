@@ -134,7 +134,6 @@ export class SpecDetailsComponent {
   });
   isSpecLoading = computed(() => !this.specLoadSettled() && !this.spec());
   isSpecMissing = computed(() => this.specLoadSettled() && !this.spec());
-  private waveformRequestId = 0;
   tickerItems = [
     'Instant license delivery',
     'Tag-free preview included',
@@ -600,61 +599,14 @@ export class SpecDetailsComponent {
     });
   }
 
-  private async loadWaveformForSpec(spec: Spec | undefined) {
-    const requestId = ++this.waveformRequestId;
+  private loadWaveformForSpec(spec: Spec | undefined) {
     if (!spec) {
       this.waveformBars.set([]);
       return;
     }
 
-    const fallback = this.buildFallbackWaveform(spec);
-    if (!spec.audioUrl || typeof window === 'undefined') {
-      this.waveformBars.set(fallback);
-      return;
-    }
-
-    try {
-      const AudioContextCtor =
-        window.AudioContext ||
-        (window as typeof window & { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
-      if (!AudioContextCtor) {
-        this.waveformBars.set(fallback);
-        return;
-      }
-
-      const response = await fetch(spec.audioUrl);
-      if (!response.ok) {
-        throw new Error(`Waveform fetch failed: ${response.status}`);
-      }
-
-      const arrayBuffer = await response.arrayBuffer();
-      const audioContext = new AudioContextCtor();
-      const audioBuffer = await audioContext.decodeAudioData(arrayBuffer.slice(0));
-      await audioContext.close().catch(() => undefined);
-
-      if (requestId !== this.waveformRequestId) return;
-      this.waveformBars.set(this.sampleWaveform(audioBuffer, 64));
-    } catch (err) {
-      if (requestId === this.waveformRequestId) {
-        this.waveformBars.set(fallback);
-      }
-    }
-  }
-
-  private sampleWaveform(audioBuffer: AudioBuffer, bars: number) {
-    const channel = audioBuffer.getChannelData(0);
-    const blockSize = Math.max(1, Math.floor(channel.length / bars));
-    const samples = Array.from({ length: bars }, (_, index) => {
-      const start = index * blockSize;
-      let sum = 0;
-      for (let i = 0; i < blockSize && start + i < channel.length; i++) {
-        sum += Math.abs(channel[start + i]);
-      }
-      return sum / blockSize;
-    });
-
-    const peak = Math.max(...samples, 0.001);
-    return samples.map((sample) => Math.max(8, Math.round((sample / peak) * 100)));
+    const peaks = spec.waveformPeaks?.filter((peak) => Number.isFinite(peak));
+    this.waveformBars.set(peaks?.length ? peaks.slice(0, 64) : this.buildFallbackWaveform(spec));
   }
 
   private buildFallbackWaveform(spec: Spec) {
