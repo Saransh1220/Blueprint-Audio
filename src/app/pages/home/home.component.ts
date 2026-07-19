@@ -1,4 +1,11 @@
-import { Component, computed, inject, type OnInit, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  inject,
+  type OnInit,
+  signal,
+} from '@angular/core';
 import { catchError, finalize, of } from 'rxjs';
 
 import {
@@ -30,6 +37,7 @@ import { LabService, type HomepageData } from '../../services';
       [trendingSpecs]="trendingSpecs()"
     ></app-lab-section>
   `,
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class HomeComponent implements OnInit {
   private labService = inject(LabService);

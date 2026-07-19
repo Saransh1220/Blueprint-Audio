@@ -1,15 +1,12 @@
 import {
-  type AfterViewInit,
   ChangeDetectionStrategy,
   Component,
-  ElementRef,
   Input,
   inject,
   type OnInit,
   signal,
 } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { gsap } from 'gsap';
 import { catchError, finalize, of } from 'rxjs';
 import type { Spec } from '../../models';
 import { LabService } from '../../services';
@@ -49,8 +46,7 @@ const CARD_LAYOUTS = [
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: { style: 'display: block' },
 })
-export class HeroComponent implements OnInit, AfterViewInit {
-  private el = inject(ElementRef);
+export class HeroComponent implements OnInit {
   private labService = inject(LabService);
   private currencyService = inject(CurrencyService);
 
@@ -109,18 +105,6 @@ export class HeroComponent implements OnInit, AfterViewInit {
           specs.slice(0, CARD_LAYOUTS.length).map((spec, index) => this.toBeatCard(spec, index)),
         );
       });
-  }
-
-  ngAfterViewInit(): void {
-    const reveals = this.el.nativeElement.querySelectorAll('.gs-reveal');
-    gsap.to(reveals, {
-      opacity: 1,
-      y: 0,
-      duration: 1.2,
-      stagger: 0.1,
-      ease: 'power2.out',
-      delay: 0.1,
-    });
   }
 
   private toBeatCard(spec: Spec, index: number): BeatCard {

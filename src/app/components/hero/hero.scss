@@ -348,8 +348,37 @@
 }
 
 .gs-reveal {
-  opacity: 0;
-  transform: translateY(20px);
+  animation: hero-reveal 0.65s both cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.hero-copy.gs-reveal {
+  animation-delay: 60ms;
+}
+
+.hero-actions.gs-reveal {
+  animation-delay: 110ms;
+}
+
+.beat-stage.gs-reveal {
+  animation-delay: 160ms;
+}
+
+@keyframes hero-reveal {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 16px, 0);
+  }
+
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gs-reveal {
+    animation: none;
+  }
 }
 
 :host-context(body.dark-theme) .hero {

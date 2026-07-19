@@ -2,6 +2,17 @@
   display: block;
 }
 
+/* Homepage sections provide their own opaque art direction, so avoid compositing the
+   global animated ambience underneath them. */
+.bg-overlay.home-static::before,
+.bg-overlay.home-static::after {
+  content: none;
+}
+
+.bg-overlay.home-static .orb-layer {
+  display: none;
+}
+
 .app-shell {
   --player-dock-space: 0px;
   min-height: 100vh;

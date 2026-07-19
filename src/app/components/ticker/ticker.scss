@@ -19,6 +19,7 @@
   text-transform: uppercase;
   gap: 40px;
   width: max-content;
+  will-change: transform;
 
   span {
     display: flex;
@@ -29,6 +30,12 @@
       content: '✦';
       color: var(--brand-color);
     }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ticker-track {
+    animation: none;
   }
 }
 

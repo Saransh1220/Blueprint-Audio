@@ -38,8 +38,8 @@
     </div>
   } @else {
     <div class="spec-grid">
-      @for (spec of specs(); track spec.id; let i = $index) {
-        <app-spec-card [spec]="spec" [priority]="i < 4"></app-spec-card>
+      @for (spec of specs(); track spec.id) {
+        <app-spec-card [spec]="spec"></app-spec-card>
       }
     </div>
 
@@ -71,7 +71,14 @@
         >
           <span class="rank">{{ i + 1 }}</span>
           <span class="chart-art">
-            <img [src]="spec.imageUrl || 'assets/images/placeholder.jpg'" [alt]="spec.title" />
+            <img
+              [src]="spec.imageUrl || 'assets/images/placeholder.jpg'"
+              [alt]="spec.title"
+              width="48"
+              height="48"
+              loading="lazy"
+              decoding="async"
+            />
             <span class="play-dot"><i class="fas fa-play"></i></span>
           </span>
           <span class="chart-title">
@@ -134,8 +141,8 @@
       </div>
     } @else {
       <div class="spec-grid trending-grid">
-        @for (spec of trending(); track spec.id; let i = $index) {
-          <app-spec-card [spec]="spec" [priority]="i < 4"></app-spec-card>
+        @for (spec of trending(); track spec.id) {
+          <app-spec-card [spec]="spec"></app-spec-card>
         }
       </div>
 
@@ -165,7 +172,14 @@
           (click)="navigateToTypeBeat(artist.name)"
         >
           <span class="type-art">
-            <img [src]="artist.image" [alt]="artist.name + ' type beats'" />
+            <img
+              [src]="artist.image"
+              [alt]="artist.name + ' type beats'"
+              width="168"
+              height="168"
+              loading="lazy"
+              decoding="async"
+            />
           </span>
           <span class="type-index">Type artist</span>
           <strong>{{ artist.name }} Type Beats</strong>

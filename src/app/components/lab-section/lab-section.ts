@@ -1,5 +1,5 @@
 import {
-  type AfterViewInit,
+  ChangeDetectionStrategy,
   Component,
   computed,
   ElementRef,
@@ -10,8 +10,6 @@ import {
 } from '@angular/core';
 
 import { Router } from '@angular/router';
-import { gsap } from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { type LicenseType, type Spec } from '../../models';
 import { LabService, PlayerService } from '../../services';
 import { SpecCardComponent } from '../spec-card/spec-card';
@@ -23,16 +21,13 @@ import { LoadingSpinnerComponent } from '../ui/loading-spinner/loading-spinner.c
   imports: [SpecCardComponent, LoadingSpinnerComponent],
   templateUrl: './lab-section.html',
   styleUrls: ['./lab-section.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class LabSectionComponent implements OnInit, AfterViewInit {
+export class LabSectionComponent implements OnInit {
   private labService = inject(LabService);
   private playerService = inject(PlayerService);
   private router = inject(Router);
   private host = inject(ElementRef<HTMLElement>);
-
-  constructor() {
-    gsap.registerPlugin(ScrollTrigger);
-  }
 
   @Input() type: 'beat' | 'sample' = 'beat';
   specs = signal<Spec[]>([]);
@@ -66,7 +61,6 @@ export class LabSectionComponent implements OnInit, AfterViewInit {
     if (this.externalLoading && specs.length === 0) return;
     this.specs.set(specs);
     this.isLoading.set(false);
-    this.refreshAnimations();
   }
 
   @Input()
@@ -74,7 +68,6 @@ export class LabSectionComponent implements OnInit, AfterViewInit {
     if (!this._useExternalData || !specs) return;
     if (this.externalLoading && specs.length === 0) return;
     this.externalTopCharts.set(specs);
-    this.refreshAnimations();
   }
 
   @Input()
@@ -82,7 +75,6 @@ export class LabSectionComponent implements OnInit, AfterViewInit {
     if (!this._useExternalData || !specs) return;
     if (this.externalLoading && specs.length === 0) return;
     this.trending.set(specs);
-    this.refreshAnimations();
   }
   readonly typeBeatArtists = [
     { name: 'J. Cole', note: 'warm drums, honest piano', image: 'assets/images/genres/rnb.png' },
@@ -179,7 +171,6 @@ export class LabSectionComponent implements OnInit, AfterViewInit {
       .subscribe((specs) => {
         this.specs.set(specs.slice(0, 7));
         this.isLoading.set(false);
-        this.refreshAnimations();
       });
   }
 
@@ -236,32 +227,5 @@ export class LabSectionComponent implements OnInit, AfterViewInit {
 
   chartTrend(index: number) {
     return ['-', 'up', 'down', 'up', 'down', '-'][index % 6];
-  }
-
-  ngAfterViewInit(): void {
-    this.refreshAnimations();
-  }
-
-  refreshAnimations() {
-    // Wait for DOM update
-    setTimeout(() => {
-      ScrollTrigger.refresh();
-      (gsap.utils.toArray('.gs-item, app-spec-card') as Element[]).forEach(
-        (item: Element, i: number) => {
-          gsap.fromTo(
-            item,
-            { y: 50, opacity: 0 },
-            {
-              scrollTrigger: { trigger: item, start: 'top 95%' },
-              y: 0,
-              opacity: 1,
-              duration: 0.6,
-              delay: i * 0.05,
-              overwrite: true,
-            },
-          );
-        },
-      );
-    }, 100);
   }
 }

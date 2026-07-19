@@ -6,6 +6,8 @@
   color: var(--text-color);
   border-top: 2px solid var(--ink);
   border-bottom: 2px solid var(--ink);
+  content-visibility: auto;
+  contain-intrinsic-size: auto 520px;
 }
 
 .section-head {
@@ -117,8 +119,6 @@
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  background-size: cover;
-  background-position: center;
   transition:
     transform 0.25s ease,
     box-shadow 0.25s ease;
@@ -130,13 +130,13 @@
     inset: 0;
     border-radius: inherit;
     pointer-events: none;
-    z-index: 0;
+    z-index: 1;
   }
 
   /* All children above overlay */
-  > * {
+  > :not(.cat-art) {
     position: relative;
-    z-index: 1;
+    z-index: 2;
   }
 
   &:hover {
@@ -145,9 +145,17 @@
   }
 }
 
+.cat-art {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
 /* Trap & Drill */
 .cat-tile:nth-child(1) {
-  background-image: url('/assets/images/genres/trap.png');
   color: #f5f1e8;
   box-shadow: 4px 4px 0 #141310;
 
@@ -158,7 +166,6 @@
 
 /* R&B Soul */
 .cat-tile:nth-child(2) {
-  background-image: url('/assets/images/genres/rnb.png');
   color: #f5f1e8;
   box-shadow: 4px 4px 0 #141310;
 
@@ -169,7 +176,6 @@
 
 /* Synth Wave */
 .cat-tile:nth-child(3) {
-  background-image: url('/assets/images/genres/synth.png');
   color: #f5f1e8;
   box-shadow: 4px 4px 0 #141310;
 
@@ -180,7 +186,6 @@
 
 /* Boom Bap */
 .cat-tile:nth-child(4) {
-  background-image: url('/assets/images/genres/boom-bap.png');
   color: #f5f1e8;
   box-shadow: 4px 4px 0 #141310;
 
@@ -191,7 +196,6 @@
 
 /* Lo-Fi */
 .cat-tile:nth-child(5) {
-  background-image: url('/assets/images/genres/lofi.png');
   color: #f5f1e8;
   box-shadow: 4px 4px 0 #141310;
 
@@ -202,7 +206,6 @@
 
 /* Afrobeat */
 .cat-tile:nth-child(6) {
-  background-image: url('/assets/images/genres/afro.png');
   color: #f5f1e8;
   box-shadow: 4px 4px 0 #141310;
 

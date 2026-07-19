@@ -2,7 +2,7 @@
 <app-loading-bar></app-loading-bar>
 
 <!-- BACKGROUND GRID -->
-<div class="bg-overlay">
+<div class="bg-overlay" [class.home-static]="isHomeRoute()">
   <div class="orb-layer"></div>
 </div>
 
@@ -28,9 +28,8 @@
     justify-content: center;
     align-items: center;
     z-index: 9999;
-    transition:
-      opacity 0.5s ease-out,
-      visibility 0.5s;
+    animation: loaderExit 0.5s cubic-bezier(0.76, 0, 0.24, 1) 0.55s forwards;
+    will-change: transform;
   }
 
   .logo-container {
@@ -80,6 +79,25 @@
 
     50% {
       opacity: 1;
+    }
+  }
+
+  @keyframes loaderExit {
+    to {
+      transform: translate3d(0, -100%, 0);
+      visibility: hidden;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .loader {
+      animation-duration: 0.01ms;
+      animation-delay: 0.1s;
+    }
+
+    .loader-logo,
+    .dots {
+      animation: none;
     }
   }
 </style>
