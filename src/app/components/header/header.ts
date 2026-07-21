@@ -195,6 +195,18 @@ export class HeaderComponent {
     return this.router.url.startsWith('/studio');
   }
 
+  isBrowseRoute() {
+    const path = this.router.url.split(/[?#]/, 1)[0];
+    return (
+      path === '/explore' ||
+      path === '/loops' ||
+      path === '/battles' ||
+      path.startsWith('/battles/') ||
+      path === '/sample-packs' ||
+      path.startsWith('/sample-packs/')
+    );
+  }
+
   isStudioSection(path: string) {
     return this.router.url === `/studio/${path}` || this.router.url.startsWith(`/studio/${path}/`);
   }

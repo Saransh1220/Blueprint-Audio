@@ -66,6 +66,11 @@ export class AppComponent {
     return this.router.url === '/explore' || this.router.url.startsWith('/explore?');
   }
 
+  isCatalogRoute(): boolean {
+    const path = this.router.url.split(/[?#]/, 1)[0];
+    return path === '/loops' || path === '/sample-packs' || path.startsWith('/sample-packs/');
+  }
+
   isBeatRoute(): boolean {
     const path = this.router.url.split(/[?#]/, 1)[0];
     if (path.startsWith('/beats/')) return true;

@@ -86,15 +86,22 @@ export class LabService {
     if (cached) return cached;
 
     const request$ = this.api.execute(new GetSpecsRequest(filters)).pipe(
-      tap((response: any) => {
-        const metadata = response?.metadata || null;
-        this.specsPagination.set(metadata);
-      }),
       map((response: any) => {
+        const metadata = response?.metadata || null;
         const data = response?.data || (Array.isArray(response) ? response : []);
-        return data.map((dto: any) => this.adapter.adapt(dto));
+        return {
+          metadata,
+          specs: data.map((dto: any) => this.adapter.adapt(dto)),
+        };
       }),
       shareReplay({ bufferSize: 1, refCount: false }),
+      tap(({ metadata }) => {
+        // Pagination belongs to the cached query just replayed. Keep this tap
+        // after shareReplay so returning consumers restore the matching
+        // metadata instead of inheriting it from the most recent other query.
+        this.specsPagination.set(metadata);
+      }),
+      map(({ specs }) => specs),
     );
     this.specsCache.set(cacheKey, request$);
     return request$;

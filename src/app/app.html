@@ -2,7 +2,7 @@
 <app-loading-bar></app-loading-bar>
 
 <!-- BACKGROUND GRID -->
-<div class="bg-overlay" [class.home-static]="isHomeRoute()">
+<div class="bg-overlay" [class.home-static]="isHomeRoute() || isExploreRoute() || isCatalogRoute()">
   <div class="orb-layer"></div>
 </div>
 
@@ -113,7 +113,12 @@
     <router-outlet></router-outlet>
   </div>
   @if (
-    !isStudioRoute() && !isAuthRoute() && !isUploadRoute() && !isExploreRoute() && !isBeatRoute()
+    !isStudioRoute() &&
+    !isAuthRoute() &&
+    !isUploadRoute() &&
+    !isExploreRoute() &&
+    !isBeatRoute() &&
+    !isCatalogRoute()
   ) {
     <app-footer></app-footer>
   }

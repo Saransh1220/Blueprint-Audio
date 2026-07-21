@@ -9,11 +9,11 @@
   --sidebar-width: 300px;
   --nav-offset: 73px;
   --filter-offset: 176px;
-  --explore-grain-opacity: 0.035;
+  --explore-grain-opacity: 0.045;
   --explore-grain-blend: multiply;
-  --sidebar-grain-opacity: 0.075;
+  --sidebar-grain-opacity: 0.03;
   --sidebar-grain-blend: multiply;
-  --catalog-grain-opacity: 0.028;
+  --catalog-grain-opacity: 0.015;
   --catalog-grain-blend: multiply;
 
   background: var(--cream);
@@ -30,8 +30,10 @@
   z-index: 0;
   pointer-events: none;
   opacity: var(--explore-grain-opacity);
-  mix-blend-mode: var(--explore-grain-blend);
   background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 260 260' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='grain'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.72' numOctaves='2' seed='11'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23grain)'/%3E%3C/svg%3E");
+  background-size: 260px 260px;
+  contain: strict;
+  transform: translateZ(0);
 }
 
 .top-ticker,
@@ -79,11 +81,11 @@
 }
 
 :host-context(body.dark-theme) .search-page {
-  --explore-grain-opacity: 0.055;
+  --explore-grain-opacity: 0.06;
   --explore-grain-blend: screen;
-  --sidebar-grain-opacity: 0.095;
+  --sidebar-grain-opacity: 0.035;
   --sidebar-grain-blend: screen;
-  --catalog-grain-opacity: 0.04;
+  --catalog-grain-opacity: 0.02;
   --catalog-grain-blend: screen;
   --cream: #0e0d0b;
   --cream-2: #1a1814;
@@ -107,7 +109,7 @@
     radial-gradient(ellipse 1100px 800px at 50% 110%, rgba(212, 197, 255, 0.12), transparent 55%),
     radial-gradient(ellipse 600px 500px at 90% 80%, rgba(255, 125, 46, 0.09), transparent 55%),
     var(--cream);
-  background-attachment: fixed;
+  background-attachment: scroll;
 }
 
 :host-context(body.dark-theme) .search-page::before {
@@ -119,8 +121,10 @@
   background:
     radial-gradient(ellipse 500px 400px at 30% 30%, rgba(217, 245, 97, 0.04), transparent 60%),
     radial-gradient(ellipse 600px 500px at 70% 70%, rgba(91, 120, 255, 0.05), transparent 60%);
-  filter: blur(40px);
   animation: auroraDrift 24s ease-in-out infinite alternate;
+  contain: strict;
+  transform: translateZ(0);
+  will-change: transform;
 }
 
 :host-context(body.dark-theme) .top-ticker,
@@ -583,12 +587,12 @@
   border-top: 1.5px solid var(--ink);
   border-bottom: 1.5px solid var(--ink);
   border-radius: 0;
-  background: color-mix(in srgb, var(--cream) 94%, white);
+  background: color-mix(in srgb, var(--cream) 98%, white);
   box-shadow: none;
   position: sticky;
   top: var(--nav-offset);
   z-index: 35;
-  backdrop-filter: blur(10px);
+  contain: layout style;
 }
 
 .fb-label {
@@ -1075,6 +1079,7 @@
   padding-right: 4px;
   scrollbar-width: thin;
   scrollbar-color: var(--ink-mute) transparent;
+  contain: layout style;
 }
 
 .sidebar::-webkit-scrollbar {
@@ -1095,6 +1100,7 @@
   padding: 18px;
   border: 2px solid var(--ink);
   border-radius: 16px;
+  contain: layout paint style;
 }
 
 .sb-card::after {
@@ -1104,8 +1110,8 @@
   z-index: 0;
   pointer-events: none;
   opacity: var(--sidebar-grain-opacity);
-  mix-blend-mode: var(--sidebar-grain-blend);
   background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='sidebar-grain'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.78' numOctaves='2' seed='15'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23sidebar-grain)'/%3E%3C/svg%3E");
+  background-size: 180px 180px;
 }
 
 .sb-card > * {
@@ -2388,8 +2394,8 @@
   z-index: 0;
   pointer-events: none;
   opacity: var(--catalog-grain-opacity);
-  mix-blend-mode: var(--catalog-grain-blend);
   background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 220 220' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='catalog-grain'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.7' numOctaves='2' seed='19'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23catalog-grain)'/%3E%3C/svg%3E");
+  background-size: 220px 220px;
 }
 
 .catalog-inner {
@@ -2519,6 +2525,10 @@
   margin-left: auto;
 }
 
+.mobile-view-switch {
+  display: none;
+}
+
 :host-context(body.dark-theme) .catalog-toolbar {
   background: linear-gradient(180deg, rgba(91, 120, 255, 0.06), transparent 40%), var(--cream-2);
   border: 2px solid var(--ink);
@@ -2559,6 +2569,22 @@
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
   gap: 24px;
+}
+
+.beat-grid > app-spec-card {
+  content-visibility: auto;
+  // Keep skipped cards cheap without giving them a 390px intrinsic width.
+  // The old shorthand could make Grid reserve one oversized column when a
+  // card moved outside the viewport, which is why mobile collapsed on scroll.
+  contain-intrinsic-inline-size: 0;
+  contain-intrinsic-block-size: 390px;
+  min-width: 0;
+}
+
+.beat-list > app-spec-list-item {
+  content-visibility: auto;
+  contain-intrinsic-inline-size: 0;
+  contain-intrinsic-block-size: 76px;
 }
 
 .beat-list {
@@ -2872,6 +2898,17 @@
     display: block;
   }
 
+  .mobile-toolbar-heading {
+    display: flex;
+    align-items: center;
+    width: 100%;
+  }
+
+  .catalog-toolbar .mobile-view-switch {
+    display: flex;
+    margin-left: auto;
+  }
+
   .mob-filter-btn {
     display: inline-flex !important;
   }
@@ -2883,13 +2920,18 @@
     background: rgba(20, 19, 16, 0.35);
     opacity: 0;
     pointer-events: none;
-    transition: opacity 0.2s ease;
+    visibility: hidden;
+    transition:
+      opacity 0.2s ease,
+      visibility 0s linear 0.22s;
     z-index: 29;
   }
 
   .filter-backdrop.on {
     opacity: 1;
     pointer-events: auto;
+    visibility: visible;
+    transition-delay: 0s;
   }
 
   .sidebar {
@@ -2904,12 +2946,19 @@
     background: var(--cream);
     border-radius: 0;
     transform: translateX(100%);
-    transition: transform 0.22s ease;
+    visibility: hidden;
+    pointer-events: none;
+    transition:
+      transform 0.22s ease,
+      visibility 0s linear 0.22s;
     border-left: 2px solid var(--ink);
   }
 
   .sidebar.open {
     transform: translateX(0);
+    visibility: visible;
+    pointer-events: auto;
+    transition-delay: 0s;
     box-shadow: -8px 0 0 var(--ink);
   }
 
@@ -2956,7 +3005,7 @@
   }
 
   .beat-grid {
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 16px;
   }
 
@@ -3030,11 +3079,13 @@
   z-index: 98;
   opacity: 0;
   pointer-events: none;
+  visibility: hidden;
   transition: opacity 0.22s ease;
 
   &.on {
     opacity: 1;
     pointer-events: auto;
+    visibility: visible;
   }
 }
 
@@ -3046,7 +3097,11 @@
   background: var(--cream);
   flex-direction: column;
   transform: translateY(100%);
-  transition: transform 0.28s cubic-bezier(0.32, 0, 0.67, 0);
+  visibility: hidden;
+  pointer-events: none;
+  transition:
+    transform 0.28s cubic-bezier(0.32, 0, 0.67, 0),
+    visibility 0s linear 0.28s;
 }
 
 @media (max-width: 900px) {
@@ -3060,6 +3115,9 @@
 
   .mob-fp.open {
     transform: translateY(0);
+    visibility: visible;
+    pointer-events: auto;
+    transition-delay: 0s;
     transition-timing-function: cubic-bezier(0.33, 1, 0.68, 1);
   }
 }
@@ -3312,7 +3370,7 @@
   }
 }
 
-@media (max-width: 720px) {
+@media (max-width: 900px) {
   .search-page {
     --mobile-nav-space: 78px;
     --mobile-filter-space: 58px;
@@ -3326,7 +3384,7 @@
     --mobile-card-bg: rgba(255, 250, 238, 0.56);
     --mobile-card-hover: rgba(255, 250, 238, 0.76);
     --mobile-accent: #ff3d5a;
-    --explore-grain-opacity: 0.025;
+    --explore-grain-opacity: 0.035;
 
     background:
       radial-gradient(circle at 82% -60px, rgba(255, 61, 90, 0.16), transparent 210px),
@@ -3347,7 +3405,7 @@
     --mobile-card-bg: rgba(255, 246, 230, 0.035);
     --mobile-card-hover: rgba(255, 246, 230, 0.07);
     --mobile-accent: #ff4d68;
-    --explore-grain-opacity: 0.04;
+    --explore-grain-opacity: 0.05;
 
     background:
       linear-gradient(180deg, rgba(255, 77, 104, 0.12), transparent 150px),
@@ -3355,13 +3413,12 @@
   }
 
   .top-ticker,
-  .breadcrumb,
-  .catalog-toolbar .view-switch {
+  .breadcrumb {
     display: none;
   }
 
   .page-head {
-    width: min(100% - 24px, 520px);
+    width: min(100% - 24px, 720px);
     padding: 18px 0 12px;
     background: transparent;
   }
@@ -3388,7 +3445,7 @@
     display: flex;
     gap: 7px;
     width: calc(100vw - 24px);
-    max-width: 520px;
+    max-width: 720px;
     margin: 12px 0 0;
     padding: 2px 2px 8px;
     overflow-x: auto;
@@ -3474,7 +3531,7 @@
   }
 
   .explore {
-    width: min(100% - 24px, 520px);
+    width: min(100% - 24px, 720px);
     padding-bottom: 0;
   }
 
@@ -3507,6 +3564,31 @@
     box-shadow: none;
   }
 
+  .mobile-toolbar-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    width: 100%;
+    margin: 0 0 12px;
+  }
+
+  .mobile-view-switch {
+    display: flex;
+    flex: 0 0 auto;
+    margin: 0;
+    padding: 2px;
+    gap: 2px;
+    border-width: 1px;
+
+    button {
+      min-height: 28px;
+      padding: 5px 9px;
+      gap: 5px;
+      font-size: 11px;
+    }
+  }
+
   :host-context(body.dark-theme) .catalog-toolbar {
     padding: 0;
     margin: 0 0 12px;
@@ -3518,7 +3600,7 @@
 
   .mobile-list-title {
     display: block !important;
-    margin: 0 0 12px;
+    margin: 0;
     color: var(--mobile-explore-text);
     font-family: $font-head;
     font-size: 14.5px;
@@ -3787,5 +3869,422 @@
     background: #fff6e6;
     color: #101010;
     border-color: #fff6e6;
+  }
+}
+
+@media (max-width: 720px) {
+  .page-head,
+  .explore {
+    width: min(100% - 24px, 520px);
+  }
+
+  .quick-rail {
+    max-width: 520px;
+  }
+}
+
+// Mobile catalog contract: the artwork grid always remains two-up. Keep this
+// after the full mobile theme block so later responsive styles cannot restore
+// the desktop auto-fill minimum while cards are entering the viewport.
+@media (max-width: 900px) {
+  .catalog-view.v-grid,
+  .catalog-view.v-grid .beat-grid {
+    min-width: 0;
+    width: 100%;
+  }
+
+  .catalog-view.v-grid .beat-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: clamp(10px, 3vw, 16px);
+  }
+
+  .catalog-view.v-grid .beat-grid > app-spec-card {
+    min-width: 0;
+    contain-intrinsic-inline-size: 0;
+    contain-intrinsic-block-size: 300px;
+  }
+}
+
+/* Loops / sample-catalog inspired list view. The data model and actions stay
+   unchanged; only the dense bordered cards become an open editorial table. */
+.beat-list {
+  --explore-list-columns: 40px 48px minmax(170px, 1.8fr) minmax(112px, 1fr) minmax(76px, 0.72fr)
+    64px minmax(76px, 0.7fr) 148px;
+
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  overflow: visible;
+  background: transparent;
+}
+
+.beat-list-head {
+  display: grid;
+  grid-template-columns: var(--explore-list-columns);
+  gap: 14px;
+  align-items: center;
+  min-height: 42px;
+  padding: 0 4px;
+  border-bottom: 1.5px solid var(--ink);
+  color: var(--ink-mute);
+  font-family: $font-tech;
+  font-size: 9.5px;
+  letter-spacing: 0.14em;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.beat-list-head .head-actions {
+  text-align: right;
+}
+
+:host ::ng-deep .beat-list app-spec-list-item .market-row.list-row {
+  grid-template-columns: var(--explore-list-columns);
+  gap: 14px;
+  min-height: 70px;
+  margin: 0;
+  padding: 13px 4px;
+  border: 0;
+  border-bottom: 1px solid var(--cream-3);
+  border-radius: 0;
+  background: transparent;
+  color: var(--ink);
+  box-shadow: none;
+  transform: none;
+  transition:
+    background 0.15s ease,
+    padding 0.15s ease;
+}
+
+:host ::ng-deep .beat-list app-spec-list-item .market-row.list-row:hover {
+  padding-inline: 8px;
+  background: var(--cream-2);
+  transform: none;
+}
+
+:host ::ng-deep .beat-list app-spec-list-item:last-child .market-row.list-row {
+  border-bottom: 0;
+}
+
+:host ::ng-deep .beat-list app-spec-list-item .market-row.list-row.playing {
+  background: color-mix(in srgb, var(--hot) 8%, transparent);
+  color: var(--ink);
+  box-shadow: inset 3px 0 0 var(--hot);
+}
+
+:host ::ng-deep .beat-list app-spec-list-item .lr-play {
+  width: 34px;
+  height: 34px;
+  justify-self: center;
+  border: 1.5px solid var(--ink);
+  background: var(--cream-2);
+  color: var(--ink);
+  transition:
+    background 0.15s ease,
+    border-color 0.15s ease,
+    color 0.15s ease,
+    transform 0.15s ease;
+}
+
+:host ::ng-deep .beat-list app-spec-list-item .lr-play:hover {
+  background: var(--ink);
+  color: var(--cream);
+  transform: scale(1.05);
+}
+
+:host ::ng-deep .beat-list app-spec-list-item .market-row.list-row.playing .lr-play {
+  border-color: var(--hot);
+  background: var(--hot);
+  color: #141310;
+}
+
+:host ::ng-deep .beat-list app-spec-list-item .market-row .row-art.lr-art {
+  width: 42px;
+  height: 42px;
+  border: 1.5px solid var(--ink);
+  border-radius: 12px;
+}
+
+:host ::ng-deep .beat-list app-spec-list-item .row-title-block .t {
+  color: var(--ink) !important;
+  font-size: 13.5px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+:host ::ng-deep .beat-list app-spec-list-item .row-title-block .p {
+  margin-top: 3px;
+  color: var(--ink-mute) !important;
+  font-size: 10px;
+  letter-spacing: 0.04em;
+  text-transform: none;
+}
+
+:host ::ng-deep .beat-list app-spec-list-item .lr-prod,
+:host ::ng-deep .beat-list app-spec-list-item .lr-cell,
+:host ::ng-deep .beat-list app-spec-list-item .stat-m {
+  color: var(--ink-2) !important;
+  font-size: 11px;
+  letter-spacing: 0.04em;
+}
+
+:host ::ng-deep .beat-list app-spec-list-item .lr-tag-stack {
+  gap: 5px;
+  flex-wrap: nowrap;
+  overflow: hidden;
+}
+
+:host ::ng-deep .beat-list app-spec-list-item .lr-tag-stack .row-chip {
+  min-height: 22px;
+  padding: 3px 8px;
+  border: 1px solid var(--cream-3);
+  background: var(--cream-2);
+  color: var(--ink-2);
+  font-size: 8.5px;
+  letter-spacing: 0.08em;
+}
+
+:host ::ng-deep .beat-list app-spec-list-item .lr-actions {
+  position: static;
+  grid-column: 8;
+  transform: none;
+  justify-self: end;
+  gap: 6px;
+}
+
+:host ::ng-deep .beat-list app-spec-list-item .list-row .download-btn {
+  width: 30px;
+  height: 30px;
+  border: 1.5px solid var(--ink);
+  background: transparent;
+  color: var(--ink) !important;
+
+  i,
+  i::before {
+    color: currentColor !important;
+  }
+}
+
+:host ::ng-deep .beat-list app-spec-list-item .list-row .download-btn:hover {
+  background: var(--lime);
+  color: #141310 !important;
+}
+
+:host ::ng-deep .beat-list app-spec-list-item .list-row .purchase-pill {
+  min-height: 32px;
+  padding: 0 11px;
+  border: 1.5px solid var(--ink);
+  background: transparent;
+  color: var(--ink);
+  gap: 6px;
+}
+
+:host ::ng-deep .beat-list app-spec-list-item .list-row .purchase-pill .row-price,
+:host ::ng-deep .beat-list app-spec-list-item .list-row .purchase-pill .purchase-icon {
+  color: currentColor;
+}
+
+:host ::ng-deep .beat-list app-spec-list-item .list-row .purchase-pill:hover {
+  border-color: var(--hot);
+  background: var(--hot);
+  color: #141310;
+}
+
+:host-context(body.dark-theme) ::ng-deep .beat-list app-spec-list-item .market-row.list-row,
+:host-context(body.dark-theme) ::ng-deep .beat-list app-spec-list-item .market-row.list-row:hover {
+  color: var(--ink);
+}
+
+@media (max-width: 1100px) {
+  .beat-list {
+    --explore-list-columns: 38px 46px minmax(160px, 1fr) minmax(76px, 0.7fr) 58px 136px;
+  }
+
+  .beat-list-head .head-tags,
+  .beat-list-head .head-key {
+    display: none;
+  }
+
+  :host ::ng-deep .beat-list app-spec-list-item .lr-actions {
+    grid-column: 6;
+  }
+}
+
+@media (max-width: 900px) {
+  .beat-list {
+    --mobile-list-art: clamp(50px, 14vw, 56px);
+    --explore-list-columns: var(--mobile-list-art) minmax(0, 1fr) auto;
+    margin: 0;
+    padding: 0 0 84px;
+    background: transparent;
+  }
+
+  .beat-list > app-spec-list-item {
+    contain-intrinsic-block-size: 76px;
+  }
+
+  .beat-list-head {
+    display: none;
+  }
+
+  :host ::ng-deep .beat-list app-spec-list-item .market-row.list-row,
+  :host-context(body.dark-theme) ::ng-deep .beat-list app-spec-list-item .market-row.list-row {
+    grid-template-columns: var(--explore-list-columns);
+    grid-template-rows: 1fr;
+    gap: 10px;
+    min-height: 74px;
+    padding: 9px 4px;
+    border: 0;
+    border-bottom: 1px solid
+      var(--mobile-explore-line, color-mix(in srgb, var(--ink) 18%, transparent));
+    border-radius: 0;
+    background: transparent !important;
+    box-shadow: none;
+  }
+
+  :host ::ng-deep .beat-list app-spec-list-item .market-row.list-row:hover {
+    padding-inline: 4px;
+    background: var(--mobile-card-hover) !important;
+  }
+
+  :host ::ng-deep .beat-list app-spec-list-item .market-row.list-row.playing {
+    background: color-mix(in srgb, var(--mobile-accent, var(--hot)) 10%, transparent) !important;
+    box-shadow: inset 3px 0 0 var(--mobile-accent, var(--hot));
+  }
+
+  :host ::ng-deep .beat-list app-spec-list-item .lr-play,
+  :host ::ng-deep .beat-list app-spec-list-item .lr-prod,
+  :host ::ng-deep .beat-list app-spec-list-item .lr-cell,
+  :host ::ng-deep .beat-list app-spec-list-item .stat-m {
+    display: none;
+  }
+
+  :host
+    ::ng-deep
+    .beat-list
+    app-spec-list-item
+    .market-row.list-row
+    .row-title-block
+    .lr-producer-line,
+  :host ::ng-deep .beat-list app-spec-list-item .market-row.list-row .title-line .row-chip {
+    display: none !important;
+  }
+
+  :host ::ng-deep .beat-list app-spec-list-item .market-row .row-art.lr-art {
+    grid-column: 1;
+    grid-row: 1;
+    align-self: center;
+    aspect-ratio: 1;
+    min-width: var(--mobile-list-art);
+    width: var(--mobile-list-art);
+    height: var(--mobile-list-art);
+    border-radius: 6px;
+    clip-path: inset(0 round 6px);
+    box-shadow: none;
+  }
+
+  :host ::ng-deep .beat-list app-spec-list-item .market-row .row-art.lr-art::before,
+  :host ::ng-deep .beat-list app-spec-list-item .market-row .row-art.lr-art::after {
+    display: none;
+    opacity: 0;
+  }
+
+  :host ::ng-deep .beat-list app-spec-list-item .market-row .row-art.lr-art img {
+    width: 100%;
+    height: 100%;
+    border-radius: 0;
+    object-fit: cover;
+  }
+
+  :host ::ng-deep .beat-list app-spec-list-item .row-title-block {
+    grid-column: 2;
+    grid-row: 1;
+    align-self: center;
+    gap: 0;
+    overflow: hidden;
+  }
+
+  :host ::ng-deep .beat-list app-spec-list-item .row-title-block .title-line {
+    width: 100%;
+  }
+
+  :host ::ng-deep .beat-list app-spec-list-item .row-title-block .t {
+    font-size: clamp(12px, 3.5vw, 14px);
+    line-height: 1.12;
+  }
+
+  :host ::ng-deep .beat-list app-spec-list-item .lr-mobile-meta span + span::before {
+    content: '·';
+    margin: 0 5px;
+    color: var(--mobile-accent, var(--hot));
+  }
+
+  :host ::ng-deep .beat-list app-spec-list-item .lr-actions {
+    position: static;
+    grid-column: 3;
+    grid-row: 1;
+    transform: none;
+    width: auto;
+    align-self: center;
+    justify-self: end;
+    justify-content: flex-end;
+    gap: 6px;
+  }
+
+  :host ::ng-deep .beat-list app-spec-list-item .list-row .download-btn {
+    display: inline-flex !important;
+    width: 32px;
+    height: 32px;
+    background: transparent;
+  }
+
+  :host ::ng-deep .beat-list app-spec-list-item .list-row .purchase-pill {
+    display: inline-flex;
+    width: auto !important;
+    height: 32px;
+    min-height: 32px;
+    padding: 0 11px;
+    border: 1.5px solid var(--ink);
+    border-radius: 999px !important;
+    border-color: var(--ink);
+    background: transparent;
+    color: var(--ink);
+    box-shadow: none;
+  }
+
+  :host ::ng-deep .beat-list app-spec-list-item .list-row .purchase-pill:hover {
+    border-color: var(--hot);
+    background: var(--hot);
+    color: #141310;
+  }
+
+  :host ::ng-deep .beat-list app-spec-list-item .list-row .purchase-pill .row-price {
+    display: inline !important;
+    color: currentColor;
+    font-size: 12px;
+  }
+
+  :host ::ng-deep .beat-list app-spec-list-item .list-row .purchase-pill .purchase-icon,
+  :host ::ng-deep .beat-list app-spec-list-item .list-row .purchase-pill .purchase-icon i,
+  :host ::ng-deep .beat-list app-spec-list-item .list-row .purchase-pill .purchase-icon i::before {
+    color: currentColor !important;
+    font-size: 10px;
+  }
+}
+
+@media (max-width: 360px) {
+  :host ::ng-deep .beat-list app-spec-list-item .market-row.list-row,
+  :host-context(body.dark-theme) ::ng-deep .beat-list app-spec-list-item .market-row.list-row {
+    gap: 8px;
+    min-height: 70px;
+    padding: 8px 2px;
+  }
+
+  :host ::ng-deep .beat-list app-spec-list-item .list-row .purchase-pill {
+    padding-inline: 7px;
+  }
+
+  :host ::ng-deep .beat-list app-spec-list-item .list-row .purchase-pill .row-price {
+    font-size: 11px;
   }
 }

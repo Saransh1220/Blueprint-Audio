@@ -497,7 +497,45 @@
     <main class="catalog">
       <div class="catalog-inner">
         <div class="catalog-toolbar">
-          <h2 class="mobile-list-title">All Beats</h2>
+          <div class="mobile-toolbar-heading">
+            <h2 class="mobile-list-title">All Beats</h2>
+            <div class="view-switch mobile-view-switch" role="group" aria-label="Beat view">
+              <button
+                type="button"
+                [class.on]="viewMode() === 'grid'"
+                [attr.aria-pressed]="viewMode() === 'grid'"
+                (click)="setViewMode('grid')"
+              >
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor">
+                  <rect x="3" y="3" width="8" height="8" rx="1"></rect>
+                  <rect x="13" y="3" width="8" height="8" rx="1"></rect>
+                  <rect x="3" y="13" width="8" height="8" rx="1"></rect>
+                  <rect x="13" y="13" width="8" height="8" rx="1"></rect>
+                </svg>
+                Grid
+              </button>
+              <button
+                type="button"
+                [class.on]="viewMode() === 'list'"
+                [attr.aria-pressed]="viewMode() === 'list'"
+                (click)="setViewMode('list')"
+              >
+                <svg
+                  width="11"
+                  height="11"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2.5"
+                >
+                  <line x1="3" y1="6" x2="21" y2="6"></line>
+                  <line x1="3" y1="12" x2="21" y2="12"></line>
+                  <line x1="3" y1="18" x2="21" y2="18"></line>
+                </svg>
+                List
+              </button>
+            </div>
+          </div>
           @if (activeFilterChips().length) {
             <div class="mobile-active-strip">
               <span class="ac-label">Active</span>
@@ -547,6 +585,16 @@
 
               @if (viewMode() === 'list') {
                 <div class="beat-list">
+                  <div class="beat-list-head" aria-hidden="true">
+                    <span class="head-play"></span>
+                    <span class="head-art"></span>
+                    <span>Beat</span>
+                    <span class="head-tags">Tags</span>
+                    <span class="head-genre">Genre</span>
+                    <span class="head-bpm">BPM</span>
+                    <span class="head-key">Key</span>
+                    <span class="head-actions">Price / actions</span>
+                  </div>
                   @for (spec of specs(); track spec.id) {
                     <app-spec-list-item [spec]="spec" appearance="market"></app-spec-list-item>
                   }

@@ -1,5 +1,12 @@
-import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { CommonModule, DOCUMENT } from '@angular/common';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  inject,
+  type OnDestroy,
+  signal,
+} from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { combineLatest, filter, map, switchMap } from 'rxjs';
 import { SpecAdapter } from '../../adapters/spec.adapter';
@@ -18,13 +25,14 @@ import type { PublicUserResponse } from '../../core/api/user.requests';
   styleUrls: ['./producer-profile.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ProducerProfileComponent {
+export class ProducerProfileComponent implements OnDestroy {
   private route = inject(ActivatedRoute);
   private userService = inject(UserService);
   private specService = inject(SpecService);
   private adapter = inject(SpecAdapter);
   private actions = inject(SpecActionService);
   private currency = inject(CurrencyService);
+  private document = inject(DOCUMENT);
 
   profile = signal<PublicUserResponse | null>(null);
   specs = signal<Spec[]>([]);
@@ -55,6 +63,8 @@ export class ProducerProfileComponent {
   );
 
   constructor() {
+    this.document.body.classList.add('producer-profile-active');
+
     this.route.paramMap
       .pipe(
         map(() => this.route.snapshot.queryParamMap.get('id')),
@@ -78,6 +88,10 @@ export class ProducerProfileComponent {
           this.loading.set(false);
         },
       });
+  }
+
+  ngOnDestroy() {
+    this.document.body.classList.remove('producer-profile-active');
   }
 
   compact(value: number) {

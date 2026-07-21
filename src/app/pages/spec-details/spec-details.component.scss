@@ -9,6 +9,7 @@
   --hot: #ff4d68;
   --tangerine: #ff7d2e;
   --lime: #d9f561;
+  --lime-ink: #556f0c;
   --cobalt: #5b78ff;
   --lavender: #d4c5ff;
   --sun: #ffd455;
@@ -626,7 +627,7 @@ em {
 }
 
 .lic-card.excl .lc-name em {
-  color: var(--lime);
+  color: var(--lime-ink);
 }
 
 .lc-price {
@@ -696,12 +697,13 @@ em {
 .lic-card.excl .lc-buy {
   border-color: var(--lime);
   background: var(--lime);
-  color: var(--ink);
+  color: var(--cream);
 }
 
 .lic-card.excl .lc-buy:hover {
   border-color: var(--cream);
   background: var(--cream);
+  color: var(--ink);
 }
 
 .lic-note {

@@ -322,38 +322,75 @@
   }
 }
 
-@media (max-width: 640px) {
+@media (max-width: 900px) {
+  :host {
+    min-width: 0;
+  }
+
   .spec-card {
-    gap: 10px;
+    gap: 8px;
   }
 
   .beat-play {
-    height: 50px;
+    font-size: 16px;
+    height: clamp(40px, 12vw, 50px);
     opacity: 1;
     transform: translate(-50%, -50%) scale(1);
-    width: 50px;
+    width: clamp(40px, 12vw, 50px);
+  }
+
+  .beat-overlay {
+    padding: 6px;
+  }
+
+  .beat-tag {
+    font-size: 7px;
+    letter-spacing: 0.08em;
+    padding: 5px 7px 4px;
   }
 
   .beat-title {
-    font-size: 15px;
+    font-size: clamp(13px, 3.7vw, 15px);
+    margin-bottom: 4px;
   }
 
   .beat-producer {
-    font-size: 13px;
+    font-size: clamp(11px, 3.2vw, 13px);
+    margin-bottom: 6px;
+    min-height: 14px;
+  }
+
+  .card-meta {
+    font-size: 8px;
+    letter-spacing: 0.07em;
+    margin-bottom: 9px;
   }
 
   .custom-actions-row {
-    gap: 7px;
+    gap: 5px;
   }
 
   .purchase-pill,
   .icon-btn {
-    min-height: 38px;
+    min-height: 36px;
+  }
+
+  .purchase-pill {
+    gap: 5px;
+    padding: 0 8px;
+  }
+
+  .purchase-icon {
+    font-size: 11px;
+  }
+
+  .beat-price {
+    font-size: clamp(12px, 3.6vw, 15px);
   }
 
   .icon-btn {
-    flex-basis: 38px;
-    height: 38px;
-    width: 38px;
+    flex-basis: 36px;
+    height: 36px;
+    width: 36px;
   }
 }

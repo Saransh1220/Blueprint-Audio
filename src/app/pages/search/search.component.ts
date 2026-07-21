@@ -1,9 +1,11 @@
 import { CommonModule, DOCUMENT } from '@angular/common';
 import {
+  ChangeDetectionStrategy,
   Component,
   computed,
   HostListener,
   inject,
+  NgZone,
   type OnDestroy,
   type OnInit,
   signal,
@@ -40,6 +42,7 @@ type ExploreDropdown = 'genre' | 'mood' | 'instr' | 'bpm' | 'price' | 'extras';
   ],
   templateUrl: './search.component.html',
   styleUrls: ['./search.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SearchPageComponent implements OnInit, OnDestroy {
   private labService = inject(LabService);
@@ -49,6 +52,7 @@ export class SearchPageComponent implements OnInit, OnDestroy {
   private authService = inject(AuthService);
   private currencyService = inject(CurrencyService);
   private document = inject(DOCUMENT);
+  private ngZone = inject(NgZone);
 
   specs = signal<Spec[]>([]);
   isLoading = signal(true);
@@ -191,9 +195,25 @@ export class SearchPageComponent implements OnInit, OnDestroy {
   private routeSubscription?: Subscription;
   private fetchRequestId = 0;
   private scrollToTopOnNextFetch = false;
+  private scrollFrame: number | null = null;
+  private readonly passiveScrollListener = () => {
+    const viewport = this.document.defaultView;
+    if (!viewport || this.scrollFrame !== null) return;
+
+    this.scrollFrame = viewport.requestAnimationFrame(() => {
+      this.scrollFrame = null;
+      this.onWindowScroll();
+    });
+  };
 
   ngOnInit() {
     this.document.body.classList.add('search-page-active');
+    const viewport = this.document.defaultView;
+    if (viewport) {
+      this.ngZone.runOutsideAngular(() => {
+        viewport.addEventListener('scroll', this.passiveScrollListener, { passive: true });
+      });
+    }
 
     this.searchSubscription = this.searchSubject
       .pipe(debounceTime(400), distinctUntilChanged())
@@ -459,7 +479,6 @@ export class SearchPageComponent implements OnInit, OnDestroy {
     this.toggleMobileFilters(false);
   }
 
-  @HostListener('window:scroll')
   onWindowScroll() {
     const viewport = this.document.defaultView;
     const root = this.document.documentElement;
@@ -467,7 +486,7 @@ export class SearchPageComponent implements OnInit, OnDestroy {
 
     const remaining = root.scrollHeight - (viewport.scrollY + viewport.innerHeight);
     if (remaining < 700) {
-      this.loadNextPage();
+      this.ngZone.run(() => this.loadNextPage());
     }
   }
 
@@ -498,6 +517,11 @@ export class SearchPageComponent implements OnInit, OnDestroy {
 
   ngOnDestroy() {
     this.document.body.classList.remove('search-page-active');
+    this.document.defaultView?.removeEventListener('scroll', this.passiveScrollListener);
+    if (this.scrollFrame !== null) {
+      this.document.defaultView?.cancelAnimationFrame(this.scrollFrame);
+      this.scrollFrame = null;
+    }
     this.searchSubscription?.unsubscribe();
     this.routeSubscription?.unsubscribe();
   }

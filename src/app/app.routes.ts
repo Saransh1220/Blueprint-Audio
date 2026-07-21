@@ -11,6 +11,7 @@ import { ResetPasswordComponent } from './pages/auth/reset-password/reset-passwo
 import { VerifyEmailComponent } from './pages/auth/verify-email/verify-email.component';
 import { BattleDetailsComponent } from './pages/battle-details/battle-details.component';
 import { BattlesComponent } from './pages/battles/battles.component';
+import { CatalogEmbedComponent } from './pages/catalog-embed/catalog-embed.component';
 import { DashboardComponent } from './pages/dashboard/dashboard.component';
 import { HomeComponent } from './pages/home/home.component';
 import { SearchPageComponent } from './pages/search/search.component';
@@ -32,6 +33,21 @@ export const routes: Routes = [
   { path: 'search', redirectTo: 'explore', pathMatch: 'full' },
   { path: 'battles', component: BattlesComponent },
   { path: 'battles/:id', component: BattleDetailsComponent },
+  {
+    path: 'loops',
+    component: CatalogEmbedComponent,
+    data: { src: '/mockups/loops.html', title: 'Loops' },
+  },
+  {
+    path: 'sample-packs',
+    component: CatalogEmbedComponent,
+    data: { src: '/mockups/sample-packs.html', title: 'Sample Packs' },
+  },
+  {
+    path: 'sample-packs/:slug',
+    component: CatalogEmbedComponent,
+    data: { src: '/mockups/sample-pack-detail.html', title: 'Violet Hour Essentials' },
+  },
   {
     path: 'beats/:id',
     loadComponent: () =>

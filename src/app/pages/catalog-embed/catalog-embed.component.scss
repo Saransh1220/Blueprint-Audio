@@ -1,0 +1,27 @@
+:host {
+  display: block;
+  background: #f4eddf;
+}
+
+.catalog-frame-shell {
+  width: 100%;
+  height: calc(100dvh - 76px);
+  min-height: 620px;
+  overflow: hidden;
+  background: #f4eddf;
+}
+
+.catalog-frame {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border: 0;
+  background: #f4eddf;
+}
+
+@media (max-width: 760px) {
+  .catalog-frame-shell {
+    height: calc(100dvh - 112px);
+    min-height: 480px;
+  }
+}

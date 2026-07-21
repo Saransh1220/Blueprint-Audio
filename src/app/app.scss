@@ -2,7 +2,7 @@
   display: block;
 }
 
-/* Homepage sections provide their own opaque art direction, so avoid compositing the
+/* Opaque art-directed routes provide their own backgrounds, so avoid compositing the
    global animated ambience underneath them. */
 .bg-overlay.home-static::before,
 .bg-overlay.home-static::after {

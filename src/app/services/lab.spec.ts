@@ -72,6 +72,45 @@ describe('LabService', () => {
     expect(service.specsPagination()).toBeNull();
   });
 
+  it('restores pagination metadata when a cached query is revisited', () => {
+    const execute = vi.fn((request: GetSpecsRequest) => {
+      const search = request.params.get('search');
+      return of({
+        data: [{ id: `${search}-dto` }],
+        metadata:
+          search === 'explore'
+            ? { page: 1, total: 42, per_page: 10, total_pages: 5 }
+            : { page: 1, total: 4, per_page: 4, total_pages: 1 },
+      });
+    });
+    const adapt = vi.fn((dto) => mockSpec({ id: dto.id }));
+
+    TestBed.configureTestingModule({
+      providers: [
+        LabService,
+        { provide: ApiService, useValue: { execute } },
+        { provide: SpecAdapter, useValue: { adapt } },
+      ],
+    });
+    const service = TestBed.inject(LabService);
+
+    service.getSpecs({ search: 'explore', page: 1, per_page: 10 }).subscribe();
+    expect(service.specsPagination()?.total_pages).toBe(5);
+
+    service.getSpecs({ search: 'other', page: 1, per_page: 4 }).subscribe();
+    expect(service.specsPagination()?.total_pages).toBe(1);
+
+    service.getSpecs({ search: 'explore', page: 1, per_page: 10 }).subscribe();
+
+    expect(execute).toHaveBeenCalledTimes(2);
+    expect(service.specsPagination()).toEqual({
+      page: 1,
+      total: 42,
+      per_page: 10,
+      total_pages: 5,
+    });
+  });
+
   it('getSpecById strips # prefix and createSpec maps dto', () => {
     const execute = vi.fn().mockReturnValueOnce(of({ id: 'dto1' }));
 

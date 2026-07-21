@@ -747,9 +747,10 @@
   inset: 0;
   z-index: 20;
   pointer-events: none;
-  opacity: 0.055;
+  opacity: 0.018;
   mix-blend-mode: normal;
   background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 260 260' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='grain'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.72' numOctaves='2' seed='11'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23grain)'/%3E%3C/svg%3E");
+  background-size: 260px 260px;
 }
 
 :host-context(body.dark-theme) .p-banner {
