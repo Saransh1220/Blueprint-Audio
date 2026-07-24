@@ -5,6 +5,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { provideRouter, Router } from '@angular/router';
 import { AppComponent } from './app';
+import { SpecUploadMonitorService } from './services/spec-upload-monitor.service';
 
 @Component({ template: '', standalone: true })
 class DummyRouteComponent {}
@@ -46,6 +47,7 @@ describe('AppComponent', () => {
         provideHttpClient(),
         provideNoopAnimations(),
         { provide: SocialAuthService, useValue: { signOut: vi.fn().mockResolvedValue(undefined) } },
+        { provide: SpecUploadMonitorService, useValue: { resumePersisted: vi.fn() } },
       ],
     }).compileComponents();
 
@@ -132,14 +134,5 @@ describe('AppComponent', () => {
 
     await router.navigateByUrl('/dashboard');
     expect(component.isExploreRoute()).toBe(false);
-  });
-
-  it('toggles cart when cart view child exists', () => {
-    (component as any).cart = { toggle: vi.fn() };
-    component.toggleCart();
-    expect((component as any).cart.toggle).toHaveBeenCalled();
-
-    (component as any).cart = null;
-    component.toggleCart();
   });
 });

@@ -1,0 +1,83 @@
+:host {
+  display: block;
+}
+aside {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  flex-wrap: wrap;
+  color: var(--catalog-ink);
+}
+.avatar {
+  display: grid;
+  width: 64px;
+  height: 64px;
+  flex-shrink: 0;
+  border: 1.5px solid var(--catalog-ink);
+  border-radius: 50%;
+  background: linear-gradient(135deg, #ff4d68, #ffd455);
+  color: var(--catalog-bg);
+  font:
+    italic 26px 'Instrument Serif',
+    serif;
+  place-items: center;
+  text-transform: none;
+}
+.copy {
+  min-width: 200px;
+  flex: 1;
+}
+.copy small {
+  display: none;
+}
+h3 {
+  margin: 0 0 3px;
+  font-size: 18px;
+  font-weight: 700;
+}
+p {
+  max-width: 480px;
+  margin: 0 0 8px;
+  color: var(--catalog-muted);
+  font:
+    italic 14px/1.4 'Instrument Serif',
+    serif;
+}
+dl {
+  display: flex;
+  gap: 18px;
+  margin: 0;
+}
+.copy dl div {
+  display: flex;
+  gap: 4px;
+  color: var(--catalog-muted);
+  font:
+    400 11px 'DM Mono',
+    monospace;
+}
+.copy dt {
+  color: var(--catalog-ink);
+  font-weight: 700;
+}
+.copy dd {
+  margin: 0;
+}
+button {
+  min-height: 36px;
+  padding: 0 16px;
+  border: 1.5px solid var(--catalog-ink);
+  border-radius: 100px;
+  background: transparent;
+  color: var(--catalog-ink);
+  cursor: pointer;
+  font:
+    600 12.5px 'Bricolage Grotesque',
+    sans-serif;
+  transition: all 0.15s;
+}
+button:hover,
+button.active {
+  background: var(--catalog-ink);
+  color: var(--catalog-bg);
+}

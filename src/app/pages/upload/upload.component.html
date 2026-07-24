@@ -14,7 +14,7 @@
         <section class="fc-section">
           <div class="fc-sec-head">
             <h4><span>01</span> Cover <em>art</em></h4>
-            <p>square, min 1000×1000px.</p>
+            <p>auto-cropped square, best at 1000×1000px.</p>
           </div>
           <div class="cover-zone">
             <label
@@ -35,10 +35,25 @@
               }
               <span class="cover-overlay">{{ coverFile() ? 'Replace' : 'Upload' }}</span></label
             >
-            <p class="cover-specs">
-              <strong>JPG or PNG</strong> · up to 5MB<br />Square artwork only. No borders or
-              watermarks.
-            </p>
+            <div class="cover-copy">
+              <p class="cover-specs">
+                <strong>JPG or PNG</strong> · up to 5MB<br />Non-square artwork is cropped from the
+                center. No borders or watermarks.
+              </p>
+              @if (fileUploadState('cover').phase !== 'idle') {
+                <div class="file-transfer" [attr.data-phase]="fileUploadState('cover').phase">
+                  <div>
+                    <span><i></i>{{ fileUploadLabel('cover') }}</span>
+                    @if (fileUploadState('cover').phase === 'uploading') {
+                      <b>{{ fileUploadState('cover').progress }}%</b>
+                    }
+                  </div>
+                  <div class="file-transfer-track">
+                    <i [style.width.%]="fileUploadState('cover').progress"></i>
+                  </div>
+                </div>
+              }
+            </div>
           </div>
         </section>
         <section class="fc-section">
@@ -64,6 +79,19 @@
               @if (previewSummary()) {
                 <small>{{ previewSummary()!.name }} · {{ previewSummary()!.size }}</small>
               }
+              @if (fileUploadState('preview').phase !== 'idle') {
+                <div class="file-transfer" [attr.data-phase]="fileUploadState('preview').phase">
+                  <div>
+                    <span><i></i>{{ fileUploadLabel('preview') }}</span>
+                    @if (fileUploadState('preview').phase === 'uploading') {
+                      <b>{{ fileUploadState('preview').progress }}%</b>
+                    }
+                  </div>
+                  <div class="file-transfer-track">
+                    <i [style.width.%]="fileUploadState('preview').progress"></i>
+                  </div>
+                </div>
+              }
             </label>
             <label
               class="upload-tile"
@@ -76,11 +104,29 @@
                 accept="audio/wav,.wav"
                 (change)="onFileSelected($event, 'wav')"
               />
-              <div class="ut-top"><i class="fa-solid fa-wave-square"></i><b>Required</b></div>
+              <div class="ut-top">
+                <i class="fa-solid fa-wave-square"></i
+                ><b [class.optional]="!isBeatUpload()">{{
+                  isBeatUpload() ? 'Required' : 'Optional'
+                }}</b>
+              </div>
               <h5>Untagged <em>WAV</em></h5>
               <p>Clean master delivered to buyers with eligible licenses.</p>
               @if (wavSummary()) {
                 <small>{{ wavSummary()!.name }} · {{ wavSummary()!.size }}</small>
+              }
+              @if (fileUploadState('wav').phase !== 'idle') {
+                <div class="file-transfer" [attr.data-phase]="fileUploadState('wav').phase">
+                  <div>
+                    <span><i></i>{{ fileUploadLabel('wav') }}</span>
+                    @if (fileUploadState('wav').phase === 'uploading') {
+                      <b>{{ fileUploadState('wav').progress }}%</b>
+                    }
+                  </div>
+                  <div class="file-transfer-track">
+                    <i [style.width.%]="fileUploadState('wav').progress"></i>
+                  </div>
+                </div>
               }
             </label>
             <label
@@ -95,12 +141,28 @@
                 (change)="onFileSelected($event, 'stems')"
               />
               <div class="ut-top">
-                <i class="fa-solid fa-layer-group"></i><b class="optional">Optional</b>
+                <i class="fa-solid fa-layer-group"></i
+                ><b [class.optional]="!isBeatUpload()">{{
+                  isBeatUpload() ? 'Required' : 'Optional'
+                }}</b>
               </div>
               <h5><em>Stems</em> (.zip or .rar)</h5>
               <p>Individual trackouts for unlimited licenses.</p>
               @if (stemsSummary()) {
                 <small>{{ stemsSummary()!.name }} · {{ stemsSummary()!.size }}</small>
+              }
+              @if (fileUploadState('stems').phase !== 'idle') {
+                <div class="file-transfer" [attr.data-phase]="fileUploadState('stems').phase">
+                  <div>
+                    <span><i></i>{{ fileUploadLabel('stems') }}</span>
+                    @if (fileUploadState('stems').phase === 'uploading') {
+                      <b>{{ fileUploadState('stems').progress }}%</b>
+                    }
+                  </div>
+                  <div class="file-transfer-track">
+                    <i [style.width.%]="fileUploadState('stems').progress"></i>
+                  </div>
+                </div>
               }
             </label>
           </div>
@@ -306,13 +368,19 @@
         <div class="status-card">
           <div>
             <span>Required audio</span
-            ><b [class.ok]="previewFile() && wavFile()"
-              >{{ (previewFile() ? 1 : 0) + (wavFile() ? 1 : 0) }} / 2</b
+            ><b [class.ok]="requiredAudioCount() === requiredAudioTotal()"
+              >{{ requiredAudioCount() }} / {{ requiredAudioTotal() }}</b
             >
           </div>
           <div>
             <span>Cover art</span
-            ><b [class.ok]="coverFile()">{{ coverFile() ? 'ready' : 'missing' }}</b>
+            ><b [class.ok]="fileUploadState('cover').phase === 'uploaded'">{{
+              fileUploadState('cover').phase === 'uploaded'
+                ? 'uploaded'
+                : coverFile()
+                  ? fileUploadLabel('cover')
+                  : 'missing'
+            }}</b>
           </div>
           <div>
             <span>Metadata</span
@@ -328,16 +396,30 @@
     </div>
   </section>
   <footer class="sticky-footer">
-    <p>Draft <em>saved automatically</em>. Fix required fields to publish.</p>
+    <p>
+      @if (allRequiredFilesUploaded()) {
+        Files <em>uploaded</em>. Publish only finalizes metadata and starts processing.
+      } @else {
+        Files upload <em>as soon as you select them</em>. You can keep filling out the form.
+      }
+    </p>
     <div>
       <button type="button" class="btn ghost" (click)="saveDraft()">Save draft</button
       ><button
         type="button"
         class="btn primary"
         (click)="submitUpload()"
-        [disabled]="isSubmitting()"
+        [disabled]="isSubmitting() || (!pendingCompletionId() && !allRequiredFilesUploaded())"
       >
-        {{ isSubmitting() ? 'Uploading…' : 'Publish beat →' }}
+        {{
+          isSubmitting()
+            ? pendingCompletionId()
+              ? 'Retrying finalization…'
+              : 'Publishing…'
+            : pendingCompletionId()
+              ? 'Retry finalization →'
+              : 'Publish beat →'
+        }}
       </button>
     </div>
   </footer>

@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
 import { Spec } from '../../../models';
 import { AuthService, LabService } from '../../../services';
@@ -72,6 +73,9 @@ export class StudioTracksComponent {
 
   constructor() {
     this.loadTracks();
+    this.labService.refresh$.pipe(takeUntilDestroyed()).subscribe(() => {
+      this.loadTracks(this.currentPage());
+    });
   }
 
   loadTracks(page = this.currentPage()) {

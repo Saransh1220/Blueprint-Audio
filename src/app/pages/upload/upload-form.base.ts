@@ -1,11 +1,22 @@
-import { HttpEventType } from '@angular/common/http';
-import { computed, Directive, inject, OnInit, signal } from '@angular/core';
+import { computed, Directive, inject, OnDestroy, OnInit, signal } from '@angular/core';
 import { FormArray, FormBuilder, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
+import { firstValueFrom, Subscription } from 'rxjs';
 import { Genre, MusicalKey } from '../../models';
 import { AuthService, LabService, ToastService } from '../../services';
+import {
+  normalizeSpecUploadContentType,
+  SpecUploadCompletionError,
+  type SpecFileUploadEvent,
+  type SpecUploadEvent,
+  type SpecUploadSourceFile,
+  SpecUploadService,
+} from '../../services/spec-upload.service';
+import { SpecUploadMonitorService } from '../../services/spec-upload-monitor.service';
 
 type UploadFileType = 'cover' | 'preview' | 'wav' | 'stems';
+type FileUploadPhase = 'idle' | 'preparing' | 'uploading' | 'verifying' | 'uploaded' | 'error';
+const PENDING_COMPLETION_STORAGE_PREFIX = 'waveyard.pending-spec-completion.v1';
 
 interface FileSummary {
   name: string;
@@ -13,9 +24,22 @@ interface FileSummary {
   detail?: string;
 }
 
+interface FileUploadState {
+  phase: FileUploadPhase;
+  progress: number;
+  error?: string;
+}
+
+const INITIAL_FILE_UPLOAD_STATE: FileUploadState = {
+  phase: 'idle',
+  progress: 0,
+};
+
 @Directive()
-export abstract class UploadFormBase implements OnInit {
+export abstract class UploadFormBase implements OnInit, OnDestroy {
   protected labService = inject(LabService);
+  protected specUploadService = inject(SpecUploadService);
+  protected specUploadMonitor = inject(SpecUploadMonitorService);
   protected authService = inject(AuthService);
   protected fb = inject(FormBuilder);
   protected router = inject(Router);
@@ -30,6 +54,17 @@ export abstract class UploadFormBase implements OnInit {
   currentStep = signal(1);
   isSubmitting = signal(false);
   uploadProgress = signal(0);
+  pendingCompletionId = signal<string | null>(null);
+  uploadSessionId = signal<string | null>(null);
+  fileUploadStates = signal<Record<UploadFileType, FileUploadState>>({
+    cover: { ...INITIAL_FILE_UPLOAD_STATE },
+    preview: { ...INITIAL_FILE_UPLOAD_STATE },
+    wav: { ...INITIAL_FILE_UPLOAD_STATE },
+    stems: { ...INITIAL_FILE_UPLOAD_STATE },
+  });
+  private draftSessionPromise: Promise<string> | null = null;
+  private readonly fileUploadSubscriptions = new Map<UploadFileType, Subscription>();
+  private readonly fileUploadGenerations = new Map<UploadFileType, number>();
 
   coverFile = signal<File | null>(null);
   coverPreviewUrl = signal<string | null>(null);
@@ -107,12 +142,27 @@ export abstract class UploadFormBase implements OnInit {
   });
 
   readonly stepProgress = computed(() => (this.currentStep() / this.totalSteps) * 100);
+  readonly allRequiredFilesUploaded = computed(
+    () =>
+      this.fileUploadStates().cover.phase === 'uploaded' &&
+      this.fileUploadStates().preview.phase === 'uploaded' &&
+      this.fileUploadStates().wav.phase === 'uploaded' &&
+      this.fileUploadStates().stems.phase === 'uploaded',
+  );
 
   uploadForm = this.fb.group({
     title: ['', [Validators.required, Validators.maxLength(100)]],
     category: ['beat', Validators.required],
     genre: ['', Validators.required],
-    bpm: [null, [Validators.min(60), Validators.max(300), Validators.pattern(/^[0-9]*$/)]],
+    bpm: [
+      null,
+      [
+        Validators.required,
+        Validators.min(60),
+        Validators.max(300),
+        Validators.pattern(/^[0-9]*$/),
+      ],
+    ],
     key: ['E MINOR'],
     description: ['', [Validators.maxLength(500)]],
     freeMp3Enabled: [false],
@@ -148,6 +198,14 @@ export abstract class UploadFormBase implements OnInit {
   ngOnInit() {
     this.initializeLicenses();
     this.syncKeyFromValue(this.uploadForm.get('key')?.value || 'E MINOR');
+    this.restorePendingCompletion();
+  }
+
+  ngOnDestroy() {
+    for (const subscription of this.fileUploadSubscriptions.values()) {
+      subscription.unsubscribe();
+    }
+    this.fileUploadSubscriptions.clear();
   }
 
   initializeLicenses() {
@@ -244,7 +302,7 @@ export abstract class UploadFormBase implements OnInit {
 
   saveDraft() {
     this.toastService.show(
-      'Draft saving will be wired later. Your progress is still on screen.',
+      'Selected files are saved automatically. Beat details are saved when you publish.',
       'info',
     );
   }
@@ -338,9 +396,11 @@ export abstract class UploadFormBase implements OnInit {
 
   onFileSelected(event: Event, type: UploadFileType) {
     const input = event.target as HTMLInputElement;
-    if (input.files && input.files.length > 0) {
-      void this.handleFile(input.files[0], type);
-    }
+    const file = input.files?.[0];
+    // Reset the native input so selecting the same file can retry a failed
+    // direct upload and still dispatch another change event.
+    input.value = '';
+    if (file) void this.handleFile(file, type);
   }
 
   onFileDropped(event: DragEvent, type: UploadFileType) {
@@ -357,6 +417,8 @@ export abstract class UploadFormBase implements OnInit {
   }
 
   removeFile(type: UploadFileType) {
+    this.cancelFileUpload(type);
+    this.setFileUploadState(type, INITIAL_FILE_UPLOAD_STATE);
     switch (type) {
       case 'cover':
         this.coverFile.set(null);
@@ -379,6 +441,12 @@ export abstract class UploadFormBase implements OnInit {
   }
 
   submitUpload() {
+    const pendingCompletionId = this.pendingCompletionId();
+    if (pendingCompletionId) {
+      this.retryPendingCompletion(pendingCompletionId);
+      return;
+    }
+
     if (this.uploadForm.invalid) {
       this.uploadForm.markAllAsTouched();
       return;
@@ -386,9 +454,27 @@ export abstract class UploadFormBase implements OnInit {
 
     const cover = this.coverFile();
     const preview = this.previewFile();
+    const wav = this.wavFile();
+    const stems = this.stemsFile();
 
     if (!cover || !preview) {
       this.toastService.show('Cover image and preview audio are required.', 'error');
+      return;
+    }
+    if (!this.validateBeatDownloadFiles(wav, stems)) return;
+    if (!this.allRequiredFilesUploaded()) {
+      this.toastService.show(
+        'Please wait until the cover, preview, WAV, and stems uploads are complete.',
+        'error',
+      );
+      return;
+    }
+    const uploadSessionId = this.uploadSessionId();
+    if (!uploadSessionId) {
+      this.toastService.show(
+        'The upload draft could not be created. Select a file again.',
+        'error',
+      );
       return;
     }
 
@@ -406,6 +492,7 @@ export abstract class UploadFormBase implements OnInit {
     }
 
     this.isSubmitting.set(true);
+    this.uploadProgress.set(100);
 
     const formValue = this.uploadForm.getRawValue();
     const basePrice = Math.min(...enabledLicenses.map((license: any) => license.price));
@@ -430,44 +517,103 @@ export abstract class UploadFormBase implements OnInit {
       free_mp3_enabled: formValue.freeMp3Enabled,
       moods: this.selectedMoods(),
       instruments: this.selectedInstruments(),
-      duration: this.beatDuration(),
-      licenses: enabledLicenses.map(({ subtitle, ...license }: any) => ({
+      licenses: enabledLicenses.map(({ enabled, subtitle, ...license }: any) => ({
         ...license,
         price_currency: storeCurrency,
       })),
     };
 
-    const formData = new FormData();
-    formData.append('metadata', JSON.stringify(metadata));
-    formData.append('image', cover);
-    formData.append('preview', preview);
+    this.specUploadService.publishBeat(uploadSessionId, metadata).subscribe({
+      next: (event) => this.handleUploadEvent(event),
+      error: (error) => this.handleUploadError(error),
+    });
+  }
 
-    const wav = this.wavFile();
-    if (wav) formData.append('wav', wav);
+  private retryPendingCompletion(uploadId: string) {
+    this.isSubmitting.set(true);
+    this.uploadProgress.set(100);
+    this.specUploadService.completeUpload(uploadId).subscribe({
+      next: (event) => this.handleUploadEvent(event),
+      error: (error) => this.handleUploadError(error),
+    });
+  }
 
-    const stems = this.stemsFile();
-    if (stems) formData.append('stems', stems);
+  private handleUploadEvent(event: SpecUploadEvent) {
+    this.clearPendingCompletion();
+    this.isSubmitting.set(false);
+    this.labService.notifyRefresh();
+    this.specUploadMonitor.monitor(event.uploadId);
+    this.toastService.show('Beat submitted. Processing started in the background.', 'info');
+    this.router.navigate(this.successRoute);
+  }
 
-    this.labService.createSpec(formData).subscribe({
-      next: (event) => {
-        if (event.type === HttpEventType.UploadProgress && event.total) {
-          this.uploadProgress.set(Math.round((100 * event.loaded) / event.total));
-        } else if (event.type === HttpEventType.Response) {
-          this.isSubmitting.set(false);
-          this.toastService.show('Upload Started! Processing in background...', 'info');
-          this.router.navigate(this.successRoute);
-        }
-      },
-      error: (err) => {
-        console.error('Upload failed', err);
-        this.isSubmitting.set(false);
-        this.uploadProgress.set(0);
+  private handleUploadError(error: unknown) {
+    console.error('Upload failed', error);
+    this.isSubmitting.set(false);
+    this.uploadProgress.set(0);
+
+    if (error instanceof SpecUploadCompletionError) {
+      if (this.isAmbiguousCompletionError(error)) {
+        this.pendingCompletionId.set(error.uploadId);
+        this.rememberPendingCompletion(error.uploadId);
         this.toastService.show(
-          'Upload failed: ' + (err.error?.message || err.message || 'Unknown error'),
+          'Your files are uploaded, but finalization was not confirmed. Use “Retry finalization” to safely continue this upload.',
           'error',
         );
-      },
-    });
+        return;
+      }
+      this.clearPendingCompletion();
+    }
+
+    const details = this.errorDetails(error);
+    this.toastService.show('Upload failed: ' + (details || 'Unknown error'), 'error');
+  }
+
+  private errorDetails(error: unknown) {
+    return typeof error === 'object' && error !== null
+      ? ((error as any).error?.message ??
+          (typeof (error as any).error === 'string' ? (error as any).error : undefined) ??
+          (error as any).message)
+      : undefined;
+  }
+
+  private isAmbiguousCompletionError(error: SpecUploadCompletionError) {
+    const status =
+      typeof error.cause === 'object' && error.cause !== null
+        ? Number((error.cause as any).status)
+        : 0;
+    return !status || status === 408 || status === 425 || status === 429 || status >= 500;
+  }
+
+  private pendingCompletionStorageKey() {
+    const userId = this.authService.currentUser()?.id || 'unknown';
+    return `${PENDING_COMPLETION_STORAGE_PREFIX}:${userId}`;
+  }
+
+  private rememberPendingCompletion(uploadId: string) {
+    try {
+      window.localStorage.setItem(this.pendingCompletionStorageKey(), uploadId);
+    } catch {
+      // The in-memory retry remains available when browser storage is disabled.
+    }
+  }
+
+  private restorePendingCompletion() {
+    try {
+      const uploadId = window.localStorage.getItem(this.pendingCompletionStorageKey())?.trim();
+      if (uploadId) this.pendingCompletionId.set(uploadId);
+    } catch {
+      // Nothing to restore when browser storage is disabled.
+    }
+  }
+
+  private clearPendingCompletion() {
+    this.pendingCompletionId.set(null);
+    try {
+      window.localStorage.removeItem(this.pendingCompletionStorageKey());
+    } catch {
+      // The upload is already finalized, so storage cleanup is best effort.
+    }
   }
 
   getStepHint() {
@@ -559,8 +705,26 @@ export abstract class UploadFormBase implements OnInit {
 
     if (type === 'cover') return 'Required - upload cover art';
     if (type === 'preview') return 'Required - tagged MP3 preview';
-    if (type === 'wav') return 'Optional - master WAV';
-    return 'Optional - ZIP trackouts';
+    const requirement = this.isBeatUpload() ? 'Required' : 'Optional';
+    if (type === 'wav') return `${requirement} - master WAV`;
+    return `${requirement} - ZIP or RAR trackouts`;
+  }
+
+  isBeatUpload() {
+    return this.uploadForm.get('category')?.value === 'beat';
+  }
+
+  requiredAudioCount() {
+    let count = this.previewFile() ? 1 : 0;
+    if (this.isBeatUpload()) {
+      count += this.wavFile() ? 1 : 0;
+      count += this.stemsFile() ? 1 : 0;
+    }
+    return count;
+  }
+
+  requiredAudioTotal() {
+    return this.isBeatUpload() ? 3 : 1;
   }
 
   private validateDetailsStep() {
@@ -583,7 +747,17 @@ export abstract class UploadFormBase implements OnInit {
       this.toastService.show('Please upload cover art and preview audio.', 'error');
       return false;
     }
-    return true;
+    return this.validateBeatDownloadFiles(this.wavFile(), this.stemsFile());
+  }
+
+  private validateBeatDownloadFiles(wav: File | null, stems: File | null) {
+    if (!this.isBeatUpload() || (wav && stems)) return true;
+
+    const missing = [!wav ? 'master WAV' : '', !stems ? 'stems archive' : ''].filter(Boolean);
+    const missingLabel =
+      missing.length === 2 ? `${missing[0]} and ${missing[1]}` : (missing[0] ?? 'audio files');
+    this.toastService.show(`Please upload the required ${missingLabel} for this beat.`, 'error');
+    return false;
   }
 
   private validateLicensesStep() {
@@ -632,8 +806,9 @@ export abstract class UploadFormBase implements OnInit {
           this.toastService.show('Cover art must be a JPG or PNG image.', 'error');
           return;
         }
-        if (!(await this.hasImageShape(file, 'square'))) {
-          this.toastService.show('Cover art must be square.', 'error');
+        const dimensions = await this.getImageDimensions(file);
+        if (!dimensions) {
+          this.toastService.show('Cover art must be a valid JPG or PNG image.', 'error');
           return;
         }
         this.coverFile.set(file);
@@ -641,7 +816,9 @@ export abstract class UploadFormBase implements OnInit {
         this.coverSummary.set({
           name: file.name,
           size: this.formatBytes(file.size),
-          detail: await this.getImageDimensions(file),
+          detail: `${dimensions.width}x${dimensions.height}${
+            dimensions.width === dimensions.height ? '' : ' · center crop'
+          }`,
         });
         break;
       case 'preview':
@@ -681,6 +858,147 @@ export abstract class UploadFormBase implements OnInit {
         });
         break;
     }
+    this.startFileUpload(type, file);
+  }
+
+  fileUploadState(type: UploadFileType) {
+    return this.fileUploadStates()[type];
+  }
+
+  fileUploadLabel(type: UploadFileType) {
+    const state = this.fileUploadState(type);
+    switch (state.phase) {
+      case 'preparing':
+        return 'Preparing secure upload';
+      case 'uploading':
+        return `Uploading ${state.progress}%`;
+      case 'verifying':
+        return 'Verifying file';
+      case 'uploaded':
+        return 'Uploaded';
+      case 'error':
+        return state.error || 'Upload failed - select again';
+      default:
+        return 'Not uploaded';
+    }
+  }
+
+  private startFileUpload(type: UploadFileType, file: File) {
+    this.cancelFileUpload(type);
+    const generation = (this.fileUploadGenerations.get(type) ?? 0) + 1;
+    this.fileUploadGenerations.set(type, generation);
+    this.setFileUploadState(type, { phase: 'preparing', progress: 0 });
+
+    void this.ensureDraftSession()
+      .then((uploadId) => {
+        if (!this.isCurrentFileUpload(type, file, generation)) return;
+        const source = this.toUploadSource(type, file);
+        const subscription = this.specUploadService.uploadFile(uploadId, source).subscribe({
+          next: (event) => this.handleFileUploadEvent(type, file, generation, event),
+          error: (error) => this.handleFileUploadError(type, file, generation, error),
+        });
+        this.fileUploadSubscriptions.set(type, subscription);
+      })
+      .catch((error) => this.handleFileUploadError(type, file, generation, error));
+  }
+
+  private ensureDraftSession() {
+    const existing = this.uploadSessionId();
+    if (existing) return Promise.resolve(existing);
+    if (this.draftSessionPromise) return this.draftSessionPromise;
+
+    const pending = firstValueFrom(this.specUploadService.createDraft()).then((session) => {
+      this.uploadSessionId.set(session.upload_id);
+      return session.upload_id;
+    });
+    this.draftSessionPromise = pending;
+    const clearPending = () => {
+      if (this.draftSessionPromise === pending) this.draftSessionPromise = null;
+    };
+    void pending.then(clearPending, clearPending);
+    return pending;
+  }
+
+  private handleFileUploadEvent(
+    type: UploadFileType,
+    file: File,
+    generation: number,
+    event: SpecFileUploadEvent,
+  ) {
+    if (!this.isCurrentFileUpload(type, file, generation)) return;
+    if (event.type === 'progress') {
+      this.setFileUploadState(type, { phase: 'uploading', progress: event.percent });
+      return;
+    }
+    if (event.type === 'verifying') {
+      this.setFileUploadState(type, { phase: 'verifying', progress: 100 });
+      return;
+    }
+    this.setFileUploadState(type, { phase: 'uploaded', progress: 100 });
+    this.fileUploadSubscriptions.delete(type);
+  }
+
+  private handleFileUploadError(
+    type: UploadFileType,
+    file: File,
+    generation: number,
+    error: unknown,
+  ) {
+    if (!this.isCurrentFileUpload(type, file, generation)) return;
+    console.error(`Failed to upload ${type}`, error);
+    const details = this.errorDetails(error);
+    this.setFileUploadState(type, {
+      phase: 'error',
+      progress: 0,
+      error: details ? `Failed - ${details}` : 'Upload failed - select again',
+    });
+    this.fileUploadSubscriptions.delete(type);
+    this.toastService.show(
+      `${this.fileDisplayName(type)} upload failed: ${details || 'Please select it again.'}`,
+      'error',
+    );
+  }
+
+  private cancelFileUpload(type: UploadFileType) {
+    this.fileUploadSubscriptions.get(type)?.unsubscribe();
+    this.fileUploadSubscriptions.delete(type);
+    this.fileUploadGenerations.set(type, (this.fileUploadGenerations.get(type) ?? 0) + 1);
+  }
+
+  private isCurrentFileUpload(type: UploadFileType, file: File, generation: number) {
+    return (
+      this.getFileSignal(type)() === file && this.fileUploadGenerations.get(type) === generation
+    );
+  }
+
+  private setFileUploadState(type: UploadFileType, state: FileUploadState) {
+    this.fileUploadStates.update((states) => ({
+      ...states,
+      [type]: { ...state },
+    }));
+  }
+
+  private toUploadSource(type: UploadFileType, file: File): SpecUploadSourceFile {
+    const kind = type === 'cover' ? 'image' : type;
+    return {
+      kind,
+      file,
+      contentType: normalizeSpecUploadContentType(kind, file),
+    };
+  }
+
+  private getFileSignal(type: UploadFileType) {
+    if (type === 'cover') return this.coverFile;
+    if (type === 'preview') return this.previewFile;
+    if (type === 'wav') return this.wavFile;
+    return this.stemsFile;
+  }
+
+  private fileDisplayName(type: UploadFileType) {
+    if (type === 'cover') return 'Cover';
+    if (type === 'preview') return 'Preview MP3';
+    if (type === 'wav') return 'Master WAV';
+    return 'Stems';
   }
 
   private getSummarySignal(type: UploadFileType) {
@@ -702,34 +1020,20 @@ export abstract class UploadFormBase implements OnInit {
   }
 
   private getImageDimensions(file: File) {
-    return new Promise<string>((resolve) => {
+    return new Promise<{ width: number; height: number } | null>((resolve) => {
       const url = URL.createObjectURL(file);
       const img = new Image();
       img.onload = () => {
-        resolve(`${img.width}x${img.height}`);
+        const dimensions =
+          img.width > 0 && img.height > 0 ? { width: img.width, height: img.height } : null;
+        resolve(dimensions);
         URL.revokeObjectURL(url);
       };
       img.onerror = () => {
-        resolve('');
+        resolve(null);
         URL.revokeObjectURL(url);
       };
       img.src = url;
-    });
-  }
-
-  private hasImageShape(file: File, shape: 'square' | 'landscape') {
-    return new Promise<boolean>((resolve) => {
-      const url = URL.createObjectURL(file);
-      const image = new Image();
-      image.onload = () => {
-        resolve(shape === 'square' ? image.width === image.height : image.width > image.height);
-        URL.revokeObjectURL(url);
-      };
-      image.onerror = () => {
-        resolve(false);
-        URL.revokeObjectURL(url);
-      };
-      image.src = url;
     });
   }
 

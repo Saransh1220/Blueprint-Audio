@@ -1,0 +1,123 @@
+:host {
+  display: block;
+}
+.row {
+  display: grid;
+  grid-template-columns: 52px 1.8fr 110px 100px 1fr 90px 100px;
+  gap: 16px;
+  align-items: center;
+  min-height: 70px;
+  padding: 14px 4px;
+  border-bottom: 1px solid var(--catalog-line);
+  color: var(--catalog-ink);
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.row:hover {
+  background: var(--catalog-surface);
+}
+.mini {
+  display: grid;
+  width: 42px;
+  height: 42px;
+  border: 1.5px solid var(--catalog-ink);
+  border-radius: 12px;
+  background: linear-gradient(150deg, #ff4d68, #ff7d2e);
+  color: rgba(14, 13, 11, 0.8);
+  place-items: center;
+}
+.mini[data-palette='cobalt'] {
+  background: linear-gradient(150deg, #5b78ff, #d4c5ff);
+}
+.mini[data-palette='lime'] {
+  background: linear-gradient(150deg, #9ec22d, #d9f561);
+}
+.mini[data-palette='lavender'] {
+  background: linear-gradient(150deg, #d4c5ff, #ff4d68);
+}
+.mini[data-palette='sun'] {
+  background: linear-gradient(150deg, #ffd455, #ff7d2e);
+}
+.mini[data-palette='midnight'] {
+  background: linear-gradient(150deg, #c8bfa9, #5b78ff);
+}
+h3 {
+  margin: 0;
+  font-size: 13.5px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+h3 em {
+  color: var(--catalog-accent);
+  font-family: 'Instrument Serif', serif;
+  font-weight: 400;
+  font-style: italic;
+}
+p {
+  margin: 2px 0 0;
+  color: var(--catalog-muted);
+  font:
+    400 10px 'DM Mono',
+    monospace;
+}
+.stat {
+  color: var(--catalog-ink-2);
+  font:
+    400 11.5px 'DM Mono',
+    monospace;
+}
+.stat em {
+  color: var(--catalog-muted);
+  font-size: 9px;
+}
+.price {
+  justify-self: start;
+  color: var(--catalog-ink);
+  font-size: 13px;
+  font-weight: 700;
+}
+.price.free {
+  color: var(--catalog-lime);
+}
+.row > button {
+  display: grid;
+  width: 28px;
+  height: 28px;
+  border: 1.5px solid var(--catalog-ink);
+  border-radius: 50%;
+  background: transparent;
+  color: var(--catalog-ink);
+  cursor: pointer;
+  place-items: center;
+  transition: all 0.15s;
+}
+.row > button:hover {
+  background: var(--catalog-ink);
+  color: var(--catalog-bg);
+}
+@media (max-width: 900px) {
+  .row {
+    grid-template-columns: 44px 1.6fr 90px 1fr 90px;
+  }
+  .hide-mobile {
+    display: none;
+  }
+  .row > button {
+    grid-column: 5;
+  }
+}
+@media (max-width: 600px) {
+  .row {
+    grid-template-columns: 44px minmax(0, 1fr) auto auto;
+    gap: 10px;
+  }
+  .stat {
+    grid-column: 3;
+  }
+  .price {
+    display: none;
+  }
+  .row > button {
+    grid-column: 4;
+  }
+}

@@ -11,7 +11,7 @@ import { ResetPasswordComponent } from './pages/auth/reset-password/reset-passwo
 import { VerifyEmailComponent } from './pages/auth/verify-email/verify-email.component';
 import { BattleDetailsComponent } from './pages/battle-details/battle-details.component';
 import { BattlesComponent } from './pages/battles/battles.component';
-import { CatalogEmbedComponent } from './pages/catalog-embed/catalog-embed.component';
+import { CartComponent } from './components/cart/cart.component';
 import { DashboardComponent } from './pages/dashboard/dashboard.component';
 import { HomeComponent } from './pages/home/home.component';
 import { SearchPageComponent } from './pages/search/search.component';
@@ -22,6 +22,7 @@ import { AuthService } from './services';
 
 export const routes: Routes = [
   { path: '', component: HomeComponent },
+  { path: 'cart', component: CartComponent },
   { path: 'explore', component: SearchPageComponent },
   {
     path: '@/:handle',
@@ -35,18 +36,22 @@ export const routes: Routes = [
   { path: 'battles/:id', component: BattleDetailsComponent },
   {
     path: 'loops',
-    component: CatalogEmbedComponent,
-    data: { src: '/mockups/loops.html', title: 'Loops' },
+    loadComponent: () =>
+      import('./pages/loops/loops-page/loops-page.component').then((m) => m.LoopsPageComponent),
   },
   {
     path: 'sample-packs',
-    component: CatalogEmbedComponent,
-    data: { src: '/mockups/sample-packs.html', title: 'Sample Packs' },
+    loadComponent: () =>
+      import('./pages/sample-packs/sample-packs-page/sample-packs-page.component').then(
+        (m) => m.SamplePacksPageComponent,
+      ),
   },
   {
     path: 'sample-packs/:slug',
-    component: CatalogEmbedComponent,
-    data: { src: '/mockups/sample-pack-detail.html', title: 'Violet Hour Essentials' },
+    loadComponent: () =>
+      import('./pages/sample-pack-detail/sample-pack-detail-page/sample-pack-detail-page.component').then(
+        (m) => m.SamplePackDetailPageComponent,
+      ),
   },
   {
     path: 'beats/:id',

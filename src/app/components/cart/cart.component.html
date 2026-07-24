@@ -1,51 +1,208 @@
-<div class="cart-overlay" [class.open]="isOpen()" (click)="toggle()"></div>
+<main class="cart-page" aria-labelledby="cart-title">
+  <div class="grain" aria-hidden="true"></div>
 
-<div class="cart-sidebar" [class.open]="isOpen()">
-  <div class="cart-header">
-    <h3>Cart ({{ items().length }})</h3>
-    <button class="close-btn" (click)="toggle()">
-      <i class="fas fa-times"></i>
-    </button>
-  </div>
-
-  <div class="cart-items">
-    @if (items().length === 0) {
-      <div class="empty-cart">
-        <i class="fas fa-shopping-basket"></i>
-        <p>Your cart is empty</p>
-      </div>
-    }
-
-    @for (item of cartService.items(); track item.id) {
-      <div class="cart-item">
-        <img [src]="item.spec.imageUrl" [alt]="item.spec.title" />
-        <div class="item-details">
-          <h4>{{ item.spec.title }}</h4>
-          <span class="license-type">{{ item.license.name }}</span>
-          <span class="price">{{
-            item.license.displayPriceMoney | money: item.license.price
-          }}</span>
-        </div>
-        <button class="remove-btn" (click)="removeItem(item.id)">
-          <i class="fas fa-trash"></i>
-        </button>
-      </div>
-    }
-  </div>
-
-  @if (items().length > 0) {
-    <div class="cart-footer">
-      <div class="total-row">
-        <span>Total</span>
-        @if (hasMixedCurrencies) {
-          <span>Mixed currencies</span>
-        } @else {
-          <span>{{ totalMoney | money: total }}</span>
-        }
-      </div>
-      <button class="checkout-btn" [disabled]="hasMixedCurrencies" (click)="checkout()">
-        Checkout
-      </button>
+  <div class="cart-ticker" aria-hidden="true">
+    <div class="ticker-track">
+      <span>Instant download after checkout</span>
+      <span>Secure licenses for every release</span>
+      <span>Your sound, ready to move</span>
+      <span>Instant download after checkout</span>
+      <span>Secure licenses for every release</span>
+      <span>Your sound, ready to move</span>
     </div>
-  }
-</div>
+  </div>
+
+  <div class="cart-shell">
+    @if (items().length === 0) {
+      <section class="empty-cart">
+        <div class="empty-orbit" aria-hidden="true">
+          <span class="orbit-star star-one">✦</span>
+          <span class="orbit-star star-two">✦</span>
+          <div class="empty-disc">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+              <circle cx="9" cy="20" r="1"></circle>
+              <circle cx="19" cy="20" r="1"></circle>
+              <path d="M3 3h2l2.3 11.2a2 2 0 0 0 2 1.6h7.9a2 2 0 0 0 2-1.6L21 7H6"></path>
+            </svg>
+          </div>
+        </div>
+        <span class="eyebrow"><i></i> no tracks loaded</span>
+        <h2>Your cart is <em>quiet</em><span>✦</span></h2>
+        <p>Find a beat that says something, choose your license, and it will be waiting here.</p>
+        <a class="browse-btn" href="/explore">
+          Explore the catalog
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+            <path d="M5 12h14M13 6l6 6-6 6"></path>
+          </svg>
+        </a>
+      </section>
+    } @else {
+      <section class="cart-intro">
+        <div>
+          <span class="eyebrow"><i></i> locked in / ready to ship</span>
+          <h1 id="cart-title">Your <em>cart</em><span>✦</span></h1>
+        </div>
+        <p>
+          <strong>{{ items().length }} {{ items().length === 1 ? 'track' : 'tracks' }}</strong>
+          from
+          <strong>{{ producerCount }} {{ producerCount === 1 ? 'producer' : 'producers' }}</strong
+          ><br />ready for instant download
+        </p>
+      </section>
+
+      <div class="cart-grid">
+        <section class="items-panel">
+          <div class="panel-head">
+            <div>
+              <span class="section-index">01</span>
+              <h2>In your <em>rotation</em></h2>
+            </div>
+            <button class="clear-btn" type="button" (click)="clearCart()">Clear all</button>
+          </div>
+
+          <div class="item-list">
+            @for (item of items(); track item.id; let i = $index) {
+              <article class="cart-item">
+                <div class="art-wrap">
+                  <img
+                    [src]="item.spec.imageUrl"
+                    [alt]="item.spec.title + ' cover art'"
+                    width="76"
+                    height="76"
+                    decoding="async"
+                  />
+                  <span class="art-number">0{{ i + 1 }}</span>
+                </div>
+
+                <div class="item-copy">
+                  <div class="item-title-row">
+                    <h3>{{ item.spec.title }}</h3>
+                    <span class="track-meta">{{ item.spec.bpm }} BPM · {{ item.spec.key }}</span>
+                  </div>
+                  <p>
+                    by <span>{{ item.spec.producerName }}</span>
+                  </p>
+                  <div class="license-row">
+                    <span class="license-pill"><i></i>{{ item.license.name }}</span>
+                    <span class="file-note">
+                      {{
+                        item.license.fileTypes.length
+                          ? item.license.fileTypes.join(' / ')
+                          : 'Licensed audio'
+                      }}
+                    </span>
+                  </div>
+                </div>
+
+                <div class="item-price">
+                  <strong>{{ item.license.displayPriceMoney | money: item.license.price }}</strong>
+                  <button
+                    type="button"
+                    (click)="removeItem(item.id)"
+                    aria-label="Remove {{ item.spec.title }}"
+                  >
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M18 6 6 18M6 6l12 12"></path>
+                    </svg>
+                    Remove
+                  </button>
+                </div>
+              </article>
+            }
+          </div>
+
+          <footer class="items-foot">
+            <p>
+              <span class="check">✓</span>
+              <strong>Instant delivery</strong> · files land in your library after checkout
+            </p>
+            <a href="/explore">← Keep digging</a>
+          </footer>
+        </section>
+
+        <aside class="summary-panel">
+          <div class="panel-head summary-head">
+            <div>
+              <span class="section-index">02</span>
+              <h2>Order <em>summary</em></h2>
+            </div>
+            <span class="order-number">LIVE CART</span>
+          </div>
+
+          <div class="promo-block">
+            <label for="cart-promo">Promo code</label>
+            <div class="promo-input">
+              <input id="cart-promo" type="text" placeholder="Enter a code…" autocomplete="off" />
+              <button type="button">Apply</button>
+            </div>
+            <p>Have a code? Add it before checkout.</p>
+          </div>
+
+          <div class="totals">
+            <div class="total-line">
+              <span
+                >Subtotal <em>({{ items().length }} items)</em></span
+              >
+              @if (hasMixedCurrencies) {
+                <strong>Mixed currencies</strong>
+              } @else {
+                <strong>{{ totalMoney | money: total }}</strong>
+              }
+            </div>
+            <div class="total-line muted">
+              <span>Taxes &amp; fees</span>
+              <strong>Calculated next</strong>
+            </div>
+            <div class="grand-total">
+              <span>Total <em>due</em></span>
+              @if (hasMixedCurrencies) {
+                <strong>—</strong>
+              } @else {
+                <strong>{{ totalMoney | money: total }}</strong>
+              }
+            </div>
+          </div>
+
+          <button
+            class="checkout-btn"
+            type="button"
+            [disabled]="hasMixedCurrencies"
+            (click)="checkout()"
+          >
+            <span>{{ hasMixedCurrencies ? 'Choose one currency' : 'Proceed to checkout' }}</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3">
+              <path d="M5 12h14M13 6l6 6-6 6"></path>
+            </svg>
+          </button>
+
+          <div class="trust-list">
+            <p>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="4" y="10" width="16" height="11" rx="2"></rect>
+                <path d="M8 10V7a4 4 0 0 1 8 0v3"></path>
+              </svg>
+              Secure, encrypted checkout
+            </p>
+            <p>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 3v12m0 0 5-5m-5 5-5-5"></path>
+                <path d="M5 19h14"></path>
+              </svg>
+              Instant audio + license delivery
+            </p>
+            <p>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"></path>
+              </svg>
+              Protected purchase
+            </p>
+          </div>
+
+          <div class="payment-row">
+            <span>VISA</span><span>MC</span><span>AMEX</span><span>UPI</span><span>PAYPAL</span>
+          </div>
+        </aside>
+      </div>
+    }
+  </div>
+</main>

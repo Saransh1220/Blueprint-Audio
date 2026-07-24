@@ -76,7 +76,16 @@ describe('ProducerProfileComponent', () => {
 
   const userServiceMock = { getPublicProfile: vi.fn() };
   const specServiceMock = { getUserSpecs: vi.fn() };
-  const actionServiceMock = { playSong: vi.fn(), addToCart: vi.fn() };
+  const actionServiceMock = {
+    isCurrentlyPlaying: vi.fn().mockReturnValue(false),
+    syncFavorite: vi.fn().mockReturnValue({ unsubscribe: vi.fn() }),
+    playSong: vi.fn(),
+    addToCart: vi.fn(),
+    openDetails: vi.fn(),
+    toggleFavorite: vi.fn(),
+    downloadFreeMp3: vi.fn(),
+    formatDuration: vi.fn(),
+  };
   const currencyServiceMock = { formatMoney: vi.fn().mockReturnValue('₹25') };
   const routeMock = {
     paramMap: of(convertToParamMap({ id: 'producer-1' })),

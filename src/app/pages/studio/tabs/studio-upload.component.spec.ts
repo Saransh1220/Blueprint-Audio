@@ -1,4 +1,3 @@
-import { HttpEventType } from '@angular/common/http';
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { FormBuilder } from '@angular/forms';
@@ -6,12 +5,31 @@ import { Router } from '@angular/router';
 import { of, throwError } from 'rxjs';
 import { Genre, MusicalKey } from '../../../models';
 import { AuthService, LabService, ToastService } from '../../../services';
+import { SpecUploadMonitorService } from '../../../services/spec-upload-monitor.service';
+import { SpecUploadService } from '../../../services/spec-upload.service';
 import { StudioUploadComponent } from './studio-upload.component';
 
 describe('StudioUploadComponent', () => {
   const toast = { show: vi.fn() };
   const router = { navigate: vi.fn() };
-  const labService = { createSpec: vi.fn() };
+  const labService = { notifyRefresh: vi.fn() };
+  const specUploadMonitor = { monitor: vi.fn() };
+  const specUploadService = {
+    createDraft: vi.fn(),
+    uploadFile: vi.fn(),
+    publishBeat: vi.fn(),
+    completeUpload: vi.fn(),
+  };
+
+  function markRequiredFilesUploaded(component: StudioUploadComponent, uploadId = 'upload-1') {
+    component.uploadSessionId.set(uploadId);
+    component.fileUploadStates.set({
+      cover: { phase: 'uploaded', progress: 100 },
+      preview: { phase: 'uploaded', progress: 100 },
+      wav: { phase: 'uploaded', progress: 100 },
+      stems: { phase: 'uploaded', progress: 100 },
+    });
+  }
 
   function create() {
     TestBed.configureTestingModule({
@@ -19,6 +37,8 @@ describe('StudioUploadComponent', () => {
         FormBuilder,
         { provide: AuthService, useValue: { currentUser: signal(null) } },
         { provide: LabService, useValue: labService },
+        { provide: SpecUploadMonitorService, useValue: specUploadMonitor },
+        { provide: SpecUploadService, useValue: specUploadService },
         { provide: Router, useValue: router },
         { provide: ToastService, useValue: toast },
       ],
@@ -31,6 +51,30 @@ describe('StudioUploadComponent', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
+    window.localStorage.clear();
+    specUploadService.createDraft.mockReturnValue(
+      of({
+        upload_id: 'upload-1',
+        spec_id: 'spec-1',
+        expires_at: '2026-07-24T00:00:00Z',
+      }),
+    );
+    specUploadService.uploadFile.mockImplementation((_uploadId, source) =>
+      of(
+        { type: 'progress', percent: 50 },
+        { type: 'verifying' },
+        {
+          type: 'completed',
+          file: {
+            asset_id: `asset-${source.kind}`,
+            kind: source.kind,
+            file_name: source.file.name,
+            content_type: source.contentType,
+            size_bytes: source.file.size,
+          },
+        },
+      ),
+    );
   });
 
   it('initializes default licenses and manages tag limits', () => {
@@ -65,6 +109,15 @@ describe('StudioUploadComponent', () => {
     expect(component.currentStep()).toBe(1);
 
     component.previewFile.set(new File(['a'], 'preview.mp3', { type: 'audio/mpeg' }));
+    component.nextStep();
+    expect(toast.show).toHaveBeenCalledWith(
+      'Please upload the required master WAV and stems archive for this beat.',
+      'error',
+    );
+    expect(component.currentStep()).toBe(1);
+
+    component.wavFile.set(new File(['a'], 'master.wav', { type: 'audio/wav' }));
+    component.stemsFile.set(new File(['a'], 'stems.zip', { type: 'application/zip' }));
     component.nextStep();
     expect(component.currentStep()).toBe(2);
 
@@ -137,7 +190,7 @@ describe('StudioUploadComponent', () => {
     expect(component.stemsFile()).toBeNull();
   });
 
-  it('submits upload progress and redirects to studio tracks on completion', () => {
+  it('publishes uploaded files and redirects to studio tracks on completion', () => {
     const component = create();
     component.uploadForm.patchValue({
       title: 'Song',
@@ -150,16 +203,27 @@ describe('StudioUploadComponent', () => {
     });
     component.coverFile.set(new File(['a'], 'cover.png', { type: 'image/png' }));
     component.previewFile.set(new File(['a'], 'preview.mp3', { type: 'audio/mpeg' }));
+    component.wavFile.set(new File(['a'], 'master.wav', { type: 'audio/wav' }));
+    component.stemsFile.set(new File(['a'], 'stems.zip', { type: 'application/zip' }));
+    markRequiredFilesUploaded(component);
 
-    const progressEvent = { type: HttpEventType.UploadProgress, loaded: 50, total: 100 } as any;
-    const responseEvent = { type: HttpEventType.Response } as any;
-    labService.createSpec.mockReturnValue(of(progressEvent, responseEvent));
+    const completedEvent = { type: 'completed', spec: {}, uploadId: 'upload-1' } as any;
+    specUploadService.publishBeat.mockReturnValue(of(completedEvent));
 
     component.submitUpload();
 
-    expect(component.uploadProgress()).toBe(50);
+    expect(component.uploadProgress()).toBe(100);
     expect(component.isSubmitting()).toBe(false);
-    expect(toast.show).toHaveBeenCalledWith('Upload Started! Processing in background...', 'info');
+    expect(specUploadService.publishBeat).toHaveBeenCalledWith(
+      'upload-1',
+      expect.objectContaining({ title: 'Song', bpm: 130 }),
+    );
+    expect(labService.notifyRefresh).toHaveBeenCalledTimes(1);
+    expect(specUploadMonitor.monitor).toHaveBeenCalledWith('upload-1');
+    expect(toast.show).toHaveBeenCalledWith(
+      'Beat submitted. Processing started in the background.',
+      'info',
+    );
     expect(router.navigate).toHaveBeenCalledWith(['/studio/tracks']);
   });
 
@@ -177,13 +241,16 @@ describe('StudioUploadComponent', () => {
 
     component.coverFile.set(new File(['a'], 'cover.png', { type: 'image/png' }));
     component.previewFile.set(new File(['a'], 'preview.mp3', { type: 'audio/mpeg' }));
+    component.wavFile.set(new File(['a'], 'master.wav', { type: 'audio/wav' }));
+    component.stemsFile.set(new File(['a'], 'stems.zip', { type: 'application/zip' }));
+    markRequiredFilesUploaded(component);
     component.licenses.controls.forEach((control) => control.patchValue({ enabled: false }));
     component.submitUpload();
     expect(toast.show).toHaveBeenCalledWith('Please enable at least one license option.', 'error');
 
     component.licenses.clear();
     component.initializeLicenses();
-    labService.createSpec.mockReturnValue(throwError(() => ({ message: 'bad' })));
+    specUploadService.publishBeat.mockReturnValue(throwError(() => ({ message: 'bad' })));
     component.submitUpload();
     expect(component.isSubmitting()).toBe(false);
     expect(component.uploadProgress()).toBe(0);

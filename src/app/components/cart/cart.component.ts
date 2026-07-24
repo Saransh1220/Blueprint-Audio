@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, signal } from '@angular/core';
+import { Component, computed, inject } from '@angular/core';
 import type { AppCurrency, Money } from '../../models/money';
 import { CartService } from '../../services';
 import { MoneyPipe } from '../../shared/pipes/money.pipe';
@@ -14,8 +14,33 @@ import { MoneyPipe } from '../../shared/pipes/money.pipe';
 export class CartComponent {
   cartService = inject(CartService);
 
-  isOpen = signal(false);
   items;
+  private readonly summary = computed(() => {
+    const items = this.cartService.items();
+    const currencies = new Set(
+      items
+        .map((item) => item.license?.displayPriceMoney?.currency)
+        .filter((currency): currency is AppCurrency => !!currency),
+    );
+    const hasMixedCurrencies = currencies.size > 1;
+    const currency = items[0]?.license?.displayPriceMoney?.currency;
+    const totalMoney =
+      !hasMixedCurrencies && currency
+        ? {
+            amount_minor: items.reduce(
+              (sum, item) => sum + (item.license?.displayPriceMoney?.amount_minor ?? 0),
+              0,
+            ),
+            currency,
+          }
+        : null;
+
+    return {
+      hasMixedCurrencies,
+      totalMoney,
+      producerCount: new Set(items.map((item) => item.spec?.producerId).filter(Boolean)).size,
+    };
+  });
 
   constructor() {
     this.items = this.cartService.items;
@@ -26,37 +51,23 @@ export class CartComponent {
   }
 
   get hasMixedCurrencies() {
-    const items = this.cartService.items();
-    const currencies = new Set(
-      items
-        .map((item) => item.license?.displayPriceMoney?.currency)
-        .filter((currency): currency is AppCurrency => !!currency),
-    );
-    return currencies.size > 1;
+    return this.summary().hasMixedCurrencies;
   }
 
   get totalMoney(): Money | null {
-    const items = this.cartService.items();
-    if (this.hasMixedCurrencies) return null;
-
-    const currency = items[0]?.license?.displayPriceMoney?.currency;
-    if (!currency) return null;
-    const amountMinor = items.reduce(
-      (sum, item) => sum + (item.license?.displayPriceMoney?.amount_minor ?? 0),
-      0,
-    );
-    return {
-      amount_minor: amountMinor,
-      currency,
-    };
-  }
-
-  toggle() {
-    this.isOpen.update((v) => !v);
+    return this.summary().totalMoney;
   }
 
   removeItem(id: string) {
     this.cartService.removeItem(id);
+  }
+
+  clearCart() {
+    this.cartService.clear();
+  }
+
+  get producerCount() {
+    return this.summary().producerCount;
   }
 
   checkout() {

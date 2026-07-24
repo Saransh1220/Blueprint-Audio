@@ -398,12 +398,12 @@
         <a routerLink="/upload" class="upload-btn-cta"> Upload </a>
       }
 
-      <button class="icon-btn cart-btn" (click)="cartClick.emit()">
+      <a class="icon-btn cart-btn" routerLink="/cart" aria-label="View cart">
         <i class="fas fa-shopping-cart"></i>
         @if (cartService.count() > 0) {
           <span class="cart-badge">{{ cartService.count() }}</span>
         }
-      </button>
+      </a>
 
       @if (authService.currentUser()) {
         <!-- Notifications -->

@@ -102,8 +102,7 @@
   }
 </style>
 
-<app-header (cartClick)="toggleCart()"></app-header>
-<app-cart></app-cart>
+<app-header></app-header>
 <div
   class="app-shell"
   [class.player-docked]="shouldReservePlayerSpace()"
@@ -138,10 +137,10 @@
       <i class="fas fa-sliders"></i>
       <span>Studio</span>
     </a>
-    <button type="button" (click)="toggleCart()">
+    <a routerLink="/cart" routerLinkActive="active">
       <i class="fas fa-cart-shopping"></i>
       <span>Cart</span>
-    </button>
+    </a>
     <a routerLink="/settings" routerLinkActive="active">
       <i class="fas fa-bars"></i>
       <span>Menu</span>

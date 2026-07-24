@@ -10,6 +10,7 @@ import {
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { combineLatest, filter, map, switchMap } from 'rxjs';
 import { SpecAdapter } from '../../adapters/spec.adapter';
+import { SpecCardComponent } from '../../components/spec-card/spec-card';
 import type { Spec } from '../../models';
 import { CurrencyService } from '../../services/currency.service';
 import { SpecActionService } from '../../services/spec-action.service';
@@ -20,7 +21,7 @@ import type { PublicUserResponse } from '../../core/api/user.requests';
 @Component({
   selector: 'app-producer-profile',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, RouterLink, SpecCardComponent],
   templateUrl: './producer-profile.component.html',
   styleUrls: ['./producer-profile.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

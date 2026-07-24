@@ -1,0 +1,133 @@
+:host {
+  --catalog-bg: #0e0d0b;
+  --catalog-surface: #1a1814;
+  --catalog-line: #262219;
+  --catalog-ink: #f0e9d6;
+  --catalog-ink-2: #c8bfa9;
+  --catalog-muted: #8a8170;
+  --catalog-hot: #9ec22d;
+  --catalog-accent: #9ec22d;
+  --catalog-lime: #d9f561;
+  --catalog-sun: #ffd455;
+  display: block;
+  min-height: 100dvh;
+  overflow-x: clip;
+  background: var(--catalog-bg);
+  color: var(--catalog-ink);
+  font-family: 'Bricolage Grotesque', sans-serif;
+}
+main {
+  min-height: inherit;
+  padding-bottom: 42px;
+  overflow: clip;
+  background:
+    url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.65' numOctaves='1' seed='11'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' opacity='.055' filter='url(%23n)'/%3E%3C/svg%3E")
+      0 0 / 180px 180px repeat,
+    radial-gradient(ellipse 900px 700px at 8% -5%, rgba(91, 120, 255, 0.16), transparent 55%),
+    radial-gradient(ellipse 700px 600px at 100% 20%, rgba(255, 77, 104, 0.12), transparent 55%),
+    radial-gradient(ellipse 1100px 800px at 50% 110%, rgba(212, 197, 255, 0.09), transparent 55%),
+    radial-gradient(ellipse 600px 500px at 90% 80%, rgba(158, 194, 45, 0.07), transparent 55%),
+    var(--catalog-bg);
+}
+.crumbs,
+.hero-section,
+.content-section {
+  max-width: 1240px;
+  margin-inline: auto;
+  padding-inline: 32px;
+}
+.crumbs {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding-top: 22px;
+  color: var(--catalog-muted);
+  font:
+    400 11px 'DM Mono',
+    monospace;
+  letter-spacing: 0.08em;
+  text-transform: none;
+}
+.crumbs a {
+  color: var(--catalog-muted);
+  text-decoration: none;
+  transition: color 0.15s;
+}
+.crumbs a:hover {
+  color: var(--catalog-accent);
+}
+.crumbs i {
+  opacity: 0.5;
+  font-size: 8px;
+}
+.crumbs span {
+  color: var(--catalog-ink-2);
+}
+.hero-section {
+  padding-top: 24px;
+  padding-bottom: 48px;
+}
+.content-section {
+  margin-top: 0;
+  padding-top: 40px;
+  padding-bottom: 40px;
+  border-top: 1px solid var(--catalog-line);
+  content-visibility: auto;
+  contain-intrinsic-size: auto 620px;
+}
+.related header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 26px;
+}
+.related header span {
+  color: var(--catalog-muted);
+  font:
+    400 11px 'DM Mono',
+    monospace;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.related h2 {
+  margin: 0;
+  color: var(--catalog-ink);
+  font-size: 24px;
+  letter-spacing: -0.03em;
+}
+.related h2 em {
+  color: var(--catalog-accent);
+  font-family: 'Instrument Serif', serif;
+  font-weight: 400;
+  font-style: italic;
+}
+.related header a {
+  color: var(--catalog-muted);
+  font:
+    400 11px 'DM Mono',
+    monospace;
+  text-transform: uppercase;
+}
+.related-grid {
+  display: flex;
+  gap: 24px;
+  overflow-x: auto;
+  padding: 2px 2px 10px;
+  scrollbar-color: var(--catalog-muted) transparent;
+  scrollbar-width: thin;
+}
+.related-grid app-related-pack-card {
+  flex: 0 0 220px;
+}
+@media (max-width: 600px) {
+  .crumbs,
+  .hero-section,
+  .content-section {
+    padding-right: 18px;
+    padding-left: 18px;
+  }
+  .related header a {
+    display: none;
+  }
+}

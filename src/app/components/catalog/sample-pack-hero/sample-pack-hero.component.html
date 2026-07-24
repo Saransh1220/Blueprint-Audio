@@ -1,0 +1,74 @@
+<section class="pack-hero">
+  <div class="artwork-wrap">
+    <span class="edge edge-two"></span>
+    <span class="edge edge-one"></span>
+    <div class="artwork" [attr.data-palette]="pack().artwork.palette">
+      <span>WY / PACK {{ pack().fileCount }}</span>
+      <strong
+        >{{ titleParts().before }}<em>{{ titleParts().accent }}</em></strong
+      >
+      <small>{{ pack().producer.displayName }}</small>
+    </div>
+    <button type="button" class="demo" (click)="demoRequested.emit()">
+      <i class="fas" [class.fa-play]="!demoPlaying()" [class.fa-pause]="demoPlaying()"></i>
+      {{ demoPlaying() ? 'Pause demo' : 'Play demo' }}
+    </button>
+  </div>
+
+  <div class="copy">
+    <p class="eyebrow">
+      {{ typeLabel() }} / {{ pack().genre }} / {{ pack().publishedAt.slice(0, 4) }}
+    </p>
+    <h1>
+      {{ titleParts().before }}<em>{{ titleParts().accent }}</em
+      >{{ titleParts().after }}
+    </h1>
+    <div class="producer-row">
+      <span class="avatar">{{ pack().producer.avatarFallback }}</span>
+      <div>
+        <strong>{{ pack().producer.displayName }}</strong
+        ><small>&#64;{{ pack().producer.handle }}</small>
+      </div>
+      <button type="button" [class.active]="following()" (click)="followRequested.emit()">
+        {{ following() ? 'Following' : 'Follow' }}
+      </button>
+    </div>
+    <p class="description">{{ pack().description }}</p>
+    <dl class="facts">
+      <div>
+        <dt>Files</dt>
+        <dd>{{ pack().fileCount }}</dd>
+      </div>
+      <div>
+        <dt>BPM</dt>
+        <dd>{{ pack().bpmRange[0] }}–{{ pack().bpmRange[1] }}</dd>
+      </div>
+      <div>
+        <dt>Size</dt>
+        <dd>{{ sizeLabel() }}</dd>
+      </div>
+      <div>
+        <dt>Formats</dt>
+        <dd>{{ pack().formats.join(' + ').toUpperCase() }}</dd>
+      </div>
+    </dl>
+    <div class="actions">
+      <button type="button" class="buy" (click)="acquireRequested.emit()">
+        <span>{{ pack().price.amount_minor === 0 ? 'Download pack' : 'Add to cart' }}</span>
+        <strong>{{ priceLabel() }}</strong>
+      </button>
+      <button
+        type="button"
+        class="wish"
+        [class.active]="wishlisted()"
+        aria-label="Wishlist pack"
+        (click)="wishlistRequested.emit()"
+      >
+        <i class="fa-heart" [class.far]="!wishlisted()" [class.fas]="wishlisted()"></i>
+      </button>
+    </div>
+    <p class="license">
+      <i class="fas fa-check-circle"></i> Royalty free · instant download · unlimited projects
+    </p>
+  </div>
+</section>

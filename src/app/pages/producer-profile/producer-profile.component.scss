@@ -287,94 +287,14 @@
 }
 .tracks-grid {
   display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
-  gap: 12px;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 24px;
 }
-.track-card {
-  border: 2px solid var(--ink);
-  border-radius: 15px;
-  background: var(--cream);
-  overflow: hidden;
+.tracks-grid > app-spec-card {
+  content-visibility: auto;
+  contain-intrinsic-inline-size: 0;
+  contain-intrinsic-block-size: 390px;
   min-width: 0;
-  transition: 0.18s;
-}
-.track-card:hover {
-  transform: translate(-2px, -2px);
-  box-shadow: 4px 4px 0 var(--ink);
-}
-.track-art {
-  aspect-ratio: 1;
-  display: block;
-  position: relative;
-  background: var(--cream2);
-  border-bottom: 2px solid var(--ink);
-  overflow: hidden;
-}
-.track-art img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-.badge {
-  position: absolute;
-  left: 8px;
-  top: 8px;
-  background: var(--lime);
-  color: var(--ink);
-  border: 1px solid var(--ink);
-  border-radius: 99px;
-  padding: 3px 7px;
-  font: $font-tech;
-  font-size: 8px;
-  text-transform: uppercase;
-}
-.play {
-  position: absolute;
-  right: 8px;
-  bottom: 8px;
-  width: 30px;
-  height: 30px;
-  border: 1.5px solid var(--ink);
-  border-radius: 50%;
-  background: var(--cream);
-  display: grid;
-  place-items: center;
-  cursor: pointer;
-  font-size: 10px;
-}
-.track-body {
-  padding: 10px;
-}
-.track-title {
-  display: block;
-  color: var(--ink);
-  text-decoration: none;
-  font-weight: 700;
-  font-size: 14px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-.track-meta {
-  font: $font-tech;
-  font-size: 8.5px;
-  color: var(--muted);
-  margin: 4px 0 9px;
-  text-transform: uppercase;
-}
-.track-bottom {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 5px;
-  border-top: 1px dashed var(--cream3);
-  padding-top: 8px;
-  font-size: 10px;
-}
-.track-bottom button {
-  border: 0;
-  background: transparent;
-  cursor: pointer;
 }
 .view-all {
   text-align: center;
@@ -636,7 +556,8 @@
     padding: 18px 16px 60px;
   }
   .tracks-grid {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: clamp(10px, 3vw, 16px);
   }
   .p-hero {
     grid-template-columns: auto 1fr;
@@ -689,12 +610,6 @@
   .tracks-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 9px;
-  }
-  .track-body {
-    padding: 8px;
-  }
-  .track-title {
-    font-size: 12px;
   }
   .packs-row,
   .similar-row {
@@ -767,7 +682,6 @@
   background: var(--cream2);
 }
 
-:host-context(body.dark-theme) .track-card,
 :host-context(body.dark-theme) .packs-row article,
 :host-context(body.dark-theme) .similar-row article,
 :host-context(body.dark-theme) .rating-summary,
@@ -776,23 +690,10 @@
   box-shadow: inset 0 1px 0 rgba(240, 233, 214, 0.035);
 }
 
-:host-context(body.dark-theme) .track-card:hover {
-  box-shadow:
-    4px 4px 0 var(--hot),
-    0 12px 35px rgba(255, 77, 104, 0.13);
-}
-
-:host-context(body.dark-theme) .track-art,
 :host-context(body.dark-theme) .rating-bar i {
   background: var(--cream3);
 }
 
-:host-context(body.dark-theme) .play {
-  background: rgba(14, 13, 11, 0.88);
-  color: var(--ink);
-}
-
-:host-context(body.dark-theme) .badge,
 :host-context(body.dark-theme) .stats-grid .c3,
 :host-context(body.dark-theme) .stats-grid .c4,
 :host-context(body.dark-theme) .pack-art span,
@@ -826,11 +727,6 @@
   color: var(--ink);
 }
 
-.track-card,
-.track-body,
-.track-bottom,
-.track-bottom span,
-.track-bottom b,
 .packs-row article,
 .packs-row h3,
 .packs-row strong,
@@ -843,21 +739,10 @@
   color: var(--ink);
 }
 
-.play,
-.track-bottom button {
-  color: var(--ink);
-}
-
 :host-context(body.dark-theme) .message-btn,
 :host-context(body.dark-theme) .chips button,
 :host-context(body.dark-theme) .carousel-buttons button,
 :host-context(body.dark-theme) .similar-row button,
-:host-context(body.dark-theme) .track-card,
-:host-context(body.dark-theme) .track-body,
-:host-context(body.dark-theme) .track-bottom,
-:host-context(body.dark-theme) .track-bottom span,
-:host-context(body.dark-theme) .track-bottom b,
-:host-context(body.dark-theme) .track-bottom button,
 :host-context(body.dark-theme) .packs-row article,
 :host-context(body.dark-theme) .packs-row h3,
 :host-context(body.dark-theme) .packs-row strong,
@@ -871,7 +756,6 @@
 }
 
 :host-context(body.dark-theme) .p-identity h1 i,
-:host-context(body.dark-theme) .badge,
 :host-context(body.dark-theme) .stats-grid .c3,
 :host-context(body.dark-theme) .stats-grid .c4,
 :host-context(body.dark-theme) .pack-art span,

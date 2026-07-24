@@ -1,0 +1,124 @@
+:host {
+  position: sticky;
+  top: var(--nav-offset, 76px);
+  z-index: 40;
+  display: block;
+  width: 100vw;
+  margin-left: calc(50% - 50vw);
+  border-block: 1.5px solid var(--catalog-line);
+  background: color-mix(in srgb, var(--catalog-bg) 98%, transparent);
+}
+.toolbar {
+  display: flex;
+  min-height: 58px;
+  max-width: 1320px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin: 0 auto;
+  padding: 12px 32px;
+}
+.filters,
+.tools,
+.view-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.filters {
+  min-width: 0;
+  flex-wrap: wrap;
+}
+button,
+select {
+  min-height: 34px;
+  border: 1.5px solid var(--catalog-line);
+  border-radius: 100px;
+  outline: 0;
+  background: transparent;
+  color: var(--catalog-ink-2);
+  font:
+    600 13px 'Bricolage Grotesque',
+    sans-serif;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+  transition:
+    border-color 0.15s,
+    color 0.15s,
+    background 0.15s;
+}
+.filters > button {
+  padding: 0 14px;
+  cursor: pointer;
+}
+.filters > button:hover {
+  border-color: var(--catalog-muted);
+  color: var(--catalog-ink);
+}
+.filters > button i {
+  margin-left: 6px;
+  opacity: 0.6;
+  font-size: 8px;
+}
+.filters .clear {
+  border-color: transparent;
+  color: var(--catalog-accent);
+  font:
+    400 10.5px 'DM Mono',
+    monospace;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+select {
+  padding: 0 31px 0 14px;
+  color: var(--catalog-ink);
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='%23f0e9d6' stroke-width='3'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+}
+select option {
+  background: #1a1814;
+  color: #f0e9d6;
+}
+.view-toggle {
+  gap: 0;
+  padding: 2px;
+  border: 1.5px solid var(--catalog-line);
+  border-radius: 100px;
+}
+.view-toggle button {
+  display: grid;
+  width: 30px;
+  min-height: 30px;
+  padding: 0;
+  border: 0;
+  color: var(--catalog-muted);
+  cursor: pointer;
+  place-items: center;
+}
+.view-toggle button.on {
+  background: var(--catalog-ink);
+  color: var(--catalog-bg);
+}
+@media (max-width: 900px) {
+  :host {
+    top: 96px;
+  }
+  .toolbar {
+    padding-inline: 18px;
+  }
+  .filters {
+    flex: 1;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+}
+@media (max-width: 600px) {
+  .filters > button:nth-child(n + 5),
+  select {
+    display: none;
+  }
+}

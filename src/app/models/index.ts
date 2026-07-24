@@ -9,3 +9,4 @@ export * from './spec-form.model';
 export * from './user.adapter';
 export * from './user.model';
 export * from './user-api.model';
+export * from './catalog';

@@ -17,19 +17,18 @@ describe('CartComponent', () => {
             items,
             total: vi.fn(() => 100),
             removeItem,
+            clear: vi.fn(),
           },
         },
       ],
     });
   });
 
-  it('toggles open state, removes item, and exposes total', () => {
+  it('removes items and exposes total', () => {
     const logSpy = vi.spyOn(console, 'log').mockImplementation(() => undefined);
     const component = TestBed.runInInjectionContext(() => new CartComponent());
 
     expect(component.total).toBe(100);
-    component.toggle();
-    expect(component.isOpen()).toBe(true);
     component.removeItem('1');
     expect(removeItem).toHaveBeenCalledWith('1');
     component.checkout();

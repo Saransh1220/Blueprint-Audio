@@ -1,13 +1,12 @@
 import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
-import { RouterLink } from '@angular/router';
 import { UploadFormBase } from '../../../pages/upload/upload-form.base';
 
 @Component({
   selector: 'app-studio-upload',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterLink],
+  imports: [CommonModule, ReactiveFormsModule],
   templateUrl: '../../../pages/upload/upload.component.html',
   styleUrls: ['../../../pages/upload/upload.component.scss'],
   styles: [

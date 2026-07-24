@@ -1,4 +1,3 @@
-import { HttpEventType } from '@angular/common/http';
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { FormBuilder } from '@angular/forms';
@@ -7,13 +6,32 @@ import { of, throwError } from 'rxjs';
 import { Genre, MusicalKey } from '../../models';
 import { AuthService } from '../../services/auth.service';
 import { LabService } from '../../services/lab';
+import { SpecUploadMonitorService } from '../../services/spec-upload-monitor.service';
+import { SpecUploadCompletionError, SpecUploadService } from '../../services/spec-upload.service';
 import { ToastService } from '../../services/toast.service';
 import { UploadComponent } from './upload.component';
 
 describe('UploadComponent', () => {
   const toast = { show: vi.fn() };
   const router = { navigate: vi.fn() };
-  const labService = { createSpec: vi.fn() };
+  const labService = { notifyRefresh: vi.fn() };
+  const specUploadMonitor = { monitor: vi.fn() };
+  const specUploadService = {
+    createDraft: vi.fn(),
+    uploadFile: vi.fn(),
+    publishBeat: vi.fn(),
+    completeUpload: vi.fn(),
+  };
+
+  function markRequiredFilesUploaded(component: UploadComponent, uploadId = 'upload-1') {
+    component.uploadSessionId.set(uploadId);
+    component.fileUploadStates.set({
+      cover: { phase: 'uploaded', progress: 100 },
+      preview: { phase: 'uploaded', progress: 100 },
+      wav: { phase: 'uploaded', progress: 100 },
+      stems: { phase: 'uploaded', progress: 100 },
+    });
+  }
 
   function create() {
     TestBed.configureTestingModule({
@@ -21,6 +39,8 @@ describe('UploadComponent', () => {
         FormBuilder,
         { provide: AuthService, useValue: { currentUser: signal(null) } },
         { provide: LabService, useValue: labService },
+        { provide: SpecUploadMonitorService, useValue: specUploadMonitor },
+        { provide: SpecUploadService, useValue: specUploadService },
         { provide: Router, useValue: router },
         { provide: ToastService, useValue: toast },
       ],
@@ -33,6 +53,30 @@ describe('UploadComponent', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
+    window.localStorage.clear();
+    specUploadService.createDraft.mockReturnValue(
+      of({
+        upload_id: 'upload-1',
+        spec_id: 'spec-1',
+        expires_at: '2026-07-24T00:00:00Z',
+      }),
+    );
+    specUploadService.uploadFile.mockImplementation((_uploadId, source) =>
+      of(
+        { type: 'progress', percent: 50 },
+        { type: 'verifying' },
+        {
+          type: 'completed',
+          file: {
+            asset_id: `asset-${source.kind}`,
+            kind: source.kind,
+            file_name: source.file.name,
+            content_type: source.contentType,
+            size_bytes: source.file.size,
+          },
+        },
+      ),
+    );
     vi.stubGlobal(
       'Image',
       class {
@@ -81,6 +125,15 @@ describe('UploadComponent', () => {
 
     component.previewFile.set(new File(['a'], 'preview.mp3', { type: 'audio/mpeg' }));
     component.nextStep();
+    expect(toast.show).toHaveBeenCalledWith(
+      'Please upload the required master WAV and stems archive for this beat.',
+      'error',
+    );
+    expect(component.currentStep()).toBe(1);
+
+    component.wavFile.set(new File(['a'], 'master.wav', { type: 'audio/wav' }));
+    component.stemsFile.set(new File(['a'], 'stems.zip', { type: 'application/zip' }));
+    component.nextStep();
     expect(component.currentStep()).toBe(2);
 
     component.uploadForm.patchValue({
@@ -98,6 +151,20 @@ describe('UploadComponent', () => {
     expect(component.currentStep()).toBe(4);
     component.prevStep();
     expect(component.currentStep()).toBe(3);
+  });
+
+  it('requires BPM before the details step can pass', () => {
+    const component = create();
+    component.uploadForm.patchValue({
+      title: 'Song',
+      category: 'beat',
+      genre: Genre.TRAP,
+      bpm: null,
+      key: MusicalKey.A_MINOR,
+    });
+
+    expect(component.uploadForm.get('bpm')?.hasError('required')).toBe(true);
+    expect(component.uploadForm.invalid).toBe(true);
   });
 
   it('validates files by type and size', async () => {
@@ -148,7 +215,36 @@ describe('UploadComponent', () => {
     expect(component.stemsFile()).toBeNull();
   });
 
-  it('submits upload with progress and response handling', () => {
+  it('accepts rectangular cover art and marks the centered crop in its summary', async () => {
+    const component = create();
+    vi.stubGlobal(
+      'Image',
+      class {
+        width = 1600;
+        height = 900;
+        onload: (() => void) | null = null;
+        onerror: (() => void) | null = null;
+
+        set src(_: string) {
+          setTimeout(() => this.onload?.(), 0);
+        }
+      },
+    );
+    const cover = new File(['rectangular-image'], 'wide-cover.png', { type: 'image/png' });
+
+    await (component as any).handleFile(cover, 'cover');
+
+    expect(component.coverFile()).toBe(cover);
+    expect(component.coverSummary()).toEqual(
+      expect.objectContaining({
+        name: 'wide-cover.png',
+        detail: '1600x900 · center crop',
+      }),
+    );
+    expect(toast.show).not.toHaveBeenCalledWith('Cover art must be square.', 'error');
+  });
+
+  it('publishes uploaded files with metadata and handles the response', () => {
     const component = create();
     component.uploadForm.patchValue({
       title: 'Song',
@@ -161,15 +257,34 @@ describe('UploadComponent', () => {
     });
     component.coverFile.set(new File(['a'], 'cover.png', { type: 'image/png' }));
     component.previewFile.set(new File(['a'], 'preview.mp3', { type: 'audio/mpeg' }));
+    component.wavFile.set(new File(['a'], 'master.wav', { type: 'audio/wav' }));
+    component.stemsFile.set(new File(['a'], 'stems.rar', { type: 'application/vnd.rar' }));
+    markRequiredFilesUploaded(component);
 
-    const progressEvent = { type: HttpEventType.UploadProgress, loaded: 50, total: 100 } as any;
-    const responseEvent = { type: HttpEventType.Response } as any;
-    labService.createSpec.mockReturnValue(of(progressEvent, responseEvent));
+    const completedEvent = { type: 'completed', spec: {}, uploadId: 'upload-1' } as any;
+    specUploadService.publishBeat.mockReturnValue(of(completedEvent));
 
     component.submitUpload();
 
-    expect(component.uploadProgress()).toBe(50);
+    expect(component.uploadProgress()).toBe(100);
     expect(component.isSubmitting()).toBe(false);
+    const [uploadId, metadata] = specUploadService.publishBeat.mock.calls[0];
+    expect(uploadId).toBe('upload-1');
+    expect(metadata).toEqual(
+      expect.objectContaining({
+        title: 'Song',
+        category: 'beat',
+        bpm: 130,
+        free_mp3_enabled: true,
+      }),
+    );
+    expect(metadata).not.toHaveProperty('duration');
+    for (const license of (metadata as any).licenses) {
+      expect(license).not.toHaveProperty('enabled');
+      expect(license).not.toHaveProperty('subtitle');
+    }
+    expect(labService.notifyRefresh).toHaveBeenCalledTimes(1);
+    expect(specUploadMonitor.monitor).toHaveBeenCalledWith('upload-1');
     expect(router.navigate).toHaveBeenCalledWith(['/dashboard']);
   });
 
@@ -187,15 +302,56 @@ describe('UploadComponent', () => {
 
     component.coverFile.set(new File(['a'], 'cover.png', { type: 'image/png' }));
     component.previewFile.set(new File(['a'], 'preview.mp3', { type: 'audio/mpeg' }));
+    component.wavFile.set(new File(['a'], 'master.wav', { type: 'audio/wav' }));
+    component.stemsFile.set(new File(['a'], 'stems.zip', { type: 'application/zip' }));
+    markRequiredFilesUploaded(component);
     component.licenses.clear();
     component.submitUpload();
     expect(toast.show).toHaveBeenCalledWith('Please enable at least one license option.', 'error');
 
     component.initializeLicenses();
-    labService.createSpec.mockReturnValue(throwError(() => ({ message: 'bad' })));
+    specUploadService.publishBeat.mockReturnValue(throwError(() => ({ message: 'bad' })));
     component.submitUpload();
     expect(component.isSubmitting()).toBe(false);
     expect(component.uploadProgress()).toBe(0);
+  });
+
+  it('retains an ambiguous completion and retries the same upload id', () => {
+    const component = create();
+    component.uploadForm.patchValue({
+      title: 'Song',
+      category: 'beat',
+      genre: Genre.TRAP,
+      bpm: 110,
+    });
+    component.coverFile.set(new File(['a'], 'cover.png', { type: 'image/png' }));
+    component.previewFile.set(new File(['a'], 'preview.mp3', { type: 'audio/mpeg' }));
+    component.wavFile.set(new File(['a'], 'master.wav', { type: 'audio/wav' }));
+    component.stemsFile.set(new File(['a'], 'stems.zip', { type: 'application/zip' }));
+    markRequiredFilesUploaded(component);
+    specUploadService.publishBeat.mockReturnValue(
+      throwError(
+        () =>
+          new SpecUploadCompletionError('upload-retry', {
+            status: 0,
+          }),
+      ),
+    );
+
+    component.submitUpload();
+
+    expect(component.pendingCompletionId()).toBe('upload-retry');
+    expect(toast.show).toHaveBeenCalledWith(expect.stringContaining('Retry finalization'), 'error');
+
+    specUploadService.completeUpload.mockReturnValue(
+      of({ type: 'completed', spec: {} as any, uploadId: 'upload-retry' }),
+    );
+    component.submitUpload();
+
+    expect(specUploadService.publishBeat).toHaveBeenCalledTimes(1);
+    expect(specUploadService.completeUpload).toHaveBeenCalledWith('upload-retry');
+    expect(component.pendingCompletionId()).toBeNull();
+    expect(specUploadMonitor.monitor).toHaveBeenCalledWith('upload-retry');
   });
 
   it('formats sharp keys for the picker label', () => {
@@ -248,10 +404,16 @@ describe('UploadComponent', () => {
     expect(component.formatFileState('preview')).toBe('preview.mp3 - 2KB');
     component.coverSummary.set(null);
     expect(component.formatFileState('cover')).toContain('Required');
+    expect(component.formatFileState('wav')).toContain('Required');
+    expect(component.formatFileState('stems')).toContain('Required');
+    component.uploadForm.patchValue({ category: 'sample' });
     expect(component.formatFileState('wav')).toContain('Optional');
     expect(component.formatFileState('stems')).toContain('Optional');
     component.saveDraft();
-    expect(toast.show).toHaveBeenCalledWith(expect.stringContaining('Draft saving'), 'info');
+    expect(toast.show).toHaveBeenCalledWith(
+      expect.stringContaining('Selected files are saved automatically'),
+      'info',
+    );
   });
 
   it('handles drag input, cover removal, and license-derived previews', async () => {
@@ -279,5 +441,18 @@ describe('UploadComponent', () => {
     expect(component.minimumEnabledPrice()).toBe(0);
     component.stemsFile.set(new File(['a'], 'stems.zip'));
     expect(component.beatPreviewTags()).toContain('+ stems');
+  });
+
+  it('keeps WAV and stems optional for sample uploads', () => {
+    const component = create();
+    component.uploadForm.patchValue({ category: 'sample' });
+    component.coverFile.set(new File(['a'], 'cover.png', { type: 'image/png' }));
+    component.previewFile.set(new File(['a'], 'preview.mp3', { type: 'audio/mpeg' }));
+
+    component.nextStep();
+
+    expect(component.currentStep()).toBe(2);
+    expect(component.requiredAudioCount()).toBe(1);
+    expect(component.requiredAudioTotal()).toBe(1);
   });
 });

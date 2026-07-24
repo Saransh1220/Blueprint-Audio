@@ -1,0 +1,49 @@
+<section class="file-list">
+  <header>
+    <div><span class="dot"></span><span>inside the pack</span></div>
+    <h2>{{ files().length }} sounds, <em>ready.</em></h2>
+    <p>Every file is labelled, tempo-tagged, and ready to drag straight into your session.</p>
+  </header>
+  <div class="column-head" aria-hidden="true">
+    <span>Preview / sample</span><span>Type</span><span>BPM</span><span>Key</span><span>Time</span
+    ><span></span>
+  </div>
+  <div class="rows">
+    @for (file of files(); track file.id; let index = $index) {
+      <article [class.playing]="playingFileId() === file.id">
+        <button
+          type="button"
+          class="play"
+          (click)="playRequested.emit(file.id)"
+          [attr.aria-label]="'Preview ' + file.name"
+        >
+          <i
+            class="fas"
+            [class.fa-play]="playingFileId() !== file.id"
+            [class.fa-pause]="playingFileId() === file.id"
+          ></i>
+        </button>
+        <div class="name">
+          <small>{{ (index + 1).toString().padStart(2, '0') }}</small
+          ><strong>{{ file.name }}</strong>
+          <span class="wave" aria-hidden="true">
+            @for (peak of file.waveformPeaks.slice(0, 12); track $index) {
+              <i [style.height.%]="peak"></i>
+            }
+          </span>
+        </div>
+        <span class="type">{{ typeLabel(file) }}</span
+        ><span>{{ file.bpm ?? '—' }}</span> <span>{{ file.musicalKey ?? '—' }}</span
+        ><span>{{ durationLabel(file) }}</span>
+        <button
+          type="button"
+          class="download"
+          (click)="downloadRequested.emit(file)"
+          [attr.aria-label]="'Download ' + file.name"
+        >
+          <i class="fas fa-download"></i>
+        </button>
+      </article>
+    }
+  </div>
+</section>

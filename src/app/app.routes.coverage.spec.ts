@@ -24,6 +24,9 @@ describe('application route callbacks', () => {
     const children = studio?.children ?? [];
     const lazyRoutes = [
       routes.find((route) => route.path === '@/:handle'),
+      routes.find((route) => route.path === 'loops'),
+      routes.find((route) => route.path === 'sample-packs'),
+      routes.find((route) => route.path === 'sample-packs/:slug'),
       routes.find((route) => route.path === 'beats/:id'),
       children.find((route) => route.path === 'earnings'),
       children.find((route) => route.path === 'messages'),
@@ -33,7 +36,7 @@ describe('application route callbacks', () => {
     ];
 
     const components = await Promise.all(lazyRoutes.map((route) => route?.loadComponent?.()));
-    expect(components).toHaveLength(7);
+    expect(components).toHaveLength(10);
     for (const component of components) expect(component).toBeTruthy();
   }, 10_000);
 

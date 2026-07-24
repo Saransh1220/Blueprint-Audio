@@ -1,0 +1,61 @@
+<main>
+  <app-catalog-hero
+    kind="loops"
+    [total]="loops.length"
+    [search]="search()"
+    (searchChange)="updateSearch($event)"
+  />
+  <section class="catalog-content">
+    <app-catalog-toolbar
+      kind="loops"
+      [viewMode]="viewMode()"
+      [sort]="sort()"
+      (filterRequested)="openFilter($event)"
+      (sortChange)="updateSort($event)"
+      (viewModeChange)="updateView($event)"
+    />
+    <div class="result-heading">
+      <p>
+        <strong>{{ filteredLoops().length }}</strong> loops found
+      </p>
+      <span>Drag-ready. Royalty-free.</span>
+    </div>
+    @if (visibleLoops().length) {
+      <div [class]="viewMode() === 'grid' ? 'loop-grid' : 'loop-list'">
+        @for (loop of visibleLoops(); track loop.id) {
+          @if (viewMode() === 'grid') {
+            <app-loop-card
+              [loop]="loop"
+              [playing]="playingId() === loop.id"
+              [wishlisted]="wishlistedIds().has(loop.id)"
+              (playRequested)="togglePlay($event)"
+              (wishlistRequested)="toggleWishlist($event)"
+              (acquireRequested)="acquire($event)"
+            />
+          } @else {
+            <app-loop-list-item
+              [loop]="loop"
+              [playing]="playingId() === loop.id"
+              [wishlisted]="wishlistedIds().has(loop.id)"
+              (playRequested)="togglePlay($event)"
+              (wishlistRequested)="toggleWishlist($event)"
+              (acquireRequested)="acquire($event)"
+            />
+          }
+        }
+      </div>
+    } @else {
+      <div class="empty">
+        <i class="fas fa-wave-square"></i>
+        <h2>No loops in that pocket.</h2>
+        <button type="button" (click)="updateSearch('')">Clear search</button>
+      </div>
+    }
+    <app-catalog-pagination
+      [page]="page()"
+      [pageSize]="pageSize"
+      [totalItems]="filteredLoops().length"
+      (pageChange)="updatePage($event)"
+    />
+  </section>
+</main>

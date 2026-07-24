@@ -1,5 +1,4 @@
 import {
-  CreateSpecRequest,
   DeleteSpecRequest,
   GetCatalogHomeRequest,
   GetUserSpecsRequest,
@@ -23,13 +22,7 @@ describe('remaining API request objects', () => {
     expect(new GetCatalogHomeRequest().params.keys()).toEqual([]);
   });
 
-  it('builds create, update, delete, and user catalog requests', () => {
-    const form = new FormData();
-    const create = new CreateSpecRequest(form);
-    expect(create.method).toBe('POST');
-    expect(create.path).toBe('/specs');
-    expect(create.body).toBe(form);
-
+  it('builds update, delete, and user catalog requests', () => {
     const update = new UpdateSpecRequest('spec-1', { title: 'Updated' });
     expect(update.method).toBe('PATCH');
     expect(update.path).toBe('/specs/spec-1');

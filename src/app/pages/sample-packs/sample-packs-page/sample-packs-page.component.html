@@ -1,0 +1,49 @@
+<main>
+  <app-catalog-hero
+    kind="sample-packs"
+    [total]="packs.length"
+    [producerCount]="892"
+    [newThisWeek]="96"
+    [search]="search()"
+    (searchChange)="updateSearch($event)"
+  />
+  <section class="catalog-content">
+    <app-catalog-toolbar
+      kind="sample-packs"
+      [viewMode]="viewMode()"
+      [sort]="sort()"
+      (filterRequested)="openFilter($event)"
+      (sortChange)="updateSort($event)"
+      (viewModeChange)="updateView($event)"
+    />
+    <div class="result-heading">
+      <p>
+        <strong>{{ filteredPacks().length }}</strong> packs found
+      </p>
+      <span>Curated crates. Instant access.</span>
+    </div>
+    @if (visiblePacks().length) {
+      <div [class]="viewMode() === 'grid' ? 'pack-grid' : 'pack-list'">
+        @for (pack of visiblePacks(); track pack.id) {
+          @if (viewMode() === 'grid') {
+            <app-sample-pack-card [pack]="pack" (openRequested)="openPack($event)" />
+          } @else {
+            <app-sample-pack-list-item [pack]="pack" (openRequested)="openPack($event)" />
+          }
+        }
+      </div>
+    } @else {
+      <div class="empty">
+        <i class="fas fa-layer-group"></i>
+        <h2>No packs match that search.</h2>
+        <button type="button" (click)="updateSearch('')">Clear search</button>
+      </div>
+    }
+    <app-catalog-pagination
+      [page]="page()"
+      [pageSize]="pageSize"
+      [totalItems]="filteredPacks().length"
+      (pageChange)="updatePage($event)"
+    />
+  </section>
+</main>

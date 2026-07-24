@@ -102,34 +102,8 @@
       </div>
       @if (filteredSpecs().length) {
         <div class="tracks-grid">
-          @for (spec of filteredSpecs(); track spec.id) {
-            <article class="track-card">
-              <a class="track-art" [routerLink]="['/', spec.shortCode || spec.id]">
-                <img [src]="spec.imageUrl" [alt]="spec.title" />
-                <span class="badge">{{ spec.freeMp3Enabled ? 'Free DL' : 'Live' }}</span>
-                <button
-                  type="button"
-                  class="play"
-                  (click)="play($event, spec)"
-                  [attr.aria-label]="'Play ' + spec.title"
-                >
-                  <i class="fa-solid fa-play"></i>
-                </button>
-              </a>
-              <div class="track-body">
-                <a class="track-title" [routerLink]="['/', spec.shortCode || spec.id]">{{
-                  spec.title
-                }}</a>
-                <div class="track-meta">{{ spec.bpm }} BPM · {{ spec.key }}</div>
-                <div class="track-bottom">
-                  <span
-                    >from <b>{{ price(spec) }}</b></span
-                  ><button type="button" (click)="addToCart($event, spec)">
-                    <i class="fa-solid fa-cart-plus"></i>
-                  </button>
-                </div>
-              </div>
-            </article>
+          @for (spec of filteredSpecs(); track spec.id; let i = $index) {
+            <app-spec-card [spec]="spec" [priority]="i < 5" appearance="market"></app-spec-card>
           }
         </div>
         <div class="view-all">

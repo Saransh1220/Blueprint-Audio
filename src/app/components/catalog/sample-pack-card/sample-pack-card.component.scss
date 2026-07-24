@@ -1,0 +1,197 @@
+:host {
+  display: block;
+  min-width: 0;
+}
+.pack-card {
+  min-width: 0;
+  cursor: pointer;
+}
+.thumb {
+  position: relative;
+  height: 168px;
+  margin: 0 7px 22px 0;
+}
+.face,
+.edge {
+  position: absolute;
+  inset: 0;
+  border: 1.5px solid var(--catalog-line);
+  border-radius: 22px;
+  background: transparent;
+}
+.edge-two {
+  z-index: 1;
+  transform: translate(7px, 9px);
+}
+.edge-one {
+  z-index: 2;
+  border-color: var(--catalog-muted);
+  opacity: 0.6;
+  transform: translate(3px, 4px);
+}
+.face {
+  z-index: 3;
+  display: flex;
+  overflow: hidden;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 16px;
+  border-color: var(--catalog-ink);
+  background: linear-gradient(150deg, #ff4d68, #ff7d2e);
+  color: #0e0d0b;
+}
+.face::after {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 26px;
+  height: 26px;
+  background: rgba(14, 13, 11, 0.22);
+  clip-path: polygon(100% 0, 0 0, 100% 100%);
+  content: '';
+}
+.face[data-palette='cobalt'] {
+  background: linear-gradient(150deg, #5b78ff, #d4c5ff);
+}
+.face[data-palette='lime'] {
+  background: linear-gradient(150deg, #9ec22d, #d9f561);
+}
+.face[data-palette='lavender'] {
+  background: linear-gradient(150deg, #d4c5ff, #ff4d68);
+}
+.face[data-palette='sun'] {
+  background: linear-gradient(150deg, #ffd455, #ff7d2e);
+}
+.face[data-palette='midnight'] {
+  background: linear-gradient(150deg, #c8bfa9, #5b78ff);
+}
+.face-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: rgba(14, 13, 11, 0.8);
+  font:
+    700 10px 'DM Mono',
+    monospace;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.stack {
+  display: grid;
+  width: 28px;
+  height: 28px;
+  border: 1px solid rgba(240, 233, 214, 0.35);
+  border-radius: 9px;
+  background: rgba(14, 13, 11, 0.35);
+  color: rgba(240, 233, 214, 0.95);
+  place-items: center;
+}
+.face > strong {
+  color: rgba(14, 13, 11, 0.88);
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  text-transform: none;
+}
+.price {
+  position: absolute;
+  z-index: 5;
+  bottom: -14px;
+  left: 16px;
+  padding: 6px 13px;
+  border: 1.5px solid var(--catalog-bg);
+  border-radius: 100px;
+  background: var(--catalog-ink);
+  color: var(--catalog-bg);
+  font:
+    700 10.5px 'DM Mono',
+    monospace;
+  letter-spacing: 0.05em;
+}
+.price.free {
+  border-color: var(--catalog-lime);
+  background: var(--catalog-lime);
+  color: #14110b;
+}
+.body {
+  padding-top: 4px;
+}
+.body h3 {
+  margin: 0 0 6px;
+  color: var(--catalog-ink);
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+}
+.body h3 em {
+  color: var(--catalog-accent);
+  font-family: 'Instrument Serif', serif;
+  font-weight: 400;
+  font-style: italic;
+}
+.producer {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 10px;
+  color: var(--catalog-muted);
+  font:
+    400 10.5px 'DM Mono',
+    monospace;
+  letter-spacing: 0.04em;
+}
+.producer span:first-child {
+  display: grid;
+  width: 16px;
+  height: 16px;
+  border: 1px solid var(--catalog-muted);
+  border-radius: 50%;
+  background: var(--catalog-line);
+  color: var(--catalog-ink-2);
+  font-family: 'Instrument Serif', serif;
+  font-style: italic;
+  place-items: center;
+}
+p {
+  margin: 0 0 14px;
+  color: var(--catalog-muted);
+  font:
+    400 11px/1.5 'DM Mono',
+    monospace;
+  letter-spacing: 0.03em;
+  text-transform: none;
+}
+p em {
+  color: var(--catalog-accent);
+  font-weight: 600;
+  font-style: normal;
+}
+footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  color: var(--catalog-muted);
+  font:
+    400 10.5px 'DM Mono',
+    monospace;
+}
+footer button {
+  min-height: 32px;
+  padding: 0 15px;
+  border: 1.5px solid var(--catalog-ink);
+  border-radius: 100px;
+  background: transparent;
+  color: var(--catalog-ink);
+  cursor: pointer;
+  font:
+    700 12.5px 'Bricolage Grotesque',
+    sans-serif;
+  transition: all 0.15s;
+}
+footer button:hover {
+  border-color: var(--catalog-accent);
+  background: var(--catalog-accent);
+  color: #14110b;
+}

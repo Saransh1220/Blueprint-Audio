@@ -1,0 +1,28 @@
+<header class="catalog-hero">
+  <div class="eyebrow"><span></span>{{ copy().eyebrow }}</div>
+  <h1>
+    {{ copy().before }}<em>{{ copy().accent }}</em
+    >{{ copy().suffix }}
+  </h1>
+  <p>{{ copy().description }}</p>
+  <label class="catalog-search">
+    <i class="fas fa-search" aria-hidden="true"></i>
+    <input
+      type="search"
+      [value]="search()"
+      [placeholder]="copy().placeholder"
+      (input)="onSearch($event)"
+    />
+  </label>
+  <div class="stats" aria-label="Catalog statistics">
+    <span
+      ><strong>{{ total().toLocaleString() }}</strong> {{ copy().noun }}</span
+    >
+    <span
+      ><strong>{{ producerCount().toLocaleString() }}</strong> producers</span
+    >
+    <span
+      ><strong>{{ newThisWeek().toLocaleString() }}</strong> new this week</span
+    >
+  </div>
+</header>

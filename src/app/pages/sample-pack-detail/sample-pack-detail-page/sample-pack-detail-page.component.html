@@ -1,0 +1,50 @@
+<main>
+  <nav class="crumbs" aria-label="Breadcrumb">
+    <a routerLink="/sample-packs">Sample packs</a><i class="fas fa-chevron-right"></i
+    ><span>{{ pack().title }}</span>
+  </nav>
+  <section class="hero-section">
+    <app-sample-pack-hero
+      [pack]="pack()"
+      [demoPlaying]="demoPlaying()"
+      [wishlisted]="wishlisted()"
+      [following]="following()"
+      (demoRequested)="toggleDemo()"
+      (wishlistRequested)="toggleWishlist()"
+      (followRequested)="toggleFollowing()"
+      (acquireRequested)="acquire()"
+    />
+  </section>
+  <section class="content-section">
+    <app-sample-file-list
+      [files]="pack().files"
+      [playingFileId]="playingFileId()"
+      (playRequested)="toggleFile($event)"
+      (downloadRequested)="downloadFile($event)"
+    />
+  </section>
+  <section class="content-section">
+    <app-producer-summary
+      [producer]="pack().producerProfile"
+      [following]="following()"
+      (followRequested)="toggleFollowing()"
+    />
+  </section>
+  <section class="content-section">
+    <app-review-list [rating]="pack().rating" [reviews]="pack().reviews" />
+  </section>
+  <section class="related content-section">
+    <header>
+      <div>
+        <span>keep digging</span>
+        <h2>More from the <em>crate.</em></h2>
+      </div>
+      <a routerLink="/sample-packs">Browse all packs <i class="fas fa-arrow-right"></i></a>
+    </header>
+    <div class="related-grid">
+      @for (related of pack().relatedPacks; track related.id) {
+        <app-related-pack-card [pack]="related" (openRequested)="openPack($event)" />
+      }
+    </div>
+  </section>
+</main>

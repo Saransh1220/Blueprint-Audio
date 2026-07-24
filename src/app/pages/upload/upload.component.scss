@@ -161,6 +161,98 @@ h5 em {
   font-family: $font-head;
   color: var(--ink);
 }
+.cover-copy {
+  flex: 1;
+  min-width: 0;
+}
+.file-transfer {
+  margin-top: 11px;
+  padding-top: 9px;
+  border-top: 1px dashed color-mix(in srgb, var(--ink) 35%, transparent);
+  color: var(--ink);
+  font: $font-tech;
+  font-size: 9px;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+}
+.file-transfer > div:first-child {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+.file-transfer span {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  min-width: 0;
+}
+.file-transfer span > i {
+  width: 6px;
+  height: 6px;
+  flex: none;
+  border-radius: 50%;
+  background: var(--hot);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--hot) 16%, transparent);
+}
+.file-transfer b {
+  color: var(--ink);
+  font: inherit;
+}
+.file-transfer-track {
+  height: 4px;
+  margin-top: 7px;
+  overflow: hidden;
+  border: 1px solid color-mix(in srgb, var(--ink) 55%, transparent);
+  border-radius: 99px;
+  background: color-mix(in srgb, var(--ink) 8%, transparent);
+}
+.file-transfer-track > i {
+  display: block;
+  width: 0;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--hot);
+  transition: width 160ms ease-out;
+}
+.file-transfer[data-phase='preparing'] .file-transfer-track > i {
+  width: 32% !important;
+  animation: file-transfer-scan 1s ease-in-out infinite alternate;
+}
+.file-transfer[data-phase='verifying'] span > i {
+  animation: file-transfer-pulse 800ms ease-in-out infinite alternate;
+}
+.file-transfer[data-phase='uploaded'] {
+  color: var(--lime);
+}
+.file-transfer[data-phase='uploaded'] span > i,
+.file-transfer[data-phase='uploaded'] .file-transfer-track > i {
+  background: var(--lime);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--lime) 18%, transparent);
+}
+.file-transfer[data-phase='error'] {
+  color: var(--hot);
+}
+.file-transfer[data-phase='error'] .file-transfer-track > i {
+  width: 100% !important;
+  background: var(--hot);
+}
+@keyframes file-transfer-scan {
+  from {
+    transform: translateX(-15%);
+  }
+  to {
+    transform: translateX(220%);
+  }
+}
+@keyframes file-transfer-pulse {
+  from {
+    opacity: 0.45;
+  }
+  to {
+    opacity: 1;
+  }
+}
 .upload-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -172,7 +264,10 @@ h5 em {
   padding: 16px;
   background: var(--cream3);
   cursor: pointer;
-  min-height: 154px;
+  min-height: 188px;
+  transition:
+    border-color 160ms ease,
+    background 160ms ease;
 }
 .upload-tile.filled {
   border-style: solid;

@@ -4,6 +4,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { of } from 'rxjs';
 import { catchError, finalize, switchMap } from 'rxjs/operators';
+import { SpecCardComponent } from '../../components/spec-card/spec-card';
 import { type LicenseOption, type Spec } from '../../models';
 import type { Money } from '../../models/money';
 import {
@@ -18,7 +19,7 @@ import { MoneyPipe } from '../../shared/pipes/money.pipe';
 @Component({
   selector: 'app-spec-details',
   standalone: true,
-  imports: [CommonModule, RouterLink, MoneyPipe],
+  imports: [CommonModule, RouterLink, MoneyPipe, SpecCardComponent],
   templateUrl: './spec-details.component.html',
   styleUrls: ['./spec-details.component.scss'],
 })
@@ -588,15 +589,6 @@ export class SpecDetailsComponent {
       lead: parts[0] ?? '',
       accent: parts.slice(1).join(' '),
     };
-  }
-
-  trackPlayFor(spec: Spec, event?: Event) {
-    event?.preventDefault();
-    event?.stopPropagation();
-    this.playerService.showPlayer(spec);
-    this.analyticsService.trackPlay(spec.id).subscribe({
-      error: (err) => console.error('Failed to track play:', err),
-    });
   }
 
   private loadWaveformForSpec(spec: Spec | undefined) {

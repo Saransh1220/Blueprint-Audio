@@ -1,0 +1,46 @@
+<div class="toolbar">
+  <div class="filters">
+    @for (filter of filters(); track filter) {
+      <button type="button" (click)="filterRequested.emit(filter)">
+        {{ filter }} <i class="fas fa-chevron-down" aria-hidden="true"></i>
+      </button>
+    }
+    @if (activeFilterCount()) {
+      <button type="button" class="clear" (click)="clearRequested.emit()">
+        Clear all · {{ activeFilterCount() }}
+      </button>
+    }
+  </div>
+
+  <div class="tools">
+    <select aria-label="Sort catalog" [value]="sort()" (change)="onSort($event)">
+      <option value="newest">Newest</option>
+      <option value="popular">Most popular</option>
+      <option value="downloads">Most downloaded</option>
+      @if (kind() === 'loops') {
+        <option value="bpm-asc">BPM · low to high</option>
+        <option value="bpm-desc">BPM · high to low</option>
+      }
+    </select>
+    <div class="view-toggle" role="group" aria-label="Catalog view">
+      <button
+        type="button"
+        aria-label="Grid view"
+        [class.on]="viewMode() === 'grid'"
+        [attr.aria-pressed]="viewMode() === 'grid'"
+        (click)="viewModeChange.emit('grid')"
+      >
+        <i class="fas fa-border-all" aria-hidden="true"></i>
+      </button>
+      <button
+        type="button"
+        aria-label="List view"
+        [class.on]="viewMode() === 'list'"
+        [attr.aria-pressed]="viewMode() === 'list'"
+        (click)="viewModeChange.emit('list')"
+      >
+        <i class="fas fa-list" aria-hidden="true"></i>
+      </button>
+    </div>
+  </div>
+</div>

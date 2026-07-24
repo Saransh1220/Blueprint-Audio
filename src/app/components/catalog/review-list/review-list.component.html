@@ -1,0 +1,29 @@
+<section>
+  <header>
+    <div>
+      <span>community notes</span>
+      <h2>People are <em>making.</em></h2>
+    </div>
+    <div class="score">
+      <strong>{{ rating().average }}</strong
+      ><span>★★★★★</span><small>{{ rating().totalRatings }} ratings</small>
+    </div>
+  </header>
+  <div class="reviews">
+    @for (review of reviews(); track review.id) {
+      <article>
+        <div class="author">
+          <span>{{ review.authorAvatarFallback }}</span
+          ><strong>{{ review.authorName }}</strong>
+        </div>
+        <div class="stars">
+          @for (star of stars; track star) {
+            <i class="fas fa-star" [class.off]="star > review.rating"></i>
+          }
+        </div>
+        <p>“{{ review.body }}”</p>
+        <time [attr.datetime]="review.createdAt">Verified purchase</time>
+      </article>
+    }
+  </div>
+</section>

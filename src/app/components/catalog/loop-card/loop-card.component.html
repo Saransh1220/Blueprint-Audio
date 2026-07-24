@@ -1,0 +1,56 @@
+<article class="loop-card" [class.playing]="playing()">
+  <div class="thumb">
+    <span class="edge edge-two"></span>
+    <span class="edge edge-one"></span>
+    <div class="face" [attr.data-palette]="loop().artwork.palette">
+      <div class="face-top">
+        <span>{{ durationLabel() }}</span>
+        <button
+          type="button"
+          aria-label="Wishlist loop"
+          [class.on]="wishlisted()"
+          (click)="wishlistRequested.emit(loop().id)"
+        >
+          <i class="fa-heart" [class.far]="!wishlisted()" [class.fas]="wishlisted()"></i>
+        </button>
+      </div>
+      <div class="wave" aria-hidden="true">
+        @for (peak of loop().waveformPeaks; track $index) {
+          <span [style.height.%]="peak"></span>
+        }
+      </div>
+    </div>
+    <button
+      type="button"
+      class="play"
+      [attr.aria-label]="playing() ? 'Pause loop' : 'Play loop'"
+      (click)="playRequested.emit(loop().id)"
+    >
+      <i class="fas" [class.fa-play]="!playing()" [class.fa-pause]="playing()"></i>
+    </button>
+    <span class="price" [class.free]="loop().price.amount_minor === 0">{{ priceLabel() }}</span>
+  </div>
+
+  <div class="body">
+    <h3>
+      {{ titleParts().before }}<em>{{ titleParts().accent }}</em
+      >{{ titleParts().after }}
+    </h3>
+    <div class="producer">
+      <span>{{ loop().producer.avatarFallback }}</span>
+      <span>&#64;{{ loop().producer.handle }}</span>
+    </div>
+    <p class="meta">
+      <em>{{ typeLabel() }}</em> · {{ loop().bpm }} bpm · {{ loop().musicalKey ?? 'any key' }}
+    </p>
+    <footer>
+      <span
+        ><i class="fas fa-download"></i>
+        {{ loop().engagement.downloadCount.toLocaleString() }}</span
+      >
+      <button type="button" (click)="acquireRequested.emit(loop())">
+        {{ loop().price.amount_minor === 0 ? 'Download' : priceLabel() }}
+      </button>
+    </footer>
+  </div>
+</article>

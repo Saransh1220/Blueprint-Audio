@@ -5,7 +5,6 @@ import {
   ElementRef,
   HostListener,
   inject,
-  output,
   signal,
   ViewChild,
 } from '@angular/core';
@@ -52,7 +51,6 @@ interface HeaderNotificationItem {
   styleUrls: ['./header.scss'],
 })
 export class HeaderComponent {
-  cartClick = output<void>();
   isMobileMenuOpen = false;
   cartService = inject(CartService);
   authService = inject(AuthService);

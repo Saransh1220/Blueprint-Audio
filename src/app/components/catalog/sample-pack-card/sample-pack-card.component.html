@@ -1,0 +1,36 @@
+<article class="pack-card" (click)="openRequested.emit(pack().slug)">
+  <div class="thumb">
+    <span class="edge edge-two"></span>
+    <span class="edge edge-one"></span>
+    <div class="face" [attr.data-palette]="pack().artwork.palette">
+      <div class="face-top">
+        <span class="stack"><i class="fas fa-layer-group"></i></span>
+        <span>{{ pack().fileCount }} files</span>
+      </div>
+      <strong>{{ pack().genre }}</strong>
+    </div>
+    <span class="price" [class.free]="pack().price.amount_minor === 0">{{ priceLabel() }}</span>
+  </div>
+  <div class="body">
+    <h3>
+      {{ titleParts().before }}<em>{{ titleParts().accent }}</em
+      >{{ titleParts().after }}
+    </h3>
+    <div class="producer">
+      <span>{{ pack().producer.avatarFallback }}</span>
+      <span>&#64;{{ pack().producer.handle }}</span>
+    </div>
+    <p>
+      <em>{{ typeLabel() }}</em> · {{ pack().fileCount }} files · {{ sizeLabel() }}
+    </p>
+    <footer>
+      <span
+        ><i class="fas fa-download"></i>
+        {{ pack().engagement.downloadCount.toLocaleString() }}</span
+      >
+      <button type="button" (click)="$event.stopPropagation(); openRequested.emit(pack().slug)">
+        View pack <i class="fas fa-arrow-right"></i>
+      </button>
+    </footer>
+  </div>
+</article>

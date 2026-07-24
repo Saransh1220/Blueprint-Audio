@@ -1,6 +1,6 @@
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { of, throwError } from 'rxjs';
+import { of, Subject, throwError } from 'rxjs';
 import { AuthService, LabService } from '../../../services';
 import { StudioTracksComponent } from './studio-tracks.component';
 
@@ -40,11 +40,15 @@ describe('StudioTracksComponent', () => {
     },
   ] as any;
   const specsPagination = signal<any>({ total: 36 });
+  const refresh = new Subject<void>();
 
   function create() {
     TestBed.configureTestingModule({
       providers: [
-        { provide: LabService, useValue: { getSpecs, specsPagination } },
+        {
+          provide: LabService,
+          useValue: { getSpecs, specsPagination, refresh$: refresh.asObservable() },
+        },
         { provide: AuthService, useValue: { currentUser } },
       ],
     });
@@ -70,6 +74,22 @@ describe('StudioTracksComponent', () => {
     expect(component.trackCount()).toBe(36);
     expect(component.isLoading()).toBe(false);
     expect(component.viewMode()).toBe('grid');
+  });
+
+  it('reloads the current page when catalog refresh is requested', () => {
+    const component = create();
+    component.goToPage(2);
+    getSpecs.mockClear();
+
+    refresh.next();
+
+    expect(getSpecs).toHaveBeenCalledWith(
+      expect.objectContaining({
+        category: 'beat',
+        page: 2,
+        per_page: 12,
+      }),
+    );
   });
 
   it('handles load errors and toggles between grid and list views', () => {

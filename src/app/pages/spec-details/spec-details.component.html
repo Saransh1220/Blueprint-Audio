@@ -405,91 +405,20 @@
           <h2 class="section-h">you might also <em>like</em>.</h2>
         </div>
       </div>
-      <div class="rec-row" *ngIf="relatedDisplaySpecs().length; else fallbackRecommendations">
-        <a
-          class="rec-card"
+      <div
+        class="related-beat-grid"
+        *ngIf="relatedDisplaySpecs().length; else fallbackRecommendations"
+      >
+        <app-spec-card
           *ngFor="let item of relatedDisplaySpecs()"
-          [routerLink]="['/', item.shortCode || item.id]"
-        >
-          <div class="rec-art" [attr.data-letter]="item.title.charAt(0).toLowerCase()">
-            <img [src]="item.imageUrl" [alt]="item.title" />
-            <button
-              class="rec-play"
-              type="button"
-              (click)="trackPlayFor(item, $event)"
-              aria-label="Play {{ item.title }}"
-            >
-              <svg
-                width="13"
-                height="13"
-                viewBox="0 0 24 24"
-                fill="currentColor"
-                aria-hidden="true"
-              >
-                <polygon points="6 3 20 12 6 21 6 3" />
-              </svg>
-            </button>
-          </div>
-          <div class="rec-body">
-            <div class="rec-title">
-              <em>{{ getStyledBeatTitle(item.title).lead }}</em>
-              {{ getStyledBeatTitle(item.title).accent }}
-            </div>
-            <div class="rec-meta">
-              <span>{{ item.bpm }} BPM · {{ item.key }}</span
-              ><span>{{ item.displayPriceMoney | money: item.price }}</span>
-            </div>
-          </div>
-        </a>
+          [spec]="item"
+          appearance="market"
+        ></app-spec-card>
       </div>
       <ng-template #fallbackRecommendations>
-        <div class="rec-row">
-          <article
-            class="rec-card"
-            *ngFor="
-              let item of [
-                'Copper Saints',
-                'Lavender Static',
-                'Midnight Suite',
-                'Rust Belt',
-                'Ghostwire',
-              ];
-              let i = index
-            "
-            (click)="showReferenceNotice('Open ' + item)"
-          >
-            <div
-              class="rec-art fallback-art"
-              [class]="'rec-art fallback-art art-' + i"
-              [attr.data-letter]="item.charAt(0).toLowerCase()"
-            >
-              <button
-                class="rec-play"
-                type="button"
-                (click)="$event.stopPropagation(); showReferenceNotice('Playing ' + item)"
-                aria-label="Play {{ item }}"
-              >
-                <svg
-                  width="13"
-                  height="13"
-                  viewBox="0 0 24 24"
-                  fill="currentColor"
-                  aria-hidden="true"
-                >
-                  <polygon points="6 3 20 12 6 21 6 3" />
-                </svg>
-              </button>
-            </div>
-            <div class="rec-body">
-              <div class="rec-title">
-                <em>{{ getStyledBeatTitle(item).lead }}</em> {{ getStyledBeatTitle(item).accent }}
-              </div>
-              <div class="rec-meta">
-                <span>{{ 86 + i * 8 }} BPM · Am</span
-                ><span>{{ displayPriceMoney() | money: displayPrice() }}</span>
-              </div>
-            </div>
-          </article>
+        <div class="related-empty">
+          <span>More from this producer is coming soon.</span>
+          <a routerLink="/explore">Explore all beats →</a>
         </div>
       </ng-template>
     </div>

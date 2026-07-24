@@ -1,0 +1,25 @@
+<aside>
+  <div class="avatar">{{ producer().avatarFallback }}</div>
+  <div class="copy">
+    <small>made by</small>
+    <h3>{{ producer().displayName }}</h3>
+    <p>&#64;{{ producer().handle }} · {{ producer().bio }}</p>
+    <dl>
+      <div>
+        <dt>{{ producer().packCount }}</dt>
+        <dd>Packs</dd>
+      </div>
+      <div>
+        <dt>{{ producer().followerCount.toLocaleString() }}</dt>
+        <dd>Followers</dd>
+      </div>
+      <div>
+        <dt>{{ producer().lifetimeSales.toLocaleString() }}</dt>
+        <dd>Sales</dd>
+      </div>
+    </dl>
+  </div>
+  <button type="button" [class.active]="following()" (click)="followRequested.emit()">
+    {{ following() ? 'Following' : 'Follow producer' }}
+  </button>
+</aside>

@@ -1,0 +1,98 @@
+:host {
+  display: block;
+  min-width: 0;
+}
+button {
+  position: relative;
+  display: grid;
+  width: 100%;
+  grid-template-columns: 1fr;
+  gap: 0;
+  border: 0;
+  background: transparent;
+  color: var(--catalog-ink);
+  cursor: pointer;
+  text-align: left;
+}
+.artwork {
+  display: grid;
+  position: relative;
+  height: 140px;
+  margin: 0 6px 14px 0;
+  border: 1.5px solid var(--catalog-ink);
+  border-radius: 18px;
+  background: linear-gradient(150deg, #ff4d68, #ff7d2e);
+  color: rgba(14, 13, 11, 0.8);
+  place-items: center;
+}
+.artwork::before,
+.artwork::after {
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  border: 1.5px solid var(--catalog-muted);
+  border-radius: 18px;
+  content: '';
+  transform: translate(3px, 4px);
+}
+.artwork::after {
+  border-color: var(--catalog-line);
+  transform: translate(6px, 8px);
+}
+.artwork[data-palette='cobalt'] {
+  background: linear-gradient(150deg, #5b78ff, #d4c5ff);
+}
+.artwork[data-palette='lime'] {
+  background: linear-gradient(150deg, #9ec22d, #d9f561);
+}
+.artwork[data-palette='lavender'] {
+  background: linear-gradient(150deg, #d4c5ff, #ff4d68);
+}
+.artwork[data-palette='sun'] {
+  background: linear-gradient(150deg, #ffd455, #ff7d2e);
+}
+.artwork[data-palette='midnight'] {
+  background: linear-gradient(150deg, #c8bfa9, #5b78ff);
+}
+.copy {
+  display: grid;
+  min-width: 0;
+  gap: 3px;
+}
+.copy strong {
+  overflow: hidden;
+  color: var(--catalog-ink);
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.copy em {
+  color: var(--catalog-accent);
+  font-family: 'Instrument Serif', serif;
+  font-weight: 400;
+  font-style: italic;
+}
+.copy small {
+  overflow: hidden;
+  color: var(--catalog-muted);
+  font:
+    400 10.5px 'DM Mono',
+    monospace;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.price {
+  position: absolute;
+  z-index: 2;
+  margin: 112px 0 0 12px;
+  padding: 5px 10px;
+  border: 1.5px solid var(--catalog-bg);
+  border-radius: 100px;
+  background: var(--catalog-ink);
+  color: var(--catalog-bg);
+  font:
+    700 9.5px 'DM Mono',
+    monospace;
+}

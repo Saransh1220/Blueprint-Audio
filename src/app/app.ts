@@ -1,15 +1,15 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, ViewChild } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { NavigationEnd, Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { filter } from 'rxjs/operators';
 import { HeaderComponent } from './components';
-import { CartComponent } from './components/cart/cart.component';
 import { FooterComponent } from './components/footer/footer';
 import { LoadingBarComponent } from './components/loading-bar/loading-bar.component';
 import { ModalComponent } from './components/modal/modal.component';
 import { PlayerComponent } from './components/player/player';
 import { ToastComponent } from './components/toast/toast.component';
 import { PlayerService } from './services/player.service';
+import { SpecUploadMonitorService } from './services/spec-upload-monitor.service';
 
 @Component({
   selector: 'app-root',
@@ -22,7 +22,6 @@ import { PlayerService } from './services/player.service';
     HeaderComponent,
     FooterComponent,
     PlayerComponent,
-    CartComponent,
     ModalComponent,
     ToastComponent,
     LoadingBarComponent,
@@ -32,22 +31,16 @@ import { PlayerService } from './services/player.service';
 })
 export class AppComponent {
   private router = inject(Router);
+  private specUploadMonitor = inject(SpecUploadMonitorService);
   playerService = inject(PlayerService);
 
-  @ViewChild(CartComponent) cart!: CartComponent;
-
   constructor() {
+    this.specUploadMonitor.resumePersisted();
     this.router.events.pipe(filter((event) => event instanceof NavigationEnd)).subscribe(() => {
       setTimeout(() => {
         window.scrollTo({ top: 0, behavior: 'auto' });
       }, 0);
     });
-  }
-
-  toggleCart() {
-    if (this.cart) {
-      this.cart.toggle();
-    }
   }
 
   isStudioRoute(): boolean {
