@@ -48,6 +48,7 @@ export class SpecAdapter {
       moods: dto.moods || [],
       instruments: dto.instruments || [],
       waveformPeaks: dto.waveform_peaks || [],
+      createdAt: dto.created_at,
     };
   }
 

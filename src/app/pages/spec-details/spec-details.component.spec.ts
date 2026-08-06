@@ -54,6 +54,7 @@ describe('SpecDetailsComponent', () => {
       isFavorited: false,
     },
     freeMp3Enabled: true,
+    createdAt: '2026-02-03T23:30:00Z',
   };
 
   const labServiceMock = {
@@ -106,6 +107,13 @@ describe('SpecDetailsComponent', () => {
 
   it('should create', () => {
     expect(component).toBeTruthy();
+  });
+
+  it('renders the release date from the current beat', () => {
+    const eyebrow = (fixture.nativeElement as HTMLElement).querySelector('.hero-eyebrow');
+
+    expect(eyebrow?.textContent).toContain('released Feb 3, 2026');
+    expect(eyebrow?.textContent).not.toContain('Apr 19, 2026');
   });
 
   it('opens one FAQ answer at a time and collapses it on a second click', () => {

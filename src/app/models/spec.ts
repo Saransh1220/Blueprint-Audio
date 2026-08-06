@@ -63,4 +63,5 @@ export interface Spec {
   moods?: string[];
   instruments?: string[];
   waveformPeaks?: number[];
+  createdAt?: string;
 }

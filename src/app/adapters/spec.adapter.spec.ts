@@ -46,6 +46,7 @@ describe('SpecAdapter', () => {
     expect(result.id).toBe('spec-1');
     expect(result.key).toBe('C MINOR');
     expect(result.audioUrl).toBe('preview.mp3');
+    expect(result.createdAt).toBe('2026-01-01');
     expect(result.licenses[0].fileTypes).toEqual(['mp3']);
     expect(result.analytics).toEqual({
       playCount: 100,
