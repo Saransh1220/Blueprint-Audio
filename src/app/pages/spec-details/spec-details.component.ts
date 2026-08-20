@@ -5,6 +5,8 @@ import { ActivatedRoute, RouterLink } from '@angular/router';
 import { of } from 'rxjs';
 import { catchError, finalize, switchMap } from 'rxjs/operators';
 import { SpecCardComponent } from '../../components/spec-card/spec-card';
+import { BlazeEffectComponent } from '../../components/ui/blaze-effect.component';
+import { FlameWrapEffectComponent } from '../../components/ui/flame-wrap-effect.component';
 import { type LicenseOption, type Spec } from '../../models';
 import type { Money } from '../../models/money';
 import {
@@ -19,7 +21,14 @@ import { MoneyPipe } from '../../shared/pipes/money.pipe';
 @Component({
   selector: 'app-spec-details',
   standalone: true,
-  imports: [CommonModule, RouterLink, MoneyPipe, SpecCardComponent],
+  imports: [
+    CommonModule,
+    RouterLink,
+    MoneyPipe,
+    SpecCardComponent,
+    BlazeEffectComponent,
+    FlameWrapEffectComponent,
+  ],
   templateUrl: './spec-details.component.html',
   styleUrls: ['./spec-details.component.scss'],
 })

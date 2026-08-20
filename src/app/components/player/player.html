@@ -6,6 +6,27 @@
     [class.mobile-closing]="isMobileSheetClosing()"
     (click)="openMobilePlayer($event)"
   >
+    <app-flame-wrap-effect
+      class="player-flame"
+      [height]="64"
+      [spread]="12"
+      [radius]="0"
+      [intensity]="0.46"
+      [speed]="0.24"
+      [scale]="0.72"
+      [turbulence]="0.38"
+      [turbulenceScale]="0.46"
+      [turbulenceReach]="14"
+      [sparks]="1.05"
+      [sparkSize]="0.34"
+      [sparkDensity]="0.72"
+      [sparkSpeed]="0.72"
+      [rim]="1.85"
+      [melt]="2"
+      [distortion]="3"
+      [smoke]="0.42"
+      [ember]="1.4"
+    />
     <div class="mob-progress-bar">
       <input
         type="range"

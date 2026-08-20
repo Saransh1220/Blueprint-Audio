@@ -20,11 +20,12 @@ import { ModalService } from '../../services/modal.service';
 import { PlayerService } from '../../services/player.service';
 import { ToastService } from '../../services/toast.service';
 import { LicenseSelectorComponent } from '../license-selector/license-selector.component';
+import { FlameWrapEffectComponent } from '../ui/flame-wrap-effect.component';
 
 @Component({
   selector: 'app-player',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, RouterLink, FlameWrapEffectComponent],
   templateUrl: './player.html',
   styleUrls: ['./player.scss'],
 })

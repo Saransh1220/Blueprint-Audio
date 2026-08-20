@@ -50,6 +50,25 @@
   }
 }
 
+.player-flame {
+  /*
+   * Keep the shader on a stable, one-pixel rail instead of sizing it to the
+   * expanding player. This prevents WebGL from clearing its canvas while the
+   * queue panel animates the player's height.
+   */
+  inset: auto 0 auto;
+  top: 0;
+  height: 1px;
+  z-index: 0;
+  opacity: 0;
+  clip-path: inset(-190px 0 0);
+  transition: opacity 0.24s ease 0.08s;
+}
+
+.mini-player.is-active .player-flame {
+  opacity: 1;
+}
+
 .mob-progress-bar {
   display: none;
 }
@@ -999,6 +1018,10 @@
     &::before {
       display: none;
     }
+  }
+
+  .mini-player.expanded .player-flame {
+    opacity: 0;
   }
 
   .mini-player.expanded .mp-row,

@@ -116,6 +116,22 @@ describe('SpecDetailsComponent', () => {
     expect(eyebrow?.textContent).not.toContain('Apr 19, 2026');
   });
 
+  it('renders the Blaze effect behind the beat hero', () => {
+    const hero = (fixture.nativeElement as HTMLElement).querySelector('.hero');
+    const blaze = hero?.querySelector('app-blaze-effect .blaze-output');
+    const content = hero?.querySelector('.hero-content');
+
+    expect(blaze).toBeTruthy();
+    expect(content).toBeTruthy();
+  });
+
+  it('wraps the beat artwork in the Flame Wrap effect', () => {
+    const artShell = (fixture.nativeElement as HTMLElement).querySelector('.hero-art-flame-shell');
+
+    expect(artShell?.querySelector('app-flame-wrap-effect .flame-output')).toBeTruthy();
+    expect(artShell?.querySelector('.hero-art')).toBeTruthy();
+  });
+
   it('opens one FAQ answer at a time and collapses it on a second click', () => {
     component.toggleFaq(0);
     fixture.detectChanges();

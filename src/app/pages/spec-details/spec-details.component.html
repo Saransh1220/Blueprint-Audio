@@ -32,17 +32,59 @@
 
   <section class="hero">
     <div class="hero-wash"></div>
+    <app-blaze-effect
+      class="hero-blaze"
+      [height]="0.88"
+      [distortion]="0.42"
+      [distortionScale]="0.62"
+      [speed]="0.82"
+      [sparks]="0.72"
+      [sparkDensity]="1.35"
+      [sparkSize]="1.12"
+      [layers]="5"
+      [smoke]="0.46"
+      [glow]="1.7"
+      [sparkColor]="[1, 0.3, 0.41]"
+      [smokeColor]="[1, 0.49, 0.18]"
+    />
     <div class="hero-content">
-      <button class="hero-art" type="button" (click)="playSpec()" aria-label="Play {{ s.title }}">
-        <img [src]="s.imageUrl" [alt]="s.title" />
-        <span class="art-play">
-          <span class="art-play-btn">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-              <polygon points="6 3 20 12 6 21 6 3" />
-            </svg>
+      <div class="hero-art-flame-shell">
+        <app-flame-wrap-effect
+          class="hero-art-flame"
+          [height]="70"
+          [spread]="12"
+          [radius]="22"
+          [intensity]="0.72"
+          [speed]="0.34"
+          [scale]="0.8"
+          [turbulence]="0.5"
+          [turbulenceReach]="19"
+          [sparks]="1.55"
+          [sparkSize]="0.46"
+          [sparkDensity]="1.15"
+          [rim]="2.7"
+          [melt]="3.8"
+          [distortion]="5.4"
+          [smoke]="0.72"
+          [ember]="2.05"
+        />
+        <button class="hero-art" type="button" (click)="playSpec()" aria-label="Play {{ s.title }}">
+          <img [src]="s.imageUrl" [alt]="s.title" />
+          <span class="art-play">
+            <span class="art-play-btn">
+              <svg
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="currentColor"
+                aria-hidden="true"
+              >
+                <polygon points="6 3 20 12 6 21 6 3" />
+              </svg>
+            </span>
           </span>
-        </span>
-      </button>
+        </button>
+      </div>
 
       <div class="hero-eyebrow">
         <span class="dot"></span>{{ primaryGenre()

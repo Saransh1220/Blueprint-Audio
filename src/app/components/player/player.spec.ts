@@ -106,6 +106,12 @@ describe('PlayerComponent', () => {
     fixture.detectChanges();
   });
 
+  it('wraps the persistent player in the Flame Wrap effect', () => {
+    const player = (fixture.nativeElement as HTMLElement).querySelector('.mini-player');
+
+    expect(player?.querySelector('app-flame-wrap-effect .flame-output')).toBeTruthy();
+  });
+
   it('seeks, adjusts volume, and opens license modal through auth gate', () => {
     const stopPropagation = vi.fn();
     const seekRail = {
