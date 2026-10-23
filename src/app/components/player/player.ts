@@ -230,6 +230,12 @@ export class PlayerComponent implements OnDestroy {
     }
   }
 
+  /** On phones, tapping the dock opens the sheet instead of navigating to the beat page. */
+  miniPlayerLink(track: Spec): string[] | null {
+    if (this.isMobileViewport()) return null;
+    return ['/', track.shortCode || track.id.replace('#', '')];
+  }
+
   openMobilePlayer(event: MouseEvent) {
     if (!this.isMobileViewport()) return;
 
