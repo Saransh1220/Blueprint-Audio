@@ -37,9 +37,27 @@ interface VisualizerChoice {
   kind: VisualizerKind;
   index: string;
   label: string;
+  short: string;
   kicker: string;
   description: string;
-  formats: string;
+  formats: string[];
+}
+
+type InspectorTab = 'style' | 'color' | 'output';
+
+interface SliderControl {
+  key: string;
+  label: string;
+  min: number;
+  max: number;
+  step: number;
+  suffix: string;
+}
+
+interface SliderSet {
+  title: string;
+  hint: string;
+  controls: SliderControl[];
 }
 
 interface ColorSwatch {
@@ -76,28 +94,77 @@ export class StudioVisualizerComponent implements AfterViewInit, OnDestroy {
       kind: 'waveform',
       index: '01',
       label: 'Waveform',
+      short: 'Waveform',
       kicker: 'Graphic rhythm',
       description: 'Clean bars, mirrored motion, and line pulses for sharp social-ready visuals.',
-      formats: 'Square · Story · Wide',
+      formats: ['Square', 'Story', 'Wide'],
     },
     {
       kind: 'fluid-gradient',
       index: '02',
       label: 'Fluid Gradient',
+      short: 'Fluid',
       kicker: 'Dimensional colour',
       description:
         'A living gradient surface that folds, rotates, and blooms with every frequency band.',
-      formats: 'WebGL · All formats',
+      formats: ['WebGL', 'All formats'],
     },
     {
       kind: 'vinyl',
       index: '03',
       label: 'Vinyl Deck',
+      short: 'Vinyl',
       kicker: 'Analog motion',
       description:
         'A rotating record, responsive grooves, and a bottom equalizer made for beat reveals.',
-      formats: 'Square · Story · Wide',
+      formats: ['Square', 'Story', 'Wide'],
     },
+  ];
+
+  readonly sliderSets: Record<VisualizerKind, SliderSet> = {
+    waveform: {
+      title: 'Shape',
+      hint: 'Bars & intensity',
+      controls: [
+        { key: 'density', label: 'Density', min: 24, max: 180, step: 4, suffix: '' },
+        { key: 'intensity', label: 'Intensity', min: 20, max: 86, step: 2, suffix: '%' },
+      ],
+    },
+    'fluid-gradient': {
+      title: 'Surface motion',
+      hint: '3D reactive',
+      controls: [
+        { key: 'deformation', label: 'Deformation', min: 10, max: 100, step: 2, suffix: '%' },
+        { key: 'rotation', label: 'Rotation', min: 0, max: 100, step: 2, suffix: '%' },
+        { key: 'responsiveness', label: 'Response', min: 10, max: 100, step: 2, suffix: '%' },
+        { key: 'blendSoftness', label: 'Softness', min: 10, max: 100, step: 2, suffix: '%' },
+      ],
+    },
+    vinyl: {
+      title: 'Deck motion',
+      hint: '33 rpm inspired',
+      controls: [
+        { key: 'speed', label: 'Record speed', min: 10, max: 100, step: 2, suffix: '%' },
+        { key: 'grooveResponse', label: 'Groove response', min: 10, max: 100, step: 2, suffix: '%' },
+        { key: 'density', label: 'Bar density', min: 24, max: 120, step: 4, suffix: '' },
+        { key: 'intensity', label: 'Bar intensity', min: 20, max: 86, step: 2, suffix: '%' },
+      ],
+    },
+  };
+
+  readonly grainControl: SliderControl = {
+    key: 'grainAmount',
+    label: 'Grain',
+    min: 0,
+    max: 14,
+    step: 1,
+    suffix: '',
+  };
+
+  readonly inspectorTabs: Array<{ id: InspectorTab; label: string }> = [
+    { id: 'style', label: 'Style' },
+    { id: 'color', label: 'Color' },
+    { id: 'output', label: 'Output' },
   ];
 
   readonly presets: VisualizerPreset[] = [
@@ -119,10 +186,10 @@ export class StudioVisualizerComponent implements AfterViewInit, OnDestroy {
     },
   ];
 
-  readonly formats: Array<{ value: VisualizerFormat; label: string }> = [
-    { value: '1:1', label: 'Square' },
-    { value: '9:16', label: 'Story' },
-    { value: '16:9', label: 'Wide' },
+  readonly formats: Array<{ value: VisualizerFormat; label: string; hint: string }> = [
+    { value: '1:1', label: 'Square', hint: 'Feed post' },
+    { value: '9:16', label: 'Story', hint: 'Reels · Shorts' },
+    { value: '16:9', label: 'Wide', hint: 'YouTube' },
   ];
 
   readonly backgroundSwatches: ColorSwatch[] = [
@@ -238,6 +305,7 @@ export class StudioVisualizerComponent implements AfterViewInit, OnDestroy {
   ];
 
   selectedKind = signal<VisualizerKind | null>(null);
+  inspectorTab = signal<InspectorTab>('style');
   settings: VisualizerSettings = this.visualizerService.createDefaultSettings('waveform');
 
   audioFileName = signal('');
@@ -297,6 +365,37 @@ export class StudioVisualizerComponent implements AfterViewInit, OnDestroy {
       this.renderPreview();
       this.cdr.markForCheck();
     });
+  }
+
+  /** Slider group for the active visualizer (empty until one is chosen). */
+  get sliderSet(): SliderSet {
+    return this.sliderSets[this.settings.kind];
+  }
+
+  setInspectorTab(tab: InspectorTab) {
+    this.inspectorTab.set(tab);
+  }
+
+  sliderValue(key: string): number {
+    return Number((this.settings as unknown as Record<string, unknown>)[key] ?? 0);
+  }
+
+  setSlider(key: string, value: number | string) {
+    (this.settings as unknown as Record<string, unknown>)[key] = Number(value);
+    this.updateSetting();
+  }
+
+  /** Filled share (0–100) of a slider track, used to paint its progress colour. */
+  sliderFill(control: SliderControl): number {
+    const span = control.max - control.min || 1;
+    return Math.max(0, Math.min(100, ((this.sliderValue(control.key) - control.min) / span) * 100));
+  }
+
+  isPresetActive(preset: GradientPreset): boolean {
+    return (
+      this.settings.backgroundColor === preset.backgroundColor &&
+      this.settings.gradientColor === preset.gradientColor
+    );
   }
 
   get waveformSettings() {
