@@ -104,6 +104,7 @@
         <a routerLink="/admin" routerLinkActive="active">Admin</a>
       }
       @if (authService.currentUser()) {
+        <a class="compact-nav-link" routerLink="/dashboard" routerLinkActive="active">Dashboard</a>
         <div
           class="nav-link-wrap studio-nav-wrap"
           [class.studio-menu-dismissed]="isStudioMenuDismissed"
@@ -839,12 +840,11 @@
     <a routerLink="/battles" routerLinkActive="active" (click)="closeMobileMenu()">Battles</a>
 
     @if (authService.currentUser()) {
+      <a routerLink="/dashboard" routerLinkActive="active" (click)="closeMobileMenu()"
+        >Dashboard</a
+      >
       @if (authService.currentUser()?.role === Role.PRODUCER) {
         <a routerLink="/studio" routerLinkActive="active" (click)="closeMobileMenu()">Studio</a>
-      } @else {
-        <a routerLink="/dashboard" routerLinkActive="active" (click)="closeMobileMenu()"
-          >Dashboard</a
-        >
       }
       <a routerLink="/settings" routerLinkActive="active" (click)="closeMobileMenu()">Settings</a>
       @if (authzService.isSuperAdmin()) {
