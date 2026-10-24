@@ -1,0 +1,110 @@
+@use './studio-ui' as ui;
+
+:host {
+  @include ui.tokens;
+  display: block;
+  min-width: 0;
+  color: var(--ink);
+  font-family: var(--su-display);
+}
+
+.stat {
+  --accent: var(--hot);
+  display: grid;
+  gap: 12px;
+  height: 100%;
+  padding: 18px 20px 16px;
+  border: 1px solid var(--su-line);
+  border-radius: var(--su-radius);
+  // a hint of the metric's colour in the surface, plus a coloured top edge
+  background: color-mix(in srgb, var(--accent) 4%, var(--su-panel));
+  border-color: var(--su-line);
+  box-shadow: inset 0 2px 0 color-mix(in srgb, var(--accent) 80%, transparent);
+
+  &[data-accent='cobalt'] {
+    --accent: var(--cobalt, #2d4cff);
+  }
+
+  &[data-accent='lime'] {
+    --accent: var(--lime, #c8e84f);
+  }
+
+  &[data-accent='sun'] {
+    --accent: var(--sun, #ffc93c);
+  }
+
+  &[data-accent='lavender'] {
+    --accent: var(--lavender, #c9b8ff);
+  }
+
+  &[data-accent='tangerine'] {
+    --accent: var(--tangerine, #ff6b1a);
+  }
+}
+
+.label {
+  @include ui.micro;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--su-muted);
+}
+
+.dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--accent);
+}
+
+.value {
+  font-size: clamp(28px, 3vw, 36px);
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -0.035em;
+}
+
+.foot {
+  display: flex;
+  align-items: center;
+  gap: 8px 10px;
+  min-height: 22px;
+}
+
+.delta {
+  color: var(--su-muted);
+  font-family: var(--su-mono);
+  font-size: 11.5px;
+  white-space: nowrap;
+
+  &.up {
+    color: var(--su-up);
+  }
+
+  &.down {
+    color: var(--su-down);
+  }
+}
+
+.hint {
+  color: var(--su-muted);
+  font-size: 12px;
+}
+
+.spark {
+  width: 64px;
+  height: 22px;
+  margin-left: auto;
+  overflow: visible;
+
+  polyline {
+    fill: none;
+    stroke: var(--accent);
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    vector-effect: non-scaling-stroke;
+  }
+}
+
+@include ui.dark-tokens;

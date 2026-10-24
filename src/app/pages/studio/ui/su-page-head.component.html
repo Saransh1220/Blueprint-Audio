@@ -1,0 +1,17 @@
+<header class="head">
+  <div class="head-text">
+    @if (eyebrow()) {
+      <p class="eyebrow"><span class="dot"></span>{{ eyebrow() }}</p>
+    }
+    <h1>
+      {{ heading() }}
+      @if (accent()) {
+        <em>{{ accent() }}</em>
+      }
+    </h1>
+    @if (subtitle()) {
+      <p class="subtitle">{{ subtitle() }}</p>
+    }
+  </div>
+  <div class="head-actions"><ng-content /></div>
+</header>

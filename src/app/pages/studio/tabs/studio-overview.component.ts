@@ -1,4 +1,3 @@
-import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { AnalyticsOverviewResponse, TopSpecStat } from '../../../core/api/analytics.requests';
@@ -8,10 +7,26 @@ import { AuthService, LabService } from '../../../services';
 import { AnalyticsService } from '../../../services/analytics.service';
 import { CurrencyService } from '../../../services/currency.service';
 import { PaymentService } from '../../../services/payment.service';
+import {
+  type SuAccent,
+  SuPageHeadComponent,
+  SuPanelComponent,
+  SuStatComponent,
+} from '../ui';
+
+interface StatTile {
+  label: string;
+  value: string;
+  delta: string;
+  up: boolean | null;
+  hint: string;
+  spark: string;
+  accent: SuAccent;
+}
 
 @Component({
   selector: 'app-studio-overview',
-  imports: [CommonModule, RouterLink],
+  imports: [RouterLink, SuPageHeadComponent, SuPanelComponent, SuStatComponent],
   templateUrl: './studio-overview.component.html',
   styleUrl: './studio-overview.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -256,6 +271,98 @@ export class StudioOverviewComponent {
         createdAt: order.created_at,
       })),
   );
+
+  // ── Refreshed overview helpers ───────────────────────
+
+  /** Last-7-days vs previous-7-days change for a daily series, or null if there isn't enough data. */
+  private weekChange(values: number[]): { text: string; up: boolean } | null {
+    if (values.length < 8) return null;
+    const sum = (rows: number[]) => rows.reduce((total, v) => total + v, 0);
+    const current = sum(values.slice(-7));
+    const previous = sum(values.slice(-14, -7));
+    if (previous <= 0) return null;
+    const pct = ((current - previous) / previous) * 100;
+    return { text: `${pct >= 0 ? '+' : '−'}${Math.abs(pct).toFixed(1)}%`, up: pct >= 0 };
+  }
+
+  /** `points` string for an 80×22 sparkline from the last 14 values. */
+  private sparkOf(values: number[]): string {
+    const series = values.slice(-14);
+    if (series.length < 2) return '';
+    const max = Math.max(...series);
+    const min = Math.min(...series);
+    const span = max - min || 1;
+    const step = 80 / (series.length - 1);
+    return series
+      .map((v, i) => `${(i * step).toFixed(1)},${(20 - ((v - min) / span) * 18).toFixed(1)}`)
+      .join(' ');
+  }
+
+  private playsSeries = computed(() => (this.analyticsData()?.plays_by_day ?? []).map((r) => r.count));
+  private downloadsSeries = computed(() =>
+    (this.analyticsData()?.downloads_by_day ?? []).map((r) => r.count),
+  );
+  private revenueSeries = computed(() =>
+    (this.analyticsData()?.revenue_by_day ?? []).map((r) => r.revenue),
+  );
+
+  /** Weekly revenue change shown beside the revenue total. */
+  revenueDelta = computed(() => this.weekChange(this.revenueSeries()));
+
+  statTiles = computed<StatTile[]>(() => {
+    const cards = this.kpiCards();
+    const make = (
+      index: number,
+      accent: SuAccent,
+      series: number[],
+      hint: string,
+    ): StatTile => {
+      const change = this.weekChange(series);
+      return {
+        label: cards[index].label,
+        value: cards[index].value,
+        delta: change?.text ?? '',
+        up: change ? change.up : null,
+        hint: change ? '7d vs prior 7d' : hint,
+        spark: this.sparkOf(series),
+        accent,
+      };
+    };
+    return [
+      make(0, 'hot', this.playsSeries(), 'Total plays'),
+      make(1, 'cobalt', this.revenueSeries(), 'Total revenue'),
+      make(2, 'sun', this.downloadsSeries(), 'Total downloads'),
+      make(3, 'lavender', [], 'All time'),
+    ];
+  });
+
+  /** One honest sentence under the title, built only from loaded data. */
+  statusLine = computed(() => {
+    const beats = this.topSpecs().length;
+    const orders = this.recentOrders().length;
+    if (this.isLoadingAnalytics() && this.isLoadingOrders()) return 'Loading your studio…';
+    const parts: string[] = [];
+    if (beats) parts.push(`${beats} top ${beats === 1 ? 'beat' : 'beats'} tracked`);
+    if (orders) parts.push(`${orders} recent ${orders === 1 ? 'order' : 'orders'}`);
+    return parts.length ? `${parts.join(' · ')}.` : 'Here’s how your catalog is doing.';
+  });
+
+  /** First / middle / last date labels under the revenue chart. */
+  chartAxis = computed(() => {
+    const points = this.revenuePoints();
+    if (!points.length) return [];
+    return [points[0].label, points[Math.floor(points.length / 2)].label, 'Today'];
+  });
+
+  timeAgo(value: string | undefined): string {
+    if (!value) return '';
+    const mins = Math.max(Math.round((Date.now() - new Date(value).getTime()) / 60000), 0);
+    if (mins < 60) return `${Math.max(mins, 1)}m ago`;
+    const hours = Math.round(mins / 60);
+    if (hours < 24) return `${hours}h ago`;
+    const days = Math.round(hours / 24);
+    return days < 30 ? `${days}d ago` : this.formatDate(value);
+  }
 
   constructor() {
     this.loadAnalytics();

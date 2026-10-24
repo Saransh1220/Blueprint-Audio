@@ -1,1 +1,423 @@
-@use 'studio-shared' as *;
+@use '../ui/studio-ui' as ui;
+
+:host {
+  @include ui.tokens;
+  display: block;
+  color: var(--ink);
+  font-family: var(--su-display);
+}
+
+@include ui.buttons;
+
+.ov {
+  display: grid;
+  gap: 22px;
+  width: min(1320px, 100%);
+  margin: 0 auto;
+}
+
+// ── Layout ───────────────────────────────────────────
+.stats {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.row {
+  display: grid;
+  gap: 16px;
+}
+
+// ── Revenue ──────────────────────────────────────────
+.figure {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 6px 14px;
+  margin-bottom: 16px;
+
+  strong {
+    font-size: clamp(32px, 4vw, 44px);
+    font-weight: 800;
+    line-height: 1;
+    letter-spacing: -0.04em;
+  }
+}
+
+.delta {
+  color: var(--su-muted);
+  font-family: var(--su-mono);
+  font-size: 12px;
+
+  &.up {
+    color: var(--su-up);
+  }
+
+  &.down {
+    color: var(--su-down);
+  }
+
+  small {
+    color: var(--su-muted);
+    font-family: var(--su-display);
+    font-size: 12px;
+  }
+}
+
+.chart {
+  position: relative;
+  height: 230px;
+
+  svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+  }
+
+  .grid {
+    stroke: var(--su-line);
+    stroke-width: 1;
+    stroke-dasharray: 3 4;
+    vector-effect: non-scaling-stroke;
+  }
+
+  .base {
+    stroke: var(--su-line-2);
+    stroke-width: 1;
+    vector-effect: non-scaling-stroke;
+  }
+
+  .area {
+    fill: color-mix(in srgb, var(--hot) 16%, transparent);
+  }
+
+  .line {
+    fill: none;
+    stroke: var(--hot);
+    stroke-width: 2.5;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    vector-effect: non-scaling-stroke;
+  }
+
+  .hover-line {
+    stroke: var(--su-line-2);
+    stroke-width: 1;
+    vector-effect: non-scaling-stroke;
+  }
+
+  .hover-dot {
+    fill: var(--hot);
+    stroke: var(--cream);
+    stroke-width: 2;
+    vector-effect: non-scaling-stroke;
+  }
+}
+
+.tooltip {
+  position: absolute;
+  z-index: 2;
+  display: grid;
+  gap: 2px;
+  padding: 8px 12px;
+  border-radius: 10px;
+  background: var(--ink);
+  color: var(--cream);
+  font-size: 12px;
+  transform: translate(-50%, calc(-100% - 12px));
+  pointer-events: none;
+  white-space: nowrap;
+
+  span {
+    @include ui.micro;
+    font-size: 9.5px;
+    opacity: 0.7;
+  }
+
+  strong {
+    font-size: 14px;
+    font-weight: 800;
+  }
+}
+
+.axis {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 8px;
+  color: var(--su-muted);
+  @include ui.micro;
+  font-size: 10px;
+}
+
+.state {
+  margin: 0;
+  color: var(--su-muted);
+  font-size: 14px;
+
+  &.pad {
+    padding: 28px 22px;
+  }
+}
+
+// ── List rows (top beats, sales) ─────────────────────
+.row-item {
+  display: grid;
+  align-items: center;
+  gap: 14px;
+  padding: 13px 22px;
+  border-bottom: 1px solid var(--su-line);
+
+  transition: background 0.15s ease;
+
+  &:hover {
+    background: var(--su-soft);
+  }
+
+  &:last-child {
+    border-bottom: 0;
+  }
+
+  strong {
+    font-size: 14.5px;
+    font-weight: 700;
+  }
+
+  small {
+    color: var(--su-muted);
+    font-size: 12px;
+  }
+}
+
+.beat {
+  grid-template-columns: 22px 40px minmax(0, 1fr) auto;
+}
+
+.rank {
+  color: var(--su-muted);
+  font-family: var(--su-mono);
+  font-size: 11px;
+
+  &.top {
+    color: var(--hot);
+    font-weight: 500;
+  }
+}
+
+.cover {
+  display: block;
+  width: 40px;
+  height: 40px;
+  overflow: hidden;
+  border-radius: 10px;
+  background: var(--su-soft);
+
+  img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+}
+
+.cover-fallback {
+  display: grid;
+  width: 100%;
+  height: 100%;
+  place-items: center;
+  background: var(--accent, var(--hot));
+  color: #141310;
+  font-size: 16px;
+  font-weight: 800;
+  text-transform: uppercase;
+
+  &[data-i='0'] {
+    --accent: var(--hot);
+  }
+
+  &[data-i='1'] {
+    --accent: var(--sun);
+  }
+
+  &[data-i='2'] {
+    --accent: var(--lime);
+  }
+
+  &[data-i='3'] {
+    --accent: var(--lavender, #c9b8ff);
+  }
+
+  &[data-i='4'] {
+    --accent: var(--tangerine, #ff6b1a);
+  }
+
+  &[data-i='5'] {
+    --accent: var(--cobalt, #5b78ff);
+  }
+}
+
+.beat-info {
+  display: grid;
+  gap: 7px;
+  min-width: 0;
+
+  strong {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+
+.meter {
+  display: block;
+  height: 4px;
+  overflow: hidden;
+  border-radius: 99px;
+  background: var(--su-soft);
+
+  i {
+    display: block;
+    height: 100%;
+    border-radius: inherit;
+    background: var(--ink);
+  }
+}
+
+.beat-count {
+  display: grid;
+  justify-items: end;
+  font-size: 14px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+
+  small {
+    font-weight: 400;
+  }
+}
+
+.sale {
+  grid-template-columns: 38px minmax(0, 1fr) auto;
+}
+
+.avatar {
+  display: grid;
+  width: 38px;
+  height: 38px;
+  place-items: center;
+  border-radius: 50%;
+  color: #141310;
+  font-size: 15px;
+  font-weight: 800;
+}
+
+.sale-info {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+
+  strong,
+  small {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+
+.sale-amount {
+  display: grid;
+  justify-items: end;
+  gap: 3px;
+
+  strong {
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+// ── Licenses ─────────────────────────────────────────
+.licenses {
+  display: grid;
+  gap: 18px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+
+  li {
+    --bar: var(--hot);
+  }
+
+  li[data-i='1'] {
+    --bar: var(--cobalt, #5b78ff);
+  }
+
+  li[data-i='2'] {
+    --bar: var(--sun);
+  }
+
+  li[data-i='3'] {
+    --bar: var(--lime);
+  }
+
+  .meter {
+    height: 8px;
+
+    i {
+      background: var(--bar);
+    }
+  }
+}
+
+.license-top {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 8px;
+  font-size: 14px;
+
+  span {
+    font-weight: 600;
+  }
+
+  strong {
+    font-family: var(--su-mono);
+    font-size: 12.5px;
+    font-weight: 500;
+  }
+}
+
+// ── Responsive ───────────────────────────────────────
+@media (min-width: 720px) {
+  .ov {
+    gap: 26px;
+  }
+
+  .stats {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 16px;
+  }
+
+  .row {
+    gap: 20px;
+  }
+}
+
+@media (min-width: 1040px) {
+  .row-main {
+    grid-template-columns: minmax(0, 1.75fr) minmax(0, 1fr);
+  }
+
+  .row-sub {
+    grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 480px) {
+  .row-item {
+    padding-inline: 16px;
+  }
+
+  .chart {
+    height: 190px;
+  }
+}
+
+@include ui.dark-tokens;

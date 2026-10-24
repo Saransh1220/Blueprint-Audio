@@ -1,0 +1,19 @@
+<div class="stat" [attr.data-accent]="accent()">
+  <span class="label"><i class="dot"></i>{{ label() }}</span>
+  <strong class="value">{{ value() }}</strong>
+  <div class="foot">
+    @if (delta()) {
+      <span class="delta" [class.up]="up() === true" [class.down]="up() === false">
+        {{ up() === true ? '▲' : up() === false ? '▼' : '•' }} {{ delta() }}
+      </span>
+    }
+    @if (hint()) {
+      <span class="hint">{{ hint() }}</span>
+    }
+    @if (spark()) {
+      <svg class="spark" viewBox="0 0 80 22" preserveAspectRatio="none" aria-hidden="true">
+        <polyline [attr.points]="spark()" />
+      </svg>
+    }
+  </div>
+</div>

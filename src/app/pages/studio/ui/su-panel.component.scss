@@ -1,0 +1,140 @@
+@use './studio-ui' as ui;
+
+:host {
+  @include ui.tokens;
+  --accent: var(--hot);
+  display: block;
+  min-width: 0;
+  color: var(--ink);
+  font-family: var(--su-display);
+}
+
+:host([data-accent='cobalt']) {
+  --accent: var(--cobalt, #2d4cff);
+}
+
+:host([data-accent='lime']) {
+  --accent: var(--lime, #c8e84f);
+}
+
+:host([data-accent='sun']) {
+  --accent: var(--sun, #ffc93c);
+}
+
+:host([data-accent='lavender']) {
+  --accent: var(--lavender, #c9b8ff);
+}
+
+:host([data-accent='tangerine']) {
+  --accent: var(--tangerine, #ff6b1a);
+}
+
+.panel {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  border: 1px solid var(--su-line);
+  border-radius: var(--su-radius);
+  background: var(--su-panel);
+  overflow: hidden;
+}
+
+// Soft tone: a slightly tinted surface that separates a panel from white neighbours
+:host([data-tone='soft']) .panel {
+  background: color-mix(in srgb, var(--ink) 4%, var(--su-panel));
+}
+
+// Accented panels get a coloured top edge, matching the stat tiles
+:host([data-accent]) .panel {
+  box-shadow: inset 0 2px 0 color-mix(in srgb, var(--accent) 80%, transparent);
+}
+
+.panel-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 18px 22px 0;
+}
+
+.flush .panel-head {
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--su-line);
+}
+
+.titles {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px 10px;
+  min-width: 0;
+}
+
+.mark {
+  width: 4px;
+  height: 18px;
+  border-radius: 99px;
+  background: var(--accent);
+}
+
+h2 {
+  margin: 0;
+  font-size: 17px;
+  font-weight: 800;
+  letter-spacing: -0.015em;
+}
+
+.hint {
+  @include ui.micro;
+  color: var(--su-muted);
+}
+
+.panel-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 700;
+
+  ::ng-deep a {
+    color: var(--ink);
+    text-decoration: none;
+
+    &:hover {
+      color: var(--hot);
+      text-decoration: underline;
+      text-underline-offset: 3px;
+    }
+  }
+}
+
+.panel-body {
+  flex: 1;
+  padding: 18px 22px 22px;
+}
+
+.flush .panel-body {
+  padding: 0;
+}
+
+@include ui.dark-tokens;
+
+// Inverted anchor panel. Declared after the theme tokens so it always wins; it re-maps the
+// ink/cream tokens so projected content (charts, figures) adapts without extra styling.
+:host([data-tone='dark']) {
+  --ink: #f0e9d6;
+  --cream: #141310;
+  --su-panel: var(--su-dark-panel);
+  --su-muted: rgba(240, 233, 214, 0.62);
+  --su-line: rgba(240, 233, 214, 0.14);
+  --su-line-2: rgba(240, 233, 214, 0.3);
+  --su-soft: rgba(240, 233, 214, 0.08);
+  --su-up: #6fdca0;
+  --su-down: #ff8095;
+  color: #f0e9d6;
+}
+
+:host([data-tone='dark']) .panel {
+  border-color: rgba(240, 233, 214, 0.1);
+  background: var(--su-dark-panel);
+}

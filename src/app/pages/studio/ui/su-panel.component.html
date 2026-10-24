@@ -1,0 +1,15 @@
+<section class="panel" [class.flush]="flush()">
+  <header class="panel-head">
+    <div class="titles">
+      @if (accent()) {
+        <i class="mark" aria-hidden="true"></i>
+      }
+      <h2>{{ heading() }}</h2>
+      @if (hint()) {
+        <span class="hint">{{ hint() }}</span>
+      }
+    </div>
+    <div class="panel-actions"><ng-content select="[panelActions]" /></div>
+  </header>
+  <div class="panel-body"><ng-content /></div>
+</section>

@@ -1,0 +1,91 @@
+@use './studio-ui' as ui;
+
+:host {
+  @include ui.tokens;
+  display: block;
+  color: var(--ink);
+  font-family: var(--su-display);
+}
+
+.head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 18px 28px;
+}
+
+.head-text {
+  display: grid;
+  gap: 10px;
+  min-width: 0;
+}
+
+.eyebrow {
+  @include ui.micro;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  color: var(--su-muted);
+
+  .dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--hot);
+    animation: pulse 2.4s ease-out infinite;
+  }
+}
+
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--hot) 55%, transparent);
+  }
+
+  70%,
+  100% {
+    box-shadow: 0 0 0 7px transparent;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .eyebrow .dot {
+    animation: none;
+  }
+}
+
+// Projected controls (range pills, buttons) inherit these tokens, so the dark-theme
+// surface values must be defined here too.
+@include ui.dark-tokens;
+
+h1 {
+  margin: 0;
+  font-size: clamp(30px, 4.4vw, 46px);
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -0.035em;
+
+  em {
+    color: var(--hot);
+    font-family: var(--su-serif);
+    font-style: italic;
+    font-weight: 400;
+    letter-spacing: 0;
+  }
+}
+
+.subtitle {
+  max-width: 60ch;
+  margin: 0;
+  color: var(--su-muted);
+  font-size: 15px;
+  line-height: 1.5;
+}
+
+.head-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}

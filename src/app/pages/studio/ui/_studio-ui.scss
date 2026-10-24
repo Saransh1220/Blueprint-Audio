@@ -1,0 +1,112 @@
+// Studio UI foundation — tokens and primitives shared by the refreshed studio pages.
+// Component styles `@include` what they need, so nothing here leaks into other pages.
+
+@mixin tokens {
+  --su-display: 'Bricolage Grotesque', sans-serif;
+  --su-serif: 'Instrument Serif', serif;
+  --su-mono: 'DM Mono', ui-monospace, monospace;
+
+  --su-line: color-mix(in srgb, var(--ink) 14%, transparent);
+  --su-line-2: color-mix(in srgb, var(--ink) 26%, transparent);
+  --su-soft: color-mix(in srgb, var(--ink) 5%, transparent);
+  // Panels are true surfaces so they stand off the cream page behind them
+  --su-panel: #ffffff;
+  // Inverted anchor surface (used by su-panel tone="dark")
+  --su-dark-panel: #141310;
+  --su-muted: var(--ink-mute);
+  --su-radius: 18px;
+
+  --su-up: #1a7a45;
+  --su-down: #c01e3a;
+}
+
+@mixin dark-tokens {
+  :host-context(body.dark-theme) {
+    --su-panel: #1b1814;
+    // in the dark theme the anchor panel is a warm, pink-tinted surface so it still stands out
+    --su-dark-panel: color-mix(in srgb, var(--hot) 8%, #15120f);
+    --su-up: #5fd18f;
+    --su-down: #ff7088;
+  }
+}
+
+// Micro label: small, mono, spaced capitals
+@mixin micro {
+  font-family: var(--su-mono);
+  font-size: 10.5px;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+// Pill buttons used in page actions. Named `su-btn` so the app's global `.btn` never applies.
+@mixin buttons {
+  .su-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-height: 40px;
+    padding: 0 18px;
+    border: 1px solid var(--su-line-2);
+    border-radius: 999px;
+    background: transparent;
+    color: var(--ink);
+    font-family: var(--su-display);
+    font-size: 13.5px;
+    font-weight: 700;
+    text-decoration: none;
+    white-space: nowrap;
+    cursor: pointer;
+    transition:
+      background 0.15s ease,
+      color 0.15s ease,
+      border-color 0.15s ease,
+      transform 0.15s ease;
+
+    &:hover {
+      border-color: var(--ink);
+      background: var(--su-soft);
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--hot);
+      outline-offset: 2px;
+    }
+  }
+
+  .su-btn-primary {
+    border-color: var(--hot);
+    background: var(--hot);
+    color: #141310;
+
+    &:hover {
+      border-color: var(--hot);
+      background: var(--hot);
+      transform: translateY(-1px);
+    }
+  }
+}
+
+@mixin status-pill {
+  .su-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 3px 10px;
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--tone, var(--ink)) 14%, transparent);
+    color: var(--tone, var(--ink));
+    font-family: var(--su-mono);
+    font-size: 11px;
+    white-space: nowrap;
+
+    &[data-tone='ok'] {
+      --tone: var(--su-up);
+    }
+
+    &[data-tone='bad'] {
+      --tone: var(--su-down);
+    }
+  }
+}
