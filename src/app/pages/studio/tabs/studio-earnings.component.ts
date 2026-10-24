@@ -1,14 +1,14 @@
-import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { AnalyticsOverviewResponse } from '../../../core/api/analytics.requests';
 import { AppCurrency } from '../../../models';
 import { AnalyticsService } from '../../../services/analytics.service';
 import { CurrencyService } from '../../../services/currency.service';
 import { PaymentService } from '../../../services/payment.service';
+import { SuPageHeadComponent, SuPanelComponent } from '../ui';
 
 @Component({
   selector: 'app-studio-earnings',
-  imports: [CommonModule],
+  imports: [SuPageHeadComponent, SuPanelComponent],
   templateUrl: './studio-earnings.component.html',
   styleUrl: './studio-earnings.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -125,6 +125,48 @@ export class StudioEarningsComponent {
       active: index === values.length - 1,
     }));
   });
+
+  // ── Refreshed earnings helpers (real data only) ──────
+
+  /** Revenue from the most recent 30 days of daily data. */
+  last30Revenue = computed(() => {
+    const rows = [...(this.analytics()?.revenue_by_day ?? [])].sort((a, b) =>
+      a.date.localeCompare(b.date),
+    );
+    return rows.slice(-30).reduce((sum, row) => sum + row.revenue, 0);
+  });
+
+  /** Real per-month revenue for the last 12 calendar months (months without sales are zero). */
+  monthlyReal = computed(() => {
+    const rows = this.analytics()?.revenue_by_day ?? [];
+    const totals = new Map<string, number>();
+    for (const row of rows) {
+      const key = row.date.slice(0, 7);
+      totals.set(key, (totals.get(key) ?? 0) + row.revenue);
+    }
+    const now = new Date();
+    const months = Array.from({ length: 12 }, (_, i) => {
+      const d = new Date(now.getFullYear(), now.getMonth() - (11 - i), 1);
+      const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+      return {
+        label: d.toLocaleDateString('en-US', { month: 'short' }),
+        value: totals.get(key) ?? 0,
+      };
+    });
+    const max = Math.max(...months.map((m) => m.value), 1);
+    return months.map((m, i) => ({
+      ...m,
+      height: m.value > 0 ? Math.max(6, Math.round((m.value / max) * 100)) : 0,
+      active: i === months.length - 1,
+    }));
+  });
+
+  hasMonthlyData = computed(() => this.monthlyReal().some((m) => m.value > 0));
+
+  /** The donut only draws real license revenue (the sample fallback above stays for compatibility). */
+  hasLicenseData = computed(
+    () => Object.keys(this.analytics()?.revenue_by_license ?? {}).length > 0,
+  );
 
   constructor() {
     this.analyticsService.getOverview(365, 'revenue').subscribe({
