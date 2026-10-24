@@ -107,8 +107,85 @@ describe('AdminComponent', () => {
     expect(component.specs()[0]['is_deleted']).toBe(true);
   });
 
+  it('handles load errors, missing data and overview/users tabs', () => {
+    const errSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+    const component = create();
+    api.get.mockImplementation(() => throwError(() => new Error('x')));
+    for (const tab of ['overview', 'users', 'specs', 'orders', 'licenses', 'audit'] as const) {
+      component.setTab(tab);
+      expect(component.loading()).toBe(false);
+    }
+    expect(component.activeTab()).toBe('audit');
+
+    api.get.mockImplementation(() => of({}));
+    component.setTab('users');
+    component.setTab('specs');
+    component.setTab('orders');
+    component.setTab('licenses');
+    component.setTab('audit');
+    expect(component.users()).toEqual([]);
+    expect(component.specs()).toEqual([]);
+    expect(component.orders()).toEqual([]);
+    expect(component.licenses()).toEqual([]);
+    expect(component.auditLogs()).toEqual([]);
+
+    api.get.mockImplementation(() => of({ revenue: 100 }));
+    component.setTab('overview');
+    expect(component.paidRevenue()).toBe('1.00');
+    api.get.mockImplementation(() => of({}));
+    component.setTab('overview');
+    expect(component.paidRevenue()).toBe('0.00');
+    errSpy.mockRestore();
+  });
+
+  it('demotes super admins, logs role failures and keeps other users on update', () => {
+    const errSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+    const component = create();
+    const u1 = { id: 'u1', status: 'active', system_role: SystemRole.SUPER_ADMIN } as any;
+    const u2 = { id: 'u2', status: 'active', system_role: SystemRole.USER } as any;
+    component.users.set([u1, u2]);
+
+    api.patch.mockReturnValueOnce(of({ ...u1, system_role: SystemRole.USER }));
+    component.setSuperAdmin(u1, false);
+    expect(api.patch).toHaveBeenCalledWith('/admin/users/u1/system-role', {
+      system_role: SystemRole.USER,
+    });
+    expect(component.users()[0].system_role).toBe(SystemRole.USER);
+    expect(component.users()[1]).toEqual(u2);
+
+    api.patch.mockReturnValueOnce(throwError(() => new Error('nope')));
+    component.setSuperAdmin(u2, true);
+    expect(errSpy).toHaveBeenCalled();
+
+    api.patch.mockReturnValueOnce(of({ ...u2, status: 'suspended' }));
+    component.setUserStatus(u2, 'suspended');
+    expect(component.users()[1].status).toBe('suspended');
+    expect(component.users()[0].id).toBe('u1');
+    errSpy.mockRestore();
+  });
+
+  it('restores spec list and leaves other specs untouched', () => {
+    const errSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+    const component = create();
+    component.specs.set([
+      { id: 's1', is_deleted: true },
+      { id: 's2', is_deleted: false },
+    ]);
+    api.patch.mockReturnValueOnce(of({ is_deleted: false }));
+    component.toggleSpecDeleted(component.specs()[0]);
+    expect(component.specs()[0]['is_deleted']).toBe(false);
+    expect(component.specs()[1]['is_deleted']).toBe(false);
+
+    api.patch.mockReturnValueOnce(throwError(() => new Error('nope')));
+    component.toggleSpecDeleted(component.specs()[1]);
+    expect(component.specs()[1]['is_deleted']).toBe(false);
+    expect(errSpy).toHaveBeenCalled();
+    errSpy.mockRestore();
+  });
+
   it('formats money and short ids', () => {
     const component = create();
+    expect(component.formatMoney(null)).toBe('Rs 0.00');
     expect(component.formatMoney(899)).toBe('Rs 8.99');
     expect(component.shortId('abcdef123456')).toBe('abcdef12');
     expect(component.shortId(null)).toBe('');

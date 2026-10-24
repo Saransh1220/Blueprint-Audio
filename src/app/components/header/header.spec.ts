@@ -44,16 +44,23 @@ describe('HeaderComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('shows studio link for producers and dashboard for other signed-in users', () => {
+  it('shows the dashboard link to every signed-in user and the studio link too for producers', () => {
     currentUser.set({ id: 'u1', role: Role.PRODUCER, name: 'Prod' });
     fixture.detectChanges();
     let text = (fixture.nativeElement as HTMLElement).textContent ?? '';
     expect(text).toContain('Studio');
-    expect(text).not.toContain('Dashboard');
+    expect(text).toContain('Dashboard');
 
     currentUser.set({ id: 'u2', role: Role.ARTIST, name: 'Artist' });
     fixture.detectChanges();
     text = (fixture.nativeElement as HTMLElement).textContent ?? '';
     expect(text).toContain('Dashboard');
+  });
+
+  it('hides the dashboard link when nobody is signed in', () => {
+    currentUser.set(null);
+    fixture.detectChanges();
+    const text = (fixture.nativeElement as HTMLElement).textContent ?? '';
+    expect(text).not.toContain('Dashboard');
   });
 });

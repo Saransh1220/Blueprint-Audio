@@ -3,7 +3,7 @@ import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideAnimations } from '@angular/platform-browser/animations';
 import { provideRouter } from '@angular/router';
-import { of } from 'rxjs';
+import { of, throwError } from 'rxjs';
 import { LabService, PlayerService } from '../../services';
 import { HomeComponent } from './home.component';
 
@@ -82,5 +82,37 @@ describe('HomeComponent', () => {
   it('should render lab section component', () => {
     const compiled = fixture.nativeElement as HTMLElement;
     expect(compiled.querySelector('app-lab-section')).toBeTruthy();
+  });
+
+  it('maps homepage sections into spec lists', () => {
+    component.homepage.set({
+      generatedAt: 'x',
+      cacheTtlSeconds: 1,
+      stats: { totalLiveBeats: 0, newReleases7d: 0, totalProducers: 0 },
+      sections: {
+        featured: { title: 'F', source: 'query', items: [{ spec: { id: 'a' } }] },
+        trending: { title: 'T', source: 'query', items: [{ spec: { id: 'b' } }] },
+        new_releases: { title: 'N', source: 'query', items: [{ spec: { id: 'c' } }] },
+        top_charts: { title: 'C', source: 'query', items: [{ spec: { id: 'd' } }] },
+      },
+    } as any);
+    expect(component.featuredSpecs().map((s) => s.id)).toEqual(['a']);
+    expect(component.trendingSpecs().map((s) => s.id)).toEqual(['b']);
+    expect(component.newReleaseSpecs().map((s) => s.id)).toEqual(['c']);
+    expect(component.topChartSpecs().map((s) => s.id)).toEqual(['d']);
+    component.homepage.set(null);
+    expect(component.featuredSpecs()).toEqual([]);
+  });
+
+  it('falls back to non-homepage data when the homepage request fails', () => {
+    const labService = TestBed.inject(LabService) as any;
+    labService.getHome.mockReturnValue(throwError(() => new Error('down')));
+    const second = TestBed.createComponent(HomeComponent);
+    second.detectChanges();
+    expect(second.componentInstance.useHomepageData()).toBe(false);
+    expect(second.componentInstance.homepage()).toBeNull();
+    expect(second.componentInstance.homepageLoading()).toBe(false);
+    expect(component.useHomepageData()).toBe(true);
+    expect(component.homepageLoading()).toBe(false);
   });
 });

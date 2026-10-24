@@ -116,6 +116,86 @@ describe('AuthComponent', () => {
     component.ngOnDestroy();
   });
 
+  it('covers validation, helpers and edge branches', () => {
+    const component = create('login');
+    component.ngOnInit();
+    expect(component.isLoginView).toBe(true);
+    expect(component.pageTitle).toBe('Welcome back');
+    expect(component.submitLabel).toBe('Sign In');
+    expect(component.pageDescription).toContain('Access');
+    expect(component.brandChips()[0].number).toBe('#0241');
+
+    component.toggleView(true);
+    expect(go).not.toHaveBeenCalled();
+    component.toggleView(false);
+    expect(go).toHaveBeenCalledWith('/register');
+    expect(component.pageTitle).toBe('Create your account');
+    expect(component.submitLabel).toBe('Create Account');
+    expect(component.pageDescription).toContain('Set up');
+    expect(component.brandChips()[0].number).toBe('SIDE B');
+
+    component.registerUsername = 'u';
+    component.registerDisplayName = 'dn';
+    component.registerEmail = 'a@b.com';
+    component.registerPassword = 'short';
+    component.registerConfirmPassword = 'short';
+    component.onRegisterSubmit();
+    expect(show).toHaveBeenCalledWith('Password must be at least 8 characters', 'error');
+    expect(register).not.toHaveBeenCalled();
+  });
+
+  it('computes password strength and match', () => {
+    const component = create();
+    expect(component.passwordStrength()).toEqual({ score: 0, label: '-' });
+    component.registerPassword = 'abcdefgh';
+    expect(component.passwordStrength().label).toBe('weak');
+    component.registerPassword = 'abcdefghijkl';
+    expect(component.passwordStrength().label).toBe('ok');
+    component.registerPassword = 'Abcdefghijkl';
+    expect(component.passwordStrength().label).toBe('good');
+    component.registerPassword = 'Abcdefghijk1!';
+    expect(component.passwordStrength()).toEqual({ score: 4, label: 'strong' });
+
+    expect(component.passwordsMatch()).toBe(false);
+    component.registerConfirmPassword = 'Abcdefghijk1!';
+    expect(component.passwordsMatch()).toBe(true);
+    component.registerConfirmPassword = 'x';
+    expect(component.passwordsMatch()).toBe(false);
+  });
+
+  it('uses fallback messages and ignores tokenless google users', () => {
+    const component = create();
+    authState$.next(null);
+    authState$.next({});
+    expect(googleLogin).not.toHaveBeenCalled();
+
+    googleLogin.mockReturnValueOnce(throwError(() => ({})));
+    authState$.next({ idToken: 't' });
+    expect(show).toHaveBeenCalledWith('Google Login failed: Unknown error', 'error');
+
+    login.mockReturnValueOnce(throwError(() => ({})));
+    component.loginEmail = 'a@b.com';
+    component.loginPassword = 'pw';
+    component.onLoginSubmit();
+    expect(show).toHaveBeenCalledWith('Login failed: Invalid credentials', 'error');
+
+    register.mockReturnValueOnce(throwError(() => ({})));
+    component.registerUsername = 'u';
+    component.registerDisplayName = 'dn';
+    component.registerEmail = 'a@b.com';
+    component.registerPassword = '12345678';
+    component.registerConfirmPassword = '12345678';
+    component.onRegisterSubmit();
+    expect(show).toHaveBeenCalledWith('Registration failed: Unknown error', 'error');
+
+    component.loginEmail = '';
+    component.goToForgotPassword();
+    expect(navigate).toHaveBeenCalledWith(['/forgot-password'], {
+      queryParams: { email: undefined },
+    });
+    component.ngOnDestroy();
+  });
+
   it('routes unverified logins into the verification screen and opens forgot-password flow', () => {
     const component = create();
     login.mockReturnValueOnce(throwError(() => ({ error: { error: 'email not verified' } })));

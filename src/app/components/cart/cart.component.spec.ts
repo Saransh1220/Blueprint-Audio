@@ -5,6 +5,7 @@ import { CartComponent } from './cart.component';
 
 describe('CartComponent', () => {
   const removeItem = vi.fn();
+  const clear = vi.fn();
   let items: ReturnType<typeof signal<any[]>>;
 
   beforeEach(() => {
@@ -17,7 +18,7 @@ describe('CartComponent', () => {
             items,
             total: vi.fn(() => 100),
             removeItem,
-            clear: vi.fn(),
+            clear,
           },
         },
       ],
@@ -74,5 +75,19 @@ describe('CartComponent', () => {
 
     expect(component.hasMixedCurrencies).toBe(false);
     expect(component.totalMoney).toBeNull();
+  });
+
+  it('clears the cart and counts distinct producers', () => {
+    items.set([
+      { id: '1', spec: { producerId: 'p1' } },
+      { id: '2', spec: { producerId: 'p1' } },
+      { id: '3', spec: { producerId: 'p2' } },
+      { id: '4', spec: {} },
+    ]);
+    const component = TestBed.runInInjectionContext(() => new CartComponent());
+    expect(component.items()).toBe(items());
+    expect(component.producerCount).toBe(2);
+    component.clearCart();
+    expect(clear).toHaveBeenCalled();
   });
 });

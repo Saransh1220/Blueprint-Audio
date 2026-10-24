@@ -74,4 +74,60 @@ describe('SpecFormComponent', () => {
     fixture.detectChanges();
     expect(component.isCreateMode()).toBe(false);
   });
+
+  it('falls back to defaults when initial data is sparse', () => {
+    fixture.componentRef.setInput('initialData', {});
+    fixture.detectChanges();
+    expect(component.specForm.value.title).toBe('');
+    expect(component.specForm.value.category).toBe('beat');
+    expect(component.specForm.value.genre).toBe('');
+    expect(component.specForm.value.bpm).toBeNull();
+    expect(component.specForm.value.key).toBe('');
+    expect(component.licenses.length).toBe(4);
+  });
+
+  it('ignores blank tags and handles every file type', async () => {
+    const input = { value: '   ' };
+    component.addTag({ target: input } as any);
+    expect(component.tags.length).toBe(0);
+    const good = { value: ' ok ' };
+    component.addTag({ target: good } as any);
+    expect(component.tags.value).toEqual(['ok']);
+    expect(good.value).toBe('');
+
+    component.onFileSelected({ target: { files: [] } } as any, 'wav');
+    component.onFileSelected({ target: {} } as any, 'wav');
+    expect(component.wavFile()).toBeNull();
+
+    const mk = (n: string) => new File(['a'], n);
+    component.onFileSelected({ target: { files: [mk('p.mp3')] } } as any, 'preview');
+    component.onFileSelected({ target: { files: [mk('s.zip')] } } as any, 'stems');
+    expect(component.previewFile()?.name).toBe('p.mp3');
+    expect(component.stemsFile()?.name).toBe('s.zip');
+
+    class FakeReader {
+      onload: ((e: any) => void) | null = null;
+      readAsDataURL() {
+        this.onload?.({ target: { result: 'data:image/png;base64,AA' } });
+      }
+    }
+    vi.stubGlobal('FileReader', FakeReader);
+    component.onFileSelected({ target: { files: [mk('c.png')] } } as any, 'cover');
+    vi.unstubAllGlobals();
+    expect(component.coverFile()?.name).toBe('c.png');
+    expect(component.coverPreviewUrl()).toBe('data:image/png;base64,AA');
+  });
+
+  it('submits form with selected files', () => {
+    const submitSpy = vi.fn();
+    component.formSubmit.subscribe(submitSpy);
+    const wav = new File(['a'], 'a.wav');
+    component.wavFile.set(wav);
+    component.specForm.patchValue({ title: 'T', category: 'sample', genre: 'TRAP' });
+    component.onSubmit();
+    const payload = submitSpy.mock.calls[0][0];
+    expect(payload.wavFile).toBe(wav);
+    expect(payload.title).toBe('T');
+    expect(payload.coverFile).toBeNull();
+  });
 });

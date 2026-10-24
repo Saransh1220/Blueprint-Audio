@@ -123,4 +123,58 @@ describe('StudioPurchasesComponent', () => {
     component.closeDownloadPopup();
     expect(component.showDownloadPopup()).toBe(false);
   });
+
+  it('maps licenses with missing optional fields using defaults', () => {
+    const component = create();
+    fetchUserLicenses.mockReturnValueOnce(
+      of([{ id: 'x', created_at: '2026-01-05T12:00:00' }, { id: 'y', created_at: '2026-01-06T12:00:00', license_type: 'Unlimited' }]),
+    );
+    component.loadPurchases(1);
+    const [first, second] = component.rows();
+    expect(first.title).toBe('Purchased Beat 1');
+    expect(first.license).toBe('Premium');
+    expect(first.format).toBe('WAV');
+    expect(first.meta).toBe('License key · active');
+    expect(first.downloads).toBe('0 of unlimited');
+    expect(first.letter).toBe('p');
+    expect(first.year).toBe('2026');
+    expect(second.license).toBe('Unlimited');
+    expect(second.format).toBe('WAV');
+    expect(second.artClass).toBe('a2');
+    expect(component.totalSpent()).toBeTruthy();
+  });
+
+  it('treats null results as empty, shows no fallback while searching', () => {
+    const component = create();
+    fetchUserLicenses.mockReturnValueOnce(of(null));
+    component.loadPurchases(1);
+    expect(component.licenses()).toEqual([]);
+    expect(component.rows().length).toBe(8);
+
+    component.searchQuery.set('zzz');
+    expect(component.rows()).toEqual([]);
+  });
+
+  it('handles download failures and partial link sets', () => {
+    const errSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+    const component = create();
+    const evt = { stopPropagation: vi.fn() } as unknown as Event;
+    getLicenseDownloads.mockReturnValueOnce(throwError(() => new Error('no')));
+    component.download(component.fallbackRows[0], evt);
+    expect(component.isDownloading()).toBe(false);
+    expect(component.downloadLinks()).toEqual([]);
+    expect(errSpy).toHaveBeenCalled();
+
+    getLicenseDownloads.mockReturnValueOnce(of({ mp3_url: 'only' }));
+    component.download(component.fallbackRows[1], evt);
+    expect(component.downloadTitle()).toBe('Paper Moon');
+    expect(component.downloadLinks()).toEqual([{ type: 'MP3', url: 'only' }]);
+    errSpy.mockRestore();
+  });
+
+  it('loads on init', () => {
+    const component = create();
+    component.ngOnInit();
+    expect(fetchUserLicenses).toHaveBeenCalledWith(1, 8, '', undefined);
+  });
 });

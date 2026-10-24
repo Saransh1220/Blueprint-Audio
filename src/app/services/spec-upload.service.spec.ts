@@ -171,4 +171,63 @@ describe('SpecUploadService', () => {
       'application/vnd.rar',
     );
   });
+
+  it('rejects unsupported storage upload methods before uploading', () => {
+    const { service, api, objectStorage } = setup();
+    api.execute.mockImplementation((request: unknown) =>
+      request instanceof PrepareSpecUploadFileRequest
+        ? of({ ...instruction, method: 'POST' })
+        : of(undefined),
+    );
+    const error = vi.fn();
+    service
+      .uploadFile('upload-1', {
+        kind: 'wav',
+        file: new File(['x'], 'm.wav'),
+        contentType: 'audio/wav',
+      })
+      .subscribe({ error });
+    expect(error).toHaveBeenCalledWith(
+      expect.objectContaining({ message: 'Unsupported storage upload method for wav.' }),
+    );
+    expect(objectStorage.upload).not.toHaveBeenCalled();
+  });
+
+  it('clamps progress and falls back to the file size when total is missing', () => {
+    const { service, objectStorage } = setup();
+    objectStorage.upload.mockReturnValue(
+      of(
+        { type: HttpEventType.UploadProgress, loaded: 4, total: 0 },
+        { type: HttpEventType.UploadProgress, loaded: 99, total: 8 },
+        { type: HttpEventType.UploadProgress, loaded: 1 },
+        { type: HttpEventType.Sent },
+        { type: HttpEventType.Response, body: '' },
+      ) as never,
+    );
+    const events: SpecFileUploadEvent[] = [];
+    service
+      .uploadFile('upload-1', {
+        kind: 'preview',
+        file: new File(['12345678'], 'p.mp3'),
+        contentType: 'audio/mpeg',
+      })
+      .subscribe((e) => events.push(e));
+    const percents = events.filter((e) => e.type === 'progress').map((e: any) => e.percent);
+    expect(percents).toEqual([0, 50, 99, 13]);
+  });
+
+  it('reports 0% when neither total nor file size is known', () => {
+    const { service, objectStorage } = setup();
+    objectStorage.upload.mockReturnValue(
+      of(
+        { type: HttpEventType.UploadProgress, loaded: 5 },
+        { type: HttpEventType.Response, body: '' },
+      ) as never,
+    );
+    const events: SpecFileUploadEvent[] = [];
+    service
+      .uploadFile('upload-1', { kind: 'preview', file: new File([], 'e.mp3'), contentType: 'x' })
+      .subscribe((e) => events.push(e));
+    expect(events[1]).toEqual({ type: 'progress', percent: 0 });
+  });
 });

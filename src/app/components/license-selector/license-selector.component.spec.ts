@@ -46,6 +46,51 @@ describe('LicenseSelectorComponent', () => {
     expect(logSpy).toHaveBeenCalled();
   });
 
+  it('handles empty/default branches', () => {
+    const component = TestBed.runInInjectionContext(() => new LicenseSelectorComponent());
+    component.spec = undefined as any;
+    expect(component.selectedLicense()).toBeNull();
+    component.addSelectedToCart();
+    component.buySelectedNow();
+    expect(addItem).not.toHaveBeenCalled();
+    expect(initiatePayment).not.toHaveBeenCalled();
+
+    expect(component.getProducerName()).toBe('Red Wave');
+    expect(component.getPrimaryGenre()).toBe('Beat');
+    expect(component.getTempoDisplay()).toBe('-- BPM');
+    expect(component.getKeyDisplay()).toBe('--');
+    expect(component.getLengthDisplay()).toBe('2:54');
+    expect(component.getFooterNote(null)).toBe('Choose a license to continue');
+    expect(component.getFooterNote({ id: 'x' } as any)).toBe('instant delivery after payment');
+    expect(component.getLicenseFeatures({ id: 'x' } as any)).toEqual([]);
+
+    component.spec = { id: 's', title: 'T', category: 'Cat', licenses: [{ id: 'only' }] } as any;
+    expect(component.selectedLicense()?.id).toBe('only');
+    expect(component.getPrimaryGenre()).toBe('Cat');
+    component.selectedLicenseId.set('missing');
+    expect(component.selectedLicense()?.id).toBe('only');
+    component.spec = { id: 's', title: 'T' } as any;
+    expect(component.selectedLicenseId()).toBeNull();
+    expect(component.getDisplayTitleHtml('Solo')).toBe('Solo');
+    component.buyNow({ id: 'l' } as any);
+    expect(close).toHaveBeenCalled();
+  });
+
+  it('computes license variants and subtitles', () => {
+    const component = TestBed.runInInjectionContext(() => new LicenseSelectorComponent());
+    expect(component.getLicenseVariant(0, 3)).toBe('default');
+    expect(component.getLicenseVariant(2, 2)).toBe('default');
+    expect(component.getLicenseBadge(3, 4)).toBe('Highest tier');
+    expect(component.getLicenseBadge(0, 4)).toBe('');
+    const sub = (type: string, i = 0, t = 3) => component.getLicenseSubtitle({ type } as any, i, t);
+    expect(sub('Basic')).toContain('demos');
+    expect(sub('Premium')).toContain('releases');
+    expect(sub('Unlimited', 0, 3)).toBe('for wide release');
+    expect(sub('Unlimited', 0, 4)).toBe('for bigger placements');
+    expect(sub('Unlimited', 2, 3)).toBe('for bigger placements');
+    expect(sub('Other')).toBe('one-time license');
+  });
+
   it('selects licenses and derives modal display helpers', () => {
     const component = TestBed.runInInjectionContext(() => new LicenseSelectorComponent());
     const basic = {

@@ -194,4 +194,20 @@ describe('authInterceptor', () => {
     expect(tokenRefreshService.refreshTokenWithQueue).not.toHaveBeenCalled();
     expect(router.navigate).not.toHaveBeenCalled();
   });
+
+  it('passes through non-401 errors without refreshing', () => {
+    const { router, tokenRefreshService } = setup();
+    const req = new HttpRequest('GET', '/api/specs');
+    const failure = new HttpErrorResponse({ status: 500, statusText: 'Server Error' });
+    const next = vi.fn(() => throwError(() => failure));
+    const error = vi.fn();
+
+    TestBed.runInInjectionContext(() => {
+      (authInterceptor(req, next as never) as any).subscribe({ error });
+    });
+
+    expect(error).toHaveBeenCalledWith(failure);
+    expect(tokenRefreshService.refreshTokenWithQueue).not.toHaveBeenCalled();
+    expect(router.navigate).not.toHaveBeenCalled();
+  });
 });

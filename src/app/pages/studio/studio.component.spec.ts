@@ -75,4 +75,38 @@ describe('StudioComponent', () => {
 
     hourSpy.mockRestore();
   });
+  it('derives name parts, handle, stats and date', () => {
+    currentUser.set({ id: 'u1', name: 'Legal Name', display_name: 'Stage Name Two' });
+    const component = create();
+    expect(component.firstName()).toBe('Stage');
+    expect(component.lastName()).toBe('Name Two');
+    expect(component.handle()).toBe('legal.name');
+    expect(component.sidebarStats()).toEqual({ beats: 24, followers: 847 });
+    expect(component.todayDate()).toMatch(/\w+, \w+ \d+/);
+
+    currentUser.set(null);
+    expect(component.firstName()).toBe('Producer');
+    expect(component.lastName()).toBe('');
+    expect(component.handle()).toBe('producer');
+
+    currentUser.set({ id: 'u3', display_name: ' x' });
+    expect(component.firstName()).toBe('Producer');
+  });
+
+  it('closes the mobile nav and logs out', () => {
+    const logout = vi.fn();
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({
+      providers: [
+        { provide: AuthService, useValue: { currentUser, logout } },
+        { provide: Router, useValue: {} },
+      ],
+    });
+    const component = create();
+    component.toggleMobileNav();
+    expect(component.isMobileNavOpen()).toBe(true);
+    component.logout();
+    expect(component.isMobileNavOpen()).toBe(false);
+    expect(logout).toHaveBeenCalled();
+  });
 });

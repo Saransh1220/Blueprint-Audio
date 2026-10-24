@@ -22,4 +22,32 @@ describe('CatalogPaginationComponent', () => {
   it('should create', () => {
     expect(component).toBeTruthy();
   });
+
+  it('computes ranges and pages', () => {
+    expect(component.totalPages()).toBe(2);
+    expect(component.start()).toBe(1);
+    expect(component.end()).toBe(12);
+    expect(component.pages()).toEqual([1, 2]);
+
+    fixture.componentRef.setInput('page', 2);
+    fixture.detectChanges();
+    expect(component.start()).toBe(13);
+    expect(component.end()).toBe(22);
+
+    fixture.componentRef.setInput('totalItems', 0);
+    fixture.detectChanges();
+    expect(component.start()).toBe(0);
+    expect(component.totalPages()).toBe(1);
+  });
+
+  it('emits only valid page changes', () => {
+    const emitted: number[] = [];
+    component.pageChange.subscribe((p) => emitted.push(p));
+    component.selectPage(0);
+    component.selectPage(3);
+    component.selectPage(1);
+    expect(emitted).toEqual([]);
+    component.selectPage(2);
+    expect(emitted).toEqual([2]);
+  });
 });
