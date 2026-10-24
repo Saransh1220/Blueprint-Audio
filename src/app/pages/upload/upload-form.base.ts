@@ -714,6 +714,47 @@ export abstract class UploadFormBase implements OnInit, OnDestroy {
     return this.uploadForm.get('category')?.value === 'beat';
   }
 
+  /** The three audio inputs, rendered from data so every row shares one layout. */
+  readonly audioRows: ReadonlyArray<{
+    type: 'preview' | 'wav' | 'stems';
+    icon: string;
+    title: string;
+    hint: string;
+    accept: string;
+  }> = [
+    {
+      type: 'preview',
+      icon: 'fa-music',
+      title: 'MP3 preview',
+      hint: 'Tagged stream file used on the beat page player.',
+      accept: 'audio/mpeg,.mp3',
+    },
+    {
+      type: 'wav',
+      icon: 'fa-wave-square',
+      title: 'Untagged WAV',
+      hint: 'Clean master delivered to buyers with eligible licenses.',
+      accept: 'audio/wav,.wav',
+    },
+    {
+      type: 'stems',
+      icon: 'fa-layer-group',
+      title: 'Stems (.zip or .rar)',
+      hint: 'Individual trackouts for unlimited licenses.',
+      accept: '.zip,.rar,application/zip,application/vnd.rar,application/x-rar-compressed',
+    },
+  ];
+
+  /** The preview MP3 is always required; WAV and stems are required for beats only. */
+  isFileRequired(type: 'preview' | 'wav' | 'stems') {
+    return type === 'preview' || this.isBeatUpload();
+  }
+
+  /** Name and size of the selected file for a slot, or null when nothing is selected. */
+  fileSummary(type: UploadFileType) {
+    return this.getSummarySignal(type)();
+  }
+
   requiredAudioCount() {
     let count = this.previewFile() ? 1 : 0;
     if (this.isBeatUpload()) {

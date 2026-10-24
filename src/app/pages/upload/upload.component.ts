@@ -1,12 +1,13 @@
 import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
+import { SuPageHeadComponent, SuPanelComponent } from '../studio/ui';
 import { UploadFormBase } from './upload-form.base';
 
 @Component({
   selector: 'app-upload',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, SuPageHeadComponent, SuPanelComponent],
   templateUrl: './upload.component.html',
   styleUrls: ['./upload.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
