@@ -1,379 +1,218 @@
-<div class="page-head">
-  <div>
-    <div class="page-num"><span class="dot"></span> 02 · Analytics</div>
-    <h1 class="page-h">the <em>numbers</em>.</h1>
-  </div>
-  <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap">
-    <div class="range-pill">
-      <button [class.on]="currentDays() === 7" type="button" (click)="setFilter(7)">7d</button>
-      <button [class.on]="currentDays() === 30" type="button" (click)="setFilter(30)">30d</button>
-      <button [class.on]="currentDays() === 90" type="button" (click)="setFilter(90)">90d</button>
-      <button [class.on]="currentDays() === 365" type="button" (click)="setFilter(365)">1y</button>
-      <button [class.on]="currentDays() > 365" type="button" (click)="setFilter(3650)">all</button>
+<div class="an">
+  <su-page-head
+    eyebrow="Analytics"
+    heading="The"
+    accent="numbers."
+    [subtitle]="'Performance for the ' + rangeLabel() + '.'"
+  >
+    <div class="seg" role="tablist" aria-label="Date range">
+      <button type="button" role="tab" [class.on]="currentDays() === 7" [attr.aria-selected]="currentDays() === 7" (click)="setFilter(7)">7d</button>
+      <button type="button" role="tab" [class.on]="currentDays() === 30" [attr.aria-selected]="currentDays() === 30" (click)="setFilter(30)">30d</button>
+      <button type="button" role="tab" [class.on]="currentDays() === 90" [attr.aria-selected]="currentDays() === 90" (click)="setFilter(90)">90d</button>
+      <button type="button" role="tab" [class.on]="currentDays() === 365" [attr.aria-selected]="currentDays() === 365" (click)="setFilter(365)">1y</button>
+      <button type="button" role="tab" [class.on]="currentDays() > 365" [attr.aria-selected]="currentDays() > 365" (click)="setFilter(3650)">All</button>
     </div>
-    <button class="btn" type="button" (click)="exportCSV()">
-      <svg
-        width="12"
-        height="12"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="2.2"
-      >
+    <button class="su-btn" type="button" [disabled]="!data()" (click)="exportCSV()">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true">
         <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
         <polyline points="7 10 12 15 17 10" />
         <line x1="12" y1="15" x2="12" y2="3" />
       </svg>
-      Export
+      Export CSV
     </button>
-  </div>
-</div>
+  </su-page-head>
 
-<div class="stats-grid">
-  @for (card of analyticsCards(); track card.label) {
-    <div class="stat-cell" [class]="card.cls">
-      <div class="stat-top">
-        <span class="stat-lbl">{{ card.label }}</span
-        ><span class="stat-ic">{{ card.icon }}</span>
-      </div>
-      <div class="stat-val">{{ card.value }}</div>
-      <div class="stat-foot">
-        <span
-          class="stat-delta"
-          [class.up]="!card.delta.startsWith('-')"
-          [class.down]="card.delta.startsWith('-')"
-          >{{ card.delta }}</span
-        >
-        <svg class="spark" viewBox="0 0 80 22" preserveAspectRatio="none">
-          <polyline
-            [attr.points]="card.spark"
-            fill="none"
-            stroke="rgba(20,19,16,0.65)"
-            stroke-width="1.5"
-          />
+  @if (error()) {
+    <p class="notice" role="alert">{{ error() }}</p>
+  }
+
+  <!-- Key figures -->
+  <section class="stats" aria-label="Key figures">
+    @for (tile of metricTiles(); track tile.label) {
+      <su-stat
+        [label]="tile.label"
+        [value]="tile.value"
+        [delta]="tile.delta"
+        [up]="tile.up"
+        [hint]="tile.hint"
+        [spark]="tile.spark"
+        [accent]="tile.accent"
+      />
+    }
+  </section>
+
+  <!-- Plays & revenue over time -->
+  <su-panel heading="Plays &amp; revenue" [hint]="rangeLabel()" tone="dark" accent="hot">
+    <div panelActions class="legend">
+      <span><i class="swatch hot"></i>Revenue</span>
+      <span><i class="swatch sun"></i>Plays</span>
+    </div>
+
+    @if (isLoading()) {
+      <p class="state">Calculating trends…</p>
+    } @else if (!hasTrend()) {
+      <p class="state">No plays or sales in this range yet.</p>
+    } @else {
+      <div
+        class="chart"
+        (mousemove)="onBigChartMove($event)"
+        (mouseleave)="clearBigChartHover()"
+      >
+        <svg viewBox="0 0 800 280" preserveAspectRatio="none" role="img" aria-label="Plays and revenue over time">
+          <line class="grid" x1="0" y1="50" x2="800" y2="50" />
+          <line class="grid" x1="0" y1="120" x2="800" y2="120" />
+          <line class="grid" x1="0" y1="190" x2="800" y2="190" />
+          <line class="base" x1="0" y1="260" x2="800" y2="260" />
+          <path class="area hot" [attr.d]="bigRevenueAreaPath()" />
+          <path class="area sun" [attr.d]="bigPlaysAreaPath()" />
+          <path class="line hot" [attr.d]="bigRevenueLinePath()" />
+          <path class="line sun" [attr.d]="bigPlaysLinePath()" />
+          @if (hoveredBigPoint(); as point) {
+            <line class="hover-line" [attr.x1]="point.x" y1="24" [attr.x2]="point.x" y2="260" />
+            <circle class="dot hot" [attr.cx]="point.x" [attr.cy]="point.revenueY" r="5" />
+            <circle class="dot sun" [attr.cx]="point.x" [attr.cy]="point.playsY" r="4.5" />
+          }
         </svg>
-      </div>
-    </div>
-  }
-</div>
-
-<div class="card" style="margin-bottom: 20px">
-  <div class="card-head">
-    <h4>Plays &amp; revenue · <em>over time</em></h4>
-    <span class="cnum">{{ rangeLabel() }}</span>
-  </div>
-  @if (isLoading()) {
-    <div class="chart-loading">Calculating trends...</div>
-  } @else {
-    <div
-      class="chart-wrap chart-interactive"
-      style="height: 280px"
-      (mousemove)="onBigChartMove($event)"
-      (mouseleave)="clearBigChartHover()"
-    >
-      <svg viewBox="0 0 800 280" preserveAspectRatio="none">
-        <defs>
-          <linearGradient id="bigGradNg" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stop-color="#ff3d5a" stop-opacity="0.25" />
-            <stop offset="100%" stop-color="#ff3d5a" stop-opacity="0" />
-          </linearGradient>
-          <linearGradient id="bigGrad2Ng" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stop-color="#2d4cff" stop-opacity="0.2" />
-            <stop offset="100%" stop-color="#2d4cff" stop-opacity="0" />
-          </linearGradient>
-        </defs>
-        <line
-          x1="0"
-          y1="50"
-          x2="800"
-          y2="50"
-          stroke="#e0d7c0"
-          stroke-width="1"
-          stroke-dasharray="3 3"
-        />
-        <line
-          x1="0"
-          y1="120"
-          x2="800"
-          y2="120"
-          stroke="#e0d7c0"
-          stroke-width="1"
-          stroke-dasharray="3 3"
-        />
-        <line
-          x1="0"
-          y1="190"
-          x2="800"
-          y2="190"
-          stroke="#e0d7c0"
-          stroke-width="1"
-          stroke-dasharray="3 3"
-        />
-        <line x1="0" y1="260" x2="800" y2="260" stroke="#141310" stroke-width="1.5" />
-        <path [attr.d]="bigRevenueAreaPath()" fill="url(#bigGradNg)" />
-        <path [attr.d]="bigPlaysAreaPath()" fill="url(#bigGrad2Ng)" />
-        <path
-          [attr.d]="bigRevenueLinePath()"
-          fill="none"
-          stroke="#ff3d5a"
-          stroke-width="3"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-        />
-        <path
-          [attr.d]="bigPlaysLinePath()"
-          fill="none"
-          stroke="#2d4cff"
-          stroke-width="2.5"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-        />
         @if (hoveredBigPoint(); as point) {
-          <line class="chart-hover-line" [attr.x1]="point.x" y1="24" [attr.x2]="point.x" y2="260" />
-          <circle
-            class="chart-hover-dot hot"
-            [attr.cx]="point.x"
-            [attr.cy]="point.revenueY"
-            r="5"
-          />
-          <circle
-            class="chart-hover-dot cobalt"
-            [attr.cx]="point.x"
-            [attr.cy]="point.playsY"
-            r="4.5"
-          />
-        }
-      </svg>
-      @if (hoveredBigPoint(); as point) {
-        <div
-          class="chart-tooltip visible"
-          [style.left.%]="(point.x / 800) * 100"
-          [style.top.%]="(point.revenueY / 280) * 100"
-        >
-          <span>{{ point.label }}</span>
-          <strong>{{ currency(point.revenue) }}</strong>
-          <em>{{ point.plays.toLocaleString('en-IN') }} plays</em>
-        </div>
-      }
-    </div>
-    <div class="chart-legend">
-      <div class="lg-item"><span class="lg-dot" style="background: var(--hot)"></span>Revenue</div>
-      <div class="lg-item"><span class="lg-dot" style="background: var(--cobalt)"></span>Plays</div>
-    </div>
-  }
-</div>
-
-<div class="ov-two">
-  <div class="card">
-    <div class="card-head">
-      <h4>License <em>split</em></h4>
-      <span class="cnum">this month</span>
-    </div>
-    <div class="donut-wrap">
-      <svg class="donut-svg" viewBox="0 0 120 120">
-        <circle cx="60" cy="60" r="48" fill="none" stroke="var(--cream-3)" stroke-width="18" />
-        @for (item of donutSegments(); track item.label) {
-          <circle
-            cx="60"
-            cy="60"
-            r="48"
-            fill="none"
-            [attr.stroke]="item.color"
-            stroke-width="18"
-            [attr.stroke-dasharray]="item.dash"
-            [attr.stroke-dashoffset]="item.offset"
-            transform="rotate(-90 60 60)"
-          />
-        }
-        <text
-          x="60"
-          y="56"
-          text-anchor="middle"
-          font-family="Bricolage Grotesque"
-          font-weight="800"
-          font-size="22"
-          fill="#141310"
-          letter-spacing="-0.04em"
-        >
-          {{ totalLicenseCount() }}
-        </text>
-        <text
-          x="60"
-          y="72"
-          text-anchor="middle"
-          font-family="DM Mono"
-          font-size="7.5"
-          fill="#6b635a"
-          letter-spacing="1"
-        >
-          LICENSES
-        </text>
-      </svg>
-      <div class="donut-legend">
-        @for (item of licenseBreakdown(); track item.label) {
-          <div class="dl-item">
-            <span class="dl-swatch" [style.background]="item.color"></span>
-            <span class="dl-lbl">{{ item.label }}</span>
-            <span class="dl-pct">{{ item.share }}%</span>
-            <span class="dl-val">{{ currency(item.value) }}</span>
-          </div>
-        }
-      </div>
-    </div>
-  </div>
-
-  <div class="card">
-    <div class="card-head">
-      <h4>Top <em>countries</em></h4>
-      <span class="cnum">by plays</span>
-    </div>
-    @for (country of topCountries; track country.label) {
-      <div class="geo-row">
-        <div class="geo-flag">{{ country.label }}</div>
-        <div class="geo-bar">
           <div
-            class="geo-bar-fill"
-            [style.width.%]="country.pct * 3.125"
-            [style.background]="country.color"
-          ></div>
-        </div>
-        <div class="geo-pct">{{ country.pct }}%</div>
-      </div>
-    }
-  </div>
-</div>
-
-<div class="ov-two" style="margin-top: 20px">
-  <div class="card">
-    <div class="card-head">
-      <h4>Top <em>referrers</em></h4>
-      <span class="cnum">last 30d</span>
-    </div>
-    @for (ref of referrers; track ref.label) {
-      <div class="geo-row">
-        <div class="geo-flag">{{ ref.label }}</div>
-        <div class="geo-bar">
-          <div
-            class="geo-bar-fill"
-            [style.width.%]="ref.pct * 2.2727"
-            [style.background]="ref.color"
-          ></div>
-        </div>
-        <div class="geo-pct">{{ ref.pct }}%</div>
-      </div>
-    }
-  </div>
-
-  <div class="card">
-    <div class="card-head">
-      <h4>Listener <em>heatmap</em></h4>
-      <span class="cnum">by hour</span>
-    </div>
-    <div class="heatmap-grid">
-      @for (cell of heatmapCells; track cell.hour) {
-        <div
-          class="heatmap-cell"
-          [style.background]="cell.color"
-          [attr.title]="cell.hour + ':00'"
-        ></div>
-      }
-    </div>
-    <div
-      style="
-        display: flex;
-        justify-content: space-between;
-        font-family: var(--mono);
-        font-size: 10px;
-        letter-spacing: 0.1em;
-        color: var(--ink-mute);
-      "
-    >
-      <span>12a</span><span>6a</span><span>12p</span><span>6p</span><span>11p</span>
-    </div>
-    <div
-      style="
-        margin-top: 14px;
-        padding-top: 10px;
-        border-top: 1px dashed var(--cream-3);
-        font-family: 'Instrument Serif', serif;
-        font-style: italic;
-        font-size: 13px;
-        color: var(--ink-2);
-      "
-    >
-      Peak listening:
-      <strong
-        style="font-family: var(--display); font-weight: 600; font-style: normal; color: var(--hot)"
-        >9-11pm</strong
-      >
-      · Quietest:
-      <strong
-        style="font-family: var(--display); font-weight: 600; font-style: normal; color: var(--ink)"
-        >4-6am</strong
-      >
-    </div>
-  </div>
-</div>
-
-<div class="card" style="margin-top: 20px">
-  <div class="card-head">
-    <h4>Top <em>performing beats</em></h4>
-    <div class="view-toggle">
-      <button [class.on]="sortBy() === 'plays'" type="button" (click)="onSort('plays')">
-        Plays
-      </button>
-      <button [class.on]="sortBy() === 'revenue'" type="button" (click)="onSort('revenue')">
-        Revenue
-      </button>
-      <button [class.on]="sortBy() === 'downloads'" type="button" (click)="onSort('downloads')">
-        Downloads
-      </button>
-    </div>
-  </div>
-  <div class="tracks-table">
-    <div class="track-row head" style="grid-template-columns: 40px 1fr 120px 100px 110px 80px">
-      <div>#</div>
-      <div>Track title</div>
-      <div>Plays</div>
-      <div>Downloads</div>
-      <div>Revenue</div>
-      <div style="text-align: right">Trend</div>
-    </div>
-    @for (spec of topSpecRows(); track spec.spec_id; let i = $index) {
-      <div class="track-row" style="grid-template-columns: 40px 1fr 120px 100px 110px 80px">
-        <div class="cnum">{{ i + 1 }}</div>
-        <div style="display: flex; align-items: center; gap: 12px">
-          <div class="track-cover tiny">
-            @if (spec.imageUrl) {
-              <img [src]="spec.imageUrl" [alt]="spec.title || 'Beat cover'" loading="lazy" />
-            } @else {
-              <div
-                class="mini-art"
-                [class]="'a' + ((i % 6) + 1)"
-                style="width: 28px; height: 28px; font-size: 12px"
-              >
-                {{ spec.title.charAt(0).toLowerCase() }}
-              </div>
-            }
-          </div>
-          <div class="title-m">{{ spec.title }}</div>
-        </div>
-        <div class="stat-m">{{ spec.plays.toLocaleString('en-IN') }} plays</div>
-        <div class="stat-m text-mute">{{ spec.downloads.toLocaleString('en-IN') }} dls</div>
-        <div class="money-m">{{ currency(spec.revenue) }}</div>
-        <div class="row-actions">
-          <svg
-            width="40"
-            height="14"
-            viewBox="0 0 40 14"
-            fill="none"
-            stroke="var(--lime)"
-            stroke-width="1.5"
+            class="tooltip"
+            [style.left.%]="(point.x / 800) * 100"
+            [style.top.%]="(point.revenueY / 280) * 100"
           >
-            <polyline points="0,12 8,8 16,10 24,4 32,6 40,0" />
-          </svg>
-        </div>
+            <span>{{ point.label }}</span>
+            <strong>{{ currency(point.revenue) }}</strong>
+            <em>{{ point.plays.toLocaleString('en-IN') }} plays</em>
+          </div>
+        }
+      </div>
+      <div class="axis" aria-hidden="true">
+        @for (label of chartAxis(); track $index) {
+          <span>{{ label }}</span>
+        }
       </div>
     }
+  </su-panel>
+
+  <!-- Beats + licenses -->
+  <div class="row row-beats">
+    <su-panel heading="Top beats" accent="sun" [flush]="true">
+      <div panelActions class="seg seg-sm" role="group" aria-label="Sort beats by">
+        <button type="button" [class.on]="sortBy() === 'plays'" [attr.aria-pressed]="sortBy() === 'plays'" (click)="onSort('plays')">
+          Plays{{ sortBy() === 'plays' ? (sortDirection() === 'asc' ? ' ↑' : ' ↓') : '' }}
+        </button>
+        <button type="button" [class.on]="sortBy() === 'revenue'" [attr.aria-pressed]="sortBy() === 'revenue'" (click)="onSort('revenue')">
+          Revenue{{ sortBy() === 'revenue' ? (sortDirection() === 'asc' ? ' ↑' : ' ↓') : '' }}
+        </button>
+        <button type="button" [class.on]="sortBy() === 'downloads'" [attr.aria-pressed]="sortBy() === 'downloads'" (click)="onSort('downloads')">
+          Downloads{{ sortBy() === 'downloads' ? (sortDirection() === 'asc' ? ' ↑' : ' ↓') : '' }}
+        </button>
+      </div>
+
+      <div class="table">
+        <div class="tr th" aria-hidden="true">
+          <span>#</span>
+          <span>Track</span>
+          <span class="num">Plays</span>
+          <span class="num hide-sm">Downloads</span>
+          <span class="num">Revenue</span>
+        </div>
+        @for (spec of topSpecRows(); track spec.spec_id; let i = $index) {
+          <div class="tr">
+            <span class="rank" [class.top]="i < 3">{{ i + 1 }}</span>
+            <span class="track">
+              <span class="cover">
+                @if (spec.imageUrl) {
+                  <img [src]="spec.imageUrl" [alt]="spec.title || 'Beat cover'" loading="lazy" />
+                } @else {
+                  <span class="cover-fallback" [attr.data-i]="i % 6">{{ spec.title.charAt(0) }}</span>
+                }
+              </span>
+              <strong>{{ spec.title }}</strong>
+            </span>
+            <span class="num">{{ spec.plays.toLocaleString('en-IN') }}</span>
+            <span class="num hide-sm muted">{{ spec.downloads.toLocaleString('en-IN') }}</span>
+            <span class="num money">{{ currency(spec.revenue) }}</span>
+          </div>
+        } @empty {
+          <p class="state pad">Your top-performing beats will appear here.</p>
+        }
+      </div>
+    </su-panel>
+
+    <su-panel heading="License split" [hint]="rangeLabel()" accent="lavender">
+      @if (licenseBreakdown().length) {
+        <div class="donut-wrap">
+          <svg class="donut" viewBox="0 0 120 120" role="img" aria-label="Revenue share by license">
+            <circle class="donut-track" cx="60" cy="60" r="48" />
+            @for (item of donutSegments(); track item.label) {
+              <circle
+                class="donut-seg"
+                cx="60"
+                cy="60"
+                r="48"
+                [attr.stroke]="item.color"
+                [attr.stroke-dasharray]="item.dash"
+                [attr.stroke-dashoffset]="item.offset"
+                transform="rotate(-90 60 60)"
+              />
+            }
+            <text class="donut-num" x="60" y="58" text-anchor="middle">{{ licenseBreakdown().length }}</text>
+            <text class="donut-cap" x="60" y="73" text-anchor="middle">TYPES</text>
+          </svg>
+
+          <ul class="legend-list">
+            @for (item of licenseBreakdown(); track item.label) {
+              <li>
+                <i class="swatch" [style.background]="item.color"></i>
+                <span class="legend-name">{{ item.label }}</span>
+                <strong>{{ item.share }}%</strong>
+                <small>{{ currency(item.value) }}</small>
+              </li>
+            }
+          </ul>
+        </div>
+      } @else {
+        <p class="state">No license revenue in this range yet.</p>
+      }
+    </su-panel>
+  </div>
+
+  <!-- Audience (sample data until audience tracking is available) -->
+  <div class="row row-audience">
+    <su-panel heading="Top countries" hint="Sample data" accent="cobalt">
+      <ul class="bars">
+        @for (country of topCountries; track country.label) {
+          <li>
+            <span class="bar-label">{{ country.label }}</span>
+            <span class="bar-track"><i [style.width.%]="country.pct * 3.125" [style.background]="country.color"></i></span>
+            <strong>{{ country.pct }}%</strong>
+          </li>
+        }
+      </ul>
+    </su-panel>
+
+    <su-panel heading="Top referrers" hint="Sample data" accent="lime">
+      <ul class="bars">
+        @for (ref of referrers; track ref.label) {
+          <li>
+            <span class="bar-label">{{ ref.label }}</span>
+            <span class="bar-track"><i [style.width.%]="ref.pct * 2.2727" [style.background]="ref.color"></i></span>
+            <strong>{{ ref.pct }}%</strong>
+          </li>
+        }
+      </ul>
+    </su-panel>
+
+    <su-panel heading="Listening hours" hint="Sample data" accent="tangerine">
+      <div class="heatmap" role="img" aria-label="Listener activity by hour of day">
+        @for (cell of heatmapCells; track cell.hour) {
+          <i [style.background]="cell.color" [attr.title]="cell.hour + ':00'"></i>
+        }
+      </div>
+      <div class="heatmap-axis" aria-hidden="true">
+        <span>12a</span><span>6a</span><span>12p</span><span>6p</span><span>11p</span>
+      </div>
+      <p class="insight">Peak <strong>9–11pm</strong> · Quietest <strong>4–6am</strong></p>
+    </su-panel>
   </div>
 </div>

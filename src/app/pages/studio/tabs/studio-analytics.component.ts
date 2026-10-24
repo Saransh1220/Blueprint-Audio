@@ -1,4 +1,3 @@
-import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { AnalyticsOverviewResponse, TopSpecStat } from '../../../core/api/analytics.requests';
 import { CsvExportService } from '../../../core/services/csv-export.service';
@@ -7,10 +6,26 @@ import { LabService } from '../../../services';
 import { AnalyticsService } from '../../../services/analytics.service';
 import { CurrencyService } from '../../../services/currency.service';
 import { PaymentService } from '../../../services/payment.service';
+import {
+  type SuAccent,
+  SuPageHeadComponent,
+  SuPanelComponent,
+  SuStatComponent,
+} from '../ui';
+
+interface MetricTile {
+  label: string;
+  value: string;
+  delta: string;
+  up: boolean | null;
+  hint: string;
+  spark: string;
+  accent: SuAccent;
+}
 
 @Component({
   selector: 'app-studio-analytics',
-  imports: [CommonModule],
+  imports: [SuPageHeadComponent, SuPanelComponent, SuStatComponent],
   templateUrl: './studio-analytics.component.html',
   styleUrl: './studio-analytics.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -239,6 +254,107 @@ export class StudioAnalyticsComponent {
           i % 5
         ],
       }));
+  });
+
+  // ── Refreshed analytics helpers ──────────────────────
+
+  private sum(values: number[]): number {
+    return values.reduce((total, v) => total + v, 0);
+  }
+
+  /** Later half vs earlier half of the selected range, or null if there are too few points. */
+  private halfChange(values: number[]): { text: string; up: boolean } | null {
+    const n = Math.floor(values.length / 2);
+    if (n < 2) return null;
+    const current = this.sum(values.slice(-n));
+    const previous = this.sum(values.slice(-2 * n, -n));
+    if (previous <= 0) return null;
+    const pct = ((current - previous) / previous) * 100;
+    return { text: `${pct >= 0 ? '+' : '−'}${Math.abs(pct).toFixed(1)}%`, up: pct >= 0 };
+  }
+
+  private sparkOf(values: number[]): string {
+    const series = values.slice(-14);
+    if (series.length < 2) return '';
+    const max = Math.max(...series);
+    const min = Math.min(...series);
+    const span = max - min || 1;
+    const step = 80 / (series.length - 1);
+    return series
+      .map((v, i) => `${(i * step).toFixed(1)},${(20 - ((v - min) / span) * 18).toFixed(1)}`)
+      .join(' ');
+  }
+
+  /** True when the selected range returned real daily data (the chart never draws placeholder curves). */
+  hasTrend = computed(() => {
+    const d = this.data();
+    return !!d && ((d.revenue_by_day?.length ?? 0) > 0 || (d.plays_by_day?.length ?? 0) > 0);
+  });
+
+  /** Four real metrics for the selected range. */
+  metricTiles = computed<MetricTile[]>(() => {
+    const d = this.data();
+    const plays = (d?.plays_by_day ?? []).map((r) => r.count);
+    const downloads = (d?.downloads_by_day ?? []).map((r) => r.count);
+    const revenue = (d?.revenue_by_day ?? []).map((r) => r.revenue);
+    const range = this.rangeLabel();
+
+    const make = (
+      label: string,
+      value: string,
+      accent: SuAccent,
+      series: number[],
+    ): MetricTile => {
+      const change = this.halfChange(series);
+      return {
+        label,
+        value,
+        delta: change?.text ?? '',
+        up: change ? change.up : null,
+        hint: change ? 'vs earlier half' : range,
+        spark: this.sparkOf(series),
+        accent,
+      };
+    };
+
+    return [
+      make(
+        'Plays',
+        (plays.length ? this.sum(plays) : (d?.total_plays ?? 0)).toLocaleString('en-IN'),
+        'hot',
+        plays,
+      ),
+      make(
+        'Revenue',
+        this.currency(revenue.length ? this.sum(revenue) : (d?.total_revenue ?? 0)),
+        'cobalt',
+        revenue,
+      ),
+      make(
+        'Downloads',
+        (downloads.length ? this.sum(downloads) : (d?.total_downloads ?? 0)).toLocaleString(
+          'en-IN',
+        ),
+        'sun',
+        downloads,
+      ),
+      {
+        label: 'Favorites',
+        value: (d?.total_favorites ?? 0).toLocaleString('en-IN'),
+        delta: '',
+        up: null,
+        hint: 'All time',
+        spark: '',
+        accent: 'lavender',
+      },
+    ];
+  });
+
+  /** First / middle / last date labels under the main chart. */
+  chartAxis = computed(() => {
+    const points = this.bigSeries().revenue;
+    if (!points.length || !this.hasTrend()) return [];
+    return [points[0].label, points[Math.floor(points.length / 2)].label, 'Today'];
   });
 
   constructor() {
