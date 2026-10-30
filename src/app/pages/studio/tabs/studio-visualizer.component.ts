@@ -16,6 +16,9 @@ import { FormsModule } from '@angular/forms';
 import type {
   CommonVisualizerSettings,
   FluidGradientVisualizerSettings,
+  TextLayer,
+  TimelineWaveStyle,
+  TimelineWaveVisualizerSettings,
   VinylVisualizerSettings,
   VisualizerFormat,
   VisualizerFrameData,
@@ -26,6 +29,32 @@ import type {
   WaveformVisualizerSettings,
 } from '../../../services';
 import { ToastService, VisualizerService } from '../../../services';
+import {
+  findVisualizerFont,
+  loadVisualizerFont,
+  nearestFontWeight,
+  VISUALIZER_FONTS,
+  type VisualizerFontCategory,
+} from '../../../services/visualizer-fonts';
+
+interface TextTemplate {
+  id: string;
+  label: string;
+  build: (ctx: {
+    title: string;
+    count: number;
+    waveformColor: string;
+    accentColor: string;
+  }) => Partial<TextLayer>;
+}
+
+interface LayerSlider {
+  key: 'size' | 'letterSpacing' | 'opacity' | 'glow';
+  label: string;
+  min: number;
+  max: number;
+  step: number;
+}
 
 interface VisualizerPreset {
   style: VisualizerStyle;
@@ -43,7 +72,7 @@ interface VisualizerChoice {
   formats: string[];
 }
 
-type InspectorTab = 'style' | 'color' | 'output';
+type InspectorTab = 'style' | 'color' | 'text' | 'output';
 
 interface SliderControl {
   key: string;
@@ -119,6 +148,16 @@ export class StudioVisualizerComponent implements AfterViewInit, OnDestroy {
         'A rotating record, responsive grooves, and a bottom equalizer made for beat reveals.',
       formats: ['Square', 'Story', 'Wide'],
     },
+    {
+      kind: 'timeline-wave',
+      index: '04',
+      label: 'Timeline Wave',
+      short: 'Timeline',
+      kicker: 'Full-track scroll',
+      description:
+        'The whole song laid out as a waveform that glides past a fixed playhead over a grainy, filmic backdrop.',
+      formats: ['Text layers', 'Square', 'Story', 'Wide'],
+    },
   ];
 
   readonly sliderSets: Record<VisualizerKind, SliderSet> = {
@@ -150,7 +189,136 @@ export class StudioVisualizerComponent implements AfterViewInit, OnDestroy {
         { key: 'intensity', label: 'Bar intensity', min: 20, max: 86, step: 2, suffix: '%' },
       ],
     },
+    'timeline-wave': {
+      title: 'Scroll',
+      hint: 'Pre-loaded waveform',
+      controls: [
+        { key: 'windowSeconds', label: 'Seconds in view', min: 4, max: 40, step: 1, suffix: 's' },
+        { key: 'density', label: 'Density', min: 32, max: 220, step: 4, suffix: '' },
+        { key: 'intensity', label: 'Height', min: 20, max: 86, step: 2, suffix: '%' },
+        { key: 'playhead', label: 'Playhead', min: 15, max: 85, step: 1, suffix: '%' },
+        { key: 'glow', label: 'Glow', min: 0, max: 100, step: 2, suffix: '%' },
+      ],
+    },
   };
+
+  readonly timelineStyles: Array<{ style: TimelineWaveStyle; label: string }> = [
+    { style: 'bars', label: 'Bars' },
+    { style: 'needles', label: 'Needles' },
+    { style: 'smooth', label: 'Smooth' },
+  ];
+
+  readonly noiseSliders: SliderControl[] = [
+    { key: 'noiseAmount', label: 'Noise', min: 0, max: 100, step: 1, suffix: '%' },
+    { key: 'noiseSize', label: 'Noise size', min: 1, max: 5, step: 0.5, suffix: '×' },
+    { key: 'vignette', label: 'Vignette', min: 0, max: 100, step: 1, suffix: '%' },
+  ];
+
+  // ── Text layers ──
+  readonly fontCategories: Array<VisualizerFontCategory | 'All'> = [
+    'All',
+    'Display',
+    'Serif',
+    'Script',
+    'Tech',
+    'Retro',
+  ];
+  readonly fontCategory = signal<VisualizerFontCategory | 'All'>('All');
+  readonly selectedLayerId = signal<string | null>(null);
+  private fontsPrimed = false;
+
+  readonly textTemplates: TextTemplate[] = [
+    {
+      id: 'title',
+      label: 'Title',
+      build: ({ title, waveformColor }) => ({
+        text: title || 'Track Title',
+        fontFamily: 'Bebas Neue',
+        size: 12,
+        letterSpacing: 6,
+        color: waveformColor,
+        y: 0.17,
+      }),
+    },
+    {
+      id: 'bpm',
+      label: 'BPM',
+      build: ({ accentColor }) => ({
+        text: '128 BPM',
+        fontFamily: 'Space Grotesk',
+        weight: 700,
+        size: 3.6,
+        letterSpacing: 14,
+        color: accentColor,
+        x: 0.3,
+        y: 0.84,
+      }),
+    },
+    {
+      id: 'key',
+      label: 'Key',
+      build: ({ accentColor }) => ({
+        text: 'A MINOR',
+        fontFamily: 'Space Grotesk',
+        weight: 700,
+        size: 3.6,
+        letterSpacing: 14,
+        color: accentColor,
+        x: 0.7,
+        y: 0.84,
+      }),
+    },
+    {
+      id: 'artist',
+      label: 'Artist',
+      build: ({ waveformColor }) => ({
+        text: 'Prod. by Artist',
+        fontFamily: 'Playfair Display',
+        italic: true,
+        size: 4.6,
+        letterSpacing: 2,
+        color: waveformColor,
+        y: 0.25,
+      }),
+    },
+    {
+      id: 'custom',
+      label: 'Custom',
+      build: ({ count, waveformColor }) => ({
+        text: 'Your text',
+        fontFamily: 'Monoton',
+        size: 7,
+        letterSpacing: 4,
+        color: waveformColor,
+        y: Math.min(0.92, 0.45 + (count % 5) * 0.08),
+      }),
+    },
+  ];
+
+  readonly layerSliders: LayerSlider[] = [
+    { key: 'size', label: 'Size', min: 1.5, max: 26, step: 0.5 },
+    { key: 'letterSpacing', label: 'Spacing', min: -4, max: 60, step: 1 },
+    { key: 'opacity', label: 'Opacity', min: 10, max: 100, step: 1 },
+    { key: 'glow', label: 'Glow', min: 0, max: 100, step: 2 },
+  ];
+
+  readonly layerSwatches = [
+    '#f0e9d6',
+    '#ffffff',
+    '#ff4d68',
+    '#ffd455',
+    '#ff7d2e',
+    '#87ffb2',
+    '#86d7ff',
+    '#d4c5ff',
+    '#d9f561',
+    '#10100e',
+  ];
+
+  get visibleFonts() {
+    const category = this.fontCategory();
+    return VISUALIZER_FONTS.filter((font) => category === 'All' || font.category === category);
+  }
 
   readonly grainControl: SliderControl = {
     key: 'grainAmount',
@@ -161,11 +329,19 @@ export class StudioVisualizerComponent implements AfterViewInit, OnDestroy {
     suffix: '',
   };
 
-  readonly inspectorTabs: Array<{ id: InspectorTab; label: string }> = [
+  private readonly allInspectorTabs: Array<{ id: InspectorTab; label: string }> = [
     { id: 'style', label: 'Style' },
     { id: 'color', label: 'Color' },
+    { id: 'text', label: 'Text' },
     { id: 'output', label: 'Output' },
   ];
+
+  /** Text layers are drawn on 2D canvases only, so the WebGL fluid visualizer has no Text tab. */
+  get inspectorTabs() {
+    return this.settings.kind === 'fluid-gradient'
+      ? this.allInspectorTabs.filter((tab) => tab.id !== 'text')
+      : this.allInspectorTabs;
+  }
 
   readonly presets: VisualizerPreset[] = [
     {
@@ -320,6 +496,8 @@ export class StudioVisualizerComponent implements AfterViewInit, OnDestroy {
   statusMessage = signal('Choose a visual direction to begin.');
   peaks = signal<number[]>(this.visualizerService.createIdlePeaks(84));
   trimPeaks = signal<number[]>(this.visualizerService.createIdlePeaks(140));
+  /** Whole-track peaks (~50/s) that the timeline wave scrolls through. */
+  private timelinePeaks: number[] = [];
 
   hasAudio = computed(() => !!this.audioFileName());
   progress = computed(() => (this.duration() > 0 ? this.currentTime() / this.duration() : 0));
@@ -374,6 +552,7 @@ export class StudioVisualizerComponent implements AfterViewInit, OnDestroy {
 
   setInspectorTab(tab: InspectorTab) {
     this.inspectorTab.set(tab);
+    if (tab === 'text') this.primeFonts();
   }
 
   sliderValue(key: string): number {
@@ -407,6 +586,169 @@ export class StudioVisualizerComponent implements AfterViewInit, OnDestroy {
   get vinylSettings() {
     return this.settings as VinylVisualizerSettings;
   }
+  get timelineSettings() {
+    return this.settings as TimelineWaveVisualizerSettings;
+  }
+
+  setTimelineStyle(style: TimelineWaveStyle) {
+    if (this.settings.kind !== 'timeline-wave') return;
+    this.settings = { ...this.settings, style };
+    this.renderPreview();
+  }
+
+  // ── Text layers ──
+
+  get textLayers(): TextLayer[] {
+    return this.settings.textLayers;
+  }
+
+  get selectedLayer(): TextLayer | undefined {
+    const id = this.selectedLayerId();
+    return this.settings.textLayers.find((layer) => layer.id === id);
+  }
+
+  get selectedFont() {
+    const layer = this.selectedLayer;
+    return layer ? findVisualizerFont(layer.fontFamily) : undefined;
+  }
+
+  addTextLayer(template: TextTemplate) {
+    const layers = this.settings.textLayers;
+    const fileTitle = this.audioFileName().replace(/\.[^/.]+$/, '');
+    const layer = this.visualizerService.createTextLayer(
+      template.build({
+        title: (this.settings.title || fileTitle).trim(),
+        count: layers.length,
+        waveformColor: this.settings.waveformColor,
+        accentColor: this.settings.accentColor,
+      }),
+    );
+    const font = findVisualizerFont(layer.fontFamily);
+    layer.weight = nearestFontWeight(font, layer.weight);
+    this.settings = { ...this.settings, textLayers: [...layers, layer] } as VisualizerSettings;
+    this.selectedLayerId.set(layer.id);
+    void this.refreshAfterFont(layer);
+    this.renderPreview();
+  }
+
+  selectLayer(id: string | null) {
+    this.selectedLayerId.set(id);
+  }
+
+  removeLayer(id: string) {
+    this.settings = {
+      ...this.settings,
+      textLayers: this.settings.textLayers.filter((layer) => layer.id !== id),
+    } as VisualizerSettings;
+    if (this.selectedLayerId() === id) this.selectedLayerId.set(null);
+    this.renderPreview();
+  }
+
+  duplicateLayer(id: string) {
+    const source = this.settings.textLayers.find((layer) => layer.id === id);
+    if (!source) return;
+    const copy: TextLayer = {
+      ...source,
+      id: this.visualizerService.createTextLayer().id,
+      x: Math.min(0.95, source.x + 0.04),
+      y: Math.min(0.95, source.y + 0.05),
+    };
+    this.settings = {
+      ...this.settings,
+      textLayers: [...this.settings.textLayers, copy],
+    } as VisualizerSettings;
+    this.selectedLayerId.set(copy.id);
+    this.renderPreview();
+  }
+
+  updateLayer(id: string, patch: Partial<TextLayer>) {
+    const textLayers = this.settings.textLayers.map((layer) =>
+      layer.id === id ? { ...layer, ...patch } : layer,
+    );
+    this.settings = { ...this.settings, textLayers } as VisualizerSettings;
+    const updated = textLayers.find((layer) => layer.id === id);
+    if (updated && (patch.fontFamily || patch.weight !== undefined || patch.italic !== undefined))
+      void this.refreshAfterFont(updated);
+    this.renderPreview();
+  }
+
+  setLayerNumber(id: string, key: LayerSlider['key'], value: number | string) {
+    this.updateLayer(id, { [key]: Number(value) });
+  }
+
+  setLayerFont(id: string, family: string) {
+    const font = findVisualizerFont(family);
+    const layer = this.settings.textLayers.find((l) => l.id === id);
+    if (!font || !layer) return;
+    this.updateLayer(id, {
+      fontFamily: family,
+      weight: nearestFontWeight(font, layer.weight),
+      italic: font.italic ? layer.italic : false,
+    });
+  }
+
+  layerSliderFill(slider: LayerSlider, value: number) {
+    return Math.max(0, Math.min(100, ((value - slider.min) / (slider.max - slider.min)) * 100));
+  }
+
+  setFontCategory(category: VisualizerFontCategory | 'All') {
+    this.fontCategory.set(category);
+  }
+
+  /** Percent-based box of a layer over the preview canvas, used as its drag handle. */
+  layerBox(layer: TextLayer) {
+    const { width, height } = this.visualizerService.getCanvasSize(this.settings.format, 720);
+    const box = this.visualizerService.measureTextLayer(layer, width, height);
+    return {
+      left: layer.x * 100,
+      top: layer.y * 100,
+      width: box.width * 100,
+      height: box.height * 100,
+    };
+  }
+
+  beginLayerDrag(layer: TextLayer, event: PointerEvent) {
+    event.preventDefault();
+    event.stopPropagation();
+    this.selectedLayerId.set(layer.id);
+    this.layerDrag = { id: layer.id, startX: event.clientX, startY: event.clientY, x: layer.x, y: layer.y };
+  }
+
+  nudgeLayer(layer: TextLayer, event: KeyboardEvent) {
+    const step = event.shiftKey ? 0.05 : 0.01;
+    const delta: Record<string, [number, number]> = {
+      ArrowLeft: [-step, 0],
+      ArrowRight: [step, 0],
+      ArrowUp: [0, -step],
+      ArrowDown: [0, step],
+    };
+    const move = delta[event.key];
+    if (move) {
+      event.preventDefault();
+      this.updateLayer(layer.id, {
+        x: Math.max(0, Math.min(1, layer.x + move[0])),
+        y: Math.max(0, Math.min(1, layer.y + move[1])),
+      });
+    } else if (event.key === 'Delete' || event.key === 'Backspace') {
+      if ((event.target as HTMLElement).tagName === 'BUTTON') this.removeLayer(layer.id);
+    }
+  }
+
+  /** Requests every catalogue font once so the picker can preview each face. */
+  primeFonts() {
+    if (this.fontsPrimed) return;
+    this.fontsPrimed = true;
+    for (const font of VISUALIZER_FONTS) void loadVisualizerFont(font.family, font.weights[0]);
+  }
+
+  private layerDrag: { id: string; startX: number; startY: number; x: number; y: number } | null =
+    null;
+
+  private async refreshAfterFont(layer: TextLayer) {
+    await loadVisualizerFont(layer.fontFamily, layer.weight, layer.italic);
+    this.renderPreview();
+    this.cdr.markForCheck();
+  }
 
   ngAfterViewInit() {
     this.prepareCanvas();
@@ -425,6 +767,7 @@ export class StudioVisualizerComponent implements AfterViewInit, OnDestroy {
     this.visualizerService.disposeCanvas(this.previewCanvas?.nativeElement);
     this.settings = this.visualizerService.createDefaultSettings(kind, shared);
     this.selectedKind.set(kind);
+    if (kind === 'fluid-gradient' && this.inspectorTab() === 'text') this.inspectorTab.set('style');
     this.previousFrame = undefined;
     this.statusMessage.set(
       this.hasAudio() ? 'Preview ready.' : 'Load an audio file to start shaping the visual.',
@@ -463,6 +806,10 @@ export class StudioVisualizerComponent implements AfterViewInit, OnDestroy {
       this.currentTime.set(0);
       this.peaks.set(this.visualizerService.extractPeaks(audioBuffer, this.sampleCount()));
       this.trimPeaks.set(this.visualizerService.extractPeaks(audioBuffer, 140));
+      this.timelinePeaks = this.visualizerService.extractPeaks(
+        audioBuffer,
+        Math.max(400, Math.min(20000, Math.round(audioBuffer.duration * 50))),
+      );
       this.statusMessage.set('Preview ready.');
       this.renderPreview();
     } catch (err) {
@@ -602,8 +949,10 @@ export class StudioVisualizerComponent implements AfterViewInit, OnDestroy {
     this.renderPreview();
   }
 
-  exportPng() {
+  async exportPng() {
     if (!this.hasAudio()) return;
+    // Only wait when text layers need their web fonts, so the common path stays synchronous.
+    if (this.settings.textLayers.length) await this.visualizerService.prepareFonts(this.settings.textLayers);
     const canvas = this.createExportCanvas();
     const frame = this.createCurrentFrame();
     this.visualizerService.renderFrame(canvas, this.settings, frame);
@@ -620,6 +969,7 @@ export class StudioVisualizerComponent implements AfterViewInit, OnDestroy {
 
   async exportWebm() {
     if (!this.hasAudio()) return;
+    if (this.settings.textLayers.length) await this.visualizerService.prepareFonts(this.settings.textLayers);
     const canvas = this.createExportCanvas();
     if (typeof MediaRecorder === 'undefined' || !canvas.captureStream) {
       this.visualizerService.disposeCanvas(canvas);
@@ -675,8 +1025,9 @@ export class StudioVisualizerComponent implements AfterViewInit, OnDestroy {
         previous,
       );
       previous = frame;
-      this.visualizerService.renderFrame(canvas, this.settings, frame);
-      this.renderFrame(frame);
+      const outFrame = this.withTimeline(frame, this.trimStart() + elapsed);
+      this.visualizerService.renderFrame(canvas, this.settings, outFrame);
+      this.renderFrame(outFrame);
       this.currentTime.set(this.trimStart() + elapsed);
       this.exportProgress.set(progress);
       this.cdr.markForCheck();
@@ -713,7 +1064,11 @@ export class StudioVisualizerComponent implements AfterViewInit, OnDestroy {
         0,
         this.peaks(),
       );
-      this.visualizerService.renderFrame(canvas, this.settings, initial);
+      this.visualizerService.renderFrame(
+        canvas,
+        this.settings,
+        this.withTimeline(initial, this.trimStart()),
+      );
       exportAudio.source.start(0, this.trimStart(), clipDuration);
       exportFrameId = requestAnimationFrame(renderExportTick);
       stopTimer = window.setTimeout(stopRecording, Math.max(1000, clipDuration * 1000 + 500));
@@ -735,6 +1090,18 @@ export class StudioVisualizerComponent implements AfterViewInit, OnDestroy {
 
   @HostListener('document:pointermove', ['$event'])
   onDocumentPointerMove(event: PointerEvent) {
+    if (this.layerDrag) {
+      const rect = this.previewCanvas?.nativeElement.getBoundingClientRect();
+      if (!rect?.width || !rect.height) return;
+      event.preventDefault();
+      const { id, startX, startY, x, y } = this.layerDrag;
+      this.updateLayer(id, {
+        x: Math.max(0, Math.min(1, x + (event.clientX - startX) / rect.width)),
+        y: Math.max(0, Math.min(1, y + (event.clientY - startY) / rect.height)),
+      });
+      this.cdr.markForCheck();
+      return;
+    }
     if (!this.activeWaveformHandle) return;
     event.preventDefault();
     this.updateWaveformHandleFromPointer(event);
@@ -743,6 +1110,7 @@ export class StudioVisualizerComponent implements AfterViewInit, OnDestroy {
   @HostListener('document:pointerup')
   onDocumentPointerUp() {
     this.activeWaveformHandle = null;
+    this.layerDrag = null;
   }
 
   private commonSettings(): Partial<CommonVisualizerSettings> {
@@ -757,6 +1125,15 @@ export class StudioVisualizerComponent implements AfterViewInit, OnDestroy {
       grainAmount: this.settings.grainAmount,
       showTitle: this.settings.showTitle,
       title: this.settings.title,
+      textLayers: this.settings.textLayers,
+    };
+  }
+
+  private withTimeline(frame: VisualizerFrameData, time: number): VisualizerFrameData {
+    if (this.settings.kind !== 'timeline-wave') return frame;
+    return {
+      ...frame,
+      timeline: { peaks: this.timelinePeaks, time, duration: this.duration() },
     };
   }
 
@@ -782,13 +1159,16 @@ export class StudioVisualizerComponent implements AfterViewInit, OnDestroy {
       this.settings.mode === 'dynamic' && this.isPlaying() ? this.readFrequencyData() : null;
     const elapsed = this.isPlaying() ? this.audio.currentTime : this.currentTime();
     const progress = this.duration() > 0 ? elapsed / this.duration() : 0;
-    return this.visualizerService.createFrameData(
-      data,
-      this.sampleCount(),
-      progress,
+    return this.withTimeline(
+      this.visualizerService.createFrameData(
+        data,
+        this.sampleCount(),
+        progress,
+        elapsed,
+        this.peaks(),
+        this.previousFrame,
+      ),
       elapsed,
-      this.peaks(),
-      this.previousFrame,
     );
   }
 

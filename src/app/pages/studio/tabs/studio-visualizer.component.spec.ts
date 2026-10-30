@@ -48,7 +48,7 @@ describe('StudioVisualizerComponent', () => {
 
   it('opens on the three-option visualizer library', () => {
     expect(component.selectedKind()).toBeNull();
-    expect(fixture.nativeElement.querySelectorAll('.visualizer-choice')).toHaveLength(3);
+    expect(fixture.nativeElement.querySelectorAll('.visualizer-choice')).toHaveLength(4);
     expect(fixture.nativeElement.textContent).toContain('Audio visualizer');
   });
 

@@ -703,16 +703,317 @@ dd {
   }
 }
 
+.canvas-wrap {
+  position: relative;
+  width: min(100%, calc((var(--stage-h) - 56px) * var(--ar)));
+  aspect-ratio: var(--ratio);
+}
+
 .visualizer-canvas {
   display: block;
-  width: min(100%, calc((var(--stage-h) - 56px) * var(--ar)));
-  height: auto;
-  aspect-ratio: var(--ratio);
+  width: 100%;
+  height: 100%;
   border-radius: 8px;
   background: #10100e;
   box-shadow:
     0 0 0 1px rgba(255, 255, 255, 0.08),
     0 24px 60px rgba(0, 0, 0, 0.55);
+}
+
+// Draggable text boxes sit over the canvas; the text itself is painted on the canvas.
+.text-overlay {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  border-radius: 8px;
+}
+
+.text-handle {
+  position: absolute;
+  min-width: 28px;
+  min-height: 22px;
+  padding: 0;
+  border: 1px dashed transparent;
+  border-radius: 4px;
+  background: transparent;
+  cursor: grab;
+  touch-action: none;
+  transform: translate(-50%, -50%);
+
+  &:hover {
+    border-color: rgba(255, 255, 255, 0.45);
+  }
+
+  &:focus-visible,
+  &.selected {
+    border-color: var(--vz-lime);
+    box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.4);
+  }
+
+  &:active {
+    cursor: grabbing;
+  }
+}
+
+// ── Text tab ──
+.text-add {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+
+  button {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 13px;
+    border: 1px solid var(--vz-line-2);
+    border-radius: 999px;
+    background: var(--vz-soft);
+    color: var(--ink);
+    font-size: 12.5px;
+    font-weight: 600;
+    transition:
+      background 0.14s ease,
+      border-color 0.14s ease;
+
+    i {
+      font-style: normal;
+      font-weight: 700;
+      color: var(--hot);
+    }
+
+    &:hover {
+      border-color: var(--ink);
+      background: var(--vz-lime);
+    }
+  }
+}
+
+.text-empty {
+  margin: 0;
+  padding: 14px;
+  border: 1px dashed var(--vz-line-2);
+  border-radius: 12px;
+  color: color-mix(in srgb, var(--ink) 62%, transparent);
+  font-size: 12.5px;
+  line-height: 1.5;
+}
+
+.layer-list {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+
+  li {
+    display: flex;
+    align-items: stretch;
+    border: 1px solid var(--vz-line);
+    border-radius: 10px;
+    background: var(--vz-soft);
+
+    &.on {
+      border-color: var(--ink);
+      background: var(--vz-lime);
+    }
+  }
+}
+
+.layer-pick {
+  flex: 1;
+  min-width: 0;
+  padding: 9px 12px;
+  overflow: hidden;
+  border: 0;
+  background: transparent;
+  color: var(--ink);
+  font-size: 17px;
+  text-align: left;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.layer-act {
+  width: 34px;
+  border: 0;
+  border-left: 1px solid var(--vz-line);
+  background: transparent;
+  color: var(--ink);
+  font-size: 16px;
+
+  &:hover {
+    background: color-mix(in srgb, var(--hot) 22%, transparent);
+  }
+}
+
+.text-toggles {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 10px;
+}
+
+.chip-toggle,
+.weight-select {
+  position: relative;
+  padding: 6px 11px;
+  border: 1px solid var(--vz-line-2);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--ink);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+
+  input {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  &.on {
+    border-color: var(--ink);
+    background: var(--ink);
+    color: var(--cream);
+  }
+}
+
+.font-cats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-bottom: 10px;
+
+  button {
+    padding: 4px 10px;
+    border: 1px solid var(--vz-line);
+    border-radius: 999px;
+    background: transparent;
+    color: var(--ink);
+    font-size: 11.5px;
+
+    &.on {
+      border-color: var(--ink);
+      background: var(--ink);
+      color: var(--cream);
+    }
+  }
+}
+
+.font-list {
+  display: grid;
+  gap: 4px;
+  max-height: 260px;
+  padding-right: 4px;
+  overflow-y: auto;
+}
+
+.font-opt {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 12px;
+  border: 1px solid var(--vz-line);
+  border-radius: 10px;
+  background: transparent;
+  color: var(--ink);
+  text-align: left;
+
+  span {
+    min-width: 0;
+    overflow: hidden;
+    font-size: 20px;
+    line-height: 1.2;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  small {
+    flex: none;
+    font-family: var(--mono);
+    font-size: 9.5px;
+    letter-spacing: 0.04em;
+    opacity: 0.55;
+  }
+
+  &:hover {
+    border-color: var(--vz-line-2);
+    background: var(--vz-soft);
+  }
+
+  &.on {
+    border-color: var(--ink);
+    background: var(--vz-lime);
+  }
+}
+
+.layer-colors {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 7px;
+  margin-top: 14px;
+
+  button {
+    width: 24px;
+    height: 24px;
+    padding: 0;
+    border: 1px solid var(--vz-line-2);
+    border-radius: 50%;
+
+    &.on {
+      outline: 2px solid var(--ink);
+      outline-offset: 2px;
+    }
+  }
+
+  input[type='color'] {
+    width: 30px;
+    height: 26px;
+    padding: 0;
+    border: 1px solid var(--vz-line-2);
+    border-radius: 6px;
+    background: none;
+  }
+}
+
+// Chooser art for the timeline wave: bars drift past a fixed playhead.
+.mini-scroll {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  width: 78%;
+  height: 46%;
+  overflow: hidden;
+  mask-image: linear-gradient(90deg, transparent, #000 22%, #000 78%, transparent);
+
+  i {
+    flex: none;
+    width: 9px;
+    height: var(--h);
+    border-radius: 999px;
+    background: #f0e9d6;
+    opacity: 0.55;
+    animation: mini-scroll 4.2s linear infinite;
+  }
+
+  b {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 50%;
+    width: 2px;
+    background: var(--accent);
+  }
+}
+
+@keyframes mini-scroll {
+  to {
+    transform: translateX(-196px);
+  }
 }
 
 .stage-hint {
@@ -1622,6 +1923,7 @@ input[type='range'] {
   }
 
   .mini-wave i,
+  .mini-scroll i,
   .mini-eq i,
   .mini-fluid,
   .mini-vinyl {

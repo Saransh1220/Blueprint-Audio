@@ -35,6 +35,13 @@
               </span>
             } @else if (choice.kind === 'fluid-gradient') {
               <span class="mini-fluid"><i></i><b></b><em></em></span>
+            } @else if (choice.kind === 'timeline-wave') {
+              <span class="mini-scroll">
+                @for (bar of [22, 38, 64, 44, 80, 56, 90, 48, 70, 34, 58, 26, 46, 30]; track $index) {
+                  <i [style.--h.%]="bar" [style.--i]="$index"></i>
+                }
+                <b></b>
+              </span>
             } @else {
               <span class="mini-vinyl"
                 ><i><b>W</b></i></span
@@ -137,7 +144,28 @@
         </div>
 
         <div class="preview-stage" [attr.data-format]="settings.format" [attr.data-kind]="settings.kind">
-          <canvas #previewCanvas class="visualizer-canvas" aria-label="Visualizer preview"></canvas>
+          <div class="canvas-wrap">
+            <canvas #previewCanvas class="visualizer-canvas" aria-label="Visualizer preview"></canvas>
+            @if (settings.kind !== 'fluid-gradient') {
+              <div class="text-overlay" (pointerdown)="selectLayer(null)">
+                @for (layer of textLayers; track layer.id) {
+                  @let box = layerBox(layer);
+                  <button
+                    type="button"
+                    class="text-handle"
+                    [class.selected]="selectedLayerId() === layer.id"
+                    [style.left.%]="box.left"
+                    [style.top.%]="box.top"
+                    [style.width.%]="box.width"
+                    [style.height.%]="box.height"
+                    [attr.aria-label]="'Move text: ' + layer.text"
+                    (pointerdown)="beginLayerDrag(layer, $event)"
+                    (keydown)="nudgeLayer(layer, $event)"
+                  ></button>
+                }
+              </div>
+            }
+          </div>
           @if (!hasAudio()) {
             <span class="stage-hint">Add audio to play and export</span>
           }
@@ -165,7 +193,16 @@
           <span class="time">
             <strong>{{ formatTime(currentTime()) }}</strong> / {{ formatTime(duration()) }}
           </span>
-          <span class="mode-pill"><i></i>{{ settings.mode === 'dynamic' ? 'Live' : 'Still' }}</span>
+          <span class="mode-pill"
+            ><i></i
+            >{{
+              settings.kind === 'timeline-wave'
+                ? 'Scroll'
+                : settings.mode === 'dynamic'
+                  ? 'Live'
+                  : 'Still'
+            }}</span
+          >
         </div>
 
         <div class="timeline" [class.disabled]="!hasAudio()">
@@ -272,6 +309,26 @@
                 </section>
               }
 
+              @if (settings.kind === 'timeline-wave') {
+                <section class="group">
+                  <div class="group-title">
+                    <span>Pattern</span><em>{{ timelineSettings.style }}</em>
+                  </div>
+                  <div class="segmented">
+                    @for (item of timelineStyles; track item.style) {
+                      <button
+                        type="button"
+                        [class.on]="timelineSettings.style === item.style"
+                        [attr.aria-pressed]="timelineSettings.style === item.style"
+                        (click)="setTimelineStyle(item.style)"
+                      >
+                        {{ item.label }}
+                      </button>
+                    }
+                  </div>
+                </section>
+              }
+
               <section class="group">
                 <div class="group-title">
                   <span>{{ sliderSet.title }}</span><em>{{ sliderSet.hint }}</em>
@@ -295,6 +352,7 @@
                 </div>
               </section>
 
+              @if (settings.kind !== 'timeline-wave') {
               <section class="group">
                 <div class="group-title"><span>Motion</span><em>Preview behaviour</em></div>
                 <div class="segmented">
@@ -314,6 +372,7 @@
                   </button>
                 </div>
               </section>
+              }
             }
 
             @case ('color') {
@@ -399,6 +458,23 @@
               <section class="group">
                 <div class="group-title"><span>Texture</span></div>
                 <div class="sliders">
+                  @if (settings.kind === 'timeline-wave') {
+                    @for (control of noiseSliders; track control.key) {
+                      <label class="slider">
+                        <span class="slider-label">{{ control.label }}</span>
+                        <output class="slider-value">{{ sliderValue(control.key) }}{{ control.suffix }}</output>
+                        <input
+                          type="range"
+                          [min]="control.min"
+                          [max]="control.max"
+                          [step]="control.step"
+                          [style.--fill.%]="sliderFill(control)"
+                          [ngModel]="sliderValue(control.key)"
+                          (ngModelChange)="setSlider(control.key, $event)"
+                        />
+                      </label>
+                    }
+                  } @else {
                   <label class="slider">
                     <span class="slider-label">{{ grainControl.label }}</span>
                     <output class="slider-value">{{ sliderValue(grainControl.key) }}</output>
@@ -412,8 +488,190 @@
                       (ngModelChange)="setSlider(grainControl.key, $event)"
                     />
                   </label>
+                  }
                 </div>
               </section>
+            }
+
+            @case ('text') {
+              <section class="group">
+                <div class="group-title">
+                  <span>Add text</span><em>Drag it in the preview</em>
+                </div>
+                <div class="text-add">
+                  @for (template of textTemplates; track template.id) {
+                    <button type="button" (click)="addTextLayer(template)">
+                      <i aria-hidden="true">+</i>{{ template.label }}
+                    </button>
+                  }
+                </div>
+              </section>
+
+              @if (textLayers.length) {
+                <section class="group">
+                  <div class="group-title">
+                    <span>Layers</span><em>{{ textLayers.length }}</em>
+                  </div>
+                  <ul class="layer-list">
+                    @for (layer of textLayers; track layer.id) {
+                      <li [class.on]="selectedLayerId() === layer.id">
+                        <button
+                          type="button"
+                          class="layer-pick"
+                          [style.font-family]="'\'' + layer.fontFamily + '\', sans-serif'"
+                          (click)="selectLayer(layer.id)"
+                        >
+                          {{ layer.text || 'Empty' }}
+                        </button>
+                        <button
+                          type="button"
+                          class="layer-act"
+                          aria-label="Duplicate text"
+                          title="Duplicate"
+                          (click)="duplicateLayer(layer.id)"
+                        >
+                          ⧉
+                        </button>
+                        <button
+                          type="button"
+                          class="layer-act"
+                          aria-label="Delete text"
+                          title="Delete"
+                          (click)="removeLayer(layer.id)"
+                        >
+                          ×
+                        </button>
+                      </li>
+                    }
+                  </ul>
+                </section>
+              } @else {
+                <p class="text-empty">
+                  Add a title, BPM, key or any custom line. Each one is a layer you can drag
+                  anywhere on the canvas.
+                </p>
+              }
+
+              @if (selectedLayer; as layer) {
+                <section class="group">
+                  <div class="group-title"><span>Text</span><em>Selected layer</em></div>
+                  <input
+                    class="title-input"
+                    type="text"
+                    placeholder="Your text"
+                    [ngModel]="layer.text"
+                    (ngModelChange)="updateLayer(layer.id, { text: $event })"
+                  />
+                  <div class="text-toggles">
+                    <label class="chip-toggle" [class.on]="layer.uppercase">
+                      <input
+                        type="checkbox"
+                        [ngModel]="layer.uppercase"
+                        (ngModelChange)="updateLayer(layer.id, { uppercase: $event })"
+                      />
+                      AA Caps
+                    </label>
+                    @if (selectedFont?.italic) {
+                      <label class="chip-toggle" [class.on]="layer.italic">
+                        <input
+                          type="checkbox"
+                          [ngModel]="layer.italic"
+                          (ngModelChange)="updateLayer(layer.id, { italic: $event })"
+                        />
+                        <i>Italic</i>
+                      </label>
+                    }
+                    @if (selectedFont && selectedFont.weights.length > 1) {
+                      <select
+                        class="weight-select"
+                        aria-label="Font weight"
+                        [ngModel]="layer.weight"
+                        (ngModelChange)="updateLayer(layer.id, { weight: +$event })"
+                      >
+                        @for (weight of selectedFont.weights; track weight) {
+                          <option [ngValue]="weight">{{ weight }}</option>
+                        }
+                      </select>
+                    }
+                    <button
+                      type="button"
+                      class="chip-toggle"
+                      (click)="updateLayer(layer.id, { x: 0.5 })"
+                    >
+                      Center
+                    </button>
+                  </div>
+                </section>
+
+                <section class="group">
+                  <div class="group-title"><span>Font</span><em>{{ layer.fontFamily }}</em></div>
+                  <div class="font-cats" role="tablist" aria-label="Font category">
+                    @for (category of fontCategories; track category) {
+                      <button
+                        type="button"
+                        [class.on]="fontCategory() === category"
+                        (click)="setFontCategory(category)"
+                      >
+                        {{ category }}
+                      </button>
+                    }
+                  </div>
+                  <div class="font-list" role="listbox" aria-label="Fonts">
+                    @for (font of visibleFonts; track font.family) {
+                      <button
+                        type="button"
+                        role="option"
+                        class="font-opt"
+                        [class.on]="layer.fontFamily === font.family"
+                        [attr.aria-selected]="layer.fontFamily === font.family"
+                        [style.font-family]="'\'' + font.family + '\', sans-serif'"
+                        (click)="setLayerFont(layer.id, font.family)"
+                      >
+                        <span>{{ layer.text || font.family }}</span>
+                        <small>{{ font.family }}</small>
+                      </button>
+                    }
+                  </div>
+                </section>
+
+                <section class="group">
+                  <div class="group-title"><span>Style</span></div>
+                  <div class="sliders">
+                    @for (slider of layerSliders; track slider.key) {
+                      <label class="slider">
+                        <span class="slider-label">{{ slider.label }}</span>
+                        <output class="slider-value">{{ layer[slider.key] }}</output>
+                        <input
+                          type="range"
+                          [min]="slider.min"
+                          [max]="slider.max"
+                          [step]="slider.step"
+                          [style.--fill.%]="layerSliderFill(slider, layer[slider.key])"
+                          [ngModel]="layer[slider.key]"
+                          (ngModelChange)="setLayerNumber(layer.id, slider.key, $event)"
+                        />
+                      </label>
+                    }
+                  </div>
+                  <div class="layer-colors">
+                    @for (swatch of layerSwatches; track swatch) {
+                      <button
+                        type="button"
+                        [class.on]="layer.color === swatch"
+                        [style.background]="swatch"
+                        [attr.aria-label]="'Text colour ' + swatch"
+                        (click)="updateLayer(layer.id, { color: swatch })"
+                      ></button>
+                    }
+                    <input
+                      type="color"
+                      aria-label="Custom text colour"
+                      [ngModel]="layer.color"
+                      (ngModelChange)="updateLayer(layer.id, { color: $event })"
+                    />
+                  </div>
+                </section>
+              }
             }
 
             @case ('output') {
@@ -437,6 +695,7 @@
                 </div>
               </section>
 
+              @if (settings.kind !== 'timeline-wave') {
               <section class="group">
                 <div class="group-title"><span>Title overlay</span></div>
                 <label class="switch-row">
@@ -457,6 +716,7 @@
                   (ngModelChange)="updateSetting()"
                 />
               </section>
+              }
 
               <section class="group">
                 <div class="group-title"><span>Export summary</span></div>

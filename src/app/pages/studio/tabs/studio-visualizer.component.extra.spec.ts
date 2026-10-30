@@ -79,7 +79,7 @@ describe('StudioVisualizerComponent (extra coverage)', () => {
       component.audioFileName.set('a.wav');
       fixture.detectChanges();
       const choices = el().querySelectorAll<HTMLButtonElement>('.visualizer-choice');
-      expect(choices).toHaveLength(3);
+      expect(choices).toHaveLength(4);
       choices[2].click();
       fixture.detectChanges();
       expect(component.selectedKind()).toBe('vinyl');
