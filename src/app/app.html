@@ -102,7 +102,9 @@
   }
 </style>
 
-<app-header></app-header>
+@if (!isAuthRoute()) {
+  <app-header></app-header>
+}
 <div
   class="app-shell"
   [class.player-docked]="shouldReservePlayerSpace()"

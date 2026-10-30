@@ -1,88 +1,101 @@
 <div class="auth-page" [attr.data-screen]="isLoginView ? 'signin' : 'signup'">
-  <div class="auth-shell">
-    <aside class="stage">
-      <div class="stage-head">
-        <span class="stage-num">{{ isLoginView ? '< 01 >' : '< 02 >' }}</span>
-        <span class="stage-eyebrow">{{ isLoginView ? 'welcome back' : 'join the yard' }}</span>
-      </div>
+  <div class="split">
+    <aside class="visual">
+      <img
+        class="visual-img"
+        src="/auth-hero.webp"
+        alt=""
+        width="1200"
+        height="900"
+        fetchpriority="high"
+      />
+      <div class="visual-shade" aria-hidden="true"></div>
 
-      <div class="stage-copy">
-        <h1 class="stage-headline">
+      <a class="brand" routerLink="/" aria-label="Waveyard home">
+        <img src="/logo-dark-cropped.png" alt="" />
+        <span>Waveyard</span>
+      </a>
+
+      <div class="tagline">
+        <p>Sounds<br />for what’s next.</p>
+        <span class="tagline-rule" aria-hidden="true"></span>
+        <small>Beats. Moods. Producers.</small>
+      </div>
+    </aside>
+
+    <section class="panel">
+      <div class="panel-top">
+        <a class="brand brand-mobile" routerLink="/" aria-label="Waveyard home">
+          <img src="/logo-dark-cropped.png" alt="" />
+          <span>Waveyard</span>
+        </a>
+
+        <p class="switch">
           @if (isLoginView) {
-            <span>sign</span>
-            <em>in.</em>
+            New here?
+            <button type="button" class="link" (click)="toggleView(false)">create an account</button>
           } @else {
-            <span>join</span>
-            <em>yard.</em>
-          }
-        </h1>
-        <p>
-          @if (isLoginView) {
-            Press play on your crate. Manage purchases, uploads, sessions, and licenses from one
-            clean console.
-          } @else {
-            Claim your handle, upload your sound, sell on your terms, and keep your masters close.
+            Already in?
+            <button type="button" class="link" (click)="toggleView(true)">sign in instead</button>
           }
         </p>
       </div>
 
-      <div class="stage-stats" aria-label="Waveyard highlights">
-        <div class="stat">
-          <strong>{{ isLoginView ? '24k+' : '0%' }}</strong>
-          <span>{{ isLoginView ? 'sessions saved' : 'platform fees first drops' }}</span>
-        </div>
-        <span class="stat-line"></span>
-        <div class="stat">
-          <strong>{{ isLoginView ? '140' : '3.4k+' }}</strong>
-          <span>{{ isLoginView ? 'bpm drops' : 'beats live' }}</span>
-        </div>
-        <span class="stat-line"></span>
-        <div class="stat">
-          <strong>{{ isLoginView ? 'A' : 'B' }}</strong>
-          <span>{{ isLoginView ? 'side active' : 'side unlocked' }}</span>
-        </div>
-      </div>
-
-      <span class="stage-star" aria-hidden="true">*</span>
-    </aside>
-
-    <main class="panel">
-      <div class="form-wrap">
-        <div class="panel-corner">
-          <span class="corner-tag">{{ isLoginView ? 'member access' : 'artist onboarding' }}</span>
-          <span>{{ isLoginView ? 'side a' : 'side b' }}</span>
-        </div>
+      <div class="panel-main">
+        <header class="panel-head">
+          @if (isLoginView) {
+            <h1>Welcome <span>back</span></h1>
+            <p>Sign in to continue to Waveyard</p>
+          } @else {
+            <h1>Create your <span>account</span></h1>
+            <p>Set up your account and start sharing your sound.</p>
+          }
+        </header>
 
         @if (isLoginView) {
-          <form class="form screen active" (ngSubmit)="onLoginSubmit()" novalidate>
-            <div class="field" [class.has-value]="loginEmail">
-              <input
-                type="email"
-                id="login-email"
-                name="email"
-                class="field-input"
-                [(ngModel)]="loginEmail"
-                placeholder="Email"
-                required
-                autocomplete="email"
-              />
+          <form class="form screen" (ngSubmit)="onLoginSubmit()" novalidate>
+            <div class="field">
               <label class="field-label" for="login-email">Email</label>
+              <div class="input-wrap">
+                <svg class="field-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                  <rect x="3" y="5" width="18" height="14" rx="2" />
+                  <path d="m3 7 9 6 9-6" />
+                </svg>
+                <input
+                  type="email"
+                  id="login-email"
+                  name="email"
+                  class="field-input has-icon"
+                  [(ngModel)]="loginEmail"
+                  placeholder="you@example.com"
+                  required
+                  autocomplete="email"
+                />
+              </div>
             </div>
 
-            <div class="field" [class.has-value]="loginPassword">
-              <input
-                [type]="showLoginPassword ? 'text' : 'password'"
-                id="login-password"
-                name="password"
-                class="field-input"
-                [(ngModel)]="loginPassword"
-                placeholder="Password"
-                required
-                autocomplete="current-password"
-              />
-              <label class="field-label" for="login-password">Password</label>
-              <div class="field-suffix">
-                <button type="button" class="forgot" (click)="goToForgotPassword()">forgot?</button>
+            <div class="field">
+              <div class="label-row">
+                <label class="field-label" for="login-password">Password</label>
+                <button type="button" class="forgot" (click)="goToForgotPassword()">
+                  Forgot password?
+                </button>
+              </div>
+              <div class="input-wrap">
+                <svg class="field-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                  <rect x="4" y="11" width="16" height="10" rx="2" />
+                  <path d="M8 11V7a4 4 0 0 1 8 0v4" />
+                </svg>
+                <input
+                  [type]="showLoginPassword ? 'text' : 'password'"
+                  id="login-password"
+                  name="password"
+                  class="field-input has-icon has-suffix"
+                  [(ngModel)]="loginPassword"
+                  placeholder="Enter your password"
+                  required
+                  autocomplete="current-password"
+                />
                 <button
                   type="button"
                   class="pw-toggle"
@@ -122,21 +135,17 @@
               [class.loading]="isLoading()"
               [disabled]="isLoading()"
             >
-              <span class="label">Sign in</span>
-              <span class="arrow-circle">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <span class="label">
+                Sign in
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
                   <path d="M5 12h14" />
                   <path d="m12 5 7 7-7 7" />
                 </svg>
               </span>
-              <span class="scan">
-                <span></span>
-                <span></span>
-                <span></span>
-              </span>
+              <span class="spinner" aria-hidden="true"></span>
             </button>
 
-            <div class="divider"><span>or sign in with</span></div>
+            <div class="or-divider"><span>or</span></div>
 
             <div class="google-btn" role="presentation">
               <div class="google-btn-shell">
@@ -164,125 +173,149 @@
                 <asl-google-signin-button type="standard" size="large" [width]="400" />
               </div>
             </div>
-
-            <div class="panel-foot">
-              New here?
-              <button type="button" class="link" (click)="toggleView(false)">
-                create an account
-              </button>
-            </div>
           </form>
         } @else {
-          <form class="form screen active" (ngSubmit)="onRegisterSubmit()" novalidate>
-            <div class="field" [class.has-value]="registerUsername">
-              <input
-                type="text"
-                id="su-name"
-                name="name"
-                class="field-input"
-                [(ngModel)]="registerUsername"
-                placeholder="Your name"
-                required
-                autocomplete="name"
-              />
-              <label class="field-label" for="su-name">Your name</label>
-            </div>
+          <form class="form screen" (ngSubmit)="onRegisterSubmit()" novalidate>
+            <div class="row-2">
+              <div class="field">
+                <label class="field-label" for="su-name">Your name</label>
+                <div class="input-wrap">
+                  <svg class="field-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                    <circle cx="12" cy="8" r="4" />
+                    <path d="M4 21a8 8 0 0 1 16 0" />
+                  </svg>
+                  <input
+                    type="text"
+                    id="su-name"
+                    name="name"
+                    class="field-input has-icon"
+                    [(ngModel)]="registerUsername"
+                    placeholder="Your name"
+                    required
+                    autocomplete="name"
+                  />
+                </div>
+              </div>
 
-            <div class="field" [class.has-value]="registerDisplayName">
-              <input
-                type="text"
-                id="su-display"
-                name="displayName"
-                class="field-input"
-                [(ngModel)]="registerDisplayName"
-                placeholder="Artist name"
-                required
-                autocomplete="username"
-              />
-              <label class="field-label" for="su-display">Artist name</label>
-              <div class="field-meta">
-                <span>listeners see this</span>
-                <span class="req">required</span>
+              <div class="field">
+                <label class="field-label" for="su-display">Artist name</label>
+                <div class="input-wrap">
+                  <svg class="field-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                    <rect x="9" y="3" width="6" height="11" rx="3" />
+                    <path d="M5 11a7 7 0 0 0 14 0M12 18v3" />
+                  </svg>
+                  <input
+                    type="text"
+                    id="su-display"
+                    name="displayName"
+                    class="field-input has-icon"
+                    [(ngModel)]="registerDisplayName"
+                    placeholder="Artist name"
+                    required
+                    autocomplete="username"
+                  />
+                </div>
+                <span class="hint">listeners see this · <b>required</b></span>
               </div>
             </div>
 
-            <div class="field" [class.has-value]="registerEmail">
-              <input
-                type="email"
-                id="su-email"
-                name="email"
-                class="field-input"
-                [(ngModel)]="registerEmail"
-                placeholder="Email"
-                required
-                autocomplete="email"
-              />
+            <div class="field">
               <label class="field-label" for="su-email">Email</label>
+              <div class="input-wrap">
+                <svg class="field-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                  <rect x="3" y="5" width="18" height="14" rx="2" />
+                  <path d="m3 7 9 6 9-6" />
+                </svg>
+                <input
+                  type="email"
+                  id="su-email"
+                  name="email"
+                  class="field-input has-icon"
+                  [(ngModel)]="registerEmail"
+                  placeholder="you@example.com"
+                  required
+                  autocomplete="email"
+                />
+              </div>
             </div>
 
-            <div class="field password-field" [class.has-value]="registerPassword">
-              <input
-                [type]="showRegisterPassword ? 'text' : 'password'"
-                id="su-password"
-                name="password"
-                class="field-input"
-                [(ngModel)]="registerPassword"
-                placeholder="Password"
-                required
-                autocomplete="new-password"
-              />
-              <label class="field-label" for="su-password">Password</label>
-              <div class="field-suffix">
-                <button
-                  type="button"
-                  class="pw-toggle"
-                  (click)="showRegisterPassword = !showRegisterPassword"
-                  aria-label="Toggle password visibility"
-                >
-                  @if (showRegisterPassword) {
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <path
-                        d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"
-                      />
-                      <line x1="1" y1="1" x2="23" y2="23" />
-                    </svg>
-                  } @else {
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
-                      <circle cx="12" cy="12" r="3" />
-                    </svg>
+            <div class="row-2">
+              <div class="field">
+                <label class="field-label" for="su-password">Password</label>
+                <div class="input-wrap">
+                  <svg class="field-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                    <rect x="4" y="11" width="16" height="10" rx="2" />
+                    <path d="M8 11V7a4 4 0 0 1 8 0v4" />
+                  </svg>
+                  <input
+                    [type]="showRegisterPassword ? 'text' : 'password'"
+                    id="su-password"
+                    name="password"
+                    class="field-input has-icon has-suffix"
+                    [(ngModel)]="registerPassword"
+                    placeholder="Password"
+                    required
+                    autocomplete="new-password"
+                  />
+                  <button
+                    type="button"
+                    class="pw-toggle"
+                    (click)="showRegisterPassword = !showRegisterPassword"
+                    aria-label="Toggle password visibility"
+                  >
+                    @if (showRegisterPassword) {
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path
+                          d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"
+                        />
+                        <line x1="1" y1="1" x2="23" y2="23" />
+                      </svg>
+                    } @else {
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                        <circle cx="12" cy="12" r="3" />
+                      </svg>
+                    }
+                  </button>
+                </div>
+                <div class="strength" [attr.data-score]="passwordStrength().score">
+                  @for (bar of [0, 1, 2, 3]; track bar) {
+                    <span [class.on]="bar < passwordStrength().score"></span>
                   }
-                </button>
+                </div>
+                <div class="field-meta">
+                  <span>min 8 chars</span>
+                  <span class="req">strength: {{ passwordStrength().label }}</span>
+                </div>
               </div>
-              <div class="strength" [attr.data-score]="passwordStrength().score">
-                @for (bar of [0, 1, 2, 3]; track bar) {
-                  <span [class.on]="bar < passwordStrength().score"></span>
-                }
-              </div>
-              <div class="field-meta">
-                <span>min 8 chars</span>
-                <span class="req">strength: {{ passwordStrength().label }}</span>
-              </div>
-            </div>
 
-            <div class="field" [class.has-value]="registerConfirmPassword">
-              <input
-                type="password"
-                id="su-confirm"
-                name="confirm"
-                class="field-input"
-                [(ngModel)]="registerConfirmPassword"
-                placeholder="Confirm password"
-                required
-                autocomplete="new-password"
-                [class.has-error]="registerConfirmPassword.length > 0 && !passwordsMatch()"
-              />
-              <label class="field-label" for="su-confirm">Confirm password</label>
-              @if (registerConfirmPassword.length > 0) {
-                <span class="match-indicator" [class.ok]="passwordsMatch()">
-                  {{ passwordsMatch() ? 'matches' : 'no match' }}
-                </span>
-              }
+              <div class="field">
+                <div class="label-row">
+                  <label class="field-label" for="su-confirm">Confirm password</label>
+                  @if (registerConfirmPassword.length > 0) {
+                    <span class="match-indicator" [class.ok]="passwordsMatch()">
+                      {{ passwordsMatch() ? 'matches' : 'no match' }}
+                    </span>
+                  }
+                </div>
+                <div class="input-wrap">
+                  <svg class="field-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                    <rect x="4" y="11" width="16" height="10" rx="2" />
+                    <path d="M8 11V7a4 4 0 0 1 8 0v4" />
+                  </svg>
+                  <input
+                    type="password"
+                    id="su-confirm"
+                    name="confirm"
+                    class="field-input has-icon"
+                    [(ngModel)]="registerConfirmPassword"
+                    placeholder="Confirm password"
+                    required
+                    autocomplete="new-password"
+                    [class.has-error]="registerConfirmPassword.length > 0 && !passwordsMatch()"
+                  />
+                </div>
+              </div>
             </div>
 
             <div class="role-group">
@@ -326,21 +359,17 @@
               [class.loading]="isLoading()"
               [disabled]="isLoading()"
             >
-              <span class="label">Create account</span>
-              <span class="arrow-circle">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <span class="label">
+                Create account
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
                   <path d="M5 12h14" />
                   <path d="m12 5 7 7-7 7" />
                 </svg>
               </span>
-              <span class="scan">
-                <span></span>
-                <span></span>
-                <span></span>
-              </span>
+              <span class="spinner" aria-hidden="true"></span>
             </button>
 
-            <div class="divider"><span>or sign up with</span></div>
+            <div class="or-divider"><span>or</span></div>
 
             <div class="google-btn" role="presentation">
               <div class="google-btn-shell">
@@ -368,25 +397,9 @@
                 <asl-google-signin-button type="standard" size="large" [width]="400" />
               </div>
             </div>
-
-            <div class="panel-foot">
-              Already in?
-              <button type="button" class="link" (click)="toggleView(true)">sign in instead</button>
-            </div>
           </form>
         }
       </div>
-    </main>
+    </section>
   </div>
-
-  <footer class="auth-ticker" aria-hidden="true">
-    <div class="ticker-track">
-      @for (item of tickerItems; track item) {
-        <span>{{ item }}</span>
-      }
-      @for (item of tickerItems; track 'repeat-' + item) {
-        <span>{{ item }}</span>
-      }
-    </div>
-  </footer>
 </div>
