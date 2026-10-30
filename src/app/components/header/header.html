@@ -104,7 +104,7 @@
         <a routerLink="/admin" routerLinkActive="active">Admin</a>
       }
       @if (authService.currentUser()) {
-        <a class="compact-nav-link" routerLink="/dashboard" routerLinkActive="active">Dashboard</a>
+        <a routerLink="/dashboard" routerLinkActive="active">Dashboard</a>
         <div
           class="nav-link-wrap studio-nav-wrap"
           [class.studio-menu-dismissed]="isStudioMenuDismissed"
