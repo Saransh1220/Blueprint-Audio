@@ -1,0 +1,137 @@
+<app-warp-dialog
+  [open]="open()"
+  [label]="'Choose a license for ' + (spec()?.title ?? 'this beat')"
+  (dismissed)="close()"
+>
+  @if (spec(); as beat) {
+    <div class="pw">
+      <div class="pw-scroll">
+        <header class="pw-beat">
+          <div class="pw-cover">
+            <img
+              class="pw-art"
+              [src]="beat.imageUrl || 'assets/images/placeholder.jpg'"
+              [alt]="beat.title"
+              width="150"
+              height="150"
+            />
+            <button
+              type="button"
+              class="pw-play"
+              [attr.aria-label]="previewing() ? 'Pause preview' : 'Play preview'"
+              (click)="togglePreview()"
+            >
+              <i
+                class="fas"
+                [class.fa-pause]="previewing()"
+                [class.fa-play]="!previewing()"
+                aria-hidden="true"
+              ></i>
+            </button>
+          </div>
+
+          <div class="pw-id">
+            <p class="pw-kicker">Choose a license</p>
+            <h2 class="pw-title">{{ beat.title }}</h2>
+            <p class="pw-by">
+              prod. by <span>{{ beat.producerName || 'Waveyard' }}</span>
+            </p>
+          </div>
+
+          <ul class="pw-meta">
+            <li>
+              <i class="fas fa-wave-square" aria-hidden="true"></i>
+              <span>{{ beat.bpm ? beat.bpm + ' BPM' : '-- BPM' }}</span>
+            </li>
+            <li>
+              <i class="fas fa-music" aria-hidden="true"></i>
+              <span>{{ beat.key || '--' }}</span>
+            </li>
+            <li>
+              <i class="far fa-clock" aria-hidden="true"></i>
+              <span>{{ length() }}</span>
+            </li>
+            <li>
+              <i class="fas fa-layer-group" aria-hidden="true"></i>
+              <span>{{ genre() }}</span>
+            </li>
+          </ul>
+        </header>
+
+        <div class="pw-licenses" role="radiogroup" aria-label="License">
+          @for (license of licenses(); track license.id; let i = $index) {
+            <button
+              type="button"
+              role="radio"
+              class="pw-lic"
+              [class.on]="selectedLicense()?.id === license.id"
+              [class.flagged]="!!badge(i)"
+              [attr.aria-checked]="selectedLicense()?.id === license.id"
+              (click)="select(license)"
+            >
+              @if (badge(i)) {
+                <span class="pw-badge">
+                  <i class="fas" [class]="badgeIcon(i)" aria-hidden="true"></i>
+                  {{ badge(i) }}
+                </span>
+              }
+              <span class="pw-lic-name">{{ license.name }}</span>
+              <span class="pw-lic-tick" aria-hidden="true"><i class="fas fa-check"></i></span>
+              <span class="pw-lic-price">{{
+                license.displayPriceMoney | money: license.price
+              }}</span>
+              <span class="pw-lic-sub">{{ subtitle(license, i) }}</span>
+              <ul class="pw-feats">
+                @for (feature of features(license); track feature) {
+                  <li>
+                    <i class="fas fa-check" aria-hidden="true"></i>
+                    <span>{{ feature }}</span>
+                  </li>
+                }
+              </ul>
+            </button>
+          }
+        </div>
+      </div>
+
+      <footer class="pw-foot">
+        <div class="pw-sel">
+          <div class="pw-sel-item">
+            <p class="pw-sel-label">Selected License</p>
+            <p class="pw-sel-value">{{ selectedLicense()?.name ?? 'None' }}</p>
+          </div>
+          <div class="pw-sel-item">
+            <p class="pw-sel-label">Total</p>
+            <p class="pw-sel-value">
+              {{
+                selectedLicense()
+                  ? (selectedLicense()?.displayPriceMoney | money: selectedLicense()?.price)
+                  : '--'
+              }}
+            </p>
+          </div>
+        </div>
+        <div class="pw-actions">
+          <button
+            type="button"
+            class="pw-btn"
+            [disabled]="!selectedLicense()"
+            (click)="addToCart()"
+          >
+            <i class="fas fa-cart-shopping" aria-hidden="true"></i>
+            Add to cart
+          </button>
+          <button
+            type="button"
+            class="pw-btn pw-btn-primary"
+            [disabled]="!selectedLicense()"
+            (click)="buyNow()"
+          >
+            Buy now
+            <i class="fas fa-arrow-right" aria-hidden="true"></i>
+          </button>
+        </div>
+      </footer>
+    </div>
+  }
+</app-warp-dialog>

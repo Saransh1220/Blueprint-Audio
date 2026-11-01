@@ -7,6 +7,7 @@ import { FooterComponent } from './components/footer/footer';
 import { LoadingBarComponent } from './components/loading-bar/loading-bar.component';
 import { ModalComponent } from './components/modal/modal.component';
 import { PlayerComponent } from './components/player/player';
+import { PurchaseWarpComponent } from './components/purchase-warp/purchase-warp';
 import { ToastComponent } from './components/toast/toast.component';
 import { PlayerService } from './services/player.service';
 import { SpecUploadMonitorService } from './services/spec-upload-monitor.service';
@@ -25,6 +26,7 @@ import { SpecUploadMonitorService } from './services/spec-upload-monitor.service
     ModalComponent,
     ToastComponent,
     LoadingBarComponent,
+    PurchaseWarpComponent,
   ],
   templateUrl: './app.html',
   styleUrls: ['./app.scss'],

@@ -1,4 +1,6 @@
 export * from './cart/cart.component';
+export * from './disc-carousel/disc-carousel';
+export * from './featured-beats/featured-beats';
 export * from './footer/footer';
 export * from './genres-section/genres-section.component';
 export * from './header/header';
@@ -7,6 +9,8 @@ export * from './lab-section/lab-section';
 export * from './license-selector/license-selector.component';
 export * from './modal/modal.component';
 export * from './player/player';
+export * from './purchase-warp/purchase-warp';
+export * from './warp-dialog/warp-dialog';
 export * from './producer-row/producer-row';
 export * from './settings/appearance-settings/appearance-settings.component';
 export * from './spec-card/spec-card';

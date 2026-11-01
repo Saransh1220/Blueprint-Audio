@@ -6,7 +6,7 @@ import { AnalyticsService } from '../../services/analytics.service';
 import { AuthService } from '../../services/auth.service';
 import { CurrencyService } from '../../services/currency.service';
 import { LabService } from '../../services/lab';
-import { ModalService } from '../../services/modal.service';
+import { PurchaseDialogService } from '../../services/purchase-dialog.service';
 import { PlayerService } from '../../services/player.service';
 import { ToastService } from '../../services/toast.service';
 import { PlayerComponent } from './player';
@@ -76,7 +76,7 @@ describe('PlayerComponent (extended)', () => {
         provideRouter([]),
         { provide: PlayerService, useValue: ps },
         { provide: AuthService, useValue: { requireAuth: (cb: any) => cb() } },
-        { provide: ModalService, useValue: { open: vi.fn() } },
+        { provide: PurchaseDialogService, useValue: { open: vi.fn() } },
         { provide: ToastService, useValue: toast },
         { provide: LabService, useValue: lab },
         { provide: AnalyticsService, useValue: {} },
@@ -414,18 +414,14 @@ describe('PlayerComponent (extended)', () => {
 
   it('addToCart prefers the expanded track detail for the license modal', async () => {
     const { component } = await setup();
-    const modal = TestBed.inject(ModalService) as any;
+    const modal = TestBed.inject(PurchaseDialogService) as any;
     const detail = makeTrack({ title: 'Detailed' });
     component.expandedTrackDetail.set(detail);
     component.addToCart({ stopPropagation: vi.fn() } as any);
-    expect(modal.open).toHaveBeenCalledWith(expect.anything(), 'Select License', {
-      spec: detail,
-    });
+    expect(modal.open).toHaveBeenCalledWith(detail);
     component.expandedTrackDetail.set(null);
     component.addToCart({ stopPropagation: vi.fn() } as any);
-    expect(modal.open).toHaveBeenLastCalledWith(expect.anything(), 'Select License', {
-      spec: ps.currentTrack(),
-    });
+    expect(modal.open).toHaveBeenLastCalledWith(ps.currentTrack());
   });
 
   it('opens producer profile with a sanitized handle and guards on missing producer', async () => {

@@ -1,0 +1,34 @@
+@if (items().length) {
+  <section class="featured block" aria-label="Featured beats">
+    <div class="section-head">
+      <div>
+        <div class="section-num">Featured</div>
+        <h2 class="section-h">spin up a <em>record.</em></h2>
+      </div>
+      <p class="head-meta">
+        Flip through this week's picks. Click the front disc to open the beat.
+      </p>
+    </div>
+
+    <app-disc-carousel
+      [items]="items()"
+      [spinning]="activeIsPlaying()"
+      ariaLabel="Featured beats"
+      (activeChange)="activeIndex.set($event)"
+      (selected)="open($event)"
+    />
+
+    <div class="actions">
+      <button type="button" class="act act-primary" (click)="togglePlay()">
+        <i
+          class="fas"
+          [class.fa-pause]="activeIsPlaying()"
+          [class.fa-play]="!activeIsPlaying()"
+          aria-hidden="true"
+        ></i>
+        {{ activeIsPlaying() ? 'Pause' : 'Play' }} {{ activeSpec()?.title }}
+      </button>
+      <button type="button" class="act" (click)="open()">View beat</button>
+    </div>
+  </section>
+}

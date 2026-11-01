@@ -16,10 +16,9 @@ import { AnalyticsService } from '../../services/analytics.service';
 import { AuthService } from '../../services/auth.service';
 import { CurrencyService } from '../../services/currency.service';
 import { LabService } from '../../services/lab';
-import { ModalService } from '../../services/modal.service';
+import { PurchaseDialogService } from '../../services/purchase-dialog.service';
 import { PlayerService } from '../../services/player.service';
 import { ToastService } from '../../services/toast.service';
-import { LicenseSelectorComponent } from '../license-selector/license-selector.component';
 import { FlameWrapEffectComponent } from '../ui/flame-wrap-effect.component';
 
 @Component({
@@ -32,7 +31,7 @@ import { FlameWrapEffectComponent } from '../ui/flame-wrap-effect.component';
 export class PlayerComponent implements OnDestroy {
   playerService = inject(PlayerService);
   authService = inject(AuthService);
-  modalService = inject(ModalService);
+  purchaseDialog = inject(PurchaseDialogService);
   analyticsService = inject(AnalyticsService);
   labService = inject(LabService);
   toastService = inject(ToastService);
@@ -317,9 +316,7 @@ export class PlayerComponent implements OnDestroy {
     if (!track) return;
 
     this.authService.requireAuth(() => {
-      this.modalService.open(LicenseSelectorComponent, 'Select License', {
-        spec: this.expandedTrackDetail() ?? track,
-      });
+      this.purchaseDialog.open(this.expandedTrackDetail() ?? track);
     });
   }
 

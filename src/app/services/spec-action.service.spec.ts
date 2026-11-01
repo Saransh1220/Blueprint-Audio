@@ -2,12 +2,11 @@ import { ChangeDetectorRef, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { Router } from '@angular/router';
 import { of, Subject, throwError } from 'rxjs';
-import { LicenseSelectorComponent } from '../components/license-selector/license-selector.component';
 import { MusicalKey } from '../models/enums';
 import type { Spec } from '../models/spec';
 import { AnalyticsService, FavoriteChangeEvent } from './analytics.service';
 import { AuthService } from './auth.service';
-import { ModalService } from './modal.service';
+import { PurchaseDialogService } from './purchase-dialog.service';
 import { PlayerService } from './player.service';
 import { SpecActionService } from './spec-action.service';
 
@@ -48,7 +47,7 @@ describe('SpecActionService', () => {
       togglePlay: vi.fn(),
       showPlayer: vi.fn(),
     };
-    const modalServiceMock = {
+    const purchaseDialogMock = {
       open: vi.fn(),
     };
     const routerMock = {
@@ -68,7 +67,7 @@ describe('SpecActionService', () => {
       providers: [
         SpecActionService,
         { provide: PlayerService, useValue: playerServiceMock },
-        { provide: ModalService, useValue: modalServiceMock },
+        { provide: PurchaseDialogService, useValue: purchaseDialogMock },
         { provide: Router, useValue: routerMock },
         { provide: AnalyticsService, useValue: analyticsServiceMock },
         { provide: AuthService, useValue: authServiceMock },
@@ -79,7 +78,7 @@ describe('SpecActionService', () => {
       service: TestBed.inject(SpecActionService),
       favoriteChanges$,
       playerServiceMock,
-      modalServiceMock,
+      purchaseDialogMock,
       routerMock,
       analyticsServiceMock,
       authServiceMock,
@@ -124,8 +123,8 @@ describe('SpecActionService', () => {
     errorSpy.mockRestore();
   });
 
-  it('addToCart requires auth and opens license selector modal', () => {
-    const { service, authServiceMock, modalServiceMock } = setup();
+  it('addToCart requires auth and opens the warp purchase dialog', () => {
+    const { service, authServiceMock, purchaseDialogMock } = setup();
     const spec = makeSpec();
     const event = { stopPropagation: vi.fn() } as unknown as MouseEvent;
 
@@ -133,9 +132,7 @@ describe('SpecActionService', () => {
 
     expect(event.stopPropagation).toHaveBeenCalled();
     expect(authServiceMock.requireAuth).toHaveBeenCalledTimes(1);
-    expect(modalServiceMock.open).toHaveBeenCalledWith(LicenseSelectorComponent, 'Select License', {
-      spec,
-    });
+    expect(purchaseDialogMock.open).toHaveBeenCalledWith(spec);
   });
 
   it('openDetails navigates to short-code root route and strips hash fallback', () => {

@@ -1,0 +1,34 @@
+@if (state() !== 'closed') {
+  <div
+    #shell
+    class="warp"
+    [class.closing]="state() === 'closing'"
+    (keydown)="onPanelKeydown($event)"
+  >
+    <div class="warp-base"></div>
+    <div class="warp-orbs" aria-hidden="true">
+      <div class="orb orb-bloom"></div>
+      <div class="orb orb-left"></div>
+      <div class="orb orb-right"></div>
+    </div>
+
+    <div class="stage" (click)="onBackdropClick($event)">
+      <div
+        #panel
+        class="panel"
+        role="dialog"
+        aria-modal="true"
+        tabindex="-1"
+        [attr.aria-label]="label()"
+      >
+        <ng-content />
+      </div>
+    </div>
+
+    <button type="button" class="warp-close" aria-label="Close" (click)="dismissed.emit()">
+      <svg viewBox="0 0 24 24" width="26" height="26" aria-hidden="true">
+        <path d="M5 5l14 14M19 5L5 19" />
+      </svg>
+    </button>
+  </div>
+}

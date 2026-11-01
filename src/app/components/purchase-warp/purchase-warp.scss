@@ -1,0 +1,610 @@
+// The buy dialog on the warp: a cover with a preview button and the beat's details, four license
+// tiers, and a footer that stays in view. Everything sits straight on the red, so the text is light
+// and the surfaces are translucent dark.
+
+$text: #fff5f6;
+$muted: rgba($text, 0.66);
+$line: rgba($text, 0.16);
+$surface: rgba(18, 5, 10, 0.5);
+$accent: #ff6b8a;
+$pink: #ffc2cf;
+$on-pink: #4a0d1d;
+$on-light: #2a0a10;
+$font: 'Bricolage Grotesque', sans-serif;
+
+:host {
+  display: contents;
+}
+
+.pw {
+  display: flex;
+  flex-direction: column;
+  width: min(1240px, calc(100vw - 48px));
+  max-height: calc(100svh - 32px);
+  color: $text;
+  font-family: $font;
+}
+
+// ── Scrolling body, with a slim scrollbar that belongs to the warp ──
+.pw-scroll {
+  flex: 1;
+  min-height: 0;
+  padding: 32px 8px 20px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  scrollbar-color: rgba($text, 0.3) transparent;
+
+  &::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    border: 2px solid transparent;
+    border-radius: 8px;
+    background: rgba($text, 0.3);
+    background-clip: content-box;
+
+    &:hover {
+      background: rgba($text, 0.5);
+      background-clip: content-box;
+    }
+  }
+}
+
+// ── Beat: cover with a preview button, name, producer, and four fact chips ──
+.pw-beat {
+  display: grid;
+  grid-template-columns: 150px minmax(0, 1fr);
+  grid-template-areas:
+    'cover id'
+    'cover meta';
+  align-items: center;
+  column-gap: 28px;
+  row-gap: 16px;
+  margin-bottom: 32px;
+}
+
+.pw-cover {
+  position: relative;
+  grid-area: cover;
+  width: 150px;
+  height: 150px;
+}
+
+.pw-art {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border-radius: 16px;
+  object-fit: cover;
+  box-shadow: 0 20px 44px -16px rgba(0, 0, 0, 0.75);
+}
+
+.pw-play {
+  position: absolute;
+  right: 10px;
+  bottom: 10px;
+  display: grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: $pink;
+  color: $on-pink;
+  font-size: 14px;
+  box-shadow: 0 8px 18px -6px rgba(0, 0, 0, 0.6);
+  cursor: pointer;
+  transition: transform 0.15s ease;
+
+  // The play triangle looks off-centre without a nudge.
+  .fa-play {
+    margin-left: 2px;
+  }
+
+  &:hover {
+    transform: scale(1.08);
+  }
+
+  &:active {
+    transform: scale(0.94);
+  }
+
+  &:focus-visible {
+    outline: 2px solid $text;
+    outline-offset: 3px;
+  }
+}
+
+.pw-id {
+  grid-area: id;
+  align-self: end;
+  min-width: 0;
+}
+
+.pw-kicker {
+  margin: 0 0 10px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: $muted;
+}
+
+.pw-title {
+  margin: 0;
+  font-size: clamp(30px, 3.8vw, 50px);
+  font-weight: 700;
+  line-height: 1.02;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+  overflow-wrap: anywhere;
+}
+
+.pw-by {
+  margin: 10px 0 0;
+  font-size: 15px;
+  color: $muted;
+
+  span {
+    color: $text;
+    font-weight: 700;
+  }
+}
+
+.pw-meta {
+  display: flex;
+  grid-area: meta;
+  align-self: start;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+
+  li {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 18px;
+    border: 1px solid $line;
+    border-radius: 999px;
+    background: rgba($text, 0.04);
+    font-size: 14px;
+    font-weight: 500;
+    white-space: nowrap;
+  }
+
+  i {
+    font-size: 13px;
+    color: $muted;
+  }
+}
+
+// ── Licenses ──
+.pw-licenses {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 22px 16px;
+  padding-top: 12px;
+}
+
+.pw-lic {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-areas:
+    'name tick'
+    'price price'
+    'sub sub'
+    'feats feats';
+  align-items: center;
+  row-gap: 8px;
+  padding: 24px 24px 22px;
+  border: 1px solid $line;
+  border-radius: 18px;
+  background: $surface;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition:
+    border-color 0.15s ease,
+    background 0.15s ease,
+    box-shadow 0.15s ease,
+    transform 0.15s ease;
+
+  // The tiers worth pointing out carry a pink edge even when not chosen.
+  &.flagged {
+    border-color: rgba($pink, 0.6);
+    box-shadow: 0 0 28px -8px rgba(255, 77, 109, 0.5);
+  }
+
+  &:hover {
+    border-color: rgba($text, 0.45);
+    transform: translateY(-2px);
+  }
+
+  &.on {
+    border-color: $text;
+    background: linear-gradient(160deg, rgba($text, 0.14), rgba(255, 77, 109, 0.34));
+    box-shadow: 0 0 28px -8px rgba(255, 120, 150, 0.6);
+  }
+
+  &:focus-visible {
+    outline: 2px solid $text;
+    outline-offset: 3px;
+  }
+}
+
+.pw-badge {
+  position: absolute;
+  top: -13px;
+  left: 20px;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 5px 12px;
+  border-radius: 999px;
+  background: $pink;
+  color: $on-pink;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  white-space: nowrap;
+
+  i {
+    font-size: 11px;
+  }
+}
+
+.pw-lic-name {
+  grid-area: name;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.pw-lic-tick {
+  display: grid;
+  grid-area: tick;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border: 1.5px solid rgba($text, 0.45);
+  border-radius: 50%;
+  font-size: 11px;
+  color: transparent;
+  transition:
+    background 0.15s ease,
+    border-color 0.15s ease;
+
+  .on & {
+    border-color: $text;
+    background: $text;
+    color: $on-light;
+  }
+}
+
+.pw-lic-price {
+  grid-area: price;
+  font-size: 32px;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+}
+
+.pw-lic-sub {
+  grid-area: sub;
+  font-size: 14px;
+  color: $muted;
+}
+
+.pw-feats {
+  display: flex;
+  grid-area: feats;
+  flex-direction: column;
+  gap: 9px;
+  margin: 12px 0 0;
+  padding: 16px 0 0;
+  border-top: 1px solid $line;
+  list-style: none;
+
+  li {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    font-size: 14px;
+    line-height: 1.35;
+    color: rgba($text, 0.92);
+  }
+
+  i {
+    font-size: 11px;
+    color: $accent;
+  }
+}
+
+// ── Footer: always in view ──
+.pw-foot {
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  padding: 22px 8px 12px;
+  border-top: 1px solid $line;
+}
+
+.pw-sel {
+  display: flex;
+  align-items: stretch;
+  min-width: 0;
+}
+
+.pw-sel-item {
+  min-width: 0;
+
+  & + & {
+    margin-left: 28px;
+    padding-left: 28px;
+    border-left: 1px solid $line;
+  }
+}
+
+.pw-sel-label {
+  margin: 0 0 4px;
+  font-size: 14px;
+  color: $muted;
+}
+
+.pw-sel-value {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  white-space: nowrap;
+}
+
+.pw-actions {
+  display: flex;
+  flex: none;
+  gap: 14px;
+}
+
+.pw-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  min-height: 52px;
+  padding: 0 30px;
+  border: 1px solid rgba($text, 0.5);
+  border-radius: 14px;
+  background: transparent;
+  color: $text;
+  font: inherit;
+  font-size: 15px;
+  font-weight: 700;
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    background 0.15s ease,
+    transform 0.15s ease,
+    opacity 0.15s ease;
+
+  &:hover:not(:disabled) {
+    background: rgba($text, 0.14);
+  }
+
+  &:active:not(:disabled) {
+    transform: scale(0.97);
+  }
+
+  &:disabled {
+    opacity: 0.4;
+    cursor: default;
+  }
+
+  &:focus-visible {
+    outline: 2px solid $text;
+    outline-offset: 3px;
+  }
+}
+
+.pw-btn-primary {
+  border-color: $text;
+  background: $text;
+  color: $on-light;
+
+  &:hover:not(:disabled) {
+    background: #fff;
+  }
+}
+
+// ── Tablets: two columns, so four tiers sit in two even rows instead of three plus one ──
+@media (min-width: 721px) and (max-width: 960px) {
+  .pw-licenses {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+// ── Phones: a compact header and license rows, like a native picker ──
+@media (max-width: 720px) {
+  .pw {
+    width: calc(100vw - 16px);
+    max-height: calc(100svh - 16px);
+  }
+
+  .pw-scroll {
+    padding: 14px 8px 12px;
+  }
+
+  // Cover and name side by side, the fact chips underneath.
+  .pw-beat {
+    grid-template-columns: 84px minmax(0, 1fr);
+    grid-template-areas:
+      'cover id'
+      'meta meta';
+    column-gap: 14px;
+    row-gap: 14px;
+    margin-bottom: 20px;
+    padding-right: 44px;
+  }
+
+  .pw-cover {
+    width: 84px;
+    height: 84px;
+  }
+
+  .pw-art {
+    border-radius: 12px;
+  }
+
+  .pw-play {
+    right: 6px;
+    bottom: 6px;
+    width: 32px;
+    height: 32px;
+    font-size: 11px;
+  }
+
+  .pw-id {
+    align-self: center;
+  }
+
+  .pw-kicker {
+    margin-bottom: 4px;
+    font-size: 10px;
+  }
+
+  .pw-title {
+    font-size: 26px;
+  }
+
+  .pw-by {
+    margin-top: 4px;
+    font-size: 13px;
+  }
+
+  .pw-meta {
+    gap: 8px;
+    margin-right: -44px;
+
+    li {
+      gap: 7px;
+      padding: 7px 12px;
+      font-size: 12.5px;
+    }
+
+    i {
+      font-size: 11px;
+    }
+  }
+
+  // Rows: tick, then name and what it is for, price on the right. Features open on the chosen row.
+  .pw-licenses {
+    grid-template-columns: 1fr;
+    gap: 16px;
+    padding-top: 6px;
+  }
+
+  .pw-lic {
+    grid-template-columns: 24px minmax(0, 1fr) auto;
+    grid-template-areas:
+      'tick name price'
+      'tick sub price'
+      'feats feats feats';
+    column-gap: 12px;
+    row-gap: 2px;
+    padding: 16px 14px;
+    border-radius: 14px;
+
+    &:hover {
+      transform: none;
+    }
+  }
+
+  .pw-badge {
+    top: -10px;
+    right: 12px;
+    left: auto;
+    padding: 3px 10px;
+    font-size: 9.5px;
+  }
+
+  .pw-lic-tick {
+    align-self: center;
+    width: 24px;
+    height: 24px;
+  }
+
+  .pw-lic-name {
+    font-size: 15px;
+  }
+
+  .pw-lic-price {
+    align-self: center;
+    font-size: 21px;
+  }
+
+  .pw-lic-sub {
+    font-size: 12.5px;
+  }
+
+  .pw-feats {
+    display: none;
+    margin-top: 12px;
+    padding-top: 12px;
+
+    li {
+      font-size: 13px;
+    }
+  }
+
+  .pw-lic.on .pw-feats {
+    display: flex;
+  }
+
+  .pw-foot {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 14px;
+    padding: 14px 8px 8px;
+  }
+
+  .pw-sel {
+    justify-content: space-between;
+  }
+
+  .pw-sel-item + .pw-sel-item {
+    margin-left: 0;
+    padding-left: 0;
+    border-left: 0;
+    text-align: right;
+  }
+
+  .pw-sel-label {
+    margin-bottom: 2px;
+    font-size: 12px;
+  }
+
+  .pw-sel-value {
+    font-size: 19px;
+  }
+
+  .pw-actions {
+    gap: 10px;
+  }
+
+  .pw-actions .pw-btn {
+    flex: 1;
+    min-height: 50px;
+    padding: 0 12px;
+  }
+}

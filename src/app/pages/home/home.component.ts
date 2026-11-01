@@ -9,6 +9,7 @@ import {
 import { catchError, finalize, of } from 'rxjs';
 
 import {
+  // FeaturedBeatsComponent, // disc carousel section, parked for now
   GenresSectionComponent,
   HeroComponent,
   LabSectionComponent,
@@ -20,10 +21,17 @@ import { LabService, type HomepageData } from '../../services';
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [HeroComponent, TickerComponent, GenresSectionComponent, LabSectionComponent],
+  imports: [
+    HeroComponent,
+    TickerComponent,
+    // FeaturedBeatsComponent,
+    GenresSectionComponent,
+    LabSectionComponent,
+  ],
   template: `
     <app-hero></app-hero>
     <app-ticker></app-ticker>
+    <!-- <app-featured-beats [specs]="discSpecs()"></app-featured-beats> -->
     <app-genres-section></app-genres-section>
     <app-lab-section
       [useExternalData]="useHomepageData()"
@@ -46,6 +54,12 @@ export class HomeComponent implements OnInit {
   newReleaseSpecs = computed(() => this.sectionSpecs('new_releases'));
   topChartSpecs = computed(() => this.sectionSpecs('top_charts'));
   trendingSpecs = computed(() => this.sectionSpecs('trending'));
+  /** The first non-empty list wins: hand-picked, then trending, then newest. */
+  discSpecs = computed(
+    () =>
+      [this.featuredSpecs(), this.trendingSpecs(), this.newReleaseSpecs()].find((l) => l.length) ??
+      [],
+  );
 
   ngOnInit(): void {
     this.labService

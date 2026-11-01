@@ -116,20 +116,68 @@ describe('SpecDetailsComponent', () => {
     expect(eyebrow?.textContent).not.toContain('Apr 19, 2026');
   });
 
-  it('renders the Blaze effect behind the beat hero', () => {
-    const hero = (fixture.nativeElement as HTMLElement).querySelector('.hero');
-    const blaze = hero?.querySelector('app-blaze-effect .blaze-output');
-    const content = hero?.querySelector('.hero-content');
+  it('puts the beat card on the left and the licenses on the right', () => {
+    const el = fixture.nativeElement as HTMLElement;
+    const main = el.querySelector('.beat-main .bm-inner');
+    const card = main?.querySelector('.bs-card');
 
-    expect(blaze).toBeTruthy();
-    expect(content).toBeTruthy();
+    expect(card?.querySelector('.bc-art img')).toBeTruthy();
+    expect(card?.querySelector('.bc-title')?.textContent?.trim()).toBe(component.spec()?.title);
+    expect(card?.querySelectorAll('.bc-facts > div')).toHaveLength(4);
+    expect(card?.querySelector('.hero-player .hp-wave')).toBeTruthy();
+    expect(card?.querySelectorAll('.hero-actions .ha-btn').length).toBeGreaterThanOrEqual(3);
+    expect(main?.querySelector('#licenses.bs-licenses')).toBeTruthy();
+    // No WebGL effects on this page any more.
+    expect(el.querySelector('app-flame-wrap-effect')).toBeNull();
   });
 
-  it('wraps the beat artwork in the Flame Wrap effect', () => {
-    const artShell = (fixture.nativeElement as HTMLElement).querySelector('.hero-art-flame-shell');
+  it('shows the licenses as a grid of tiles with one chosen', () => {
+    const el = fixture.nativeElement as HTMLElement;
+    const tiles = Array.from(el.querySelectorAll<HTMLButtonElement>('.lr-list > .lr'));
+    expect(tiles).toHaveLength(component.spec()?.licenses.length ?? -1);
+    expect(el.querySelectorAll('.lr.on')).toHaveLength(1);
+    // Every tier shows what it includes on one line, so nothing is hidden behind a click.
+    expect(tiles.every((tile) => !!tile.querySelector('.lr-feats')?.textContent?.trim())).toBe(
+      true,
+    );
+    expect(tiles[0].querySelector('.lr-meta em')?.textContent?.trim()).toBeTruthy();
 
-    expect(artShell?.querySelector('app-flame-wrap-effect .flame-output')).toBeTruthy();
-    expect(artShell?.querySelector('.hero-art')).toBeTruthy();
+    const other = tiles.find((tile) => !tile.classList.contains('on')) as HTMLButtonElement;
+    other.click();
+    fixture.detectChanges();
+    expect(other.classList.contains('on')).toBe(true);
+    expect(other.getAttribute('aria-checked')).toBe('true');
+    expect(el.querySelectorAll('.lr.on')).toHaveLength(1);
+  });
+
+  it('keeps one buy bar that follows the chosen tier', () => {
+    const el = fixture.nativeElement as HTMLElement;
+    const bar = () => el.querySelector('.lr-foot');
+    expect(bar()?.querySelector('.lr-sel-name')?.textContent?.trim()).toBe(
+      component.selectedLicense()?.name,
+    );
+
+    const tiles = Array.from(el.querySelectorAll<HTMLButtonElement>('.lr-list > .lr'));
+    tiles[tiles.length - 1].click();
+    fixture.detectChanges();
+    expect(bar()?.querySelector('.lr-sel-name')?.textContent?.trim()).toBe(
+      component.spec()?.licenses[tiles.length - 1].name,
+    );
+  });
+
+  it('adds the chosen license to the cart from the buy bar', () => {
+    const el = fixture.nativeElement as HTMLElement;
+    (el.querySelector('.lr-foot .lr-buy') as HTMLButtonElement).click();
+    expect(cartServiceMock.addItem).toHaveBeenCalledTimes(1);
+  });
+
+  it('keeps the page flat: no tinted backdrop, and the film grain is off while it is open', () => {
+    const el = fixture.nativeElement as HTMLElement;
+    expect(el.querySelector('.hero-bg')).toBeNull();
+    expect(document.body.classList.contains('beat-page-active')).toBe(true);
+
+    fixture.destroy();
+    expect(document.body.classList.contains('beat-page-active')).toBe(false);
   });
 
   it('opens one FAQ answer at a time and collapses it on a second click', () => {

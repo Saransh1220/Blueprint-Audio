@@ -5,6 +5,7 @@ import { provideAnimations } from '@angular/platform-browser/animations';
 import { provideRouter } from '@angular/router';
 import { of, throwError } from 'rxjs';
 import { LabService, PlayerService } from '../../services';
+import { SpecActionService } from '../../services/spec-action.service';
 import { HomeComponent } from './home.component';
 
 describe('HomeComponent', () => {
@@ -51,7 +52,11 @@ describe('HomeComponent', () => {
             getSpecs: vi.fn().mockReturnValue(of([])),
           },
         },
-        { provide: PlayerService, useValue: { showPlayer: vi.fn() } },
+        {
+          provide: PlayerService,
+          useValue: { showPlayer: vi.fn(), currentTrack: () => null, isPlaying: () => false },
+        },
+        { provide: SpecActionService, useValue: { openDetails: vi.fn() } },
       ],
       schemas: [NO_ERRORS_SCHEMA],
     }).compileComponents();
@@ -100,6 +105,14 @@ describe('HomeComponent', () => {
     expect(component.trendingSpecs().map((s) => s.id)).toEqual(['b']);
     expect(component.newReleaseSpecs().map((s) => s.id)).toEqual(['c']);
     expect(component.topChartSpecs().map((s) => s.id)).toEqual(['d']);
+    expect(component.discSpecs().map((s) => s.id)).toEqual(['a']);
+    component.homepage.set({
+      generatedAt: 'x',
+      cacheTtlSeconds: 1,
+      stats: { totalLiveBeats: 0, newReleases7d: 0, totalProducers: 0 },
+      sections: { new_releases: { title: 'N', source: 'query', items: [{ spec: { id: 'c' } }] } },
+    } as any);
+    expect(component.discSpecs().map((s) => s.id)).toEqual(['c']);
     component.homepage.set(null);
     expect(component.featuredSpecs()).toEqual([]);
   });

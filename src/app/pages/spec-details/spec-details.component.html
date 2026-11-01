@@ -30,288 +30,257 @@
     </div>
   </div>
 
-  <section class="hero">
-    <div class="hero-wash"></div>
-    <app-blaze-effect
-      class="hero-blaze"
-      [height]="0.88"
-      [distortion]="0.42"
-      [distortionScale]="0.62"
-      [speed]="0.82"
-      [sparks]="0.72"
-      [sparkDensity]="1.35"
-      [sparkSize]="1.12"
-      [layers]="5"
-      [smoke]="0.46"
-      [glow]="1.7"
-      [sparkColor]="[1, 0.3, 0.41]"
-      [smokeColor]="[1, 0.49, 0.18]"
-    />
-    <div class="hero-content">
-      <div class="hero-art-flame-shell">
-        <app-flame-wrap-effect
-          class="hero-art-flame"
-          [height]="70"
-          [spread]="12"
-          [radius]="22"
-          [intensity]="0.72"
-          [speed]="0.34"
-          [scale]="0.8"
-          [turbulence]="0.5"
-          [turbulenceReach]="19"
-          [sparks]="1.55"
-          [sparkSize]="0.46"
-          [sparkDensity]="1.15"
-          [rim]="2.7"
-          [melt]="3.8"
-          [distortion]="5.4"
-          [smoke]="0.72"
-          [ember]="2.05"
-        />
-        <button class="hero-art" type="button" (click)="playSpec()" aria-label="Play {{ s.title }}">
-          <img [src]="s.imageUrl" [alt]="s.title" />
-          <span class="art-play">
-            <span class="art-play-btn">
-              <svg
-                width="18"
-                height="18"
-                viewBox="0 0 24 24"
-                fill="currentColor"
+  <section class="beat-main">
+    <div class="bm-inner">
+      <aside class="bs-card" aria-label="Beat details">
+        <div class="bc-head">
+          <button
+            class="bc-art"
+            type="button"
+            (click)="playSpec()"
+            [attr.aria-label]="(isSpecPlaying() ? 'Pause ' : 'Play ') + s.title"
+          >
+            <img [src]="s.imageUrl" [alt]="s.title" />
+            <span class="bc-art-play">
+              <i
+                class="fas"
+                [class.fa-pause]="isSpecPlaying()"
+                [class.fa-play]="!isSpecPlaying()"
                 aria-hidden="true"
-              >
-                <polygon points="6 3 20 12 6 21 6 3" />
-              </svg>
+              ></i>
             </span>
-          </span>
-        </button>
-      </div>
-
-      <div class="hero-eyebrow">
-        <span class="dot"></span>{{ primaryGenre()
-        }}<ng-container *ngIf="s.createdAt">
-          · released {{ s.createdAt | date: 'MMM d, y' : 'UTC' }}</ng-container
-        >
-      </div>
-      <h1 class="hero-title">
-        {{ getStyledBeatTitle(s.title).lead }}
-        <em *ngIf="getStyledBeatTitle(s.title).accent">{{ getStyledBeatTitle(s.title).accent }}</em>
-      </h1>
-
-      <div class="hero-by">
-        <span class="by-avatar">{{ s.producerName.charAt(0).toLowerCase() }}</span>
-        prod.
-        <a
-          [routerLink]="['/@', s.producerName.toLowerCase().replaceAll(' ', '-')]"
-          [queryParams]="{ id: s.producerId }"
-          >{{ s.producerName }}</a
-        >
-        <span class="verified">✓</span>
-      </div>
-
-      <div class="hero-meta">
-        <strong>{{ s.bpm }}</strong> BPM<span class="sep">·</span><strong>{{ s.key }}</strong
-        ><span class="sep">·</span>{{ s.duration ? formatDuration(s.duration) : '2:54'
-        }}<span class="sep">·</span>{{ formatCompactCount(s.analytics?.playCount ?? 0) }} plays
-      </div>
-
-      <div class="hero-player">
-        <button class="hp-play" type="button" aria-label="Play {{ s.title }}" (click)="playSpec()">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-            <polygon points="6 3 20 12 6 21 6 3" />
-          </svg>
-        </button>
-        <div
-          class="hp-wave"
-          (click)="seekWaveform($event)"
-          [style.--wave-progress]="waveformProgress()"
-          role="slider"
-          tabindex="0"
-          aria-label="Audio preview progress"
-        >
-          <span
-            class="bar"
-            *ngFor="let height of waveformBars(); let i = index"
-            [class.played]="i < waveformPlayheadIndex()"
-            [style.height.%]="height"
-          ></span>
+          </button>
+          <div class="bc-id">
+            <div class="hero-eyebrow">
+              <span class="dot"></span>{{ primaryGenre()
+              }}<ng-container *ngIf="s.createdAt">
+                · released {{ s.createdAt | date: 'MMM d, y' : 'UTC' }}</ng-container
+              >
+            </div>
+            <h1 class="bc-title">{{ s.title }}</h1>
+            <div class="hero-by">
+              <span class="by-avatar">{{ s.producerName.charAt(0).toLowerCase() }}</span>
+              prod.
+              <a
+                [routerLink]="['/@', s.producerName.toLowerCase().replaceAll(' ', '-')]"
+                [queryParams]="{ id: s.producerId }"
+                >{{ s.producerName }}</a
+              >
+              <span class="verified">✓</span>
+            </div>
+          </div>
         </div>
-        <div class="hp-time">
-          {{ formatDuration(waveformCurrentTime()) }} /
-          {{ waveformDuration() ? formatDuration(waveformDuration()) : '2:54' }}
+
+        <div class="hero-player">
+          <button
+            class="hp-play"
+            type="button"
+            [attr.aria-label]="(isSpecPlaying() ? 'Pause ' : 'Play ') + s.title"
+            (click)="playSpec()"
+          >
+            <i
+              class="fas"
+              [class.fa-pause]="isSpecPlaying()"
+              [class.fa-play]="!isSpecPlaying()"
+              aria-hidden="true"
+            ></i>
+          </button>
+          <div
+            class="hp-wave"
+            (click)="seekWaveform($event)"
+            [style.--wave-progress]="waveformProgress()"
+            role="slider"
+            tabindex="0"
+            aria-label="Audio preview progress"
+          >
+            <span
+              class="bar"
+              *ngFor="let height of waveformBars(); let i = index"
+              [class.played]="i < waveformPlayheadIndex()"
+              [style.height.%]="height"
+            ></span>
+          </div>
+          <div class="hp-time">
+            {{ formatDuration(waveformCurrentTime()) }} /
+            {{ waveformDuration() ? formatDuration(waveformDuration()) : '2:54' }}
+          </div>
         </div>
-      </div>
 
-      <div class="hero-actions">
-        <button
-          class="ha-btn"
-          type="button"
-          [class.liked]="s.analytics?.isFavorited"
-          (click)="toggleFavorite()"
-          aria-label="Wishlist"
-        >
-          <svg
-            width="15"
-            height="15"
-            viewBox="0 0 24 24"
-            [attr.fill]="s.analytics?.isFavorited ? 'currentColor' : 'none'"
-            stroke="currentColor"
-            stroke-width="2"
-            aria-hidden="true"
-          >
-            <path
-              d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"
-            />
-          </svg>
-        </button>
-        <button
-          class="ha-btn"
-          type="button"
-          *ngIf="s.freeMp3Enabled"
-          (click)="downloadFreeMp3()"
-          aria-label="Download demo"
-        >
-          <svg
-            width="15"
-            height="15"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            aria-hidden="true"
-          >
-            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-            <polyline points="7 10 12 15 17 10" />
-            <line x1="12" y1="15" x2="12" y2="3" />
-          </svg>
-        </button>
-        <button class="ha-btn" type="button" (click)="copyBeatLink()" aria-label="Share">
-          <svg
-            width="15"
-            height="15"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            aria-hidden="true"
-          >
-            <circle cx="18" cy="5" r="3" />
-            <circle cx="6" cy="12" r="3" />
-            <circle cx="18" cy="19" r="3" />
-            <line x1="8.59" y1="13.51" x2="15.42" y2="17.49" />
-            <line x1="15.41" y1="6.51" x2="8.59" y2="10.49" />
-          </svg>
-        </button>
-        <button
-          class="ha-btn"
-          type="button"
-          (click)="showReferenceNotice('More options coming soon')"
-          aria-label="More"
-        >
-          <svg
-            width="15"
-            height="15"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2.5"
-            aria-hidden="true"
-          >
-            <circle cx="12" cy="12" r="1" />
-            <circle cx="19" cy="12" r="1" />
-            <circle cx="5" cy="12" r="1" />
-          </svg>
-        </button>
-      </div>
+        <dl class="bc-facts">
+          <div>
+            <dt>Tempo</dt>
+            <dd>{{ s.bpm }} <small>BPM</small></dd>
+          </div>
+          <div>
+            <dt>Key</dt>
+            <dd>{{ s.key }}</dd>
+          </div>
+          <div>
+            <dt>Length</dt>
+            <dd>{{ s.duration ? formatDuration(s.duration) : '2:54' }}</dd>
+          </div>
+          <div>
+            <dt>Plays</dt>
+            <dd>{{ formatCompactCount(s.analytics?.playCount ?? 0) }}</dd>
+          </div>
+        </dl>
 
-      <div class="hero-tags" *ngIf="displayTags().length">
-        <ng-container *ngFor="let tag of displayTags(); let last = last">
-          <span class="t">{{ tag }}</span
-          ><span class="sep" *ngIf="!last">·</span>
-        </ng-container>
-      </div>
-    </div>
-  </section>
+        <div class="hero-tags" *ngIf="displayTags().length">
+          <ng-container *ngFor="let tag of displayTags(); let last = last">
+            <span class="t">{{ tag }}</span
+            ><span class="sep" *ngIf="!last">·</span>
+          </ng-container>
+        </div>
 
-  <section class="section alt" id="licenses">
-    <div class="section-inner">
-      <div class="section-head">
-        <div>
+        <div class="hero-actions">
+          <button
+            class="ha-btn"
+            type="button"
+            [class.liked]="s.analytics?.isFavorited"
+            (click)="toggleFavorite()"
+            aria-label="Wishlist"
+          >
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              [attr.fill]="s.analytics?.isFavorited ? 'currentColor' : 'none'"
+              stroke="currentColor"
+              stroke-width="2"
+              aria-hidden="true"
+            >
+              <path
+                d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"
+              />
+            </svg>
+          </button>
+          <button
+            class="ha-btn"
+            type="button"
+            *ngIf="s.freeMp3Enabled"
+            (click)="downloadFreeMp3()"
+            aria-label="Download demo"
+          >
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              aria-hidden="true"
+            >
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+              <polyline points="7 10 12 15 17 10" />
+              <line x1="12" y1="15" x2="12" y2="3" />
+            </svg>
+          </button>
+          <button class="ha-btn" type="button" (click)="copyBeatLink()" aria-label="Share">
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              aria-hidden="true"
+            >
+              <circle cx="18" cy="5" r="3" />
+              <circle cx="6" cy="12" r="3" />
+              <circle cx="18" cy="19" r="3" />
+              <line x1="8.59" y1="13.51" x2="15.42" y2="17.49" />
+              <line x1="15.41" y1="6.51" x2="8.59" y2="10.49" />
+            </svg>
+          </button>
+          <button
+            class="ha-btn"
+            type="button"
+            (click)="showReferenceNotice('More options coming soon')"
+            aria-label="More"
+          >
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2.5"
+              aria-hidden="true"
+            >
+              <circle cx="12" cy="12" r="1" />
+              <circle cx="19" cy="12" r="1" />
+              <circle cx="5" cy="12" r="1" />
+            </svg>
+          </button>
+        </div>
+      </aside>
+
+      <div class="bs-licenses" id="licenses">
+        <header class="bl-head">
           <div class="section-eyebrow"><span class="dot"></span>Licensing</div>
-          <h2 class="section-h">own it <em>your way</em>.</h2>
+          <h2 class="bl-title">Choose your license</h2>
+          <p class="bl-sub">
+            Instant delivery. Every tier includes the tagged MP3 preview to test drive first.
+          </p>
+        </header>
+
+        <div
+          class="lr-list"
+          role="radiogroup"
+          aria-label="License"
+          *ngIf="s.licenses.length; else noLicenses"
+        >
+          <button
+            class="lr"
+            type="button"
+            role="radio"
+            *ngFor="let license of s.licenses; let i = index"
+            [class.on]="selectedLicense()?.id === license.id"
+            [attr.aria-checked]="selectedLicense()?.id === license.id"
+            (click)="selectLicense(license)"
+          >
+            <span class="lr-badge" *ngIf="tierLabel[licenseTiers()[i]] as label">
+              <i class="fas" [ngClass]="tierIcon[licenseTiers()[i]]" aria-hidden="true"></i>
+              {{ label }}
+            </span>
+            <span class="lr-radio" aria-hidden="true"></span>
+            <span class="lr-name">{{ license.name }}</span>
+            <span class="lr-price">{{ license.displayPriceMoney | money: license.price }}</span>
+            <span class="lr-meta">
+              <em>{{ getLicenseFormatLabel(license) }}</em>
+              <span class="lr-for">{{ getLicenseSubtitle(license, i) }}</span>
+            </span>
+            <span class="lr-feats" [attr.title]="getLicenseFeatureRows(license).join(' · ')">{{
+              (getLicenseFeatureRows(license) | slice: 0 : 3).join(' · ')
+            }}</span>
+          </button>
         </div>
-        <p class="section-sub">
-          Instant delivery. Every tier includes the tagged MP3 preview to test drive first.
+        <ng-template #noLicenses
+          ><div class="empty-licenses">No licenses available for this beat yet.</div></ng-template
+        >
+
+        <div class="lr-foot" *ngIf="selectedLicense() as chosen">
+          <div class="lr-sel">
+            <span class="lr-sel-label">Selected</span>
+            <span class="lr-sel-name">{{ chosen.name }}</span>
+          </div>
+          <div class="lr-sel">
+            <span class="lr-sel-label">Total</span>
+            <span class="lr-sel-name">{{ chosen.displayPriceMoney | money: chosen.price }}</span>
+          </div>
+          <button class="lr-buy" type="button" (click)="addLicenseToCart(chosen)">
+            <i class="fas fa-cart-shopping" aria-hidden="true"></i>
+            {{ getLicenseButtonLabel(chosen) }}
+          </button>
+        </div>
+
+        <p class="lic-note">
+          Not sure which license fits?
+          <a href="#faq" (click)="$event.preventDefault(); scrollToFaq(); toggleFaq(0)"
+            >See the full comparison →</a
+          >
         </p>
       </div>
-
-      <div class="lic-grid" *ngIf="s.licenses.length; else noLicenses">
-        <article
-          class="lic-card"
-          *ngFor="let license of s.licenses; let i = index"
-          [class.pop]="getLicenseVariant(license, i, s.licenses.length) === 'popular'"
-          [class.excl]="getLicenseVariant(license, i, s.licenses.length) === 'exclusive'"
-          [class.selected]="selectedLicense()?.id === license.id"
-          (click)="selectLicense(license)"
-        >
-          <div class="lc-tag">
-            <ng-container
-              *ngIf="
-                getLicenseVariant(license, i, s.licenses.length) === 'popular';
-                else regularTag
-              "
-              >★ most popular</ng-container
-            >
-            <ng-template #regularTag>{{
-              getLicenseSubtitle(license, i, s.licenses.length)
-            }}</ng-template>
-          </div>
-          <div class="lc-name">
-            {{ license.name }} <em>{{ getLicenseFormatLabel(license) }}</em>
-          </div>
-          <div class="lc-price">{{ license.displayPriceMoney | money: license.price }}</div>
-          <ul class="lc-feats">
-            <li
-              *ngFor="
-                let feature of getLicenseFeatureRows(license, i, s.licenses.length) | slice: 0 : 3
-              "
-            >
-              <svg
-                width="12"
-                height="12"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="3"
-                aria-hidden="true"
-              >
-                <polyline points="20 6 9 17 4 12" />
-              </svg>
-              {{ feature.text }}
-            </li>
-          </ul>
-          <button
-            class="lc-buy"
-            type="button"
-            (click)="$event.stopPropagation(); addLicenseToCart(license)"
-          >
-            {{
-              getLicenseVariant(license, i, s.licenses.length) === 'exclusive'
-                ? 'Buy exclusive'
-                : 'Add to cart'
-            }}
-          </button>
-        </article>
-      </div>
-      <ng-template #noLicenses
-        ><div class="empty-licenses">No licenses available for this beat yet.</div></ng-template
-      >
-
-      <p class="lic-note">
-        Not sure which license fits?
-        <a href="#faq" (click)="$event.preventDefault(); scrollToFaq(); toggleFaq(0)"
-          >See the full comparison →</a
-        >
-      </p>
     </div>
   </section>
 
@@ -608,9 +577,42 @@
 </div>
 
 <ng-template #pendingOrNotFound>
-  <div class="beat-loading" *ngIf="isSpecLoading(); else notFound">
-    <div class="beat-loading-mark"><span></span></div>
-    <p>Loading beat</p>
+  <div
+    class="beat-page beat-skeleton"
+    *ngIf="isSpecLoading(); else notFound"
+    role="status"
+    aria-live="polite"
+    aria-busy="true"
+  >
+    <span class="sr-only">Loading beat</span>
+    <section class="beat-main">
+      <div class="bm-inner">
+        <div class="bs-card">
+          <div class="bc-head">
+            <div class="sk sk-thumb"></div>
+            <div class="bc-id">
+              <div class="sk sk-line sk-w40"></div>
+              <div class="sk sk-name"></div>
+              <div class="sk sk-line sk-w60"></div>
+            </div>
+          </div>
+          <div class="sk sk-player"></div>
+          <div class="sk-facts">
+            <div class="sk sk-fact" *ngFor="let _ of skeletonCards"></div>
+          </div>
+          <div class="sk-row">
+            <div class="sk sk-icon" *ngFor="let _ of skeletonCards"></div>
+          </div>
+        </div>
+        <div class="bs-licenses">
+          <div class="sk sk-line sk-w20"></div>
+          <div class="sk sk-heading"></div>
+          <div class="sk-licenses">
+            <div class="sk sk-lic" *ngFor="let _ of skeletonCards"></div>
+          </div>
+        </div>
+      </div>
+    </section>
   </div>
 </ng-template>
 

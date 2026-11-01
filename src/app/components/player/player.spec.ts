@@ -5,7 +5,7 @@ import { of, throwError } from 'rxjs';
 import { AnalyticsService } from '../../services/analytics.service';
 import { AuthService } from '../../services/auth.service';
 import { LabService } from '../../services/lab';
-import { ModalService } from '../../services/modal.service';
+import { PurchaseDialogService } from '../../services/purchase-dialog.service';
 import { PlayerService } from '../../services/player.service';
 import { ToastService } from '../../services/toast.service';
 import { PlayerComponent } from './player';
@@ -91,7 +91,7 @@ describe('PlayerComponent', () => {
         provideRouter([]),
         { provide: PlayerService, useValue: playerService },
         { provide: AuthService, useValue: { requireAuth } },
-        { provide: ModalService, useValue: { open } },
+        { provide: PurchaseDialogService, useValue: { open } },
         { provide: ToastService, useValue: { success, info } },
         { provide: LabService, useValue: { getSpecById } },
         {

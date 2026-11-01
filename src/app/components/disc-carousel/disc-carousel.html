@@ -1,0 +1,239 @@
+<div
+  #root
+  class="dcc-root"
+  role="region"
+  aria-roledescription="carousel"
+  tabindex="0"
+  [attr.aria-label]="ariaLabel()"
+  [attr.data-dragging]="dragging() ? '' : null"
+  (keydown)="onKeydown($event)"
+  (pointerdown)="onPointerDown($event)"
+  (pointermove)="onPointerMove($event)"
+  (pointerup)="onPointerUp($event)"
+  (pointercancel)="onPointerUp($event)"
+  (pointerleave)="onPointerLeave()"
+>
+  <svg class="dcc-defs" width="0" height="0" aria-hidden="true" focusable="false">
+    <defs>
+      <linearGradient [attr.id]="uid + '-metal'" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0" stop-color="#fbfbfc" />
+        <stop offset=".45" stop-color="#a9adb3" />
+        <stop offset=".55" stop-color="#eef0f2" />
+        <stop offset="1" stop-color="#8f949a" />
+      </linearGradient>
+    </defs>
+  </svg>
+
+  @for (item of currentList(); track item.id) {
+    <div class="dcc-head" aria-hidden="true">
+      <h3 class="dcc-title dcc-in">{{ item.title }}</h3>
+      <dl class="dcc-dl">
+        @for (credit of item.credits; track credit.label; let k = $index) {
+          <div class="dcc-row dcc-in" [style.--i]="k + 1">
+            <dt>{{ credit.label }}</dt>
+            <dd>{{ credit.value }}</dd>
+          </div>
+        }
+      </dl>
+    </div>
+  }
+
+  <div #stage class="dcc-stage">
+    @for (item of items(); track item.id; let i = $index) {
+      <button
+        #slide
+        type="button"
+        class="dcc-slide"
+        [attr.data-active]="i === active() ? '' : null"
+        [attr.tabindex]="i === active() ? 0 : -1"
+        [attr.aria-current]="i === active() ? 'true' : null"
+        [attr.aria-label]="i + 1 + ' of ' + items().length + ': ' + item.title"
+        aria-roledescription="slide"
+        (click)="onSlideClick(i)"
+      >
+        <span class="dcc-tilt">
+          <span class="dcc-shade"></span>
+          <span class="dcc-edge"></span>
+          <span class="dcc-disc">
+            <span class="dcc-roll">
+              <span class="dcc-idle" [class.dcc-spin]="spinning() && i === active()">
+                @if (item.imageUrl) {
+                  <img
+                    [src]="item.imageUrl"
+                    [alt]="item.alt ?? item.title"
+                    draggable="false"
+                    width="600"
+                    height="600"
+                    decoding="async"
+                    [attr.loading]="i > 3 ? 'lazy' : null"
+                  />
+                } @else {
+                  <svg viewBox="0 0 200 200" role="img" [attr.aria-label]="item.alt ?? item.title">
+                    <rect width="200" height="200" [attr.fill]="palette(i)[0]" />
+                    @for (r of rings; track r; let k = $index) {
+                      <circle
+                        cx="100"
+                        cy="100"
+                        [attr.r]="r"
+                        [attr.fill]="
+                          k % 3 === 2 ? palette(i)[2] : k % 2 ? palette(i)[0] : palette(i)[1]
+                        "
+                      />
+                    }
+                    <defs>
+                      <path [attr.id]="uid + '-top-' + i" d="M28 100a72 72 0 1 1 144 0" />
+                    </defs>
+                    <text
+                      [attr.fill]="ink(i)"
+                      [attr.font-size]="labelSize(item.title)"
+                      font-weight="700"
+                      text-anchor="middle"
+                      [attr.textLength]="labelWidth(item.title)"
+                      lengthAdjust="spacingAndGlyphs"
+                      [attr.stroke]="palette(i)[0]"
+                      stroke-width="2.4"
+                      stroke-linejoin="round"
+                      paint-order="stroke"
+                    >
+                      <textPath [attr.href]="'#' + uid + '-top-' + i" startOffset="50%">
+                        {{ item.title.toUpperCase() }}
+                      </textPath>
+                    </text>
+                  </svg>
+                }
+              </span>
+            </span>
+            <svg class="dcc-hub" viewBox="0 0 200 200" aria-hidden="true">
+              <circle
+                cx="100"
+                cy="100"
+                r="35.5"
+                fill="none"
+                [attr.stroke]="'url(#' + uid + '-metal)'"
+                stroke-width="4"
+              />
+              <circle
+                cx="100"
+                cy="100"
+                r="25.5"
+                fill="rgba(232,235,239,.82)"
+                stroke="rgba(232,235,239,.82)"
+                stroke-width="16"
+              />
+              <circle
+                cx="100"
+                cy="100"
+                r="17.6"
+                fill="none"
+                stroke="rgba(255,255,255,.95)"
+                stroke-width="1.4"
+              />
+              <circle
+                cx="100"
+                cy="100"
+                r="22"
+                fill="none"
+                stroke="rgba(0,0,0,.12)"
+                stroke-width=".6"
+              />
+              <circle
+                cx="100"
+                cy="100"
+                r="27"
+                fill="none"
+                stroke="rgba(255,255,255,.75)"
+                stroke-width="1.6"
+              />
+              <circle
+                cx="100"
+                cy="100"
+                r="28.6"
+                fill="none"
+                stroke="rgba(0,0,0,.1)"
+                stroke-width=".6"
+              />
+              <circle
+                cx="100"
+                cy="100"
+                r="33.3"
+                fill="none"
+                stroke="rgba(0,0,0,.16)"
+                stroke-width=".7"
+              />
+              <circle
+                cx="100"
+                cy="100"
+                r="99.3"
+                fill="none"
+                stroke="rgba(255,255,255,.4)"
+                stroke-width="1.2"
+              />
+            </svg>
+            <span class="dcc-sheen"></span>
+          </span>
+        </span>
+      </button>
+    }
+  </div>
+
+  @for (item of currentList(); track item.id) {
+    @if (item.stats?.length) {
+      <div class="dcc-stats" aria-hidden="true">
+        @for (stat of item.stats; track stat.label; let k = $index) {
+          <figure class="dcc-stat dcc-in" [style.--i]="k + 3">
+            <figcaption class="dcc-stat-label">{{ stat.label }}</figcaption>
+            <p class="dcc-stat-value">{{ stat.value }}</p>
+          </figure>
+        }
+      </div>
+    }
+  }
+
+  @if (hint()) {
+    <div class="dcc-hint" aria-hidden="true">{{ hint() }}</div>
+  }
+
+  @if (items().length > 1) {
+    <div class="dcc-ctl" data-dcc-ui="">
+      <button type="button" class="dcc-btn" aria-label="Previous beat" (click)="prev()">
+        <svg
+          width="14"
+          height="14"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.6"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+        >
+          <path d="M19 12H5m6-6-6 6 6 6" />
+        </svg>
+      </button>
+      <span class="dcc-count" aria-hidden="true">
+        <b>{{ position() }}</b> / {{ count() }}
+      </span>
+      <button type="button" class="dcc-btn" aria-label="Next beat" (click)="next()">
+        <svg
+          width="14"
+          height="14"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.6"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+        >
+          <path d="M5 12h14m-6-6 6 6-6 6" />
+        </svg>
+      </button>
+    </div>
+  }
+
+  <div class="dcc-sr" aria-live="polite" aria-atomic="true">
+    @if (current(); as item) {
+      Beat {{ active() + 1 }} of {{ items().length }}: {{ item.title }}
+    }
+  </div>
+</div>

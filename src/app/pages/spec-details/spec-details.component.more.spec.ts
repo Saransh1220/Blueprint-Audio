@@ -81,11 +81,14 @@ describe('SpecDetailsComponent (extended)', () => {
         { provide: CartService, useValue: cart },
         { provide: ToastService, useValue: toast },
         { provide: AnalyticsService, useValue: analytics },
-        { provide: SpecActionService, useValue: {
+        {
+          provide: SpecActionService,
+          useValue: {
             isCurrentlyPlaying: () => false,
             syncFavorite: () => ({ unsubscribe: () => undefined }),
             formatDuration: () => '0:00',
-          } },
+          },
+        },
       ],
     }).compileComponents();
     const fixture = TestBed.createComponent(SpecDetailsComponent);
@@ -104,6 +107,62 @@ describe('SpecDetailsComponent (extended)', () => {
     const { component } = await setup('never');
     expect(component.isSpecLoading()).toBe(true);
     expect(component.isSpecMissing()).toBe(false);
+  });
+
+  it('shows a skeleton of the page while the beat loads', async () => {
+    const { fixture } = await setup('never');
+    const el = fixture.nativeElement as HTMLElement;
+    const skeleton = el.querySelector('.beat-skeleton');
+    expect(skeleton?.getAttribute('aria-busy')).toBe('true');
+    expect(skeleton?.querySelector('.sr-only')?.textContent).toContain('Loading beat');
+    expect(skeleton?.querySelector('.bs-card .sk-thumb')).toBeTruthy();
+    expect(skeleton?.querySelectorAll('.sk-fact')).toHaveLength(4);
+    expect(skeleton?.querySelectorAll('.bs-licenses .sk-lic')).toHaveLength(4);
+    expect(el.querySelector('.bc-title')).toBeNull();
+  });
+
+  it('clears the old beat and shows the skeleton while moving to another beat', async () => {
+    const { fixture, component } = await setup();
+    labMock.getSpecById.mockReturnValue(NEVER);
+    params$.next(convertToParamMap({ id: 'beat-2' }));
+    TestBed.tick();
+    fixture.detectChanges();
+    expect(component.spec()).toBeUndefined();
+    expect((fixture.nativeElement as HTMLElement).querySelector('.beat-skeleton')).toBeTruthy();
+    expect((fixture.nativeElement as HTMLElement).querySelector('.bc-title')).toBeNull();
+  });
+
+  it('swaps the skeleton for the page once the beat arrives', async () => {
+    const { fixture } = await setup();
+    const el = fixture.nativeElement as HTMLElement;
+    expect(el.querySelector('.beat-skeleton')).toBeNull();
+    expect(el.querySelector('.bc-title')).toBeTruthy();
+  });
+
+  it('shows the not-found state when the beat is missing', async () => {
+    TestBed.resetTestingModule();
+    const { fixture } = await setup(null);
+    expect(
+      (fixture.nativeElement as HTMLElement).querySelector('.not-found h1')?.textContent,
+    ).toContain('Track Not Found');
+  });
+
+  it('shows pause on the hero play controls while this beat plays', async () => {
+    const { fixture, component } = await setup();
+    const el = fixture.nativeElement as HTMLElement;
+    expect(component.isSpecPlaying()).toBe(false);
+    expect(el.querySelector('.hp-play .fa-play')).toBeTruthy();
+
+    player.isPlaying = signal(true);
+    player.currentTrack.set(component.spec());
+    fixture.detectChanges();
+    expect(component.isSpecPlaying()).toBe(true);
+    expect(el.querySelector('.hp-play .fa-pause')).toBeTruthy();
+    expect(el.querySelector('.bc-art')?.getAttribute('aria-label')).toContain('Pause');
+
+    player.currentTrack.set({ id: 'other' });
+    fixture.detectChanges();
+    expect(component.isSpecPlaying()).toBe(false);
   });
 
   it('settles as missing when lookup errors and uses shortCode param', async () => {
@@ -145,12 +204,7 @@ describe('SpecDetailsComponent (extended)', () => {
     const other = makeSpec({ id: 'beat-2', analytics: { playCount: 10, favoriteCount: 4 } });
     const noAnalytics = makeSpec({ id: 'beat-3', analytics: undefined });
     const foreign = makeSpec({ id: 'beat-4', producerId: 'p2' });
-    const { component } = await setup(makeSpec(), [
-      other,
-      noAnalytics,
-      foreign,
-      makeSpec(),
-    ]);
+    const { component } = await setup(makeSpec(), [other, noAnalytics, foreign, makeSpec()]);
 
     expect(component.displayTags()).toEqual(['dark', 'sad', 'club', 'piano']);
     expect(component.producerSpecs().map((s: any) => s.id)).toEqual(['beat-2', 'beat-3']);
@@ -210,8 +264,7 @@ describe('SpecDetailsComponent (extended)', () => {
     expect(component.includedItems()[2].active).toBe(true);
   });
 
-  it('license variants, subtitles, labels and rows', async () => {
-    const { component } = await setup();
+  it('license tiers, subtitles, button labels and rows', async () => {
     const lic = (name: string, type = 'Basic', extra: any = {}) => ({
       id: name,
       name,
@@ -221,22 +274,28 @@ describe('SpecDetailsComponent (extended)', () => {
       fileTypes: [],
       ...extra,
     });
-    expect(component.getLicenseVariant(lic('Exclusive'), 0, 3)).toBe('exclusive');
-    expect(component.getLicenseVariant(lic('Gold'), 3, 4)).toBe('exclusive');
-    expect(component.getLicenseVariant(lic('Gold'), 3, 3)).toBe('standard');
-    expect(component.getLicenseVariant(lic('Premium'), 0, 3)).toBe('popular');
-    expect(component.getLicenseVariant(lic('Gold'), 1, 3)).toBe('popular');
-    expect(component.getLicenseVariant(lic('Gold'), 0, 3)).toBe('standard');
-
-    expect(component.getLicenseSubtitle(lic('Exclusive'), 0, 3)).toBe(
-      'the whole beat, yours alone',
+    const { component } = await setup(
+      makeSpec({
+        licenses: [
+          lic('Basic'),
+          lic('Premium', 'Premium'),
+          lic('Trackout', 'Trackout'),
+          lic('Gold'),
+        ],
+      }),
     );
-    expect(component.getLicenseSubtitle(lic('Premium'), 1, 3)).toBe('for proper releases');
-    expect(component.getLicenseSubtitle(lic('Gold'), 0, 3)).toBe('for demos and ideas');
-    expect(component.getLicenseSubtitle(lic('Gold'), 2, 3)).toBe('for bigger placements');
+    expect(component.licenseTiers()).toEqual(['standard', 'popular', 'standard', 'highest']);
+    expect(component.tierLabel.popular).toBe('Most popular');
+    expect(component.tierIcon.highest).toBe('fa-crown');
 
-    expect(component.getLicenseButtonLabel(lic('Exclusive'), 0, 3)).toBe('Buy Exclusive');
-    expect(component.getLicenseButtonLabel(lic('Gold'), 0, 3)).toBe('Buy Gold');
+    expect(component.getLicenseSubtitle(lic('Exclusive'), 0)).toBe('the whole beat, yours alone');
+    expect(component.getLicenseSubtitle(lic('Premium', 'Premium'), 1)).toBe('for proper releases');
+    expect(component.getLicenseSubtitle(lic('Basic'), 0)).toBe('for demos and ideas');
+    expect(component.getLicenseSubtitle(lic('Trackout'), 2)).toBe('for bigger placements');
+    expect(component.getLicenseSubtitle(lic('Gold'), 3)).toBe('for bigger placements');
+
+    expect(component.getLicenseButtonLabel(lic('Exclusive'))).toBe('Buy exclusive');
+    expect(component.getLicenseButtonLabel(lic('Gold'))).toBe('Add to cart');
 
     const fmt = (fileTypes: string[] | undefined, extra: any = {}) =>
       component.getLicenseFormatLabel(lic('Gold', 'Basic', { fileTypes, ...extra }));
@@ -247,23 +306,16 @@ describe('SpecDetailsComponent (extended)', () => {
     expect(fmt([], { features: ['includes trackouts'] })).toBe('Stems');
     expect(fmt(['wav'])).toBe('WAV');
     expect(fmt(['mp3'])).toBe('MP3');
-    expect(fmt(undefined, { features: undefined, type: 'Trackout', name: 'Gold' })).toBe(
-      'Stems',
-    );
+    expect(fmt(undefined, { features: undefined, type: 'Trackout', name: 'Gold' })).toBe('Stems');
     expect(fmt([], { type: 'Lease' })).toBe('Lease');
     expect(component.getLicenseFormatLabel(lic('Unlimited', 'Lease'))).toBe('Stems');
 
-    const rowsStd = component.getLicenseFeatureRows(lic('Gold'), 0, 3);
-    expect(rowsStd).toHaveLength(3);
-    expect(rowsStd[1]).toEqual({ text: 'WAV or stems', muted: true });
-    const rowsPop = component.getLicenseFeatureRows(lic('Premium'), 1, 3);
-    expect(rowsPop.map((r: any) => r.text)).toContain('Royalty split included');
-    const rowsEx = component.getLicenseFeatureRows(lic('Exclusive'), 2, 3);
-    expect(rowsEx.map((r: any) => r.text)).toContain('Beat removed from store');
-    const rowsOther = component.getLicenseFeatureRows(lic('Gold'), 2, 3);
-    expect(rowsOther.map((r: any) => r.text)).toContain('Worldwide digital distribution');
+    expect(component.getLicenseFeatureRows(lic('Gold'))).toEqual(['A']);
     const many = lic('Gold', 'Basic', { features: ['1', '2', '3', '4', '5', '6', '7'] });
-    expect(component.getLicenseFeatureRows(many, 2, 3)).toHaveLength(6);
+    expect(component.getLicenseFeatureRows(many)).toEqual(['1', '2', '3', '4']);
+    expect(component.getLicenseFeatureRows(lic('Gold', 'Basic', { features: undefined }))).toEqual(
+      [],
+    );
   });
 
   it('updates sticky buy state on window scroll', async () => {
