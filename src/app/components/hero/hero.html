@@ -1,57 +1,122 @@
-<section class="hero">
-  <div class="hero-inner">
-    <h1 class="hero-headline gs-reveal">Catch the <span>sound</span> before it blows.</h1>
+<section class="hero" aria-label="Featured">
+  <app-halftone-nebula height="clamp(640px, 100svh, 940px)" [params]="sky" [maxDpr]="1">
+    <div class="content">
+      <span class="kicker">Beats, loops &amp; sample packs</span>
+      <h1>
+        Every beat,
+        <br />
+        brought into focus.
+      </h1>
+      <p>
+        Fresh instrumentals from independent producers, with clear licenses and instant delivery.
+      </p>
 
-    <p class="hero-copy gs-reveal">
-      Fresh beats, clear licenses, and producer drops ready for artists who move before the wave
-      breaks.
-    </p>
+      <div class="finder">
+        <form class="search" role="search" (submit)="submit($event)">
+          <i class="fas fa-search search-icon" aria-hidden="true"></i>
+          <input
+            class="search-input"
+            type="search"
+            name="q"
+            autocomplete="off"
+            enterkeyhint="search"
+            [value]="query()"
+            [placeholder]="scope().placeholder"
+            [attr.aria-label]="'Search ' + scope().label.toLowerCase()"
+            (input)="onInput($event)"
+          />
 
-    <div class="hero-actions gs-reveal">
-      <a class="hero-cta" routerLink="/explore">Explore beats</a>
-      <a class="hero-link" routerLink="/upload">Sell your beats</a>
+          @if (query()) {
+            <button type="button" class="search-clear" aria-label="Clear search" (click)="clear()">
+              <i class="fas fa-xmark" aria-hidden="true"></i>
+            </button>
+          }
+
+          <span class="divider" aria-hidden="true"></span>
+
+          <div class="scope">
+            <button
+              type="button"
+              class="scope-trigger"
+              role="combobox"
+              aria-haspopup="listbox"
+              aria-controls="hero-scope-list"
+              aria-label="Search in"
+              [attr.aria-expanded]="open()"
+              [attr.aria-activedescendant]="open() ? 'hero-scope-' + scopes[active()].id : null"
+              (click)="toggle()"
+              (keydown)="onTriggerKeydown($event)"
+            >
+              <i class="fas {{ scope().icon }} scope-icon" aria-hidden="true"></i>
+              <span class="scope-label">{{ scope().label }}</span>
+              <svg
+                class="scope-chevron"
+                [class.flip]="open()"
+                viewBox="0 0 12 12"
+                width="12"
+                height="12"
+                aria-hidden="true"
+              >
+                <path d="M2.5 4.5 6 8l3.5-3.5" />
+              </svg>
+            </button>
+
+            @if (open()) {
+              <ul
+                class="scope-menu"
+                [class.up]="openUp()"
+                id="hero-scope-list"
+                role="listbox"
+                aria-label="Search in"
+              >
+                @for (item of scopes; track item.id; let i = $index) {
+                  <li
+                    class="scope-option"
+                    role="option"
+                    [id]="'hero-scope-' + item.id"
+                    [class.active]="i === active()"
+                    [attr.aria-selected]="i === selected()"
+                    (mouseenter)="active.set(i)"
+                    (click)="select(i)"
+                  >
+                    <i class="fas {{ item.icon }} option-icon" aria-hidden="true"></i>
+                    <span class="option-label">{{ item.label }}</span>
+                    @if (i === selected()) {
+                      <svg
+                        class="option-check"
+                        viewBox="0 0 12 12"
+                        width="12"
+                        height="12"
+                        aria-hidden="true"
+                      >
+                        <path d="M2.5 6.25 5 8.75l4.5-5" />
+                      </svg>
+                    }
+                  </li>
+                }
+              </ul>
+            }
+          </div>
+        </form>
+
+        <!-- Phones: a native-style scope bar replaces the dropdown. -->
+        <div class="segmented" role="radiogroup" aria-label="Search in">
+          @for (item of scopes; track item.id; let i = $index) {
+            <button
+              type="button"
+              class="segment"
+              role="radio"
+              [attr.aria-checked]="i === selected()"
+              [attr.tabindex]="i === selected() ? 0 : -1"
+              [class.on]="i === selected()"
+              (click)="pick(i)"
+              (keydown)="onSegmentKeydown($event)"
+            >
+              {{ item.label }}
+            </button>
+          }
+        </div>
+      </div>
     </div>
-  </div>
-
-  <div class="beat-stage gs-reveal" aria-label="Featured beats">
-    <div class="beat-shadow" aria-hidden="true"></div>
-
-    @if (isLoading()) {
-      @for (layout of cardLayouts; track $index) {
-        <div
-          class="beat-card beat-card-skeleton"
-          aria-hidden="true"
-          [style.--tilt]="layout.tilt + 'deg'"
-          [style.--lift]="layout.lift + 'px'"
-          [style.--index]="$index"
-        ></div>
-      }
-    } @else {
-      @for (card of beatCards(); track card.id; let index = $index) {
-        <a
-          [class]="'beat-card ' + card.className"
-          [routerLink]="['/', card.shortCode || card.id]"
-          [attr.aria-label]="'Open ' + card.title + ' by ' + card.producer"
-          [style.--tilt]="card.tilt + 'deg'"
-          [style.--lift]="card.lift + 'px'"
-          [style.--index]="index"
-        >
-          <div class="cover-art" [style.background-image]="'url(' + card.imageUrl + ')'">
-            <span class="beat-tag">{{ card.genre }}</span>
-            <span class="cover-mark">#{{ index + 1 }}</span>
-          </div>
-          <div class="beat-info">
-            <div>
-              <h2>{{ card.title }}</h2>
-              <p>prod. {{ card.producer }}</p>
-            </div>
-          </div>
-          <div class="beat-meta">
-            <span>{{ card.meta }}</span>
-            <strong>{{ card.price }}</strong>
-          </div>
-        </a>
-      }
-    }
-  </div>
+  </app-halftone-nebula>
 </section>

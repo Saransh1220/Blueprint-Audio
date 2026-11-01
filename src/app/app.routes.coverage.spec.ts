@@ -6,7 +6,7 @@ import { AuthService } from './services';
 
 describe('application route callbacks', () => {
   const authServiceMock = { currentUser: vi.fn() };
-  const routerMock = { parseUrl: vi.fn().mockReturnValue({ redirect: '/studio/purchases' }) };
+  const routerMock = { parseUrl: vi.fn().mockReturnValue({ redirect: '/explore' }) };
 
   beforeEach(() => {
     TestBed.configureTestingModule({
@@ -54,18 +54,16 @@ describe('application route callbacks', () => {
   });
 
   it('allows producer tools and redirects non-producers', () => {
-    const tools = routes
-      .find((route) => route.path === 'studio')
-      ?.children?.find((route) => route.path === 'tools');
-    const guard = tools?.canActivate?.[0] as () => unknown;
+    const tools = routes.find((route) => route.path === 'creator-tools');
+    const guard = tools?.canActivate?.[1] as () => unknown;
 
     authServiceMock.currentUser.mockReturnValue({ role: Role.PRODUCER });
     expect(TestBed.runInInjectionContext(() => guard())).toBe(true);
 
     authServiceMock.currentUser.mockReturnValue({ role: Role.ARTIST });
     expect(TestBed.runInInjectionContext(() => guard())).toEqual({
-      redirect: '/studio/purchases',
+      redirect: '/explore',
     });
-    expect(routerMock.parseUrl).toHaveBeenCalledWith('/studio/purchases');
+    expect(routerMock.parseUrl).toHaveBeenCalledWith('/explore');
   });
 });

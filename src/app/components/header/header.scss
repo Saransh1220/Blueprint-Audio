@@ -7,6 +7,15 @@ nav.fixed-navbar {
   width: 100%;
   background: rgba(var(--bg-color-rgb), 0.92);
   backdrop-filter: blur(10px);
+  transition:
+    background 0.25s ease,
+    backdrop-filter 0.25s ease;
+
+  // Home: the bar dissolves into the page (and the hero glow beneath it) until you scroll.
+  &.home-route:not(.scrolled) {
+    background: transparent;
+    backdrop-filter: none;
+  }
 }
 
 .nav-inner {
@@ -1550,6 +1559,13 @@ nav.fixed-navbar {
 :host-context(body.dark-theme) nav.fixed-navbar {
   background: rgba(14, 13, 11, 0.92);
   border-bottom-color: var(--notif-ink);
+
+  // Home: dissolve into the hero glow until the page is scrolled.
+  &.home-route:not(.scrolled) {
+    background: transparent;
+    border-bottom-color: transparent;
+    backdrop-filter: none;
+  }
 }
 
 :host-context(body.dark-theme) .studio-menu,

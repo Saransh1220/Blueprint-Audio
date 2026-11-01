@@ -22,11 +22,7 @@ import { LabService, type HomepageData } from '../../services';
   standalone: true,
   imports: [HeroComponent, TickerComponent, GenresSectionComponent, LabSectionComponent],
   template: `
-    <app-hero
-      [useExternalData]="useHomepageData()"
-      [homepageLoading]="homepageLoading()"
-      [featuredSpecs]="featuredSpecs()"
-    ></app-hero>
+    <app-hero></app-hero>
     <app-ticker></app-ticker>
     <app-genres-section></app-genres-section>
     <app-lab-section

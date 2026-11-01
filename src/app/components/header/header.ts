@@ -193,10 +193,23 @@ export class HeaderComponent {
     return this.router.url.startsWith('/studio');
   }
 
+  isHomeRoute() {
+    return this.router.url.split(/[?#]/, 1)[0] === '/';
+  }
+
+  readonly isScrolled = signal(false);
+
+  @HostListener('window:scroll')
+  onWindowScroll() {
+    const scrolled = window.scrollY > 24;
+    if (scrolled !== this.isScrolled()) this.isScrolled.set(scrolled);
+  }
+
   isBrowseRoute() {
     const path = this.router.url.split(/[?#]/, 1)[0];
     return (
       path === '/explore' ||
+      path === '/creator-tools' ||
       path === '/loops' ||
       path === '/battles' ||
       path.startsWith('/battles/') ||

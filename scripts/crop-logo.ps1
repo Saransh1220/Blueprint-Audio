@@ -1,6 +1,8 @@
 Add-Type -AssemblyName System.Drawing
 
-$base = 'C:\Users\saran\OneDrive\Desktop\projects\red-wave-app\public'
+# The 2 MB source logos live in assets-src/ so they are not deployed. This writes the cropped PNG
+# next to them; the app serves a 420x280 WebP of it from public/ (convert it after cropping).
+$base = Join-Path $PSScriptRoot '..\assets-src'
 $srcPath = "$base\logo-dark.png"
 $outPath = "$base\logo-dark-cropped.png"
 

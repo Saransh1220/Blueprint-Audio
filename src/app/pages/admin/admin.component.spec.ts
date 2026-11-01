@@ -1,193 +1,171 @@
-import { HttpParams } from '@angular/common/http';
 import { TestBed } from '@angular/core/testing';
 import { of, throwError } from 'rxjs';
-import { ApiService } from '../../core/services/api.service';
-import { SystemRole } from '../../models';
+import { AdminService } from '../../services/admin.service';
+import { ToastService } from '../../services/toast.service';
+import { entry, license, order, pageOf, spec, user } from './admin.fixtures';
 import { AdminComponent } from './admin.component';
+import { findAdminSection } from './admin-sections';
 
 describe('AdminComponent', () => {
-  const api = {
-    get: vi.fn(),
-    patch: vi.fn(),
+  const admin = {
+    getOverview: vi.fn(),
+    getUsers: vi.fn(),
+    getSpecs: vi.fn(),
+    getOrders: vi.fn(),
+    getLicenses: vi.fn(),
+    getAuditLog: vi.fn(),
+    setUserSystemRole: vi.fn(),
+    setUserStatus: vi.fn(),
+    setSpecDeleted: vi.fn(),
   };
 
-  function create() {
+  function render() {
     TestBed.configureTestingModule({
-      providers: [{ provide: ApiService, useValue: api }],
+      providers: [
+        { provide: AdminService, useValue: admin },
+        { provide: ToastService, useValue: { error: vi.fn() } },
+      ],
     });
-    return TestBed.runInInjectionContext(() => new AdminComponent());
+    const fixture = TestBed.createComponent(AdminComponent);
+    fixture.detectChanges();
+    return fixture;
   }
+
+  const el = (fixture: { nativeElement: unknown }) => fixture.nativeElement as HTMLElement;
+  const links = (fixture: { nativeElement: unknown }) =>
+    Array.from(el(fixture).querySelectorAll('.rail-link')) as HTMLButtonElement[];
 
   beforeEach(() => {
     vi.clearAllMocks();
-    api.get.mockImplementation((url: string) => {
-      if (url === '/admin/analytics/overview') return of({ revenue: 12345, users: 2 });
-      return of({ data: [], metadata: { total: 0, page: 1, per_page: 25 } });
-    });
-    api.patch.mockImplementation((_url: string, body: Record<string, unknown>) =>
-      of({
-        id: 'u1',
-        email: 'a@test.dev',
-        system_role: body['system_role'],
-        status: body['status'],
-      }),
+    admin.getOverview.mockReturnValue(
+      of({ users: 12, producers: 3, specs: 30, orders: 48, paid_orders: 24, revenue: 12345 }),
     );
+    admin.getUsers.mockReturnValue(of(pageOf([user()])));
+    admin.getSpecs.mockReturnValue(of(pageOf([spec()])));
+    admin.getOrders.mockReturnValue(of(pageOf([order()])));
+    admin.getLicenses.mockReturnValue(of(pageOf([license()])));
+    admin.getAuditLog.mockReturnValue(of(pageOf([entry()])));
   });
 
-  it('loads overview and users on init with search params', () => {
-    const component = create();
-    component.search.set('  blaze  ');
+  afterEach(() => document.body.classList.remove('admin-page-active'));
 
-    component.ngOnInit();
+  it('switches off the film grain while the console is open, and back on after', () => {
+    const fixture = render();
+    expect(document.body.classList.contains('admin-page-active')).toBe(true);
 
-    expect(api.get).toHaveBeenCalledWith('/admin/analytics/overview');
-    const usersCall = api.get.mock.calls.find(([url]) => url === '/admin/users');
-    expect(usersCall?.[1]).toBeInstanceOf(HttpParams);
-    expect((usersCall?.[1] as HttpParams).get('q')).toBe('blaze');
-    expect(component.paidRevenue()).toBe('123.45');
-    expect(component.loading()).toBe(false);
+    fixture.destroy();
+    expect(document.body.classList.contains('admin-page-active')).toBe(false);
   });
 
-  it('switches tabs and stores page data from each admin endpoint', () => {
-    api.get.mockImplementation((url: string) =>
-      of({ data: [{ id: url }], metadata: { total: 1, page: 1, per_page: 25 } }),
+  it('opens on the overview and loads the platform totals', () => {
+    const fixture = render();
+
+    expect(admin.getOverview).toHaveBeenCalledTimes(1);
+    expect(el(fixture).querySelector('h1')?.textContent).toBe('Overview');
+    expect(el(fixture).querySelector('app-admin-overview')).not.toBeNull();
+    expect(fixture.componentInstance.overview().users).toBe(12);
+  });
+
+  it('groups the sidebar into Workspace, Manage and Security, each item with an icon', () => {
+    const fixture = render();
+    const groups = Array.from(el(fixture).querySelectorAll('.rail-group')).map(
+      (g) => g.textContent,
     );
-    const component = create();
 
-    component.setTab('specs');
-    component.setTab('orders');
-    component.setTab('licenses');
-    component.setTab('audit');
-
-    expect(component.activeTab()).toBe('audit');
-    expect(component.specs()[0]['id']).toBe('/admin/specs');
-    expect(component.orders()[0]['id']).toBe('/admin/orders');
-    expect(component.licenses()[0]['id']).toBe('/admin/licenses');
-    expect(component.auditLogs()[0]['id']).toBe('/admin/audit-log');
-  });
-
-  it('updates user role and status, rolling status back on failure', () => {
-    const component = create();
-    const user = {
-      id: 'u1',
-      email: 'a@test.dev',
-      name: 'A',
-      role: 'producer',
-      system_role: SystemRole.USER,
-      status: 'active',
-      email_verified: true,
-      created_at: 'today',
-    } as any;
-    component.users.set([user]);
-
-    api.patch.mockReturnValueOnce(of({ ...user, system_role: SystemRole.SUPER_ADMIN }));
-    component.setSuperAdmin(user, true);
-    expect(api.patch).toHaveBeenCalledWith('/admin/users/u1/system-role', {
-      system_role: SystemRole.SUPER_ADMIN,
-    });
-    expect(component.users()[0].system_role).toBe(SystemRole.SUPER_ADMIN);
-
-    api.patch.mockReturnValueOnce(throwError(() => new Error('nope')));
-    component.setUserStatus(user, 'suspended');
-
-    expect(component.users()[0].status).toBe('active');
-  });
-
-  it('toggles spec deletion optimistically and restores on error', () => {
-    const component = create();
-    component.specs.set([{ id: 's1', is_deleted: false, title: 'Talk' }]);
-
-    api.patch.mockReturnValueOnce(of({ title: 'Talk Updated', is_deleted: true }));
-    component.toggleSpecDeleted(component.specs()[0]);
-    expect(component.specs()[0]['is_deleted']).toBe(true);
-    expect(component.specs()[0]['title']).toBe('Talk Updated');
-
-    api.patch.mockReturnValueOnce(throwError(() => new Error('nope')));
-    component.toggleSpecDeleted(component.specs()[0]);
-    expect(component.specs()[0]['is_deleted']).toBe(true);
-  });
-
-  it('handles load errors, missing data and overview/users tabs', () => {
-    const errSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined);
-    const component = create();
-    api.get.mockImplementation(() => throwError(() => new Error('x')));
-    for (const tab of ['overview', 'users', 'specs', 'orders', 'licenses', 'audit'] as const) {
-      component.setTab(tab);
-      expect(component.loading()).toBe(false);
-    }
-    expect(component.activeTab()).toBe('audit');
-
-    api.get.mockImplementation(() => of({}));
-    component.setTab('users');
-    component.setTab('specs');
-    component.setTab('orders');
-    component.setTab('licenses');
-    component.setTab('audit');
-    expect(component.users()).toEqual([]);
-    expect(component.specs()).toEqual([]);
-    expect(component.orders()).toEqual([]);
-    expect(component.licenses()).toEqual([]);
-    expect(component.auditLogs()).toEqual([]);
-
-    api.get.mockImplementation(() => of({ revenue: 100 }));
-    component.setTab('overview');
-    expect(component.paidRevenue()).toBe('1.00');
-    api.get.mockImplementation(() => of({}));
-    component.setTab('overview');
-    expect(component.paidRevenue()).toBe('0.00');
-    errSpy.mockRestore();
-  });
-
-  it('demotes super admins, logs role failures and keeps other users on update', () => {
-    const errSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined);
-    const component = create();
-    const u1 = { id: 'u1', status: 'active', system_role: SystemRole.SUPER_ADMIN } as any;
-    const u2 = { id: 'u2', status: 'active', system_role: SystemRole.USER } as any;
-    component.users.set([u1, u2]);
-
-    api.patch.mockReturnValueOnce(of({ ...u1, system_role: SystemRole.USER }));
-    component.setSuperAdmin(u1, false);
-    expect(api.patch).toHaveBeenCalledWith('/admin/users/u1/system-role', {
-      system_role: SystemRole.USER,
-    });
-    expect(component.users()[0].system_role).toBe(SystemRole.USER);
-    expect(component.users()[1]).toEqual(u2);
-
-    api.patch.mockReturnValueOnce(throwError(() => new Error('nope')));
-    component.setSuperAdmin(u2, true);
-    expect(errSpy).toHaveBeenCalled();
-
-    api.patch.mockReturnValueOnce(of({ ...u2, status: 'suspended' }));
-    component.setUserStatus(u2, 'suspended');
-    expect(component.users()[1].status).toBe('suspended');
-    expect(component.users()[0].id).toBe('u1');
-    errSpy.mockRestore();
-  });
-
-  it('restores spec list and leaves other specs untouched', () => {
-    const errSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined);
-    const component = create();
-    component.specs.set([
-      { id: 's1', is_deleted: true },
-      { id: 's2', is_deleted: false },
+    expect(groups).toEqual(['Workspace', 'Manage', 'Security']);
+    expect(links(fixture).map((l) => l.querySelector('.rail-label')?.textContent)).toEqual([
+      'Overview',
+      'Users',
+      'Catalog',
+      'Orders',
+      'Licenses',
+      'Audit log',
     ]);
-    api.patch.mockReturnValueOnce(of({ is_deleted: false }));
-    component.toggleSpecDeleted(component.specs()[0]);
-    expect(component.specs()[0]['is_deleted']).toBe(false);
-    expect(component.specs()[1]['is_deleted']).toBe(false);
-
-    api.patch.mockReturnValueOnce(throwError(() => new Error('nope')));
-    component.toggleSpecDeleted(component.specs()[1]);
-    expect(component.specs()[1]['is_deleted']).toBe(false);
-    expect(errSpy).toHaveBeenCalled();
-    errSpy.mockRestore();
+    expect(links(fixture).every((l) => l.querySelector('i.fa-solid'))).toBe(true);
   });
 
-  it('formats money and short ids', () => {
-    const component = create();
-    expect(component.formatMoney(null)).toBe('Rs 0.00');
-    expect(component.formatMoney(899)).toBe('Rs 8.99');
-    expect(component.shortId('abcdef123456')).toBe('abcdef12');
-    expect(component.shortId(null)).toBe('');
+  it('shows the totals next to the items that have one', () => {
+    const fixture = render();
+    const counts = links(fixture).map((l) => l.querySelector('.rail-count')?.textContent ?? null);
+
+    expect(counts).toEqual([null, '12', '30', '48', null, null]);
+  });
+
+  it('omits the sidebar counts until the totals arrive', () => {
+    admin.getOverview.mockReturnValue(throwError(() => new Error('x')));
+    const fixture = render();
+
+    expect(el(fixture).querySelectorAll('.rail-count').length).toBe(0);
+    expect(fixture.componentInstance.overviewFailed()).toBe(true);
+  });
+
+  it('opens each section from the sidebar and marks the active one', () => {
+    const fixture = render();
+    const expected: [number, string, string][] = [
+      [1, 'Users', 'app-admin-users'],
+      [2, 'Catalog', 'app-admin-catalog'],
+      [3, 'Orders', 'app-admin-orders'],
+      [4, 'Licenses', 'app-admin-licenses'],
+      [5, 'Audit log', 'app-admin-audit'],
+      [0, 'Overview', 'app-admin-overview'],
+    ];
+
+    for (const [index, title, selector] of expected) {
+      links(fixture)[index].click();
+      fixture.detectChanges();
+
+      expect(el(fixture).querySelector('h1')?.textContent).toBe(title);
+      expect(el(fixture).querySelector(selector)).not.toBeNull();
+      expect(links(fixture)[index].classList).toContain('active');
+      expect(links(fixture)[index].getAttribute('aria-current')).toBe('page');
+      expect(links(fixture).filter((l) => l.classList.contains('active')).length).toBe(1);
+    }
+  });
+
+  it('reloads the totals when coming back to the overview', () => {
+    const fixture = render();
+    links(fixture)[1].click();
+    fixture.detectChanges();
+    admin.getOverview.mockClear();
+
+    links(fixture)[0].click();
+
+    expect(admin.getOverview).toHaveBeenCalledTimes(1);
+  });
+
+  it('retries a failed overview and clears the failure', () => {
+    admin.getOverview.mockReturnValueOnce(throwError(() => new Error('x')));
+    const fixture = render();
+    expect(fixture.componentInstance.overviewFailed()).toBe(true);
+
+    fixture.componentInstance.loadOverview();
+
+    expect(fixture.componentInstance.overviewFailed()).toBe(false);
+    expect(fixture.componentInstance.overview().users).toBe(12);
+  });
+
+  it('follows "View all" links from the overview to the right section', () => {
+    const fixture = render();
+    const viewAll = Array.from(
+      el(fixture).querySelectorAll('app-admin-overview .panel-head .link'),
+    ) as HTMLElement[];
+
+    viewAll[0].click();
+    fixture.detectChanges();
+    expect(fixture.componentInstance.activeTab()).toBe('orders');
+
+    links(fixture)[0].click();
+    fixture.detectChanges();
+    (
+      el(fixture).querySelectorAll('app-admin-overview .panel-head .link')[1] as HTMLElement
+    ).click();
+    expect(fixture.componentInstance.activeTab()).toBe('audit');
+  });
+});
+
+describe('findAdminSection', () => {
+  it('falls back to the overview for an unknown tab', () => {
+    expect(findAdminSection('users').label).toBe('Users');
+    expect(findAdminSection('nope' as never).label).toBe('Overview');
   });
 });

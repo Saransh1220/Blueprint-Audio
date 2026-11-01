@@ -14,5 +14,6 @@ export * from './spec-list-item/spec-list-item.component';
 export * from './spec-row/spec-row.component';
 export * from './theme-toggle/theme-toggle';
 export * from './ticker/ticker';
+export * from './halftone-nebula/halftone-nebula';
 export * from './toast/toast.component';
 export * from './ui/loading-spinner/loading-spinner.component';

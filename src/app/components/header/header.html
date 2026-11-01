@@ -1,4 +1,9 @@
-<nav class="fixed-navbar" [class.studio-route]="isStudioRoute()">
+<nav
+  class="fixed-navbar"
+  [class.studio-route]="isStudioRoute()"
+  [class.home-route]="isHomeRoute()"
+  [class.scrolled]="isScrolled()"
+>
   <div class="nav-inner">
     <!-- Brand / Logo -->
     <div class="nav-left">
@@ -16,8 +21,13 @@
       }
       <div class="nav-brand header-brand">
         <a class="logo" routerLink="/">
-          <img class="logo-mark logo-light" src="/Logo-cropped.png" alt="" aria-hidden="true" />
-          <img class="logo-mark logo-dark" src="/logo-dark-cropped.png" alt="" aria-hidden="true" />
+          <img class="logo-mark logo-light" src="/Logo-cropped.webp" alt="" aria-hidden="true" />
+          <img
+            class="logo-mark logo-dark"
+            src="/logo-dark-cropped.webp"
+            alt=""
+            aria-hidden="true"
+          />
           <span class="logo-word">Waveyard</span>
         </a>
       </div>
@@ -93,6 +103,17 @@
                 <div class="sm-desc">head-to-head drops</div>
               </div>
             </a>
+            @if (authService.currentUser()?.role === Role.PRODUCER) {
+              <a class="sm-item" routerLink="/creator-tools" routerLinkActive="active">
+                <div class="sm-ico c-lavender">
+                  <i class="fas fa-wand-magic-sparkles" aria-hidden="true"></i>
+                </div>
+                <div>
+                  <div class="sm-label">Creator tools</div>
+                  <div class="sm-desc">visualizers & more</div>
+                </div>
+              </a>
+            }
           </div>
         </div>
       </div>
@@ -100,6 +121,11 @@
       <a class="compact-nav-link" routerLink="/loops" routerLinkActive="active">Loops</a>
       <a class="compact-nav-link" routerLink="/sample-packs" routerLinkActive="active">Packs</a>
       <a class="compact-nav-link" routerLink="/battles" routerLinkActive="active">Battles</a>
+      @if (authService.currentUser()?.role === Role.PRODUCER) {
+        <a class="compact-nav-link" routerLink="/creator-tools" routerLinkActive="active"
+          >Creator Tools</a
+        >
+      }
       @if (authzService.isSuperAdmin()) {
         <a routerLink="/admin" routerLinkActive="active">Admin</a>
       }
@@ -240,30 +266,6 @@
                     <div class="sm-desc">incoming sales</div>
                   </div>
                   <span class="sm-count alert">3</span>
-                </a>
-                <a
-                  class="sm-item"
-                  routerLink="/studio/tools"
-                  [class.active]="isStudioSection('tools')"
-                  (click)="closeStudioMenu()"
-                >
-                  <div class="sm-ico c-lavender">
-                    <svg
-                      width="15"
-                      height="15"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      stroke-width="2.2"
-                    >
-                      <path d="M3 12h4l3-8 4 16 3-8h4" />
-                    </svg>
-                  </div>
-                  <div>
-                    <div class="sm-label">Creator Tools</div>
-                    <div class="sm-desc">visualizers & assets</div>
-                  </div>
-                  <span class="sm-count">new</span>
                 </a>
               }
               <a
@@ -819,8 +821,8 @@
 <div class="mobile-menu" [class.open]="isMobileMenuOpen">
   <div class="mobile-logo-large">
     <a class="logo on-dark" routerLink="/" (click)="closeMobileMenu()">
-      <img class="logo-mark logo-light" src="/Logo-cropped.png" alt="" aria-hidden="true" />
-      <img class="logo-mark logo-dark" src="/logo-dark-cropped.png" alt="" aria-hidden="true" />
+      <img class="logo-mark logo-light" src="/Logo-cropped.webp" alt="" aria-hidden="true" />
+      <img class="logo-mark logo-dark" src="/logo-dark-cropped.webp" alt="" aria-hidden="true" />
       <span class="logo-word">Waveyard</span>
     </a>
   </div>
@@ -838,11 +840,14 @@
       >Sample Packs</a
     >
     <a routerLink="/battles" routerLinkActive="active" (click)="closeMobileMenu()">Battles</a>
+    @if (authService.currentUser()?.role === Role.PRODUCER) {
+      <a routerLink="/creator-tools" routerLinkActive="active" (click)="closeMobileMenu()"
+        >Creator Tools</a
+      >
+    }
 
     @if (authService.currentUser()) {
-      <a routerLink="/dashboard" routerLinkActive="active" (click)="closeMobileMenu()"
-        >Dashboard</a
-      >
+      <a routerLink="/dashboard" routerLinkActive="active" (click)="closeMobileMenu()">Dashboard</a>
       @if (authService.currentUser()?.role === Role.PRODUCER) {
         <a routerLink="/studio" routerLinkActive="active" (click)="closeMobileMenu()">Studio</a>
       }

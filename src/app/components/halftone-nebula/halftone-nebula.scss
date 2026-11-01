@@ -1,0 +1,47 @@
+:host {
+  display: block;
+  width: 100%;
+}
+
+.nebula {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  background: #050309;
+  touch-action: pan-y;
+
+  &.interactive {
+    cursor: crosshair;
+  }
+
+  &.draw {
+    touch-action: none;
+  }
+}
+
+canvas {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.fallback {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(60% 45% at 12% 88%, #ff1f5a 0%, #c01245 22%, #5c0d31 50%, transparent 75%),
+    radial-gradient(45% 30% at 22% 22%, #5c0d31 0%, transparent 70%),
+    radial-gradient(40% 30% at 80% 30%, #3b1646 0%, transparent 70%), #050309;
+}
+
+.overlay {
+  position: relative;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}

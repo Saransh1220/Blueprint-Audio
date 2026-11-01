@@ -77,34 +77,58 @@ export class LabSectionComponent implements OnInit {
     this.trending.set(specs);
   }
   readonly typeBeatArtists = [
-    { name: 'J. Cole', note: 'warm drums, honest piano', image: 'assets/images/genres/rnb.png' },
+    {
+      name: 'J. Cole',
+      note: 'warm drums, honest piano',
+      image: 'assets/images/genres/thumbs/rnb.webp',
+    },
     {
       name: 'Kendrick Lamar',
       note: 'switch-ups, tension, bounce',
-      image: 'assets/images/genres/boom-bap.png',
+      image: 'assets/images/genres/thumbs/boom-bap.webp',
     },
-    { name: 'Drake', note: 'late-night R&B pockets', image: 'assets/images/genres/lofi.png' },
+    {
+      name: 'Drake',
+      note: 'late-night R&B pockets',
+      image: 'assets/images/genres/thumbs/lofi.webp',
+    },
     {
       name: 'Travis Scott',
       note: 'dark synths, festival drums',
-      image: 'assets/images/genres/trap.png',
+      image: 'assets/images/genres/thumbs/trap.webp',
     },
     {
       name: 'Metro Boomin',
       note: 'villain brass and 808s',
-      image: 'assets/images/genres/synth.png',
+      image: 'assets/images/genres/thumbs/synth.webp',
     },
-    { name: 'Future', note: 'spacey trap motion', image: 'assets/images/genres/afro.png' },
-    { name: 'SZA', note: 'soft guitar and velvet bass', image: 'assets/images/genres/rnb.png' },
-    { name: 'The Weeknd', note: 'neon pop noir', image: 'assets/images/genres/synth.png' },
+    { name: 'Future', note: 'spacey trap motion', image: 'assets/images/genres/thumbs/afro.webp' },
+    {
+      name: 'SZA',
+      note: 'soft guitar and velvet bass',
+      image: 'assets/images/genres/thumbs/rnb.webp',
+    },
+    { name: 'The Weeknd', note: 'neon pop noir', image: 'assets/images/genres/thumbs/synth.webp' },
     {
       name: 'Tyler',
       note: 'colorful chords, left turns',
-      image: 'assets/images/genres/boom-bap.png',
+      image: 'assets/images/genres/thumbs/boom-bap.webp',
     },
-    { name: 'Yeat', note: 'rage synths, clipped bounce', image: 'assets/images/genres/trap.png' },
-    { name: 'Pop Smoke', note: 'drill swing and glide', image: 'assets/images/genres/trap.png' },
-    { name: 'Bryson Tiller', note: 'moody trap soul', image: 'assets/images/genres/lofi.png' },
+    {
+      name: 'Yeat',
+      note: 'rage synths, clipped bounce',
+      image: 'assets/images/genres/thumbs/trap.webp',
+    },
+    {
+      name: 'Pop Smoke',
+      note: 'drill swing and glide',
+      image: 'assets/images/genres/thumbs/trap.webp',
+    },
+    {
+      name: 'Bryson Tiller',
+      note: 'moody trap soul',
+      image: 'assets/images/genres/thumbs/lofi.webp',
+    },
   ];
 
   readonly licenseTiers: Array<{

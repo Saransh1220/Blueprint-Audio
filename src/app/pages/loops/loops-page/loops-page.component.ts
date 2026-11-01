@@ -1,4 +1,5 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
 import { CatalogHeroComponent } from '../../../components/catalog/catalog-hero/catalog-hero.component';
 import { CatalogPaginationComponent } from '../../../components/catalog/catalog-pagination/catalog-pagination.component';
 import { CatalogToolbarComponent } from '../../../components/catalog/catalog-toolbar/catalog-toolbar.component';
@@ -26,7 +27,10 @@ export class LoopsPageComponent {
   private readonly catalog = inject(CATALOG_REPOSITORY);
   readonly loops = this.catalog.listLoops();
   readonly pageSize = 12;
-  readonly search = signal('');
+  // Seeded from ?search= so the home hero's search lands here with the term filled in.
+  readonly search = signal(
+    inject(ActivatedRoute, { optional: true })?.snapshot.queryParamMap.get('search') ?? '',
+  );
   readonly sort = signal<LoopCatalogSort>('newest');
   readonly viewMode = signal<CatalogViewMode>('grid');
   readonly page = signal(1);

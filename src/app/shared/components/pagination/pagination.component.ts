@@ -11,9 +11,10 @@ import { Component, computed, input, output } from '@angular/core';
       [class.hidden]="totalPages() <= 1 && !showPerPage()"
       [class.waveyard]="variant() === 'waveyard'"
       [class.studio]="variant() === 'studio'"
+      [class.admin]="variant() === 'admin'"
     >
       <div class="pagination-info">
-        @if (variant() === 'studio') {
+        @if (variant() === 'studio' || variant() === 'admin') {
           Showing <strong>{{ startItem() }}-{{ endItem() }}</strong> of
           <strong>{{ total() }}</strong>
         } @else {
@@ -29,7 +30,7 @@ import { Component, computed, input, output } from '@angular/core';
           (click)="onPageChange(currentPage() - 1)"
           aria-label="Previous page"
         >
-          @if (variant() === 'studio') {
+          @if (variant() === 'studio' || variant() === 'admin') {
             Prev
           } @else {
             <i class="fas fa-chevron-left"></i>
@@ -58,7 +59,7 @@ import { Component, computed, input, output } from '@angular/core';
           (click)="onPageChange(currentPage() + 1)"
           aria-label="Next page"
         >
-          @if (variant() === 'studio') {
+          @if (variant() === 'studio' || variant() === 'admin') {
             Next
           } @else {
             <i class="fas fa-chevron-right"></i>
@@ -331,6 +332,95 @@ import { Component, computed, input, output } from '@angular/core';
         outline: none;
       }
 
+      .pagination-container.admin {
+        margin: 0;
+        padding: 12px 16px;
+        gap: 12px 20px;
+        flex-direction: row;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        border-top: 1px solid var(--line, rgba(240, 233, 214, 0.1));
+      }
+
+      .pagination-container.admin .pagination-info {
+        font-size: 13px;
+        color: var(--text-muted, #707889);
+        opacity: 1;
+      }
+
+      .pagination-container.admin .pagination-info strong {
+        color: var(--text, #e9ecf3);
+        font-weight: 500;
+      }
+
+      .pagination-container.admin .pagination-controls,
+      .pagination-container.admin .pages {
+        gap: 4px;
+      }
+
+      .pagination-container.admin .pager-btn,
+      .pagination-container.admin .page-btn {
+        height: 32px;
+        min-width: 32px;
+        padding: 0 10px;
+        border-radius: 8px;
+        border: 1px solid var(--line, rgba(240, 233, 214, 0.1));
+        background: transparent;
+        color: var(--text-2, #aab1c0);
+        font-family: inherit;
+        font-size: 13px;
+        font-weight: 500;
+        opacity: 1;
+        transition:
+          background 0.15s ease,
+          border-color 0.15s ease,
+          color 0.15s ease;
+      }
+
+      .pagination-container.admin .pager-btn:hover:not(:disabled),
+      .pagination-container.admin .page-btn:hover:not(:disabled) {
+        background: var(--surface-3, #1b202b);
+        border-color: var(--line-strong, rgba(240, 233, 214, 0.2));
+        color: var(--text, #e9ecf3);
+      }
+
+      .pagination-container.admin .page-btn.active {
+        background: var(--accent-soft, #1b202b);
+        border-color: color-mix(in srgb, var(--accent, #7c8cff) 40%, transparent);
+        color: var(--accent, #e9ecf3);
+        box-shadow: none;
+      }
+
+      .pagination-container.admin .pager-btn:disabled {
+        opacity: 0.4;
+      }
+
+      .pagination-container.admin .ellipsis {
+        color: var(--text-muted, #707889);
+      }
+
+      .pagination-container.admin .pagination-perpage {
+        font-size: 13px;
+        color: var(--text-muted, #707889);
+      }
+
+      .pagination-container.admin .pagination-perpage select {
+        height: 32px;
+        padding: 0 8px;
+        border: 1px solid var(--line, rgba(240, 233, 214, 0.1));
+        border-radius: 8px;
+        background: var(--surface-2, #151922);
+        color: var(--text, #e9ecf3);
+        font: inherit;
+        font-size: 13px;
+      }
+
+      @media (max-width: 640px) {
+        .pagination-container.admin {
+          justify-content: center;
+        }
+      }
+
       @media (max-width: 760px) {
         .pagination-container.studio .pagination-controls {
           justify-content: center;
@@ -351,7 +441,7 @@ export class PaginationComponent {
   currentPage = input.required<number>();
   total = input.required<number>();
   perPage = input.required<number>();
-  variant = input<'default' | 'waveyard' | 'studio'>('default');
+  variant = input<'default' | 'waveyard' | 'studio' | 'admin'>('default');
   showPerPage = input(false);
   perPageOptions = input<number[]>([8, 16, 32, 50]);
 

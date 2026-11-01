@@ -1,75 +1,149 @@
 import '../../../test-setup';
 import { type ComponentFixture, TestBed } from '@angular/core/testing';
-import { provideRouter } from '@angular/router';
-import { of } from 'rxjs';
+import { Router, provideRouter } from '@angular/router';
 
-import { LabService } from '../../services';
 import { HeroComponent } from './hero';
 
 describe('HeroComponent', () => {
-  let component: HeroComponent;
   let fixture: ComponentFixture<HeroComponent>;
-  const getSpecs = vi.fn();
+  let component: HeroComponent;
+  let el: HTMLElement;
+  let navigate: ReturnType<typeof vi.spyOn>;
+
+  const options = () => Array.from(el.querySelectorAll<HTMLElement>('.scope-option'));
+  const openMenu = () => {
+    el.querySelector<HTMLButtonElement>('.scope-trigger')?.click();
+    fixture.detectChanges();
+  };
+  const type = (value: string) => {
+    const input = el.querySelector<HTMLInputElement>('.search-input')!;
+    input.value = value;
+    input.dispatchEvent(new Event('input'));
+    fixture.detectChanges();
+  };
 
   beforeEach(async () => {
-    vi.spyOn(window, 'requestAnimationFrame').mockImplementation(() => 0);
-    vi.spyOn(window, 'cancelAnimationFrame').mockImplementation(() => undefined);
-    getSpecs.mockReturnValue(
-      of([
-        {
-          id: 'beat-1',
-          producerId: 'producer-1',
-          producerName: 'Kita Sol',
-          type: 'Instrumental',
-          category: 'beat',
-          imageUrl: '/assets/beat.jpg',
-          title: 'Violet Hour',
-          bpm: 92,
-          key: 'Em',
-          tags: [],
-          price: 29,
-          genres: [{ id: 'g1', name: 'R&B', slug: 'rnb' }],
-          licenses: [],
-          processingStatus: 'completed',
-        },
-      ]),
-    );
-
     await TestBed.configureTestingModule({
       imports: [HeroComponent],
-      providers: [provideRouter([]), { provide: LabService, useValue: { getSpecs } }],
+      providers: [provideRouter([])],
     }).compileComponents();
 
+    navigate = vi.spyOn(TestBed.inject(Router), 'navigate').mockResolvedValue(true);
     fixture = TestBed.createComponent(HeroComponent);
     component = fixture.componentInstance;
+    el = fixture.nativeElement;
     fixture.detectChanges();
   });
 
-  afterEach(() => {
-    vi.restoreAllMocks();
-    getSpecs.mockReset();
+  it('renders the headline over the nebula', () => {
+    expect(el.querySelector('app-halftone-nebula')).toBeTruthy();
+    expect(el.querySelector('h1')?.textContent).toContain('brought into focus');
   });
 
-  it('should create', () => {
-    expect(component).toBeTruthy();
+  it('starts on beats with a matching placeholder', () => {
+    expect(el.querySelector('.scope-label')?.textContent?.trim()).toBe('Beats');
+    expect(el.querySelector<HTMLInputElement>('.search-input')?.placeholder).toContain('beats');
   });
 
-  it('loads beat cards from specs api', () => {
-    expect(getSpecs).toHaveBeenCalledWith({
-      category: 'beat',
-      page: 1,
-      per_page: 7,
-      sort: 'newest',
+  it('has no submit button; Enter in the lone input submits the form', () => {
+    expect(el.querySelector('button[type="submit"]')).toBeNull();
+    expect(el.querySelectorAll('form input:not([type="hidden"])')).toHaveLength(1);
+    expect(el.querySelector('.search-input')?.getAttribute('enterkeyhint')).toBe('search');
+  });
+
+  it('lists beats, sample packs and loops in the dropdown', () => {
+    expect(options()).toHaveLength(0);
+    openMenu();
+    expect(options().map((o) => o.textContent?.trim())).toEqual(['Beats', 'Sample packs', 'Loops']);
+    expect(options()[0].getAttribute('aria-selected')).toBe('true');
+  });
+
+  it('switching the option updates the label and placeholder and closes the menu', () => {
+    openMenu();
+    options()[2].click();
+    fixture.detectChanges();
+    expect(el.querySelector('.scope-label')?.textContent?.trim()).toBe('Loops');
+    expect(el.querySelector<HTMLInputElement>('.search-input')?.placeholder).toContain('loops');
+    expect(options()).toHaveLength(0);
+  });
+
+  it('searches the page that matches the chosen option', () => {
+    type('lofi');
+    el.querySelector('form')!.dispatchEvent(new Event('submit'));
+    expect(navigate).toHaveBeenLastCalledWith(['/explore'], { queryParams: { search: 'lofi' } });
+
+    openMenu();
+    options()[1].click();
+    fixture.detectChanges();
+    el.querySelector('form')!.dispatchEvent(new Event('submit'));
+    expect(navigate).toHaveBeenLastCalledWith(['/sample-packs'], {
+      queryParams: { search: 'lofi' },
     });
-    expect(component.beatCards()[0]).toMatchObject({
-      id: 'beat-1',
-      title: 'Violet Hour',
-      producer: 'Kita Sol',
-      producerHandle: '@kitasol',
-      genre: 'R&B',
-      meta: '92 BPM / Em',
-      price: '₹29',
-      imageUrl: '/assets/beat.jpg',
-    });
+
+    openMenu();
+    options()[2].click();
+    type('  ');
+    el.querySelector('form')!.dispatchEvent(new Event('submit'));
+    expect(navigate).toHaveBeenLastCalledWith(['/loops'], { queryParams: {} });
+  });
+
+  it('offers the same three scopes as a segmented control for phones', () => {
+    const segments = Array.from(el.querySelectorAll<HTMLElement>('.segment'));
+    expect(segments.map((s) => s.textContent?.trim())).toEqual(['Beats', 'Sample packs', 'Loops']);
+    expect(segments[0].getAttribute('aria-checked')).toBe('true');
+
+    segments[2].click();
+    fixture.detectChanges();
+    expect(component.scope().id).toBe('loops');
+    expect(el.querySelector<HTMLInputElement>('.search-input')?.placeholder).toContain('loops');
+    expect(segments[2].getAttribute('aria-checked')).toBe('true');
+    expect(segments[0].getAttribute('aria-checked')).toBe('false');
+  });
+
+  it('moves the segmented control with the arrow keys and wraps around', () => {
+    const press = (key: string) =>
+      el
+        .querySelector('.segment')!
+        .dispatchEvent(new KeyboardEvent('keydown', { key, cancelable: true }));
+    press('ArrowLeft');
+    expect(component.scope().id).toBe('loops');
+    press('ArrowRight');
+    expect(component.scope().id).toBe('beats');
+  });
+
+  it('shows a clear button only while there is text, and clears it', () => {
+    expect(el.querySelector('.search-clear')).toBeNull();
+    type('trap');
+    const clear = el.querySelector<HTMLButtonElement>('.search-clear');
+    expect(clear).toBeTruthy();
+    clear!.click();
+    fixture.detectChanges();
+    expect(component.query()).toBe('');
+    expect(el.querySelector('.search-clear')).toBeNull();
+    expect(el.querySelector<HTMLInputElement>('.search-input')?.value).toBe('');
+  });
+
+  it('works from the keyboard', () => {
+    const trigger = el.querySelector<HTMLButtonElement>('.scope-trigger')!;
+    const key = (k: string) => {
+      trigger.dispatchEvent(new KeyboardEvent('keydown', { key: k, cancelable: true }));
+      fixture.detectChanges();
+    };
+    key('ArrowDown');
+    expect(component.open()).toBe(true);
+    key('ArrowDown');
+    key('Enter');
+    expect(component.scope().id).toBe('sample-packs');
+    expect(component.open()).toBe(false);
+    key('ArrowDown');
+    key('Escape');
+    expect(component.open()).toBe(false);
+  });
+
+  it('closes when clicking elsewhere', () => {
+    openMenu();
+    document.body.click();
+    fixture.detectChanges();
+    expect(component.open()).toBe(false);
   });
 });
