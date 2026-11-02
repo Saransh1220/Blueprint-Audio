@@ -54,9 +54,14 @@ describe('HeaderComponent behavior', () => {
     component.onDocumentClick({ target: document.createElement('div') } as any);
     expect(component.isNotificationsOpen).toBe(false);
 
-    component.isUserMenuOpen = true;
-    component.userMenuWrap = { nativeElement: { contains: () => false } } as any;
-    component.onDocumentClick({ target: document.createElement('div') } as any);
+    // The account menu reports its own opening and closing; opening it puts the others away.
+    component.isNotificationsOpen = true;
+    component.isMobileMenuOpen = true;
+    component.setUserMenuOpen(true);
+    expect(component.isUserMenuOpen).toBe(true);
+    expect(component.isNotificationsOpen).toBe(false);
+    expect(component.isMobileMenuOpen).toBe(false);
+    component.setUserMenuOpen(false);
     expect(component.isUserMenuOpen).toBe(false);
 
     component.closeStudioMenu();

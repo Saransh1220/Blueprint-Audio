@@ -27,11 +27,8 @@ describe('ThemeService', () => {
     expect(service).toBeTruthy();
   });
 
-  it('initializes from localStorage values when available', () => {
-    getItemSpy.mockImplementation((key: string) => {
-      if (key === 'theme-mode') return 'dark';
-      return null;
-    });
+  it('starts dark even when light was saved earlier', () => {
+    getItemSpy.mockImplementation((key: string) => (key === 'theme-mode' ? 'light' : null));
 
     service = TestBed.inject(ThemeService);
     expect(service.currentMode()).toBe('dark');

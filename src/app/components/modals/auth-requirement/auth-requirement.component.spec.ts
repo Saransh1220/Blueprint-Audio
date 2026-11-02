@@ -28,19 +28,26 @@ describe('AuthRequirementComponent', () => {
 
   it('navigates to login and closes modal', () => {
     component.navigateToLogin();
-    expect(navigate).toHaveBeenCalledWith(['/auth/login']);
+    expect(navigate).toHaveBeenCalledWith(['/login']);
     expect(close).toHaveBeenCalled();
   });
 
-  it('wires buttons to register and login actions', () => {
+  it('wires the buttons to register and login, and avoids the global .btn class', () => {
     const buttons = fixture.nativeElement.querySelectorAll('button');
-
-    (buttons[1] as HTMLButtonElement).click();
-    expect(navigate).toHaveBeenCalledWith(['/auth/register']);
-    expect(close).toHaveBeenCalledTimes(1);
+    expect(fixture.nativeElement.querySelector('.btn')).toBeNull();
 
     (buttons[0] as HTMLButtonElement).click();
-    expect(navigate).toHaveBeenCalledWith(['/auth/login']);
+    expect(navigate).toHaveBeenCalledWith(['/register']);
+    expect(close).toHaveBeenCalledTimes(1);
+
+    (buttons[1] as HTMLButtonElement).click();
+    expect(navigate).toHaveBeenCalledWith(['/login']);
     expect(close).toHaveBeenCalledTimes(2);
+  });
+
+  it('lets people dismiss it and keep browsing', () => {
+    component.dismiss();
+    expect(close).toHaveBeenCalledTimes(1);
+    expect(navigate).not.toHaveBeenCalled();
   });
 });

@@ -1,13 +1,16 @@
-import { CommonModule } from '@angular/common';
-import { Component, computed, inject } from '@angular/core';
+import { DOCUMENT } from '@angular/common';
+import { Component, computed, DestroyRef, inject } from '@angular/core';
+import { RouterLink } from '@angular/router';
 import type { AppCurrency, Money } from '../../models/money';
 import { CartService } from '../../services';
-import { MoneyPipe } from '../../shared/pipes/money.pipe';
+import { CartEmptyComponent } from './cart-empty/cart-empty.component';
+import { CartItemComponent } from './cart-item/cart-item.component';
+import { CartSummaryComponent } from './cart-summary/cart-summary.component';
 
 @Component({
   selector: 'app-cart',
   standalone: true,
-  imports: [CommonModule, MoneyPipe],
+  imports: [RouterLink, CartItemComponent, CartSummaryComponent, CartEmptyComponent],
   templateUrl: './cart.component.html',
   styleUrls: ['./cart.component.scss'],
 })
@@ -44,6 +47,11 @@ export class CartComponent {
 
   constructor() {
     this.items = this.cartService.items;
+
+    // A calm page: no film grain over the cart.
+    const body = inject(DOCUMENT).body;
+    body.classList.add('cart-page-active');
+    inject(DestroyRef).onDestroy(() => body.classList.remove('cart-page-active'));
   }
 
   get total() {

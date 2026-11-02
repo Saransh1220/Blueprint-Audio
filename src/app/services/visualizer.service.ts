@@ -912,14 +912,24 @@ export class VisualizerService {
         for (let i = 1; i < points.length; i++) {
           const prev = points[i - 1];
           const p = points[i];
-          ctx.quadraticCurveTo(prev.x, centerY - prev.h, (prev.x + p.x) / 2, centerY - (prev.h + p.h) / 2);
+          ctx.quadraticCurveTo(
+            prev.x,
+            centerY - prev.h,
+            (prev.x + p.x) / 2,
+            centerY - (prev.h + p.h) / 2,
+          );
         }
         const tail = points[points.length - 1];
         ctx.lineTo(tail.x, centerY + tail.h);
         for (let i = points.length - 2; i >= 0; i--) {
           const next = points[i + 1];
           const p = points[i];
-          ctx.quadraticCurveTo(next.x, centerY + next.h, (next.x + p.x) / 2, centerY + (next.h + p.h) / 2);
+          ctx.quadraticCurveTo(
+            next.x,
+            centerY + next.h,
+            (next.x + p.x) / 2,
+            centerY + (next.h + p.h) / 2,
+          );
         }
         ctx.closePath();
         ctx.fillStyle = gradient;
@@ -948,7 +958,14 @@ export class VisualizerService {
           ctx.shadowColor = playedColor;
           ctx.shadowBlur = glowBlur * (1 - (playheadX - x) / (width * 0.3));
         }
-        this.roundRect(ctx, x - barWidth / 2, centerY - barHeight / 2, barWidth, barHeight, barWidth / 2);
+        this.roundRect(
+          ctx,
+          x - barWidth / 2,
+          centerY - barHeight / 2,
+          barWidth,
+          barHeight,
+          barWidth / 2,
+        );
         ctx.restore();
       }
     }

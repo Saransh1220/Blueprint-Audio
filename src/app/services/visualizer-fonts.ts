@@ -33,7 +33,13 @@ export const VISUALIZER_FONTS: VisualizerFont[] = [
   font('Syne', 'Display', [400, 700, 800], false, ':wght@400;700;800'),
   font('Space Grotesk', 'Display', [400, 700], false, ':wght@400;700'),
   font('Righteous', 'Display'),
-  font('Playfair Display', 'Serif', [400, 700, 900], true, ':ital,wght@0,400;0,700;0,900;1,400;1,700'),
+  font(
+    'Playfair Display',
+    'Serif',
+    [400, 700, 900],
+    true,
+    ':ital,wght@0,400;0,700;0,900;1,400;1,700',
+  ),
   font('DM Serif Display', 'Serif', [400], true, ':ital@0;1'),
   font('Cormorant Garamond', 'Serif', [400, 700], true, ':ital,wght@0,400;0,700;1,400;1,700'),
   font('Bodoni Moda', 'Serif', [400, 700], true, ':ital,wght@0,400;0,700;1,400;1,700'),
@@ -66,7 +72,9 @@ export function findVisualizerFont(family: string): VisualizerFont | undefined {
 
 export function nearestFontWeight(font: VisualizerFont | undefined, weight: number): number {
   if (!font) return weight;
-  return font.weights.reduce((best, w) => (Math.abs(w - weight) < Math.abs(best - weight) ? w : best));
+  return font.weights.reduce((best, w) =>
+    Math.abs(w - weight) < Math.abs(best - weight) ? w : best,
+  );
 }
 
 const requested = new Set<string>();

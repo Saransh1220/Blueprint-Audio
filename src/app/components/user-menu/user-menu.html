@@ -1,0 +1,53 @@
+<div class="user-menu-wrap">
+  <button
+    #trigger
+    type="button"
+    class="trigger user-btn"
+    [class.active]="open()"
+    aria-haspopup="menu"
+    aria-label="Account menu"
+    [attr.aria-expanded]="open()"
+    (click)="toggle()"
+  >
+    <span class="avatar" [style.background-image]="avatarImage()">
+      @if (!avatarImage()) {
+        {{ initial() }}
+      }
+    </span>
+  </button>
+
+  @if (open()) {
+    <div class="panel" role="menu" aria-label="Account">
+      <header class="who">
+        <span class="avatar large" [style.background-image]="avatarImage()">
+          @if (!avatarImage()) {
+            {{ initial() }}
+          }
+        </span>
+        <span class="who-text">
+          <strong class="name">{{ displayName() }}</strong>
+          <span class="handle">&#64;{{ user()?.name }}</span>
+        </span>
+        <span class="role" [class.producer]="isProducer()">
+          {{ isProducer() ? 'Producer' : 'Listener' }}
+        </span>
+      </header>
+
+      <nav class="links">
+        @for (link of links(); track link.route) {
+          <a class="row" role="menuitem" [routerLink]="link.route" (click)="close()">
+            <i class="fas" [class]="link.icon" aria-hidden="true"></i>
+            {{ link.label }}
+          </a>
+        }
+      </nav>
+
+      <footer class="foot">
+        <button type="button" class="logout" role="menuitem" (click)="logout()">
+          Log out
+          <i class="fas fa-arrow-right-from-bracket" aria-hidden="true"></i>
+        </button>
+      </footer>
+    </div>
+  }
+</div>

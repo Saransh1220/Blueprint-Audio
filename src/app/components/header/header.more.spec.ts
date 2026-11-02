@@ -130,10 +130,11 @@ describe('HeaderComponent (more)', () => {
     render();
     expect(component.isNotificationsOpen).toBe(false);
     expect(component.isUserMenuOpen).toBe(true);
-    const userWrap = el().querySelector('.user-menu-wrap') as HTMLElement;
-    component.onDocumentClick({ target: userWrap } as any);
+    const menuPanel = el().querySelector('app-user-menu .panel') as HTMLElement;
+    menuPanel.dispatchEvent(new Event('pointerdown', { bubbles: true }));
+    render();
     expect(component.isUserMenuOpen).toBe(true);
-    document.body.click();
+    document.body.dispatchEvent(new Event('pointerdown', { bubbles: true }));
     render();
     expect(component.isUserMenuOpen).toBe(false);
   });
@@ -141,20 +142,81 @@ describe('HeaderComponent (more)', () => {
   it('builds notification items from live notifications', () => {
     const now = Date.now();
     notifications.set([
-      { id: 'a', type: 'processing_failed', title: 'Failed', message: 'boom', is_read: false, created_at: new Date(now - 30_000) },
-      { id: 'b', type: 'success', title: '', message: 'ok', is_read: true, created_at: new Date(now - 5 * 60_000) },
-      { id: 'c', type: 'processing_complete', title: 'Done', message: 'x', is_read: false, created_at: new Date(now - 3 * 3600_000) },
-      { id: 'd', type: 'error', title: 'Err', message: 'x', is_read: false, created_at: new Date(now - 50 * 3600_000) },
-      { id: 'e', type: 'info', title: 'Info', message: 'x', is_read: false, created_at: new Date(now + 100000) },
-      { id: 'f', type: 'info', title: 'Bad', message: 'x', is_read: false, created_at: 'not a date' },
+      {
+        id: 'a',
+        type: 'processing_failed',
+        title: 'Failed',
+        message: 'boom',
+        is_read: false,
+        created_at: new Date(now - 30_000),
+      },
+      {
+        id: 'b',
+        type: 'success',
+        title: '',
+        message: 'ok',
+        is_read: true,
+        created_at: new Date(now - 5 * 60_000),
+      },
+      {
+        id: 'c',
+        type: 'processing_complete',
+        title: 'Done',
+        message: 'x',
+        is_read: false,
+        created_at: new Date(now - 3 * 3600_000),
+      },
+      {
+        id: 'd',
+        type: 'error',
+        title: 'Err',
+        message: 'x',
+        is_read: false,
+        created_at: new Date(now - 50 * 3600_000),
+      },
+      {
+        id: 'e',
+        type: 'info',
+        title: 'Info',
+        message: 'x',
+        is_read: false,
+        created_at: new Date(now + 100000),
+      },
+      {
+        id: 'f',
+        type: 'info',
+        title: 'Bad',
+        message: 'x',
+        is_read: false,
+        created_at: 'not a date',
+      },
     ]);
     const items = component.notificationItems();
     const byId = (id: string) => items.find((i) => i.id === id)!;
-    expect(byId('a')).toMatchObject({ kind: 'system', avatar: '!', avatarClass: 'c-hot', time: 'now', unread: true, live: true });
-    expect(byId('b')).toMatchObject({ kind: 'system', avatar: 'ok', avatarClass: 'c-lime', text: 'Notification', time: '5m', unread: false });
+    expect(byId('a')).toMatchObject({
+      kind: 'system',
+      avatar: '!',
+      avatarClass: 'c-hot',
+      time: 'now',
+      unread: true,
+      live: true,
+    });
+    expect(byId('b')).toMatchObject({
+      kind: 'system',
+      avatar: 'ok',
+      avatarClass: 'c-lime',
+      text: 'Notification',
+      time: '5m',
+      unread: false,
+    });
     expect(byId('c')).toMatchObject({ time: '3h' });
     expect(byId('d')).toMatchObject({ kind: 'system', avatar: '!', time: '2d' });
-    expect(byId('e')).toMatchObject({ kind: 'message', avatar: 'i', avatarClass: 'c-cobalt', time: 'now' });
+    expect(byId('e')).toMatchObject({
+      kind: 'message',
+      avatar: 'i',
+      avatarClass: 'c-cobalt',
+      time: 'now',
+    });
     expect(byId('f').time).toBe('now');
     expect(items.length).toBe(6 + 7);
   });
@@ -215,7 +277,13 @@ describe('HeaderComponent (more)', () => {
   });
 
   it('renders producer UI: studio menu, upload, notifications and user menu', () => {
-    currentUser.set({ id: 'u', name: 'bob', role: Role.PRODUCER, avatar_url: 'a.png', display_name: 'Bobby' });
+    currentUser.set({
+      id: 'u',
+      name: 'bob',
+      role: Role.PRODUCER,
+      avatar_url: 'a.png',
+      display_name: 'Bobby',
+    });
     isSuperAdmin.set(true);
     render();
     expect(el().querySelector('.upload-btn-cta')).toBeTruthy();
@@ -224,11 +292,13 @@ describe('HeaderComponent (more)', () => {
     expect(el().textContent).toContain('Pro · @bob');
 
     // studio menu dismiss / reset
-    const link = el().querySelector('.studio-nav-wrap a.sm-item') as HTMLElement;
+    const link = el().querySelector('.studio-nav-wrap app-nav-menu a.item') as HTMLElement;
     link.click();
     render();
     expect(component.isStudioMenuDismissed).toBe(true);
-    expect(el().querySelector('.studio-nav-wrap')!.classList.contains('studio-menu-dismissed')).toBe(true);
+    expect(
+      el().querySelector('.studio-nav-wrap')!.classList.contains('studio-menu-dismissed'),
+    ).toBe(true);
     el().querySelector('.studio-nav-wrap')!.dispatchEvent(new Event('mouseenter'));
     expect(component.isStudioMenuDismissed).toBe(false);
 
@@ -256,12 +326,12 @@ describe('HeaderComponent (more)', () => {
     // user menu
     (el().querySelector('.user-btn') as HTMLElement).click();
     render();
-    const menu = el().querySelector('.user-menu-neo') as HTMLElement;
+    const menu = el().querySelector('app-user-menu .panel') as HTMLElement;
     expect(menu.textContent).toContain('Bobby');
-    expect(menu.textContent).toContain('PRODUCER');
-    expect(menu.textContent).toContain('Upload Beat');
-    expect(menu.textContent).toContain('Admin Console');
-    (menu.querySelector('.notif-foot > button') as HTMLElement).click();
+    expect(menu.textContent).toContain('Producer');
+    expect(menu.textContent).toContain('Upload a beat');
+    expect(menu.textContent).toContain('Admin console');
+    (menu.querySelector('.foot .logout') as HTMLElement).click();
     expect(auth.logout).toHaveBeenCalled();
     expect(component.isUserMenuOpen).toBe(false);
   });
@@ -270,18 +340,18 @@ describe('HeaderComponent (more)', () => {
     currentUser.set({ id: 'u', name: 'zed', role: Role.ARTIST });
     render();
     expect(el().querySelector('.upload-btn-cta')).toBeNull();
-    expect(el().querySelector('.user-avatar-fallback')?.textContent?.trim()).toBe('z');
+    expect(el().querySelector('app-user-menu .trigger .avatar')?.textContent?.trim()).toBe('z');
     (el().querySelector('.user-btn') as HTMLElement).click();
     render();
-    const menu = el().querySelector('.user-menu-neo') as HTMLElement;
-    expect(menu.textContent).toContain('LISTENER');
+    const menu = el().querySelector('app-user-menu .panel') as HTMLElement;
+    expect(menu.textContent).toContain('Listener');
     expect(menu.textContent).toContain('zed');
-    expect(menu.textContent).not.toContain('Upload Beat');
+    expect(menu.textContent).not.toContain('Upload a beat');
 
     currentUser.set({ id: 'u', role: Role.ARTIST });
     render();
-    expect(el().querySelector('.user-avatar-fallback')?.textContent?.trim()).toBe('U');
-    expect(el().querySelector('.user-name')?.textContent?.trim()).toBe('User');
+    expect(el().querySelector('app-user-menu .trigger .avatar')?.textContent?.trim()).toBe('U');
+    expect(el().querySelector('app-user-menu .name')?.textContent?.trim()).toBe('User');
 
     // mobile logout
     (el().querySelector('.mobile-logout-btn') as HTMLElement).click();
@@ -294,7 +364,8 @@ describe('HeaderComponent (more)', () => {
     render();
     const toggle = el().querySelector('.studio-menu-toggle') as HTMLElement;
     expect(toggle).toBeTruthy();
-    expect(el().querySelector('.user-menu-wrap')).toBeNull();
+    // The account menu is there in the studio too.
+    expect(el().querySelector('app-user-menu .user-btn')).toBeTruthy();
     expect(el().querySelector('.hamburger-btn')).toBeNull();
     toggle.click();
     expect(shell.toggleMobileNav).toHaveBeenCalled();

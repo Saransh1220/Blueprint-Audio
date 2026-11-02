@@ -915,9 +915,11 @@ em {
 .faq-a-inner {
   min-height: 0;
   overflow: hidden;
-  padding: 0 2px 18px;
+  padding: 0 2px;
   transform: translateY(-4px);
-  transition: transform 0.24s cubic-bezier(0.22, 1, 0.36, 1);
+  transition:
+    transform 0.24s cubic-bezier(0.22, 1, 0.36, 1),
+    padding 0.24s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .faq-item.open .faq-a {
@@ -926,7 +928,25 @@ em {
 }
 
 .faq-item.open .faq-a-inner {
+  padding-bottom: 18px;
   transform: translateY(0);
+}
+
+// The FAQ is one centred column, so it lines up with nothing else on the page by accident.
+#faq {
+  .section-inner {
+    max-width: 720px;
+  }
+
+  .section-head {
+    justify-content: center;
+    text-align: center;
+  }
+
+  .faq-list {
+    max-width: none;
+    margin: 0 auto;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

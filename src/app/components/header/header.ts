@@ -14,7 +14,9 @@ import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { Role } from '../../models';
 import { StudioShellService } from '../../pages/studio/studio-shell.service';
 import { AuthService, AuthzService, CartService, NotificationService } from '../../services';
-import { ThemeToggleComponent } from '../theme-toggle/theme-toggle';
+import { NavMenuComponent } from '../nav-menu/nav-menu';
+import { BROWSE_ITEMS, menuItemsFor, STUDIO_ITEMS } from '../nav-menu/nav-menu.items';
+import { UserMenuComponent } from '../user-menu/user-menu';
 
 type NotificationKind =
   | 'all'
@@ -46,7 +48,14 @@ interface HeaderNotificationItem {
 @Component({
   selector: 'app-header',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, RouterLinkActive, ThemeToggleComponent],
+  imports: [
+    CommonModule,
+    FormsModule,
+    RouterLink,
+    RouterLinkActive,
+    NavMenuComponent,
+    UserMenuComponent,
+  ],
   templateUrl: './header.html',
   styleUrls: ['./header.scss'],
 })
@@ -63,11 +72,17 @@ export class HeaderComponent {
   // Expose Role enum to template
   readonly Role = Role;
 
+  // The Browse and Studio panels list what the signed-in person can reach.
+  private readonly isProducer = computed(
+    () => this.authService.currentUser()?.role === Role.PRODUCER,
+  );
+  readonly browseItems = computed(() => menuItemsFor(BROWSE_ITEMS, this.isProducer()));
+  readonly studioItems = computed(() => menuItemsFor(STUDIO_ITEMS, this.isProducer()));
+
   // Notifications
   isNotificationsOpen = false;
   isStudioMenuDismissed = false;
   @ViewChild('notificationWrap') notificationWrap?: ElementRef<HTMLElement>;
-  @ViewChild('userMenuWrap') userMenuWrap?: ElementRef<HTMLElement>;
   notifications = this.notificationService.notifications;
   unreadCount = this.notificationService.unreadCount;
   notificationFilter = signal<NotificationKind>('all');
@@ -238,9 +253,6 @@ export class HeaderComponent {
     if (this.isNotificationsOpen && !this.notificationWrap?.nativeElement.contains(target)) {
       this.closeNotifications();
     }
-    if (this.isUserMenuOpen && !this.userMenuWrap?.nativeElement.contains(target)) {
-      this.closeUserMenu();
-    }
   }
 
   resetStudioMenuDismissal() {
@@ -323,5 +335,14 @@ export class HeaderComponent {
 
   closeUserMenu() {
     this.isUserMenuOpen = false;
+  }
+
+  /** The account menu opened or closed itself; opening it puts the other popups away. */
+  setUserMenuOpen(open: boolean) {
+    this.isUserMenuOpen = open;
+    if (open) {
+      this.closeNotifications();
+      this.closeMobileMenu();
+    }
   }
 }

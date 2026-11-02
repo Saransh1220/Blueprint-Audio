@@ -9,16 +9,26 @@ import { ModalService } from '../../../services/modal.service';
   styleUrl: './auth-requirement.component.scss',
 })
 export class AuthRequirementComponent {
+  readonly perks = [
+    { icon: 'fa-heart', label: 'Save beats you like' },
+    { icon: 'fa-cart-shopping', label: 'Keep your cart' },
+    { icon: 'fa-clock-rotate-left', label: 'Pick up where you left off' },
+  ];
+
   private router = inject(Router);
   private modalService = inject(ModalService);
 
   navigateToLogin() {
-    this.router.navigate(['/auth/login']);
+    this.router.navigate(['/login']);
     this.modalService.close();
   }
 
   navigateToRegister() {
-    this.router.navigate(['/auth/register']);
+    this.router.navigate(['/register']);
+    this.modalService.close();
+  }
+
+  dismiss() {
     this.modalService.close();
   }
 }

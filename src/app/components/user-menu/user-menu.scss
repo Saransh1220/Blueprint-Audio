@@ -1,0 +1,205 @@
+// The account menu: a flat panel with a hard outline and one small offset shadow, solid colours.
+:host {
+  display: inline-block;
+}
+
+.user-menu-wrap {
+  position: relative;
+}
+
+.trigger {
+  display: inline-flex;
+  width: 38px;
+  height: 38px;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: 1.5px solid var(--text-color);
+  border-radius: 50%;
+  background: transparent;
+  color: var(--text-color);
+  cursor: pointer;
+  transition:
+    background 0.15s ease,
+    color 0.15s ease;
+
+  &:hover,
+  &.active {
+    background: var(--text-color);
+    color: var(--bg-color);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--hot);
+    outline-offset: 3px;
+  }
+}
+
+.avatar {
+  display: inline-flex;
+  width: 28px;
+  height: 28px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background-position: center;
+  background-size: cover;
+  font-family: 'Bricolage Grotesque', sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  text-transform: uppercase;
+
+  &.large {
+    width: 44px;
+    height: 44px;
+    flex: none;
+    background-color: var(--hot);
+    color: #fff;
+    font-size: 18px;
+  }
+}
+
+.panel {
+  position: absolute;
+  top: calc(100% + 12px);
+  right: 0;
+  z-index: 1004;
+  width: min(300px, calc(100vw - 24px));
+  border: 1.5px solid var(--text-color);
+  border-radius: 14px;
+  background: var(--card-bg-color);
+  box-shadow: 4px 4px 0 var(--hot);
+  color: var(--text-color);
+  animation: panel-in 0.14s ease-out;
+}
+
+@keyframes panel-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+}
+
+.who {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  border-bottom: 1px solid color-mix(in srgb, var(--text-color) 16%, transparent);
+}
+
+.who-text {
+  display: flex;
+  min-width: 0;
+  flex: 1;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.name {
+  overflow: hidden;
+  font-family: 'Bricolage Grotesque', sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.handle {
+  overflow: hidden;
+  color: var(--ink-mute);
+  font-size: 13px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.role {
+  flex: none;
+  padding: 3px 8px;
+  border: 1px solid color-mix(in srgb, var(--text-color) 30%, transparent);
+  border-radius: 6px;
+  color: var(--ink-mute);
+  font-family: 'DM Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+
+  &.producer {
+    border-color: var(--hot);
+    color: var(--hot);
+  }
+}
+
+.links {
+  display: flex;
+  flex-direction: column;
+  padding: 8px;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px;
+  border-radius: 8px;
+  color: inherit;
+  font-family: 'Bricolage Grotesque', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: background 0.15s ease;
+
+  i {
+    width: 16px;
+    color: var(--ink-mute);
+    font-size: 13px;
+    text-align: center;
+  }
+
+  &:hover,
+  &:focus-visible {
+    background: color-mix(in srgb, var(--text-color) 8%, transparent);
+    outline: none;
+
+    i {
+      color: var(--hot);
+    }
+  }
+}
+
+.foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 16px;
+  border-top: 1px solid color-mix(in srgb, var(--text-color) 16%, transparent);
+}
+
+.logout {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 0;
+  border: 0;
+  border-bottom: 1px solid transparent;
+  background: transparent;
+  color: #ef4444;
+  font-family: 'Bricolage Grotesque', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+
+  &:hover,
+  &:focus-visible {
+    border-color: #ef4444;
+    outline: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .panel {
+    animation: none;
+  }
+}

@@ -166,7 +166,11 @@ describe('VisualizerService (extra)', () => {
     expect(ctx.createLinearGradient).toHaveBeenCalled();
     expect(ctx.fillText).toHaveBeenCalledWith('Hi', 270, 960 * 0.18, 540 * 0.78);
     vi.mocked(ctx.createLinearGradient).mockClear();
-    service.renderFrame(canvas, service.createDefaultSettings('waveform', { grainAmount: 0 }), frame);
+    service.renderFrame(
+      canvas,
+      service.createDefaultSettings('waveform', { grainAmount: 0 }),
+      frame,
+    );
     expect(ctx.createLinearGradient).not.toHaveBeenCalled();
   });
 
@@ -206,7 +210,9 @@ describe('VisualizerService (extra)', () => {
   it('caches a failed WebGL probe and uses the 2d fallback', () => {
     const service = new VisualizerService();
     const ctx = createCtx();
-    const spy = vi.spyOn(HTMLCanvasElement.prototype, 'getContext').mockImplementation(((kind: string) => {
+    const spy = vi.spyOn(HTMLCanvasElement.prototype, 'getContext').mockImplementation(((
+      kind: string,
+    ) => {
       if (kind === '2d') return ctx;
       throw new Error('no gl');
     }) as never);

@@ -1,0 +1,45 @@
+<section class="summary" aria-labelledby="summary-title">
+  <h2 id="summary-title">Order summary</h2>
+
+  <dl class="lines">
+    <div class="line">
+      <dt>
+        Subtotal
+        <span>({{ itemCount() }} {{ itemCount() === 1 ? 'item' : 'items' }})</span>
+      </dt>
+      <dd>
+        @if (mixedCurrencies()) {
+          Mixed currencies
+        } @else {
+          {{ totalMoney() | money: total() }}
+        }
+      </dd>
+    </div>
+    <div class="line muted">
+      <dt>Taxes &amp; fees</dt>
+      <dd>Calculated at checkout</dd>
+    </div>
+  </dl>
+
+  <div class="total">
+    <span>Total</span>
+    <strong>
+      @if (mixedCurrencies()) {
+        —
+      } @else {
+        {{ totalMoney() | money: total() }}
+      }
+    </strong>
+  </div>
+
+  <button type="button" class="checkout" [disabled]="mixedCurrencies()" (click)="checkout.emit()">
+    {{ mixedCurrencies() ? 'Choose one currency' : 'Proceed to checkout' }}
+    <i class="fas fa-arrow-right" aria-hidden="true"></i>
+  </button>
+
+  <ul class="trust">
+    <li><i class="fas fa-lock" aria-hidden="true"></i> Secure, encrypted checkout</li>
+    <li><i class="fas fa-download" aria-hidden="true"></i> Instant audio and license delivery</li>
+    <li><i class="fas fa-shield-halved" aria-hidden="true"></i> Protected purchase</li>
+  </ul>
+</section>

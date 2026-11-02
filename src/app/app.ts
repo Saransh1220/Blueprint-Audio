@@ -11,6 +11,7 @@ import { PurchaseWarpComponent } from './components/purchase-warp/purchase-warp'
 import { ToastComponent } from './components/toast/toast.component';
 import { PlayerService } from './services/player.service';
 import { SpecUploadMonitorService } from './services/spec-upload-monitor.service';
+import { ThemeService } from './services/theme.service';
 
 @Component({
   selector: 'app-root',
@@ -33,6 +34,8 @@ import { SpecUploadMonitorService } from './services/spec-upload-monitor.service
 })
 export class AppComponent {
   private router = inject(Router);
+  // Dark-only: creating the service keeps the dark class on the page.
+  private theme = inject(ThemeService);
   private specUploadMonitor = inject(SpecUploadMonitorService);
   playerService = inject(PlayerService);
 

@@ -1,43 +1,26 @@
-<div class="auth-requirement-container">
-  <div class="content">
-    <h2>Join the Creative Community</h2>
-    <p class="subtitle">Sign in to unlock full access</p>
+<section class="gate" aria-labelledby="gate-title">
+  <img class="mark" src="/logo-dark-cropped.webp" alt="" />
 
-    <div class="features-list">
-      <div class="feature-item">
-        <div class="icon-wrapper">
-          <i class="fas fa-heart"></i>
-        </div>
-        <div class="text">
-          <h3>Save Your Favorites</h3>
-          <p>Keep track of the fire you find</p>
-        </div>
-      </div>
+  <h2 id="gate-title" class="title">Join Waveyard</h2>
+  <p class="lede">Create a free account to like beats, fill your cart and check out.</p>
 
-      <div class="feature-item">
-        <div class="icon-wrapper">
-          <i class="fas fa-history"></i>
-        </div>
-        <div class="text">
-          <h3>Track Your Journey</h3>
-          <p>Never lose a beat you loved</p>
-        </div>
-      </div>
-
-      <div class="feature-item">
-        <div class="icon-wrapper">
-          <i class="fas fa-sliders-h"></i>
-        </div>
-        <div class="text">
-          <h3>Curate Your Sound</h3>
-          <p>Personalized playlists and collections</p>
-        </div>
-      </div>
-    </div>
-
-    <div class="actions">
-      <button class="btn-primary" (click)="navigateToLogin()">Log In</button>
-      <button class="btn-secondary" (click)="navigateToRegister()">Sign Up</button>
-    </div>
+  <div class="actions">
+    <button type="button" class="cta cta-solid" (click)="navigateToRegister()">
+      Create account
+    </button>
+    <button type="button" class="cta cta-line" (click)="navigateToLogin()">
+      I already have an account
+    </button>
   </div>
-</div>
+
+  <ul class="perks">
+    @for (perk of perks; track perk.label) {
+      <li>
+        <i class="fas" [class]="perk.icon" aria-hidden="true"></i>
+        <span>{{ perk.label }}</span>
+      </li>
+    }
+  </ul>
+
+  <button type="button" class="later" (click)="dismiss()">Keep browsing</button>
+</section>

@@ -1,0 +1,105 @@
+:host {
+  display: block;
+}
+
+.empty {
+  display: flex;
+  min-height: calc(100dvh - 160px);
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 24px 0 48px;
+  text-align: center;
+}
+
+// The basket is the page: large, drawn in the cart's own palette.
+.figure {
+  --hb-plate: var(--cart-bg, #0b0a09);
+  --hb-hi: var(--cart-text, #f0e9d6);
+  --hb-edge: color-mix(in srgb, var(--cart-text, #f0e9d6) 62%, var(--cart-bg, #0b0a09));
+  --hb-mid: color-mix(in srgb, var(--cart-text, #f0e9d6) 36%, var(--cart-bg, #0b0a09));
+  --hb-lo: color-mix(in srgb, var(--cart-text, #f0e9d6) 14%, var(--cart-bg, #0b0a09));
+
+  width: min(460px, 92%);
+}
+
+h1 {
+  margin: 4px 0 8px;
+  color: var(--cart-text, #f0e9d6);
+  font: 700 26px/1.1 var(--cart-display, sans-serif);
+  letter-spacing: -0.035em;
+
+  em {
+    color: var(--cart-red, #ff4d68);
+    font-family: var(--cart-serif, serif);
+    font-weight: 400;
+  }
+}
+
+p {
+  margin: 0;
+  color: var(--cart-muted, #918878);
+  font: italic 15px/1.5 var(--cart-serif, serif);
+}
+
+.browse {
+  display: inline-flex;
+  min-height: 44px;
+  align-items: center;
+  gap: 12px;
+  margin-top: 22px;
+  padding: 0 22px;
+  border-radius: 12px;
+  background: var(--cart-red, #ff4d68);
+  color: #fff;
+  font: 700 13.5px/1 var(--cart-display, sans-serif);
+  text-decoration: none;
+  transition:
+    background 0.18s ease,
+    color 0.18s ease,
+    transform 0.18s ease;
+
+  i {
+    font-size: 12px;
+  }
+
+  &:hover {
+    background: var(--cart-text, #f0e9d6);
+    color: var(--cart-bg, #0b0a09);
+  }
+
+  &:active {
+    transform: scale(0.98);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--cart-text, #f0e9d6);
+    outline-offset: 3px;
+  }
+}
+
+.links {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 4px 20px;
+  margin-top: 16px;
+
+  a {
+    padding: 6px 0;
+    border-bottom: 1px solid transparent;
+    color: var(--cart-muted, #918878);
+    font: 500 12.5px/1 var(--cart-display, sans-serif);
+    text-decoration: none;
+    transition:
+      color 0.15s ease,
+      border-color 0.15s ease;
+
+    &:hover,
+    &:focus-visible {
+      border-color: var(--cart-red, #ff4d68);
+      color: var(--cart-text, #f0e9d6);
+      outline: none;
+    }
+  }
+}

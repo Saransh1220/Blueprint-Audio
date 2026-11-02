@@ -1,0 +1,16 @@
+// The figure's colours come from the app's palette, not a library default. Hairline reads its own
+// --hairline-* properties; they are mapped here from --hb-*, which a page can set to its tokens.
+:host {
+  --hairline-plate: var(--hb-plate, #0b0a09);
+  --hairline-hi: var(--hb-hi, #f0e9d6);
+  --hairline-edge: var(--hb-edge, #918878);
+  --hairline-mid: var(--hb-mid, #5a5448);
+  --hairline-lo: var(--hb-lo, #26231d);
+
+  display: block;
+  width: 100%;
+}
+
+.figure {
+  width: 100%;
+}

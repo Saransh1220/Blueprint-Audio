@@ -10,11 +10,7 @@ export class ThemeService {
   private themeKey = 'theme-mode';
 
   constructor() {
-    // Initialize THEME PRESET
-    const storedTheme = localStorage.getItem(this.themeKey);
-    if (storedTheme === 'light' || storedTheme === 'dark') {
-      this.currentMode.set(storedTheme);
-    }
+    // The app is dark-only: a "light" saved by an earlier visit is not restored.
 
     // Effect to update body attribute and localStorage
     effect(() => {

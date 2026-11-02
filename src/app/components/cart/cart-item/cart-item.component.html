@@ -1,0 +1,38 @@
+<article class="item">
+  <img
+    class="art"
+    [src]="item().spec.imageUrl"
+    [alt]="item().spec.title + ' cover art'"
+    width="64"
+    height="64"
+    loading="lazy"
+    decoding="async"
+  />
+
+  <div class="info">
+    <h3>{{ item().spec.title }}</h3>
+    <p class="by">
+      {{ item().spec.producerName }}
+      <span class="dot" aria-hidden="true">·</span>
+      {{ item().spec.bpm }} BPM
+      <span class="dot" aria-hidden="true">·</span>
+      {{ item().spec.key }}
+    </p>
+    <p class="license">
+      <strong>{{ item().license.name }}</strong>
+      <span class="dot" aria-hidden="true">·</span>
+      {{ formats() }}
+    </p>
+  </div>
+
+  <span class="price">{{ item().license.displayPriceMoney | money: item().license.price }}</span>
+
+  <button
+    type="button"
+    class="remove"
+    [attr.aria-label]="'Remove ' + item().spec.title"
+    (click)="remove.emit()"
+  >
+    <i class="fas fa-xmark" aria-hidden="true"></i>
+  </button>
+</article>

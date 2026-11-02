@@ -45,7 +45,7 @@ export class AuthService {
       callback();
     } else {
       this.modalService.open(AuthRequirementComponent, undefined, undefined, {
-        width: '500px',
+        width: '440px',
         height: 'auto',
       });
     }

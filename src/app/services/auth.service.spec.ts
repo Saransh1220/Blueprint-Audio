@@ -237,7 +237,7 @@ describe('AuthService', () => {
 
     expect(callback).not.toHaveBeenCalled();
     expect(modalOpen).toHaveBeenCalledWith(AuthRequirementComponent, undefined, undefined, {
-      width: '500px',
+      width: '440px',
       height: 'auto',
     });
   });

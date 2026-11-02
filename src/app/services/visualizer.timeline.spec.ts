@@ -46,22 +46,25 @@ describe('VisualizerService timeline wave', () => {
     expect(service.createDefaultSettings('waveform').textLayers).toEqual([]);
   });
 
-  it.each(['bars', 'needles', 'smooth'] as const)('renders the %s style with and without audio', (style) => {
-    const service = new VisualizerService();
-    const settings = { ...service.createDefaultSettings('timeline-wave'), style };
-    const frame = service.createFrameData(null, 16);
+  it.each(['bars', 'needles', 'smooth'] as const)(
+    'renders the %s style with and without audio',
+    (style) => {
+      const service = new VisualizerService();
+      const settings = { ...service.createDefaultSettings('timeline-wave'), style };
+      const frame = service.createFrameData(null, 16);
 
-    const demo = createCtx();
-    service.renderFrame(canvasWith(demo), settings, frame);
-    expect(demo.fillRect).toHaveBeenCalled();
+      const demo = createCtx();
+      service.renderFrame(canvasWith(demo), settings, frame);
+      expect(demo.fillRect).toHaveBeenCalled();
 
-    const real = createCtx();
-    service.renderFrame(canvasWith(real), settings, {
-      ...frame,
-      timeline: { peaks, time: 42, duration: 90 },
-    });
-    expect(real.clearRect).toHaveBeenCalledWith(0, 0, 800, 450);
-  });
+      const real = createCtx();
+      service.renderFrame(canvasWith(real), settings, {
+        ...frame,
+        timeline: { peaks, time: 42, duration: 90 },
+      });
+      expect(real.clearRect).toHaveBeenCalledWith(0, 0, 800, 450);
+    },
+  );
 
   it('scrolls: bars shift left as time advances', () => {
     const service = new VisualizerService();
@@ -95,7 +98,11 @@ describe('VisualizerService timeline wave', () => {
 
   it('measures a layer as canvas fractions', () => {
     const service = new VisualizerService();
-    const box = service.measureTextLayer(service.createTextLayer({ text: 'Hello', size: 10 }), 1000, 500);
+    const box = service.measureTextLayer(
+      service.createTextLayer({ text: 'Hello', size: 10 }),
+      1000,
+      500,
+    );
     expect(box.width).toBeGreaterThan(0);
     expect(box.width).toBeLessThanOrEqual(0.94);
     expect(box.height).toBeCloseTo((100 * 1.2) / 500);

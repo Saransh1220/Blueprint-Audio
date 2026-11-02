@@ -1,0 +1,141 @@
+// A flat panel with a light brutalist edge: a hard outline and one small offset shadow. Solid
+// colours only; the navbar places it and reveals it.
+:host {
+  --nm-tint-hot: #ff4d68;
+  --nm-tint-cobalt: #5b78ff;
+  --nm-tint-lime: #b7d93a;
+  --nm-tint-sun: #ffc93c;
+  --nm-tint-lavender: #b9a6ff;
+  --nm-tint-cream: var(--text-color);
+
+  display: block;
+}
+
+.panel {
+  padding: 14px;
+  border: 1.5px solid var(--text-color);
+  border-radius: 14px;
+  background: var(--card-bg-color);
+  box-shadow: 4px 4px 0 var(--hot);
+  color: var(--text-color);
+}
+
+.heading {
+  margin: 0 0 10px;
+  padding: 2px 6px 10px;
+  border-bottom: 1px solid color-mix(in srgb, var(--text-color) 16%, transparent);
+  font-family: 'Bricolage Grotesque', sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+
+  em {
+    color: var(--hot);
+    font-family: 'Instrument Serif', serif;
+    font-style: italic;
+    font-weight: 400;
+    font-size: 17px;
+  }
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 2px;
+}
+
+.item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+  padding: 10px;
+  border-radius: 10px;
+  color: inherit;
+  text-decoration: none;
+  transition: background 0.15s ease;
+
+  &:hover,
+  &:focus-visible {
+    background: color-mix(in srgb, var(--text-color) 8%, transparent);
+    outline: none;
+  }
+
+  &.active {
+    background: color-mix(in srgb, var(--hot) 14%, transparent);
+
+    .name {
+      color: var(--hot);
+    }
+  }
+}
+
+.icon {
+  --tint: var(--nm-tint-cream);
+
+  display: grid;
+  flex: none;
+  width: 36px;
+  height: 36px;
+  place-items: center;
+  border-radius: 9px;
+  background: color-mix(in srgb, var(--tint) 16%, transparent);
+  color: var(--tint);
+  font-size: 14px;
+
+  &[data-tint='hot'] {
+    --tint: var(--nm-tint-hot);
+  }
+
+  &[data-tint='cobalt'] {
+    --tint: var(--nm-tint-cobalt);
+  }
+
+  &[data-tint='lime'] {
+    --tint: var(--nm-tint-lime);
+  }
+
+  &[data-tint='sun'] {
+    --tint: var(--nm-tint-sun);
+  }
+
+  &[data-tint='lavender'] {
+    --tint: var(--nm-tint-lavender);
+  }
+}
+
+.text {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.name {
+  overflow: hidden;
+  font-family: 'Bricolage Grotesque', sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.desc {
+  overflow: hidden;
+  color: var(--ink-mute);
+  font-size: 12px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+// The footer a menu may add: one quiet row under the grid. Nothing projected, nothing drawn.
+.foot {
+  margin-top: 10px;
+  padding: 12px 6px 0;
+  border-top: 1px solid color-mix(in srgb, var(--text-color) 16%, transparent);
+
+  &:empty {
+    display: none;
+  }
+}

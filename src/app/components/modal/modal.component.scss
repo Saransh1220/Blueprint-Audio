@@ -27,18 +27,16 @@
 }
 
 .modal-container {
-  background: var(--cream);
-  border: 2px solid var(--ink);
-  border-radius: 24px;
+  background: var(--card-bg-color);
+  border: 1px solid color-mix(in srgb, var(--text-color) 18%, transparent);
+  border-radius: 16px;
   width: 100%;
   max-width: 1040px;
   height: 85vh;
   max-height: 820px;
   display: flex;
   flex-direction: column;
-  box-shadow:
-    12px 12px 0 var(--ink),
-    0 24px 48px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.55);
   transform: translateY(30px);
   opacity: 0;
   transition:
@@ -66,17 +64,17 @@
 
 .modal-header {
   position: absolute;
-  top: 20px;
-  right: 20px;
+  top: 16px;
+  right: 16px;
   z-index: 20;
 
   .btn-close {
-    width: 38px;
-    height: 38px;
+    width: 34px;
+    height: 34px;
     border-radius: 50%;
-    background: #f5f1e8;
-    border: 1.5px solid #141310;
-    color: #141310;
+    background: rgba(10, 9, 8, 0.55);
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    color: #fff;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -87,9 +85,8 @@
       transform 0.15s ease;
 
     &:hover {
-      background: #141310;
-      color: #f5f1e8;
-      transform: rotate(90deg);
+      background: rgba(255, 255, 255, 0.18);
+      border-color: rgba(255, 255, 255, 0.5);
     }
   }
 
