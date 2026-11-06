@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 import { catchError, map, Observable, of, tap, throwError } from 'rxjs';
 import { environment } from '../../environments/environment';
 import {
+  CreateOrderBody,
   CreateOrderRequest,
   GetLicenseDownloadsRequest,
   GetProducerOrdersRequest,
@@ -12,6 +13,7 @@ import {
   VerifyPaymentRequest,
 } from '../core/api/payment.requests';
 import { ApiService } from '../core/services/api.service';
+import type { Money, SelectedPriceOffer } from '../models/money';
 import {
   License,
   LicenseDownloadsResponse,
@@ -38,30 +40,53 @@ export class PaymentService {
   // userLicenses = signal<License[]>([]);
 
   /**
-   * Create an order and open Razorpay checkout
+   * Create an order and open checkout with explicit evidence
    */
-  initiatePayment(specId: string, licenseOptionId: string, specTitle: string): Observable<Order> {
+  initiatePayment(
+    specId: string,
+    licenseOptionId: string,
+    specTitle: string,
+    evidence?: {
+      selectedPrice?: SelectedPriceOffer;
+      displayPriceMoney?: Money;
+      priceMoney?: Money;
+    },
+  ): Observable<Order> {
+    const body: CreateOrderBody = {
+      spec_id: specId,
+      license_option_id: licenseOptionId,
+    };
+
+    if (evidence?.selectedPrice) {
+      body.currency = evidence.selectedPrice.currency;
+      body.expected_price_id = evidence.selectedPrice.price_id;
+      body.expected_revision = evidence.selectedPrice.revision;
+      body.expected_amount_minor = evidence.selectedPrice.amount_minor;
+      body.expected_currency = evidence.selectedPrice.currency;
+    } else if (evidence?.displayPriceMoney) {
+      body.currency = evidence.displayPriceMoney.currency;
+      body.expected_amount_minor = evidence.displayPriceMoney.amount_minor;
+      body.expected_currency = evidence.displayPriceMoney.currency;
+    }
+
     // Step 1: Create order on backend
-    return this.api
-      .execute(
-        new CreateOrderRequest({
-          spec_id: specId,
-          license_option_id: licenseOptionId,
-        }),
-      )
-      .pipe(
-        tap((order) => {
-          if (order.provider === 'dodo' && order.checkout_url) {
-            window.location.assign(order.checkout_url);
-            return;
-          }
-          this.openRazorpayCheckout(order, specTitle);
-        }),
-        catchError((error) => {
+    return this.api.execute(new CreateOrderRequest(body)).pipe(
+      tap((order) => {
+        if (order.provider === 'dodo' && order.checkout_url) {
+          window.location.assign(order.checkout_url);
+          return;
+        }
+        this.openRazorpayCheckout(order, specTitle);
+      }),
+      catchError((error) => {
+        if (error?.status === 409 || error?.error?.code === 'PRICE_CHANGED') {
+          this.toast.show('Price changed. Please review the updated offer.', 'info');
+        } else {
           this.toast.show('Failed to create order. Please try again.', 'error');
-          return throwError(() => error);
-        }),
-      );
+        }
+        return throwError(() => error);
+      }),
+    );
   }
 
   /**

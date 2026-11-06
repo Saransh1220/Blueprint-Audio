@@ -50,7 +50,9 @@
     <div class="custom-actions-row">
       <button class="purchase-pill" (click)="addToCart($event)" title="Add to cart">
         <span class="purchase-icon"><i class="fa-solid fa-cart-plus"></i></span>
-        <span class="beat-price">{{ spec.displayPriceMoney | money: spec.price }}</span>
+        <span class="beat-price">{{
+          spec.displayPriceMoney | money: spec.price : spec.selectedPrice
+        }}</span>
       </button>
 
       @if (spec.freeMp3Enabled) {

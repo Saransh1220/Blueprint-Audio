@@ -34,6 +34,8 @@ export class LicenseSelectorComponent {
   }
 
   selectedLicenseId = signal<string | null>(null);
+  isProcessing = signal(false);
+  priceChangedAlert = signal<{ previousFormatted: string; currentFormatted: string; currency: string } | null>(null);
 
   selectedLicense = computed(() => {
     const licenses = this.spec?.licenses ?? [];
@@ -67,10 +69,44 @@ export class LicenseSelectorComponent {
 
   buyNow(license: LicenseOption, event?: Event) {
     event?.stopPropagation();
-    this.modalService.close();
 
-    this.paymentService.initiatePayment(this.spec.id, license.id, this.spec.title).subscribe({
-      error: (err) => {
+    if (license.selectedPrice && license.selectedPrice.is_purchasable === false) {
+      this.toastService.show('This license option is currently unavailable.', 'error');
+      return;
+    }
+
+    this.isProcessing.set(true);
+
+    const call = license.selectedPrice
+      ? this.paymentService.initiatePayment(this.spec.id, license.id, this.spec.title, license)
+      : this.paymentService.initiatePayment(this.spec.id, license.id, this.spec.title);
+    call.subscribe({
+      next: () => {
+        this.isProcessing.set(false);
+        this.modalService.close();
+      },
+      error: (err: any) => {
+        this.isProcessing.set(false);
+        if (err?.status === 409 && err.error?.code === 'PRICE_CHANGED' && err.error?.current_offer) {
+          const currentOffer = err.error.current_offer;
+          const oldMajor = license.selectedPrice?.amount_major ?? license.price;
+          const oldCurrency = license.selectedPrice?.currency ?? 'INR';
+          const newMajor = currentOffer.amount_major;
+          const newCurrency = currentOffer.currency;
+
+          license.selectedPrice = currentOffer;
+          license.displayPriceMoney = {
+            amount_minor: currentOffer.amount_minor,
+            currency: currentOffer.currency,
+          };
+
+          this.priceChangedAlert.set({
+            previousFormatted: `${oldCurrency} ${oldMajor.toFixed(2)}`,
+            currentFormatted: `${newCurrency} ${newMajor.toFixed(2)}`,
+            currency: newCurrency,
+          });
+          return;
+        }
         console.error('Payment initiation failed:', err);
       },
     });

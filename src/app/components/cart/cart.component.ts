@@ -1,8 +1,9 @@
 import { DOCUMENT } from '@angular/common';
 import { Component, computed, DestroyRef, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import type { AppCurrency, Money } from '../../models/money';
+import type { Money } from '../../models/money';
 import { CartService } from '../../services';
+import { summarizeCartMoney } from '../../utils/cart-money';
 import { CartEmptyComponent } from './cart-empty/cart-empty.component';
 import { CartItemComponent } from './cart-item/cart-item.component';
 import { CartSummaryComponent } from './cart-summary/cart-summary.component';
@@ -20,34 +21,15 @@ export class CartComponent {
   items;
   private readonly summary = computed(() => {
     const items = this.cartService.items();
-    const currencies = new Set(
-      items
-        .map((item) => item.license?.displayPriceMoney?.currency)
-        .filter((currency): currency is AppCurrency => !!currency),
-    );
-    const hasMixedCurrencies =
-      currencies.size > 1 || items.some((item) => !item.license?.displayPriceMoney);
-    const currency = items[0]?.license?.displayPriceMoney?.currency;
-    const totalMoney =
-      !hasMixedCurrencies && currency
-        ? {
-            amount_minor: items.reduce(
-              (sum, item) => sum + (item.license?.displayPriceMoney?.amount_minor ?? 0),
-              0,
-            ),
-            currency,
-          }
-        : null;
-
     return {
-      hasMixedCurrencies,
-      totalMoney,
+      ...summarizeCartMoney(items),
       producerCount: new Set(items.map((item) => item.spec?.producerId).filter(Boolean)).size,
     };
   });
 
   constructor() {
     this.items = this.cartService.items;
+    this.cartService.refresh();
 
     // A calm page: no film grain over the cart.
     const body = inject(DOCUMENT).body;
@@ -64,7 +46,9 @@ export class CartComponent {
   }
 
   get totalMoney(): Money | null {
-    return this.summary().totalMoney;
+    return this.cartService.isRefreshing() || this.cartService.needsRefresh()
+      ? null
+      : this.summary().totalMoney;
   }
 
   removeItem(id: string) {

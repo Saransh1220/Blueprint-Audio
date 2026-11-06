@@ -21,17 +21,22 @@ export class GetLicenseDownloadsRequest implements ApiRequest<LicenseDownloadsRe
 }
 
 // Create Order Request
+export interface CreateOrderBody {
+  spec_id: string;
+  license_option_id: string;
+  currency?: string;
+  expected_price_id?: string;
+  expected_revision?: number;
+  expected_amount_minor?: number;
+  expected_currency?: string;
+}
+
 export class CreateOrderRequest implements ApiRequest<Order> {
   readonly path = '/orders';
   readonly method: HttpMethod = 'POST';
   readonly _responseType?: Order;
 
-  constructor(
-    public body: {
-      spec_id: string;
-      license_option_id: string;
-    },
-  ) {}
+  constructor(public body: CreateOrderBody) {}
 }
 
 // Verify Payment Request

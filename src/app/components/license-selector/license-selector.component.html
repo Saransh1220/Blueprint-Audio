@@ -85,7 +85,9 @@
               </div>
 
               <div class="lic-price-col">
-                <div class="lic-price">{{ license.displayPriceMoney | money: license.price }}</div>
+                <div class="lic-price">
+                  {{ license.displayPriceMoney | money: license.price : license.selectedPrice }}
+                </div>
                 <div class="lic-term">one-time</div>
               </div>
             </div>
@@ -109,7 +111,9 @@
       @if (selectedLicense(); as selected) {
         <div class="foot-name">
           <span>{{ selected.name }}</span>
-          <span class="price">{{ selected.displayPriceMoney | money: selected.price }}</span>
+          <span class="price">{{
+            selected.displayPriceMoney | money: selected.price : selected.selectedPrice
+          }}</span>
         </div>
         <div class="foot-note">{{ getFooterNote(selected) }}</div>
       } @else {
@@ -120,6 +124,16 @@
       }
     </div>
 
+    @if (priceChangedAlert(); as alert) {
+      <div class="price-change-banner" role="alert">
+        <i class="fas fa-exclamation-triangle" aria-hidden="true"></i>
+        <span
+          >Price updated: was {{ alert.previousFormatted }}, now {{ alert.currentFormatted }}.
+          Please confirm to proceed.</span
+        >
+      </div>
+    }
+
     <div class="foot-actions">
       <button
         class="action-btn ghost"
@@ -129,9 +143,25 @@
         <i class="fas fa-cart-plus"></i>
         Add to cart
       </button>
-      <button class="action-btn primary" (click)="buySelectedNow()" [disabled]="!selectedLicense()">
-        Buy now
-        <i class="fas fa-arrow-right"></i>
+      <button
+        class="action-btn primary"
+        (click)="buySelectedNow()"
+        [disabled]="
+          !selectedLicense() ||
+          selectedLicense()!.selectedPrice?.is_purchasable === false ||
+          isProcessing()
+        "
+      >
+        @if (isProcessing()) {
+          <i class="fas fa-spinner fa-spin" aria-hidden="true"></i>
+          Processing...
+        } @else if (priceChangedAlert()) {
+          Confirm & Pay
+          <i class="fas fa-arrow-right"></i>
+        } @else {
+          Buy now
+          <i class="fas fa-arrow-right"></i>
+        }
       </button>
     </div>
   </div>

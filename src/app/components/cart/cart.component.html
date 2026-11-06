@@ -15,6 +15,14 @@
         <button type="button" class="clear" (click)="clearCart()">Clear all</button>
       </header>
 
+      @if (cartService.isRefreshing()) {
+        <p role="status">Checking current prices…</p>
+      } @else if (cartService.needsRefresh()) {
+        <p role="status">
+          Some prices could not be verified.
+          <button type="button" (click)="cartService.refresh()">Check prices again</button>
+        </p>
+      }
       <div class="layout">
         <section class="items" aria-label="Items in your cart">
           @for (item of items(); track item.id) {

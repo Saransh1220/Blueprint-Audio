@@ -32,9 +32,10 @@ describe('CartSummaryComponent', () => {
     expect(text('.line dt')).toBe('Subtotal (1 item)');
   });
 
-  it('shows the plain total when there is no money to show', () => {
+  it('does not substitute a scalar when the money total is unavailable', () => {
     render({ itemCount: 2, total: 40 });
-    expect(text('.total strong')).toContain('40');
+    expect(text('.total strong')).toBe('—');
+    expect(text('.line dd')).toBe('Unavailable');
   });
 
   it('leaves taxes for checkout', () => {

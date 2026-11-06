@@ -149,4 +149,68 @@ describe('LicenseSelectorComponent', () => {
     component.closeModal();
     expect(close).toHaveBeenCalled();
   });
+
+  it('handles price-change 409 conflict: updates selectedPrice, sets priceChangedAlert, and keeps modal open', () => {
+    const component = TestBed.runInInjectionContext(() => new LicenseSelectorComponent());
+    component.spec = { id: 'spec-1', title: 'Midnight Wave' } as any;
+    const license: any = {
+      id: 'lic-1',
+      name: 'Basic',
+      price: 15,
+      selectedPrice: {
+        price_id: 'old-p-id',
+        revision: 1,
+        amount_minor: 1500,
+        amount_major: 15.0,
+        currency: 'USD',
+        is_purchasable: true,
+      },
+    };
+
+    const conflictErr = {
+      status: 409,
+      error: {
+        code: 'PRICE_CHANGED',
+        current_offer: {
+          price_id: 'new-p-id',
+          revision: 2,
+          amount_minor: 2000,
+          amount_major: 20.0,
+          currency: 'USD',
+          is_purchasable: true,
+        },
+      },
+    };
+
+    initiatePayment.mockReturnValueOnce(throwError(() => conflictErr));
+
+    component.buyNow(license);
+
+    expect(close).not.toHaveBeenCalled(); // Modal stays open for buyer review!
+    expect(component.priceChangedAlert()).toEqual({
+      previousFormatted: 'USD 15.00',
+      currentFormatted: 'USD 20.00',
+      currency: 'USD',
+    });
+    expect(license.selectedPrice.revision).toBe(2);
+    expect(license.selectedPrice.amount_minor).toBe(2000);
+  });
+
+  it('blocks buyNow when license is not purchasable', () => {
+    const component = TestBed.runInInjectionContext(() => new LicenseSelectorComponent());
+    component.spec = { id: 'spec-1', title: 'Midnight Wave' } as any;
+    const license: any = {
+      id: 'lic-1',
+      name: 'Basic',
+      price: 15,
+      selectedPrice: {
+        is_purchasable: false,
+      },
+    };
+
+    component.buyNow(license);
+
+    expect(initiatePayment).not.toHaveBeenCalled();
+    expect(show).toHaveBeenCalledWith('This license option is currently unavailable.', 'error');
+  });
 });

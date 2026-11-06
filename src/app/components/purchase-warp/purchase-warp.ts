@@ -44,6 +44,8 @@ export class PurchaseWarpComponent {
   /** The beat on show. Kept after the dialog closes so the content survives the exit animation. */
   readonly spec = signal<Spec | null>(null);
   readonly selectedLicenseId = signal<string | null>(null);
+  readonly isSubmitting = signal(false);
+  readonly priceChangedNotice = signal<string | null>(null);
 
   readonly licenses = computed(() => this.spec()?.licenses ?? []);
   private readonly tiers = computed(() => licenseTiers(this.licenses()));
@@ -75,6 +77,8 @@ export class PurchaseWarpComponent {
   }
 
   close(): void {
+    this.priceChangedNotice.set(null);
+    this.isSubmitting.set(false);
     this.dialog.close();
   }
 
@@ -102,9 +106,36 @@ export class PurchaseWarpComponent {
     const spec = this.spec();
     const license = this.selectedLicense();
     if (!spec || !license) return;
-    this.close();
-    this.payment.initiatePayment(spec.id, license.id, spec.title).subscribe({
-      error: (err) => console.error('Payment initiation failed:', err),
+    this.isSubmitting.set(true);
+    this.priceChangedNotice.set(null);
+    const call = license.selectedPrice
+      ? this.payment.initiatePayment(spec.id, license.id, spec.title, license)
+      : this.payment.initiatePayment(spec.id, license.id, spec.title);
+    call.subscribe({
+      next: () => {
+        this.isSubmitting.set(false);
+        this.close();
+      },
+      error: (err) => {
+        this.isSubmitting.set(false);
+        console.error('Payment initiation failed:', err);
+        if (err?.status === 409 || err?.error?.code === 'PRICE_CHANGED') {
+          const fresh = err?.error?.current_offer;
+          if (fresh) {
+            license.selectedPrice = fresh;
+            license.displayPriceMoney = {
+              amount_minor: fresh.amount_minor,
+              currency: fresh.currency,
+            };
+            this.selectedLicenseId.set(license.id);
+          }
+          this.priceChangedNotice.set(
+            'The price for this item has changed. Please review the updated amount before confirming.',
+          );
+        } else {
+          this.close();
+        }
+      },
     });
   }
 

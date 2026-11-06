@@ -1,5 +1,5 @@
 import { HttpParams } from '@angular/common/http';
-import type { Money } from '../../models/money';
+import type { Money, SelectedPriceOffer, StoredPrice } from '../../models/money';
 import { ApiRequest, HttpMethod } from './api-request';
 
 export interface PublicAnalyticsDto {
@@ -38,6 +38,7 @@ export interface SpecDto {
   price: number;
   price_money?: Money;
   display_price_money?: Money;
+  selected_price?: SelectedPriceOffer;
   duration?: number;
   free_mp3_enabled?: boolean;
   created_at: string;
@@ -106,6 +107,8 @@ export interface LicenseDto {
   price: number;
   price_money?: Money;
   display_price_money?: Money;
+  selected_price?: SelectedPriceOffer;
+  prices?: StoredPrice[];
   features: string[];
   file_types: string[];
   created_at: string;

@@ -22,6 +22,9 @@ describe('CartComponent', () => {
           provide: CartService,
           useValue: {
             items,
+            isRefreshing: signal(false),
+            needsRefresh: signal(false),
+            refresh: vi.fn(),
             total: vi.fn(() => 100),
             removeItem,
             clear,
