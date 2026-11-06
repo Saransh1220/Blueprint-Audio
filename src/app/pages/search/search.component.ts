@@ -220,14 +220,19 @@ export class SearchPageComponent implements OnInit, OnDestroy {
       this.isLoadingMore.set(false);
     }
 
+    const [minPrice, maxPrice] = this.priceRange();
+    // The full slider range means "Any", not a requested-currency price filter.
+    // Sending it would hide native-fallback offers without an exact currency row.
+    const hasPriceFilter = minPrice !== 0 || maxPrice !== 50000;
+
     this.labService
       .getSpecs({
         search: this.searchTerm(),
         genres: this.genre(),
         min_bpm: this.bpmRange()[0],
         max_bpm: this.bpmRange()[1],
-        min_price: this.priceRange()[0],
-        max_price: this.priceRange()[1],
+        min_price: hasPriceFilter ? minPrice : undefined,
+        max_price: hasPriceFilter ? maxPrice : undefined,
         key: this.key(),
         page: this.currentPage(),
         per_page: this.explorePageSize,
