@@ -146,10 +146,12 @@ describe('LabSectionComponent (more)', () => {
         mk('a', { displayPriceMoney: { amount_minor: 1999, currency: 'EUR' } }),
       ),
     ).toContain('19.99');
-    expect(component.startingPrice(mk('a', { displayPriceMoney: { amount_minor: 0 } }))).toBe('$10');
+    expect(
+      component.startingPrice(mk('a', { displayPriceMoney: { amount_minor: 0, currency: 'USD' } })),
+    ).toBe('$0');
 
-    expect(component.chartTrend(1)).toBe('up');
-    expect(component.chartTrend(2)).toBe('down');
+    expect(component.chartTrend(1)).toBe('-');
+    expect(component.chartTrend(2)).toBe('-');
     expect(component.chartTrend(6)).toBe('-');
   });
 
@@ -175,9 +177,9 @@ describe('LabSectionComponent (more)', () => {
     const router = TestBed.inject(Router);
     const nav = vi.spyOn(router, 'navigate').mockResolvedValue(true);
     const el = fixture.nativeElement as HTMLElement;
-    expect(el.querySelector('.fa-arrow-up')).toBeTruthy();
-    expect(el.querySelector('.fa-arrow-down')).toBeTruthy();
-    (el.querySelector('.license-cta') as HTMLElement).click();
+    expect(el.querySelector('.fa-arrow-up')).toBeNull();
+    expect(el.querySelector('.fa-arrow-down')).toBeNull();
+    component.navigateToSearch();
     expect(nav).toHaveBeenCalledWith(['/explore']);
     (el.querySelector('.chart-row') as HTMLElement).click();
     expect(playerService.showPlayer).toHaveBeenCalled();

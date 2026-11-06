@@ -1,3 +1,4 @@
+import { BRAND } from '../../core/config/brand';
 import { CommonModule } from '@angular/common';
 import {
   Component,
@@ -60,6 +61,7 @@ interface HeaderNotificationItem {
   styleUrls: ['./header.scss'],
 })
 export class HeaderComponent {
+  readonly brand = BRAND;
   isMobileMenuOpen = false;
   cartService = inject(CartService);
   authService = inject(AuthService);
@@ -86,86 +88,6 @@ export class HeaderComponent {
   notifications = this.notificationService.notifications;
   unreadCount = this.notificationService.unreadCount;
   notificationFilter = signal<NotificationKind>('all');
-  private readonly locallyRead = signal<Set<string>>(new Set());
-  private readonly referenceNotifications: HeaderNotificationItem[] = [
-    {
-      id: 'ref-sale-copper-saints',
-      kind: 'sale',
-      unread: true,
-      avatar: '$',
-      avatarClass: 'c-sun',
-      text: 'License sold of Copper Saints.',
-      accent: 'Premium WAV',
-      time: '18m',
-      amount: '+ Rs 6,639',
-      license: 'Sam L.',
-      artLetter: 'c',
-      artGradient: 'linear-gradient(135deg,#c9b8ff,#ff3d5a)',
-    },
-    {
-      id: 'ref-message-meridian',
-      kind: 'message',
-      unread: true,
-      avatar: 'm',
-      avatarClass: 'c-cobalt',
-      text: 'Meridian sent a message',
-      accent: '"want to collab on the Friday drop?"',
-      time: '1h',
-    },
-    {
-      id: 'ref-cart-ghostwire',
-      kind: 'cart',
-      unread: false,
-      avatar: 'c',
-      avatarClass: 'c-cream',
-      text: 'Ghostwire was added to',
-      accent: '3 carts',
-      time: '3h',
-    },
-    {
-      id: 'ref-sale-lavender',
-      kind: 'sale',
-      unread: false,
-      avatar: '$',
-      avatarClass: 'c-sun',
-      text: 'License sold of Lavender Static.',
-      accent: 'Basic MP3',
-      time: '5h',
-      amount: '+ Rs 2,074',
-      license: 'Alex K.',
-      artLetter: 'l',
-      artGradient: 'linear-gradient(135deg,#f7cf47,#ff3d5a)',
-    },
-    {
-      id: 'ref-follow-rufio',
-      kind: 'follow',
-      unread: false,
-      avatar: 'r',
-      avatarClass: 'c-lavender',
-      text: 'Rufio Ash started following you.',
-      time: '8h',
-    },
-    {
-      id: 'ref-milestone-violet',
-      kind: 'milestone',
-      unread: false,
-      avatar: '*',
-      avatarClass: 'c-sun',
-      text: 'Violet Hour just hit',
-      accent: '4,000 plays',
-      time: '1d',
-    },
-    {
-      id: 'ref-wishlist-violet',
-      kind: 'wishlist',
-      unread: false,
-      avatar: 'w',
-      avatarClass: 'c-lavender',
-      text: 'Violet Hour was wishlisted',
-      accent: '9 times',
-      time: '1d',
-    },
-  ];
   notificationItems = computed(() => [
     ...this.notifications().map((n): HeaderNotificationItem => {
       const complete = n.type === 'processing_complete' || n.type === 'success';
@@ -173,7 +95,7 @@ export class HeaderComponent {
       return {
         id: n.id,
         kind: failed || complete ? 'system' : 'message',
-        unread: !n.is_read && !this.locallyRead().has(n.id),
+        unread: !n.is_read,
         avatar: failed ? '!' : complete ? 'ok' : 'i',
         avatarClass: failed ? 'c-hot' : complete ? 'c-lime' : 'c-cobalt',
         text: n.title || 'Notification',
@@ -182,10 +104,6 @@ export class HeaderComponent {
         live: true,
       };
     }),
-    ...this.referenceNotifications.map((item) => ({
-      ...item,
-      unread: item.unread && !this.locallyRead().has(item.id),
-    })),
   ]);
   visibleNotificationItems = computed(() => {
     const filter = this.notificationFilter();
@@ -198,7 +116,7 @@ export class HeaderComponent {
     const items = this.notificationItems();
     return {
       all: items.length,
-      unread: items.filter((item) => item.unread).length,
+      unread: this.unreadCount(),
       sale: items.filter((item) => item.kind === 'sale').length,
       message: items.filter((item) => item.kind === 'message').length,
     };
@@ -284,14 +202,10 @@ export class HeaderComponent {
 
   markAsRead(id: string, event: Event) {
     event.stopPropagation();
-    this.locallyRead.update((read) => new Set(read).add(id));
-    if (!id.startsWith('ref-')) {
-      this.notificationService.markAsRead(id);
-    }
+    this.notificationService.markAsRead(id);
   }
 
   markAllAsRead() {
-    this.locallyRead.set(new Set(this.notificationItems().map((item) => item.id)));
     this.notificationService.markAllAsRead();
   }
 

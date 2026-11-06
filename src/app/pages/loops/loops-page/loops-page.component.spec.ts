@@ -27,7 +27,11 @@ function makeLoop(i: number, over: any = {}) {
 describe('LoopsPageComponent', () => {
   const show = vi.fn();
   const loops = Array.from({ length: 15 }, (_, i) => makeLoop(i + 1));
-  loops[0] = makeLoop(1, { price: { amount_minor: 0, currency: 'USD' }, genre: 'Lofi', moods: ['chill'] });
+  loops[0] = makeLoop(1, {
+    price: { amount_minor: 0, currency: 'USD' },
+    genre: 'Lofi',
+    moods: ['chill'],
+  });
 
   function create() {
     TestBed.configureTestingModule({

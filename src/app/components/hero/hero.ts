@@ -1,3 +1,4 @@
+import { isFeatureAvailable } from '../../core/config/feature-availability';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -41,7 +42,7 @@ const SCOPES: SearchScope[] = [
     route: '/loops',
     placeholder: 'Search loops or producers…',
   },
-];
+].filter((scope) => isFeatureAvailable(scope.route));
 
 @Component({
   selector: 'app-hero',

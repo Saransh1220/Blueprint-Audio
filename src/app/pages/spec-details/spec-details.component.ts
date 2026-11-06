@@ -1,3 +1,4 @@
+import { BRAND } from '../../core/config/brand';
 import { CommonModule, DOCUMENT } from '@angular/common';
 import {
   Component,
@@ -10,7 +11,7 @@ import {
 } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-import { of } from 'rxjs';
+import { combineLatest, of } from 'rxjs';
 import { catchError, finalize, startWith, switchMap } from 'rxjs/operators';
 import { SpecCardComponent } from '../../components/spec-card/spec-card';
 import { type LicenseOption, type Spec } from '../../models';
@@ -33,6 +34,7 @@ import { isExclusiveLicense, licenseTiers, TIER_ICON, TIER_LABEL } from '../../u
   styleUrls: ['./spec-details.component.scss'],
 })
 export class SpecDetailsComponent {
+  readonly brand = BRAND;
   private route = inject(ActivatedRoute);
   private document = inject(DOCUMENT);
   private labService = inject(LabService);
@@ -46,68 +48,20 @@ export class SpecDetailsComponent {
   openFaqIndex = signal<number | null>(null);
   commentSort = signal<'top' | 'newest'>('top');
   commentDraft = signal('');
-  comments = signal([
+  comments = signal<
     {
-      id: 1,
-      initial: 'j',
-      name: 'Jamie O.',
-      badge: 'Premium buyer',
-      time: '2m',
-      text: 'Mix is insanely clean straight out of the box. Barely had to touch EQ before dropping vocals on it.',
-      likes: 24,
-      liked: false,
-      color: '#ff4d68',
-      reply: false,
-    },
-    {
-      id: 2,
-      initial: 'k',
-      name: 'Kita Sol',
-      badge: 'Producer',
-      time: '1m',
-      text: 'Appreciate it! Was going for something that sits under vocals without fighting them.',
-      likes: 9,
-      liked: false,
-      color: '#ffd455',
-      reply: true,
-    },
-    {
-      id: 3,
-      initial: 's',
-      name: 'Sam L.',
-      badge: 'Unlimited buyer',
-      time: '18m',
-      text: 'Stems were perfectly labeled and in tune with everything else in my session. Worth the Unlimited price.',
-      likes: 11,
-      liked: false,
-      color: '#5b78ff',
-      reply: false,
-    },
-    {
-      id: 4,
-      initial: 'a',
-      name: 'Alex K.',
-      badge: 'Basic buyer',
-      time: '1h',
-      text: "Great atmosphere, exactly the vibe from the preview. Would've liked a slightly louder master honestly.",
-      likes: 4,
-      liked: false,
-      color: '#ffd455',
-      reply: false,
-    },
-    {
-      id: 5,
-      initial: 'n',
-      name: 'Noa R.',
-      badge: '',
-      time: '6h',
-      text: 'The piano loop at 0:47 is criminal. Bought it just for that transition into the second half.',
-      likes: 7,
-      liked: false,
-      color: '#d4c5ff',
-      reply: false,
-    },
-  ]);
+      id: number;
+      initial: string;
+      name: string;
+      badge: string;
+      time: string;
+      text: string;
+      likes: number;
+      liked: boolean;
+      color: string;
+      reply: boolean;
+    }[]
+  >([]);
   specLoadSettled = signal(false);
   selectedLicense = signal<LicenseOption | null>(null);
   relatedViewMode = signal<'grid' | 'list'>('grid');
@@ -156,14 +110,14 @@ export class SpecDetailsComponent {
   tickerItems = [
     'Instant license delivery',
     'Tag-free preview included',
-    'Waveyard producer marketplace',
+    `${BRAND.name} beat store`,
     'Pressed for late-night writing sessions',
   ];
 
   // Reactive spec fetching
   spec = toSignal(
-    this.route.paramMap.pipe(
-      switchMap((params) => {
+    combineLatest([this.route.paramMap, this.labService.refresh$.pipe(startWith(undefined))]).pipe(
+      switchMap(([params]) => {
         this.specLoadSettled.set(false);
         const idOrCode = params.get('id') || params.get('shortCode');
         // Clear the old beat first, so moving between beats shows the skeleton, not stale content.
@@ -583,19 +537,7 @@ export class SpecDetailsComponent {
     }
 
     const peaks = spec.waveformPeaks?.filter((peak) => Number.isFinite(peak));
-    this.waveformBars.set(peaks?.length ? peaks.slice(0, 64) : this.buildFallbackWaveform(spec));
-  }
-
-  private buildFallbackWaveform(spec: Spec) {
-    const seed = `${spec.id}:${spec.bpm}:${spec.key}`.split('').reduce((sum, char) => {
-      return (sum + char.charCodeAt(0) * 17) % 997;
-    }, 23);
-
-    return Array.from({ length: 64 }, (_, index) => {
-      const pulse = Math.sin((index + seed) * 0.52) * 0.5 + 0.5;
-      const chop = ((index * 29 + seed) % 100) / 100;
-      return Math.round(12 + Math.max(pulse, chop * 0.8) * 82);
-    });
+    this.waveformBars.set(peaks?.length ? peaks.slice(0, 64) : []);
   }
 
   private getActivePlayerTrack(): Spec | null {

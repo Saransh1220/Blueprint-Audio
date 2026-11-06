@@ -4,7 +4,12 @@ import {
   SocialAuthServiceConfig,
 } from '@abacritt/angularx-social-login';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
-import { importProvidersFrom, provideZoneChangeDetection } from '@angular/core';
+import {
+  importProvidersFrom,
+  provideZoneChangeDetection,
+  provideAppInitializer,
+  inject,
+} from '@angular/core';
 import { bootstrapApplication } from '@angular/platform-browser';
 import { provideAnimations } from '@angular/platform-browser/animations';
 import { provideRouter, withInMemoryScrolling, withRouterConfig } from '@angular/router';
@@ -14,6 +19,7 @@ import { routes } from './app/app.routes';
 import { authInterceptor } from './app/core/interceptors/auth.interceptor';
 import { loadingInterceptor } from './app/core/interceptors/loading.interceptor';
 import { environment } from './environments/environment';
+import { CurrencyConfigurationService } from './app/services/currency-configuration.service';
 
 bootstrapApplication(AppComponent, {
   providers: [
@@ -30,6 +36,7 @@ bootstrapApplication(AppComponent, {
       }),
     ),
     provideHttpClient(withInterceptors([authInterceptor, loadingInterceptor])),
+    provideAppInitializer(() => inject(CurrencyConfigurationService).load()),
     provideCharts(withDefaultRegisterables()),
     {
       provide: SOCIAL_AUTH_CONFIG,

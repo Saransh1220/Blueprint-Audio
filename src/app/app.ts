@@ -1,5 +1,7 @@
+import { BRAND } from './core/config/brand';
 import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
+import { Title } from '@angular/platform-browser';
 import { NavigationEnd, Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { filter } from 'rxjs/operators';
 import { HeaderComponent } from './components';
@@ -33,6 +35,7 @@ import { ThemeService } from './services/theme.service';
   styleUrls: ['./app.scss'],
 })
 export class AppComponent {
+  readonly brand = BRAND;
   private router = inject(Router);
   // Dark-only: creating the service keeps the dark class on the page.
   private theme = inject(ThemeService);
@@ -40,6 +43,7 @@ export class AppComponent {
   playerService = inject(PlayerService);
 
   constructor() {
+    inject(Title).setTitle(BRAND.name);
     this.specUploadMonitor.resumePersisted();
     this.router.events.pipe(filter((event) => event instanceof NavigationEnd)).subscribe(() => {
       setTimeout(() => {

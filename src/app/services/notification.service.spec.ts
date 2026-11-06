@@ -57,14 +57,18 @@ describe('NotificationService', () => {
   it('refresh loads notifications and computes unread count', () => {
     const unread = makeNotification({ id: 'n-1', is_read: false });
     const read = makeNotification({ id: 'n-2', is_read: true });
-    const get = vi.fn().mockReturnValue(of({ data: [unread, read] }));
+    const get = vi
+      .fn()
+      .mockImplementation((url: string) =>
+        of(url.endsWith('/unread-count') ? { count: 37 } : { data: [unread, read] }),
+      );
 
     const { service } = setup({ getImpl: get });
     service.refresh();
 
     expect(get).toHaveBeenCalled();
     expect(service.notifications()).toEqual([unread, read]);
-    expect(service.unreadCount()).toBe(1);
+    expect(service.unreadCount()).toBe(37);
   });
 
   it('handles realtime message, prepends notification, and shows info toast for non-processing types', () => {

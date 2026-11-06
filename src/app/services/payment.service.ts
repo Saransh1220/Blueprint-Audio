@@ -1,3 +1,4 @@
+import { BRAND } from '../core/config/brand';
 import { Injectable, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { catchError, map, Observable, of, tap, throwError } from 'rxjs';
@@ -73,7 +74,7 @@ export class PaymentService {
       key: environment.razorpayKeyId,
       amount: order.amount,
       currency: order.currency,
-      name: 'Waveyard',
+      name: BRAND.name,
       description: `Purchase ${specTitle}`,
       order_id: order.razorpay_order_id!,
       prefill: {

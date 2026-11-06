@@ -8,7 +8,8 @@ import {
   signal,
 } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-import { combineLatest, filter, map, switchMap } from 'rxjs';
+import { EMPTY, catchError, map, switchMap, tap } from 'rxjs';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { SpecAdapter } from '../../adapters/spec.adapter';
 import { SpecCardComponent } from '../../components/spec-card/spec-card';
 import type { Spec } from '../../models';
@@ -42,6 +43,25 @@ export class ProducerProfileComponent implements OnDestroy {
   activeGenre = signal('All');
   following = signal(false);
   totalSpecs = signal(0);
+  currentPage = signal(1);
+  loadingMore = signal(false);
+  loadMore() {
+    const profile = this.profile();
+    if (!profile || this.loadingMore() || this.specs().length >= this.totalSpecs()) return;
+    this.loadingMore.set(true);
+    this.specService.getUserSpecs(profile.id, this.currentPage() + 1, 20).subscribe({
+      next: (catalog) => {
+        this.specs.update((items) => [
+          ...items,
+          ...catalog.data.map((dto) => this.adapter.adapt(dto)),
+        ]);
+        this.totalSpecs.set(catalog.metadata.total);
+        this.currentPage.update((page) => page + 1);
+        this.loadingMore.set(false);
+      },
+      error: () => this.loadingMore.set(false),
+    });
+  }
 
   genres = computed(() => [
     'All',
@@ -55,7 +75,7 @@ export class ProducerProfileComponent implements OnDestroy {
   });
   displayName = computed(() => this.profile()?.display_name || this.profile()?.name || 'Producer');
   initials = computed(() => this.displayName().slice(0, 1).toUpperCase());
-  handle = computed(() => (this.profile()?.name || 'producer').toLowerCase().replaceAll(' ', ''));
+  handle = computed(() => this.profile()?.name || 'producer');
   totalPlays = computed(() =>
     this.specs().reduce((sum, spec) => sum + (spec.analytics?.playCount ?? 0), 0),
   );
@@ -68,26 +88,33 @@ export class ProducerProfileComponent implements OnDestroy {
 
     this.route.paramMap
       .pipe(
-        map(() => this.route.snapshot.queryParamMap.get('id')),
-        filter((id): id is string => !!id),
-        switchMap((id) =>
-          combineLatest([
-            this.userService.getPublicProfile(id),
-            this.specService.getUserSpecs(id, 1, 10),
-          ]),
+        tap(() => {
+          this.loading.set(true);
+          this.error.set(false);
+          this.specs.set([]);
+          this.activeGenre.set('All');
+        }),
+        switchMap((params) =>
+          (/^[0-9a-f]{8}-[0-9a-f-]{27}$/i.test(params.get('handle') || '')
+            ? this.userService.getPublicProfile(params.get('handle')!)
+            : this.userService.getProducerByHandle(params.get('handle') || '')
+          ).pipe(
+            tap((profile) => this.profile.set(profile)),
+            switchMap((profile) => this.specService.getUserSpecs(profile.id, 1, 20)),
+            catchError(() => {
+              this.error.set(true);
+              this.loading.set(false);
+              return EMPTY;
+            }),
+          ),
         ),
+        takeUntilDestroyed(),
       )
-      .subscribe({
-        next: ([profile, catalog]) => {
-          this.profile.set(profile);
-          this.specs.set(catalog.data.map((spec) => this.adapter.adapt(spec)));
-          this.totalSpecs.set(catalog.metadata.total);
-          this.loading.set(false);
-        },
-        error: () => {
-          this.error.set(true);
-          this.loading.set(false);
-        },
+      .subscribe((catalog) => {
+        this.specs.set(catalog.data.map((spec) => this.adapter.adapt(spec)));
+        this.totalSpecs.set(catalog.metadata.total);
+        this.currentPage.set(1);
+        this.loading.set(false);
       });
   }
 
@@ -111,13 +138,9 @@ export class ProducerProfileComponent implements OnDestroy {
   }
   price(spec: Spec) {
     return this.currency.formatMoney(
-      spec.displayPriceMoney,
+      spec.displayPriceMoney ?? spec.priceMoney,
       spec.price,
-      profileCurrency(this.profile()?.store_currency),
+      this.profile()?.store_currency || 'USD',
     );
   }
-}
-
-function profileCurrency(currency?: string) {
-  return currency === 'INR' ? ('INR' as const) : ('USD' as const);
 }

@@ -3,6 +3,7 @@ import { ChangeDetectionStrategy, Component, computed, inject, input, signal } f
 import type { Spec } from '../../models';
 import { PlayerService } from '../../services/player.service';
 import { SpecActionService } from '../../services/spec-action.service';
+import { CurrencyConfigurationService } from '../../services/currency-configuration.service';
 import { DiscCarouselComponent } from '../disc-carousel/disc-carousel';
 import { specToDisc } from './featured-beats.utils';
 
@@ -17,10 +18,13 @@ import { specToDisc } from './featured-beats.utils';
 export class FeaturedBeatsComponent {
   private readonly player = inject(PlayerService);
   private readonly actions = inject(SpecActionService);
+  private readonly currencyConfig = inject(CurrencyConfigurationService);
 
   readonly specs = input<readonly Spec[]>([]);
 
-  readonly items = computed(() => this.specs().map(specToDisc));
+  readonly items = computed(() =>
+    this.specs().map((spec) => specToDisc(spec, this.currencyConfig.currencies())),
+  );
   readonly activeIndex = signal(0);
   readonly activeSpec = computed<Spec | null>(
     () => this.specs()[this.activeIndex()] ?? this.specs()[0] ?? null,

@@ -77,3 +77,12 @@ export class UploadBannerRequest implements ApiRequest<PublicUserResponse> {
     this.body = formData;
   }
 }
+
+export class GetProducerByHandleRequest implements ApiRequest<PublicUserResponse> {
+  readonly method: HttpMethod = 'GET';
+  readonly path: string;
+  readonly _responseType?: PublicUserResponse;
+  constructor(handle: string) {
+    this.path = `/producers/${encodeURIComponent(handle)}`;
+  }
+}

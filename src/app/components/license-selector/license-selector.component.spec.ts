@@ -55,7 +55,7 @@ describe('LicenseSelectorComponent', () => {
     expect(addItem).not.toHaveBeenCalled();
     expect(initiatePayment).not.toHaveBeenCalled();
 
-    expect(component.getProducerName()).toBe('Red Wave');
+    expect(component.getProducerName()).toBe('Waveyard');
     expect(component.getPrimaryGenre()).toBe('Beat');
     expect(component.getTempoDisplay()).toBe('-- BPM');
     expect(component.getKeyDisplay()).toBe('--');

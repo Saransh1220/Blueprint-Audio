@@ -41,9 +41,8 @@
     <a
       class="beat-producer"
       [routerLink]="['/@', producerHandle()]"
-      [queryParams]="{ id: spec.producerId }"
       (click)="$event.stopPropagation()"
-      >{{ spec.producerName || 'Waveyard producer' }}</a
+      >{{ spec.producerName || brand.name + ' producer' }}</a
     >
 
     <div class="card-meta">{{ spec.bpm }} BPM / {{ spec.key }}</div>

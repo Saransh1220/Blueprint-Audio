@@ -11,7 +11,6 @@ export * from './modal/modal.component';
 export * from './player/player';
 export * from './purchase-warp/purchase-warp';
 export * from './warp-dialog/warp-dialog';
-export * from './producer-row/producer-row';
 export * from './settings/appearance-settings/appearance-settings.component';
 export * from './spec-card/spec-card';
 export * from './spec-list-item/spec-list-item.component';

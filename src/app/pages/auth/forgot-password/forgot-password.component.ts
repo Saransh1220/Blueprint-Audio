@@ -1,3 +1,4 @@
+import { BRAND } from '../../../core/config/brand';
 import { Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
@@ -13,6 +14,7 @@ import { ToastService } from '../../../services/toast.service';
   styleUrl: './forgot-password.component.scss',
 })
 export class ForgotPasswordComponent {
+  readonly brand = BRAND;
   private readonly authService = inject(AuthService);
   private readonly toastService = inject(ToastService);
   private readonly router = inject(Router);

@@ -1,3 +1,4 @@
+import { BRAND } from '../../core/config/brand';
 import { CommonModule } from '@angular/common';
 import { Component, computed, Input, inject, signal } from '@angular/core';
 import type { LicenseOption, Spec } from '../../models';
@@ -96,7 +97,7 @@ export class LicenseSelectorComponent {
   }
 
   getProducerName() {
-    return this.spec?.producerName || 'Red Wave';
+    return this.spec?.producerName || BRAND.name;
   }
 
   getPrimaryGenre() {

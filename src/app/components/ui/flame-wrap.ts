@@ -548,11 +548,7 @@ export function createFlameWrap(
     gl!.uniform2f(uniforms['uResolution'], output.width, output.height);
     gl!.uniform1f(uniforms['uTime'], time);
     gl!.uniform2f(uniforms['uRectCenter'], rect.cx * dpr, rect.cy * dpr);
-    gl!.uniform2f(
-      uniforms['uRectHalf'],
-      Math.max(rect.hx * dpr, 1),
-      Math.max(rect.hy * dpr, 1),
-    );
+    gl!.uniform2f(uniforms['uRectHalf'], Math.max(rect.hx * dpr, 1), Math.max(rect.hy * dpr, 1));
     gl!.uniform1f(uniforms['uCorner'], Math.max(config.radius, 0) * dpr);
     gl!.uniform3f(uniforms['uColor'], config.color[0], config.color[1], config.color[2]);
     gl!.uniform1f(uniforms['uIntensity'], Math.max(config.intensity, 0));

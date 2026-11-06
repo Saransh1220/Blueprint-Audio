@@ -1,15 +1,4 @@
 <section class="search-page">
-  <div class="top-ticker">
-    <div class="ticker-track">
-      @for (item of tickerItems; track item) {
-        <span>{{ item }}</span>
-      }
-      @for (item of tickerItems; track 'dup-' + item) {
-        <span>{{ item }}</span>
-      }
-    </div>
-  </div>
-
   <header class="page-head">
     <div class="breadcrumb">
       <a routerLink="/">Home</a>
@@ -52,40 +41,6 @@
         <i class="fas fa-arrow-right"></i>
       </button>
     </div>
-
-    <div class="quick-rail" aria-label="Quick picks">
-      @for (item of quickFilters; track item.genre) {
-        <button
-          type="button"
-          class="qpill"
-          [class.on]="genre().includes(item.genre)"
-          (click)="toggleGenre(item.genre)"
-        >
-          <span class="qp-tile" [class]="item.tone">{{ item.label.charAt(0) }}</span>
-          <span class="qp-mid">
-            <span class="qp-label">{{ item.label }}</span>
-            <span class="qp-sub">{{ item.sub }}</span>
-          </span>
-          <span class="qp-count">{{ item.count }}</span>
-        </button>
-      }
-      <button type="button" class="qpill visual-only">
-        <span class="qp-tile c-cream"><i class="fas fa-bolt"></i></span>
-        <span class="qp-mid">
-          <span class="qp-label">Trending</span>
-          <span class="qp-sub">hot picks</span>
-        </span>
-        <span class="qp-count">91</span>
-      </button>
-      <button type="button" class="qpill visual-only">
-        <span class="qp-tile c-lime"><i class="fas fa-check"></i></span>
-        <span class="qp-mid">
-          <span class="qp-label">Verified</span>
-          <span class="qp-sub">producers</span>
-        </span>
-        <span class="qp-count">528</span>
-      </button>
-    </div>
   </header>
 
   <div class="filter-bar">
@@ -121,63 +76,6 @@
             >
               <span class="fp-check"><i class="fas fa-check"></i></span>
               <span class="fp-opt-name">{{ g }}</span>
-              <span class="fp-opt-count">24</span>
-            </button>
-          }
-        </div>
-      </div>
-    </div>
-
-    <div class="filter-dd">
-      <button
-        class="fd-trigger"
-        [class.active]="isDropdownOpen('mood')"
-        type="button"
-        (click)="toggleDropdown('mood')"
-      >
-        <span class="fd-mono">Mood</span>
-        <span class="fd-val">Any</span>
-        <i class="fas fa-chevron-down fd-caret"></i>
-      </button>
-      <div class="fd-panel" [class.show]="isDropdownOpen('mood')">
-        <div class="fp-head">
-          <h5>Pick moods</h5>
-          <button class="fp-clear" type="button">Clear</button>
-        </div>
-        <div class="fp-options">
-          @for (tag of inertMoodTags; track tag) {
-            <button type="button" class="fp-opt">
-              <span class="fp-check"><i class="fas fa-check"></i></span>
-              <span class="fp-opt-name">{{ tag }}</span>
-              <span class="fp-opt-count">18</span>
-            </button>
-          }
-        </div>
-      </div>
-    </div>
-
-    <div class="filter-dd">
-      <button
-        class="fd-trigger"
-        [class.active]="isDropdownOpen('instr')"
-        type="button"
-        (click)="toggleDropdown('instr')"
-      >
-        <span class="fd-mono">Instruments</span>
-        <span class="fd-val">Any</span>
-        <i class="fas fa-chevron-down fd-caret"></i>
-      </button>
-      <div class="fd-panel" [class.show]="isDropdownOpen('instr')">
-        <div class="fp-head">
-          <h5>Pick instruments</h5>
-          <button class="fp-clear" type="button">Clear</button>
-        </div>
-        <div class="fp-options">
-          @for (item of inertInstruments; track item.label) {
-            <button type="button" class="fp-opt">
-              <span class="fp-check"><i class="fas fa-check"></i></span>
-              <span class="fp-opt-name">{{ item.label }}</span>
-              <span class="fp-opt-count">{{ item.count }}</span>
             </button>
           }
         </div>
@@ -301,33 +199,6 @@
       </div>
     </div>
 
-    <div class="filter-dd">
-      <button
-        class="fd-trigger"
-        [class.active]="isDropdownOpen('extras')"
-        type="button"
-        (click)="toggleDropdown('extras')"
-      >
-        <span class="fd-mono">License & Extras</span>
-        <span class="fd-val">Any</span>
-        <i class="fas fa-chevron-down fd-caret"></i>
-      </button>
-      <div class="fd-panel" [class.show]="isDropdownOpen('extras')">
-        <div class="fp-head">
-          <h5>License & extras</h5>
-          <button class="fp-clear" type="button">Clear</button>
-        </div>
-        <div class="fp-options">
-          @for (item of inertExtras; track item.title) {
-            <button type="button" class="fp-opt">
-              <span class="fp-check"><i class="fas fa-check"></i></span>
-              <span class="fp-opt-name">{{ item.title }}</span>
-              <span class="fp-opt-count">31</span>
-            </button>
-          }
-        </div>
-      </div>
-    </div>
     @if (activeFilterChips().length) {
       <button class="clear-all-btn show" type="button" (click)="clearFilters()">Clear all</button>
     }
@@ -378,121 +249,6 @@
       [class.on]="mobileFiltersOpen()"
       (click)="toggleMobileFilters(false)"
     ></div>
-
-    <aside class="sidebar" [class.open]="mobileFiltersOpen()">
-      <div class="sb-card cobalt np-card">
-        <div class="np-eyebrow"><span class="live-dot"></span>Now playing</div>
-        <div class="np-art-row">
-          <div class="np-art"><span class="np-art-letter">M</span></div>
-          <div class="np-info">
-            <div class="np-title">Midnight on <em>Sunset</em></div>
-            <div class="np-prod">@kita / 142 BPM / F# Min</div>
-          </div>
-        </div>
-        <div class="np-wave">
-          @for (
-            bar of [22, 44, 31, 67, 38, 82, 54, 73, 29, 62, 45, 88, 34, 57, 76, 41, 68, 30];
-            track $index
-          ) {
-            <span class="np-wave-bar" [style.height.%]="bar"></span>
-          }
-        </div>
-        <div class="np-actions">
-          <button type="button" class="np-btn"><i class="fas fa-play"></i> Listen</button>
-          <button type="button" class="np-btn primary">Open beat</button>
-        </div>
-      </div>
-
-      <div class="stat-tiles">
-        <div class="st-tile t1">
-          <div class="st-num"><em>89</em></div>
-          <div class="st-label">drops today</div>
-        </div>
-        <div class="st-tile t2">
-          <div class="st-num">42</div>
-          <div class="st-label">live now</div>
-        </div>
-        <div class="st-tile t3">
-          <div class="st-num"><em>$</em>3.4k</div>
-          <div class="st-label">sales / 24h</div>
-        </div>
-      </div>
-
-      <div class="sb-card dark">
-        <div class="sb-head">
-          <h4>Top <em>producers</em></h4>
-          <span class="sb-num">WK 19</span>
-        </div>
-        <div class="tp-list">
-          @for (
-            item of ['Kita Vandermark', 'Nyx Fontaine', 'Riko Sato', 'Mose Okafor', 'Prism Lo'];
-            track item;
-            let i = $index
-          ) {
-            <div class="tp-item">
-              <div class="tp-rank">{{ i + 1 }}</div>
-              <div class="tp-avatar">{{ item.charAt(0) }}</div>
-              <div class="tp-info">
-                <div class="tp-name">{{ item }}</div>
-                <div class="tp-meta">{{ 312 - i * 29 }} sales / up {{ 24 - i * 4 }}%</div>
-              </div>
-              <svg class="tp-spark" viewBox="0 0 38 22" aria-hidden="true">
-                <path d="M2 18 L8 14 L13 16 L19 10 L25 12 L31 6 L36 4"></path>
-              </svg>
-            </div>
-          }
-        </div>
-      </div>
-
-      <div class="sb-card lime">
-        <div class="sb-head">
-          <h4>Genre <em>pulse</em></h4>
-          <span class="sb-num">7D</span>
-        </div>
-        <div class="gp-list">
-          @for (row of quickFilters.slice(0, 5); track row.genre; let i = $index) {
-            <button type="button" class="gp-row" (click)="toggleGenre(row.genre)">
-              <span class="gp-name">{{ row.label }}</span>
-              <span class="gp-bar-wrap">
-                <span class="gp-bar" [style.width.%]="92 - i * 13"></span>
-              </span>
-              <span class="gp-pct">+{{ 92 - i * 13 }}%</span>
-            </button>
-          }
-        </div>
-      </div>
-
-      <div class="sb-card cream">
-        <div class="sb-head">
-          <h4>By <em>mood</em></h4>
-          <span class="sb-num">06</span>
-        </div>
-        <div class="mood-grid">
-          @for (
-            tag of ['Dark', 'Dreamy', 'Hype', 'Warm', 'Sad', 'Aggro'];
-            track tag;
-            let i = $index
-          ) {
-            <button type="button" class="mood-tile" [ngClass]="'c' + (i + 1)">
-              <span class="me">{{ tag.charAt(0) }}</span>
-              <span class="ml">{{ tag }}</span>
-            </button>
-          }
-        </div>
-      </div>
-
-      <div class="sb-card lavender">
-        <div class="sb-head soft">
-          <h4>For <em>producers</em></h4>
-        </div>
-        <div class="pc-title">Sell your <em>beats</em> here.</div>
-        <div class="pc-sub">Keep your catalog moving with clean licenses and fast checkout.</div>
-        <button type="button" class="pc-btn" routerLink="/upload">
-          <i class="fas fa-plus"></i>
-          Upload a beat
-        </button>
-      </div>
-    </aside>
 
     <main class="catalog">
       <div class="catalog-inner">
@@ -663,22 +419,6 @@
       </div>
 
       <!-- Mood -->
-      <div class="mfp-section">
-        <button class="mfp-sec-hd" type="button" (click)="toggleGroup('moods')">
-          <span>Mood</span>
-          <i class="fas fa-chevron-down" [class.flip]="isGroupOpen('moods')"></i>
-        </button>
-        @if (isGroupOpen('moods')) {
-          <div class="mfp-options">
-            @for (tag of inertMoodTags; track tag) {
-              <button type="button" class="mfp-opt">
-                <span class="mfp-check"><i class="fas fa-check"></i></span>
-                {{ tag }}
-              </button>
-            }
-          </div>
-        }
-      </div>
 
       <!-- BPM -->
       <div class="mfp-section">
@@ -784,22 +524,6 @@
       </div>
 
       <!-- License & Extras -->
-      <div class="mfp-section">
-        <button class="mfp-sec-hd" type="button" (click)="toggleGroup('extras')">
-          <span>License &amp; Extras</span>
-          <i class="fas fa-chevron-down" [class.flip]="isGroupOpen('extras')"></i>
-        </button>
-        @if (isGroupOpen('extras')) {
-          <div class="mfp-options">
-            @for (item of inertExtras; track item.title) {
-              <button type="button" class="mfp-opt">
-                <span class="mfp-check"><i class="fas fa-check"></i></span>
-                {{ item.title }}
-              </button>
-            }
-          </div>
-        }
-      </div>
     </div>
 
     <div class="mfp-footer">

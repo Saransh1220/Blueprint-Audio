@@ -74,7 +74,7 @@ describe('ProducerProfileComponent', () => {
     },
   ];
 
-  const userServiceMock = { getPublicProfile: vi.fn() };
+  const userServiceMock = { getPublicProfile: vi.fn(), getProducerByHandle: vi.fn() };
   const specServiceMock = { getUserSpecs: vi.fn() };
   const actionServiceMock = {
     isCurrentlyPlaying: vi.fn().mockReturnValue(false),
@@ -88,12 +88,12 @@ describe('ProducerProfileComponent', () => {
   };
   const currencyServiceMock = { formatMoney: vi.fn().mockReturnValue('₹25') };
   const routeMock = {
-    paramMap: of(convertToParamMap({ id: 'producer-1' })),
+    paramMap: of(convertToParamMap({ handle: 'nightmaker' })),
     snapshot: { queryParamMap: convertToParamMap({ id: 'producer-1' }) },
   };
 
   beforeEach(async () => {
-    userServiceMock.getPublicProfile.mockReturnValue(of(profile));
+    userServiceMock.getProducerByHandle.mockReturnValue(of(profile));
     specServiceMock.getUserSpecs.mockReturnValue(
       of({
         data: specDtos,
@@ -124,13 +124,13 @@ describe('ProducerProfileComponent', () => {
     const component = fixture.componentInstance;
     fixture.detectChanges();
 
-    expect(userServiceMock.getPublicProfile).toHaveBeenCalledWith('producer-1');
-    expect(specServiceMock.getUserSpecs).toHaveBeenCalledWith('producer-1', 1, 10);
+    expect(userServiceMock.getProducerByHandle).toHaveBeenCalledWith('nightmaker');
+    expect(specServiceMock.getUserSpecs).toHaveBeenCalledWith('producer-1', 1, 20);
     expect(component.loading()).toBe(false);
     expect(component.error()).toBe(false);
     expect(component.displayName()).toBe('Midnight Audio');
     expect(component.initials()).toBe('M');
-    expect(component.handle()).toBe('nightmaker');
+    expect(component.handle()).toBe('Night Maker');
     expect(component.totalSpecs()).toBe(12);
     expect(component.totalPlays()).toBe(1_500);
     expect(component.totalFavorites()).toBe(50);
@@ -188,13 +188,13 @@ describe('ProducerProfileComponent', () => {
   });
 
   it('shows the error state when either request fails', () => {
-    userServiceMock.getPublicProfile.mockReturnValueOnce(throwError(() => new Error('missing')));
+    userServiceMock.getProducerByHandle.mockReturnValueOnce(throwError(() => new Error('missing')));
     const fixture = TestBed.createComponent(ProducerProfileComponent);
     const component = fixture.componentInstance;
     fixture.detectChanges();
 
     expect(component.loading()).toBe(false);
     expect(component.error()).toBe(true);
-    expect((fixture.nativeElement as HTMLElement).textContent).toContain('Producer not found.');
+    expect((fixture.nativeElement as HTMLElement).textContent).toContain('Producer not found');
   });
 });

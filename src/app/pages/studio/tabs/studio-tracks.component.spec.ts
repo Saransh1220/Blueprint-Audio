@@ -1,193 +1,119 @@
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
+import { Router } from '@angular/router';
 import { of, Subject, throwError } from 'rxjs';
-import { AuthService, LabService } from '../../../services';
+import { AuthService, LabService, ToastService } from '../../../services';
+import { SpecService } from '../../../services/spec.service';
+import { SpecAdapter } from '../../../adapters/spec.adapter';
+import { SpecActionService } from '../../../services/spec-action.service';
 import { StudioTracksComponent } from './studio-tracks.component';
 
-describe('StudioTracksComponent', () => {
-  const getSpecs = vi.fn();
-  const currentUser = signal<any>({ id: 'u1', display_name: 'Blaze' });
+describe('Studio owned catalog', () => {
+  const user = signal<any>({ id: 'producer-1' }),
+    getUserSpecs = vi.fn(),
+    deleteSpec = vi.fn(),
+    navigate = vi.fn(),
+    toastSuccess = vi.fn(),
+    toastError = vi.fn(),
+    refresh = new Subject<void>();
   const specs = [
     {
       id: 's1',
       title: 'First',
-      price: 1499,
-      bpm: 120,
-      key: 'Cm',
-      imageUrl: 'one.png',
+      price: 10,
       genres: [{ name: 'Trap' }],
-      analytics: { playCount: 30, favoriteCount: 9 },
-      processingStatus: 'ready',
+      analytics: { playCount: 4 },
+      processingStatus: 'completed',
     },
     {
       id: 's2',
       title: 'Second',
-      price: undefined,
-      bpm: 140,
-      key: 'Dm',
-      imageUrl: 'two.png',
-      genres: [{ name: 'Boom Bap' }],
-      analytics: { playCount: 5, favoriteCount: 2 },
-    },
-    {
-      id: 's3',
-      title: 'Alpha',
-      price: 3000,
-      key: 'Gm',
+      price: 20,
       genres: [],
-      analytics: { playCount: 10, favoriteCount: 3 },
-      processingStatus: 'pending',
+      analytics: { playCount: 8 },
+      processingStatus: 'completed',
     },
-  ] as any;
-  const specsPagination = signal<any>({ total: 36 });
-  const refresh = new Subject<void>();
-
-  function create() {
+  ];
+  function setup() {
     TestBed.configureTestingModule({
       providers: [
-        {
-          provide: LabService,
-          useValue: { getSpecs, specsPagination, refresh$: refresh.asObservable() },
-        },
-        { provide: AuthService, useValue: { currentUser } },
+        { provide: AuthService, useValue: { currentUser: user } },
+        { provide: LabService, useValue: { refresh$: refresh } },
+        { provide: SpecService, useValue: { getUserSpecs, deleteSpec } },
+        { provide: SpecAdapter, useValue: { adapt: (dto: any) => dto } },
+        { provide: SpecActionService, useValue: { playSong: vi.fn() } },
+        { provide: Router, useValue: { navigate } },
+        { provide: ToastService, useValue: { success: toastSuccess, error: toastError } },
       ],
     });
-
     return TestBed.runInInjectionContext(() => new StudioTracksComponent());
   }
-
   beforeEach(() => {
     vi.clearAllMocks();
-    getSpecs.mockReturnValue(of(specs));
+    user.set({ id: 'producer-1' });
+    getUserSpecs.mockReturnValue(of({ data: specs, metadata: { total: 36 } }));
+    deleteSpec.mockReturnValue(of(undefined));
   });
-
-  it('loads the producer catalog on construction', () => {
-    const component = create();
-
-    expect(getSpecs).toHaveBeenCalledWith({
-      category: 'beat',
-      page: 1,
-      per_page: 12,
-      sort: 'newest',
-    });
-    expect(component.tracks()).toEqual(specs);
-    expect(component.trackCount()).toBe(36);
-    expect(component.isLoading()).toBe(false);
-    expect(component.viewMode()).toBe('grid');
+  it('requests the authenticated producer catalog instead of the public catalog', () => {
+    const c = setup();
+    expect(getUserSpecs).toHaveBeenCalledWith('producer-1', 1, 12);
+    expect(c.tracks()).toEqual(specs);
+    expect(c.trackCount()).toBe(36);
+    expect(c.isLoading()).toBe(false);
   });
-
-  it('reloads the current page when catalog refresh is requested', () => {
-    const component = create();
-    component.goToPage(2);
-    getSpecs.mockClear();
-
+  it('uses server totals for pagination and reloads the current page after an owner action', () => {
+    const c = setup();
+    c.goToPage(2);
+    expect(getUserSpecs).toHaveBeenLastCalledWith('producer-1', 2, 12);
     refresh.next();
-
-    expect(getSpecs).toHaveBeenCalledWith(
-      expect.objectContaining({
-        category: 'beat',
-        page: 2,
-        per_page: 12,
-      }),
-    );
+    expect(getUserSpecs).toHaveBeenLastCalledWith('producer-1', 2, 12);
+    c.previousPage();
+    expect(c.currentPage()).toBe(1);
+    c.nextPage();
+    expect(c.currentPage()).toBe(2);
   });
-
-  it('handles load errors and toggles between grid and list views', () => {
-    getSpecs.mockReturnValueOnce(throwError(() => new Error('fail')));
-    const component = create();
-
-    expect(component.tracks()).toEqual([]);
-    expect(component.trackCount()).toBe(36);
-    expect(component.isLoading()).toBe(false);
-
-    component.setView('list');
-    expect(component.viewMode()).toBe('list');
-    component.setView('grid');
-    expect(component.viewMode()).toBe('grid');
+  it('filters the loaded owned tracks and sorts by real plays', () => {
+    const c = setup();
+    c.setSearch('first');
+    expect(c.filteredTracks().map((t) => t.id)).toEqual(['s1']);
+    c.setSearch('');
+    c.setSortMode('plays');
+    expect(c.filteredTracks().map((t) => t.id)).toEqual(['s2', 's1']);
+    c.setView('list');
+    expect(c.viewMode()).toBe('list');
   });
-
-  it('filters, sorts, paginates, and selects tracks', () => {
-    const component = create();
-
-    expect(component.liveCount()).toBe(2);
-    expect(component.draftCount()).toBe(1);
-    expect(component.totalPages()).toBe(3);
-    expect(component.pageStart()).toBe(1);
-    expect(component.pageEnd()).toBe(12);
-
-    component.setFilter('drafts');
-    expect(component.filteredTracks().map((track) => track.id)).toEqual(['s2']);
-    component.setFilter('live');
-    expect(component.filteredTracks().map((track) => track.id)).toEqual(['s1', 's3']);
-    component.setFilter('sold');
-    expect(component.filteredTracks()).toEqual([]);
-    component.setFilter('all');
-
-    component.searchTerm.set('cm');
-    expect(component.filteredTracks().map((track) => track.id)).toEqual(['s1']);
-    component.searchTerm.set('');
-    component.genreFilter.set('boom');
-    expect(component.filteredTracks().map((track) => track.id)).toEqual(['s2']);
-    component.genreFilter.set('');
-
-    component.sortMode.set('plays');
-    expect(component.filteredTracks().map((track) => track.id)).toEqual(['s1', 's3', 's2']);
-    component.sortMode.set('revenue');
-    expect(component.filteredTracks().map((track) => track.id)).toEqual(['s1', 's3', 's2']);
-    component.sortMode.set('alpha');
-    expect(component.filteredTracks().map((track) => track.id)).toEqual(['s3', 's1', 's2']);
-
-    component.toggleSelect('s1');
-    expect(component.selectedCount()).toBe(1);
-    component.toggleSelect('s1');
-    expect(component.selectedCount()).toBe(0);
-
-    component.nextPage();
-    expect(component.currentPage()).toBe(2);
-    component.previousPage();
-    expect(component.currentPage()).toBe(1);
-    component.previousPage();
-    expect(component.currentPage()).toBe(1);
-    component.goToPage(99);
-    expect(component.currentPage()).toBe(3);
-    component.nextPage();
-    expect(component.currentPage()).toBe(3);
-    component.goToPage(0);
-    expect(component.currentPage()).toBe(1);
-    component.goToPage(1);
-    expect(getSpecs).toHaveBeenCalled();
+  it('does not request a catalog without an authenticated user and recovers from failures', () => {
+    user.set(null);
+    const anonymous = setup();
+    expect(getUserSpecs).not.toHaveBeenCalled();
+    expect(anonymous.tracks()).toEqual([]);
+    user.set({ id: 'producer-1' });
+    getUserSpecs.mockReturnValue(throwError(() => new Error('offline')));
+    anonymous.loadTracks();
+    expect(anonymous.isLoading()).toBe(false);
   });
-
-  it('builds api filters and display helpers for track rows', () => {
-    const component = create();
-
-    component.setSearch('  first  ');
-    expect(getSpecs).toHaveBeenLastCalledWith(
-      expect.objectContaining({ search: 'first', page: 1 }),
-    );
-
-    component.setGenreFilter(' Trap ');
-    expect(getSpecs).toHaveBeenLastCalledWith(
-      expect.objectContaining({ search: 'first', genres: ['Trap'], page: 1 }),
-    );
-
-    component.setSortMode('alpha');
-    expect(getSpecs).toHaveBeenLastCalledWith(expect.objectContaining({ sort: 'title' }));
-
-    expect(component.getGenreLabel(specs[0])).toBe('Trap');
-    expect(component.getGenreLabel(specs[2])).toBe('Beat');
-    expect(component.trackInitial({ title: '' } as any)).toBe('b');
-    expect(component.getPlayCount(specs[0])).toBe(30);
-    expect(component.getFavoriteCount({} as any)).toBe(0);
-    expect(component.getSoldCount(specs[0])).toBe(3);
-    expect(component.getEarned(specs[0])).toBe(4497);
-    expect(component.getStatus(specs[1])).toBe('draft');
-    expect(component.getStatus(specs[2])).toBe('review');
-    expect(component.getStatus(specs[0])).toBe('live');
-    expect(component.releaseMeta(specs[1])).toContain('Draft');
-    expect(component.releaseMeta(specs[2])).toContain('awaiting review');
-    expect(component.releaseMeta(specs[0])).toContain('trap');
-    expect(component.currency(0)).toBe('—');
-    expect(component.currency(1499)).toBe('$1,499');
+  it('navigates to studio upload with edit query param on editTrack', () => {
+    const c = setup();
+    const event = { stopPropagation: vi.fn() } as any;
+    c.editTrack(event, specs[0] as any);
+    expect(event.stopPropagation).toHaveBeenCalled();
+    expect(navigate).toHaveBeenCalledWith(['/studio/upload'], { queryParams: { edit: 's1' } });
+  });
+  it('handles confirmed deletion and reloads tracks', () => {
+    const c = setup();
+    c.trackPendingDelete.set(specs[0] as any);
+    c.onDeleteConfirmed();
+    expect(deleteSpec).toHaveBeenCalledWith('s1');
+    expect(toastSuccess).toHaveBeenCalledWith('Beat deleted');
+    expect(c.trackPendingDelete()).toBeNull();
+  });
+  it('handles deletion errors gracefully', () => {
+    deleteSpec.mockReturnValue(throwError(() => new Error('failed')));
+    const c = setup();
+    c.trackPendingDelete.set(specs[0] as any);
+    c.onDeleteConfirmed();
+    expect(deleteSpec).toHaveBeenCalledWith('s1');
+    expect(toastError).toHaveBeenCalledWith('Unable to delete this beat. Please try again.');
+    expect(c.trackPendingDelete()).toBeNull();
   });
 });

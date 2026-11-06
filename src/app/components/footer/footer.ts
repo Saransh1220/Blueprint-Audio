@@ -1,3 +1,4 @@
+import { BRAND } from '../../core/config/brand';
 import { Component } from '@angular/core';
 import { RouterLink } from '@angular/router';
 
@@ -8,4 +9,7 @@ import { RouterLink } from '@angular/router';
   templateUrl: './footer.html',
   styleUrls: ['./footer.scss'],
 })
-export class FooterComponent {}
+export class FooterComponent {
+  readonly brand = BRAND;
+  readonly year = new Date().getFullYear();
+}

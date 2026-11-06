@@ -8,7 +8,9 @@ function makeGl(opts: { lost?: boolean; compileOk?: boolean } = {}) {
     getShaderParameter: () => opts.compileOk ?? true,
     getShaderInfoLog: () => 'bad shader',
     getProgramParameter: () => 4,
-    getActiveUniform: (_p: unknown, i: number) => ({ name: ['uTime', 'uContent', 'uRectCenter', 'uRectHalf'][i] }),
+    getActiveUniform: (_p: unknown, i: number) => ({
+      name: ['uTime', 'uContent', 'uRectCenter', 'uRectHalf'][i],
+    }),
     getUniformLocation: (_p: unknown, name: string) => ({ name }),
     createShader: () => ({}),
     createProgram: () => ({}),
@@ -116,7 +118,10 @@ describe('flame-wrap', () => {
   });
 
   it('supportsHtmlInCanvas detects drawElementImage + requestPaint', () => {
-    const fake: any = { getContext: () => ({ drawElementImage: () => {} }), requestPaint: () => {} };
+    const fake: any = {
+      getContext: () => ({ drawElementImage: () => {} }),
+      requestPaint: () => {},
+    };
     vi.spyOn(document, 'createElement').mockReturnValue(fake);
     expect(supportsHtmlInCanvas()).toBe(true);
     fake.requestPaint = undefined;

@@ -1,10 +1,14 @@
 <main class="upload-page-container" [formGroup]="uploadForm">
   <section class="upload-shell">
     <su-page-head
-      eyebrow="Upload · new beat"
-      heading="Press"
-      accent="something new."
-      subtitle="Fill in the details, set your licenses, and drop it into the catalog whenever you're ready."
+      [eyebrow]="isEditMode() ? 'Studio · edit beat' : 'Upload · new beat'"
+      [heading]="isEditMode() ? 'Refine' : 'Press'"
+      [accent]="isEditMode() ? 'your sound.' : 'something new.'"
+      [subtitle]="
+        isEditMode()
+          ? 'Update metadata, adjust licensing tiers and refresh your artwork.'
+          : 'Fill in the details, set your licenses, and drop it into the catalog whenever you\'re ready.'
+      "
     />
 
     <div class="upload-layout">
@@ -68,7 +72,9 @@
                   [attr.accept]="row.accept"
                   (change)="onFileSelected($event, row.type)"
                 />
-                <span class="file-icon"><i class="fa-solid {{ row.icon }}" aria-hidden="true"></i></span>
+                <span class="file-icon"
+                  ><i class="fa-solid {{ row.icon }}" aria-hidden="true"></i
+                ></span>
                 <span class="file-main">
                   <span class="row-title">
                     <strong>{{ row.title }}</strong>
@@ -88,12 +94,16 @@
                     <button
                       type="button"
                       class="link-btn"
-                      (click)="$event.preventDefault(); $event.stopPropagation(); removeFile(row.type)"
+                      (click)="
+                        $event.preventDefault(); $event.stopPropagation(); removeFile(row.type)
+                      "
                     >
                       Remove
                     </button>
                   }
-                  <span class="pick-btn">{{ fileSummary(row.type) ? 'Replace' : 'Choose file' }}</span>
+                  <span class="pick-btn">{{
+                    fileSummary(row.type) ? 'Replace' : 'Choose file'
+                  }}</span>
                 </span>
               </label>
             }
@@ -211,7 +221,9 @@
               @for (tag of tags.controls; track tag; let i = $index) {
                 <span class="tag"
                   >{{ tag.value }}
-                  <button type="button" (click)="removeTag(i)" aria-label="Remove tag">×</button></span
+                  <button type="button" (click)="removeTag(i)" aria-label="Remove tag">
+                    ×
+                  </button></span
                 >
               }
               <input
@@ -231,11 +243,7 @@
         <su-panel heading="Licenses" hint="Toggle on or off and set your prices" accent="hot">
           <div class="licenses" formArrayName="licenses">
             @for (license of licenses.controls; track license; let i = $index) {
-              <div
-                class="license"
-                [class.off]="!license.get('enabled')?.value"
-                [formGroupName]="i"
-              >
+              <div class="license" [class.off]="!license.get('enabled')?.value" [formGroupName]="i">
                 <button
                   type="button"
                   class="switch"
@@ -267,7 +275,10 @@
           <div class="free-row">
             <div>
               <strong>Free MP3 download <em>non-commercial</em></strong>
-              <small>Listeners can grab a tagged MP3 with no commercial license. It gives away reach, not rights.</small>
+              <small
+                >Listeners can grab a tagged MP3 with no commercial license. It gives away reach,
+                not rights.</small
+              >
             </div>
             <button
               type="button"
@@ -315,18 +326,23 @@
           }
         </su-panel>
 
-        <su-panel heading="Ready to publish?" hint="Checklist">
+        <su-panel
+          heading="Ready to publish?"
+          [hint]="isEditMode() ? 'Update checklist' : 'Checklist'"
+        >
           <ul class="checklist">
-            <li [class.ok]="requiredAudioCount() === requiredAudioTotal()">
+            <li [class.ok]="isEditMode() || requiredAudioCount() === requiredAudioTotal()">
               <i aria-hidden="true"></i>
               <span>Required audio</span>
-              <b>{{ requiredAudioCount() }} / {{ requiredAudioTotal() }}</b>
+              <b>{{
+                isEditMode() ? 'Current files' : requiredAudioCount() + ' / ' + requiredAudioTotal()
+              }}</b>
             </li>
-            <li [class.ok]="fileUploadState('cover').phase === 'uploaded'">
+            <li [class.ok]="fileUploadState('cover').phase === 'uploaded' || !!coverPreviewUrl()">
               <i aria-hidden="true"></i>
               <span>Cover art</span>
               <b>{{
-                fileUploadState('cover').phase === 'uploaded'
+                fileUploadState('cover').phase === 'uploaded' || coverPreviewUrl()
                   ? 'Uploaded'
                   : coverFile()
                     ? fileUploadLabel('cover')
@@ -351,28 +367,42 @@
 
   <footer class="sticky-footer">
     <p>
-      @if (allRequiredFilesUploaded()) {
+      @if (isEditMode()) {
+        Editing <em>{{ uploadForm.get('title')?.value || 'beat' }}</em
+        >. Save changes to update metadata and pricing.
+      } @else if (allRequiredFilesUploaded()) {
         Files <em>uploaded</em>. Publish only finalizes metadata and starts processing.
       } @else {
         Files upload <em>as soon as you select them</em>. You can keep filling out the form.
       }
     </p>
     <div>
-      <button type="button" class="act ghost" (click)="saveDraft()">Save draft</button>
+      <button type="button" class="act ghost" (click)="isEditMode() ? cancelEdit() : saveDraft()">
+        {{ isEditMode() ? 'Cancel' : 'Save draft' }}
+      </button>
       <button
         type="button"
         class="act primary"
-        (click)="submitUpload()"
-        [disabled]="isSubmitting() || (!pendingCompletionId() && !allRequiredFilesUploaded())"
+        (click)="isEditMode() ? saveEditedSpec() : submitUpload()"
+        [disabled]="
+          isSubmitting() ||
+          (isEditMode()
+            ? uploadForm.invalid || selectedLicenses().length === 0
+            : !pendingCompletionId() && !allRequiredFilesUploaded())
+        "
       >
         {{
           isSubmitting()
-            ? pendingCompletionId()
-              ? 'Retrying finalization…'
-              : 'Publishing…'
-            : pendingCompletionId()
-              ? 'Retry finalization →'
-              : 'Publish beat →'
+            ? isEditMode()
+              ? 'Saving changes…'
+              : pendingCompletionId()
+                ? 'Retrying finalization…'
+                : 'Publishing…'
+            : isEditMode()
+              ? 'Save changes →'
+              : pendingCompletionId()
+                ? 'Retry finalization →'
+                : 'Publish beat →'
         }}
       </button>
     </div>

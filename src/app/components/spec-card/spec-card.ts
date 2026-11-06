@@ -1,3 +1,4 @@
+import { BRAND } from '../../core/config/brand';
 import { CommonModule, NgOptimizedImage } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import {
@@ -25,6 +26,7 @@ import { MoneyPipe } from '../../shared/pipes/money.pipe';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SpecCardComponent implements OnInit, OnDestroy {
+  readonly brand = BRAND;
   @Input() spec!: Spec;
   @Input() priority = false;
   @Input() appearance: 'default' | 'explore' | 'market' = 'default';
@@ -72,10 +74,6 @@ export class SpecCardComponent implements OnInit, OnDestroy {
   }
 
   producerHandle() {
-    return (this.spec.producerName || 'producer')
-      .toLowerCase()
-      .trim()
-      .replace(/[^a-z0-9]+/g, '-')
-      .replace(/^-|-$/g, '');
+    return this.spec.producerHandle || this.spec.producerId;
   }
 }

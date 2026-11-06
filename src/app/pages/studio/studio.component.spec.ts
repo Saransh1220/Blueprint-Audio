@@ -26,6 +26,7 @@ describe('StudioComponent', () => {
       id: 'u1',
       name: 'Legal Name',
       display_name: 'Stage Name',
+      role: 'producer',
       avatar_url: 'avatar.png',
     });
 
@@ -33,10 +34,10 @@ describe('StudioComponent', () => {
 
     expect(component.displayName()).toBe('Stage Name');
     expect(component.avatarUrl()).toBe('avatar.png');
-    expect(component.navItems.map((item) => item.path)).toEqual([
+    expect(component.navItems().map((item) => item.path)).toEqual([
       'overview',
-      'tracks',
       'analytics',
+      'tracks',
       'orders',
       'purchases',
       'profile',
@@ -80,7 +81,7 @@ describe('StudioComponent', () => {
     expect(component.firstName()).toBe('Stage');
     expect(component.lastName()).toBe('Name Two');
     expect(component.handle()).toBe('legal.name');
-    expect(component.sidebarStats()).toEqual({ beats: 24, followers: 847 });
+    expect(component.sidebarStats()).toEqual({ beats: 0, followers: 0 });
     expect(component.todayDate()).toMatch(/\w+, \w+ \d+/);
 
     currentUser.set(null);

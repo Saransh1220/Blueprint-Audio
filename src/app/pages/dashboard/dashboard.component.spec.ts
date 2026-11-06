@@ -224,7 +224,11 @@ describe('DashboardComponent', () => {
         { provide: AnalyticsService, useValue: { getOverview: () => of(overviewOf(60)) } },
         {
           provide: PaymentService,
-          useValue: { getProducerOrders, fetchUserLicenses: vi.fn(), licensePagination: pagination },
+          useValue: {
+            getProducerOrders,
+            fetchUserLicenses: vi.fn(),
+            licensePagination: pagination,
+          },
         },
         { provide: NotificationService, useValue: { notifications: notes, markAsRead } },
       ],
@@ -281,11 +285,11 @@ describe('DashboardComponent', () => {
   it('builds producer KPIs from the overview', () => {
     const { c } = setup();
     const k = c.kpis();
-    expect(k.map((x) => x.label)).toEqual(['Plays', 'Downloads', 'Followers', 'Favorites']);
+    expect(k.map((x) => x.label)).toEqual(['Plays', 'Downloads', 'Favorites']);
     expect(k[0].value).toBe('600');
     expect(k[0].delta).toBe('+100.0%');
     expect(k[0].note).toBe('vs previous 30D');
-    expect(k[3].value).toBe('42');
+    expect(k[2].value).toBe('42');
     expect(k[0].spark.length).toBeGreaterThan(1);
   });
 
@@ -294,7 +298,7 @@ describe('DashboardComponent', () => {
     c.overview.set(null);
     const k = c.kpis();
     expect(k[0].value).toBe('0');
-    expect(k[3].value).toBe('0');
+    expect(k[2].value).toBe('0');
     expect(k[0].spark).toEqual([0, 0]);
     expect(c.series().values).toEqual([]);
     expect(c.series().dates).toEqual([]);
@@ -303,7 +307,7 @@ describe('DashboardComponent', () => {
     expect(c.beats()).toEqual([]);
     expect(c.split()).toEqual([]);
     c.overview.set({ ...overviewOf(60), total_favorites: undefined } as never);
-    expect(c.kpis()[3].value).toBe('0');
+    expect(c.kpis()[2].value).toBe('0');
   });
 
   it('chart helpers: ticks, bars, niceMax for empty and non-empty data', () => {
@@ -364,7 +368,7 @@ describe('DashboardComponent', () => {
 
   it('today() for listeners returns the static listener metrics', () => {
     const { c } = setup({ role: Role.ARTIST });
-    expect(c.today().map((m) => m.label)).toEqual(['Listened today', 'Downloads', 'Saved']);
+    expect(c.today().map((m) => m.label)).toEqual([]);
   });
 
   it('listener: loads licenses once and computes kpis, series, split, purchases', () => {
@@ -394,12 +398,12 @@ describe('DashboardComponent', () => {
     expect(c.chartTitle()).toBe('Spending');
     expect(c.splitTitle()).toBe('Spend by license');
     const k = c.kpis();
-    expect(k.map((x) => x.label)).toEqual(['Library', 'Wishlist', 'Downloads', 'Following']);
+    expect(k.map((x) => x.label)).toEqual(['Library', 'Downloads']);
     expect(k[0].value).toBe('9');
     expect(k[0].delta).toBe('+2');
     expect(k[0].up).toBe(true);
-    expect(k[2].value).toBe('4');
-    expect(k[2].delta).toBe('3 licenses');
+    expect(k[1].value).toBe('4');
+    expect(k[1].delta).toBe('3 licenses');
     expect(c.series().values.length).toBe(30);
     expect(c.series().total).toContain('1,498');
     const split = c.split();
@@ -410,7 +414,7 @@ describe('DashboardComponent', () => {
     expect(p[0].title).toBe('Violet Hour');
     expect(p[2].title).toBe('Untitled beat');
     expect(p[0].meta).toContain('Basic');
-    expect(c.peopleRows()[0].name).toBe('Kita Sol');
+    expect(c.peopleRows()).toEqual([]);
   });
 
   it('listener with no licenses: neutral kpis, falls back to length for total', () => {
@@ -585,9 +589,9 @@ describe('DashboardComponent', () => {
     expect(el.textContent).toContain('Top beats');
     expect(el.textContent).toContain('Ghostwire');
     expect(el.textContent).toContain('Upload beat');
-    expect(el.textContent).toContain('Top countries');
+    expect(el.textContent).not.toContain('Top countries');
     expect(el.querySelectorAll('.bar').length).toBe(30);
-    expect(el.querySelectorAll('.t-kpi').length).toBe(4);
+    expect(el.querySelectorAll('.t-kpi').length).toBe(3);
     expect(el.textContent).toContain('Upload failed');
 
     (el.querySelector('a.go') as HTMLElement).click();
@@ -611,7 +615,7 @@ describe('DashboardComponent', () => {
     const el = fixture.nativeElement as HTMLElement;
     expect(el.textContent).toContain('nothing needs your attention');
     expect(el.textContent).toContain('No plays or sales yet');
-    expect(el.textContent).toContain('No data yet.');
+    expect(el.querySelector('.block-stack')).toBeNull();
     expect(el.textContent).toContain('No orders yet.');
     expect(el.textContent).toContain('No recent activity.');
   });
@@ -623,8 +627,8 @@ describe('DashboardComponent', () => {
     expect(el.textContent).toContain('For you');
     expect(el.textContent).toContain('Recent purchases');
     expect(el.textContent).toContain('Violet Hour');
-    expect(el.textContent).toContain('Your top genres');
-    expect(el.textContent).toContain('Following');
+    expect(el.textContent).not.toContain('Your top genres');
+    expect(el.textContent).toContain('Following is not available yet');
 
     (el.querySelectorAll('.head-actions .tabs button')[0] as HTMLElement).click();
     TestBed.tick();

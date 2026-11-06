@@ -3,7 +3,9 @@
   <header class="head">
     <div class="head-title">
       <p class="eyebrow">{{ dateLine }}</p>
-      <h1>{{ greeting() }}, <em>{{ displayName() }}.</em></h1>
+      <h1>
+        {{ greeting() }}, <em>{{ displayName() }}.</em>
+      </h1>
     </div>
 
     <dl class="today" aria-label="Today">
@@ -18,13 +20,37 @@
     <div class="head-actions">
       <div class="swatches" role="group" aria-label="Dashboard style">
         @for (v of variants; track v.id) {
-          <button type="button" class="sw sw-{{ v.id }}" [class.on]="variant() === v.id" [attr.aria-pressed]="variant() === v.id" [attr.aria-label]="v.label + ' style'" [attr.title]="v.label" (click)="setVariant(v.id)"></button>
+          <button
+            type="button"
+            class="sw sw-{{ v.id }}"
+            [class.on]="variant() === v.id"
+            [attr.aria-pressed]="variant() === v.id"
+            [attr.aria-label]="v.label + ' style'"
+            [attr.title]="v.label"
+            (click)="setVariant(v.id)"
+          ></button>
         }
       </div>
 
       <div class="tabs" role="tablist" aria-label="Dashboard view">
-        <button type="button" role="tab" [class.on]="role() === 'producer'" [attr.aria-selected]="role() === 'producer'" (click)="setRole('producer')">Producer</button>
-        <button type="button" role="tab" [class.on]="role() === 'listener'" [attr.aria-selected]="role() === 'listener'" (click)="setRole('listener')">Listener</button>
+        <button
+          type="button"
+          role="tab"
+          [class.on]="role() === 'producer'"
+          [attr.aria-selected]="role() === 'producer'"
+          (click)="setRole('producer')"
+        >
+          Producer
+        </button>
+        <button
+          type="button"
+          role="tab"
+          [class.on]="role() === 'listener'"
+          [attr.aria-selected]="role() === 'listener'"
+          (click)="setRole('listener')"
+        >
+          Listener
+        </button>
       </div>
 
       @if (role() === 'producer') {
@@ -49,14 +75,25 @@
             <span class="tag">{{ chartTitle() }}</span>
             <div class="tabs tabs-sm" role="tablist" aria-label="Date range">
               @for (r of ranges; track r) {
-                <button type="button" role="tab" [class.on]="range() === r" [attr.aria-selected]="range() === r" (click)="setRange(r)">{{ r }}</button>
+                <button
+                  type="button"
+                  role="tab"
+                  [class.on]="range() === r"
+                  [attr.aria-selected]="range() === r"
+                  (click)="setRange(r)"
+                >
+                  {{ r }}
+                </button>
               }
             </div>
           </div>
 
           <p class="rev-figure">
             {{ series().total }}
-            <span class="chip">{{ series().up === true ? '▲' : series().up === false ? '▼' : '•' }} {{ series().delta }}</span>
+            <span class="chip"
+              >{{ series().up === true ? '▲' : series().up === false ? '▼' : '•' }}
+              {{ series().delta }}</span
+            >
           </p>
 
           <div class="chart">
@@ -69,7 +106,12 @@
               <div class="grid-lines" aria-hidden="true"><i></i><i></i><i></i></div>
               <div class="bars">
                 @for (b of bars(); track $index) {
-                  <span class="bar" [class.latest]="b.latest" [style.height.%]="b.height" [attr.title]="b.value"></span>
+                  <span
+                    class="bar"
+                    [class.latest]="b.latest"
+                    [style.height.%]="b.height"
+                    [attr.title]="b.value"
+                  ></span>
                 }
               </div>
             </div>
@@ -81,35 +123,21 @@
           </div>
         </div>
 
-        @let hl = role() === 'producer' ? producerHighlight : listenerHighlight;
-        @let goal = role() === 'producer' ? producerGoal : listenerGoal;
-        <div class="tile t-hl">
-          <div class="hl-main">
-            <span class="tag">{{ hl.label }}</span>
-            <p class="hl-figure">{{ hl.value }}</p>
-            <p class="hl-note">{{ hl.note }}</p>
-            <a class="d-btn d-btn-sm" [routerLink]="hl.link">{{ hl.cta }} <i aria-hidden="true">→</i></a>
-          </div>
-
-          <div class="hl-goal">
-            <span class="tag">{{ goal.title }}</span>
-            <p class="goal-figure">{{ goal.current }} <small>/ {{ goal.target }}</small></p>
-            <div class="meter" role="progressbar" [attr.aria-valuenow]="goal.pct" aria-valuemin="0" aria-valuemax="100">
-              <i [style.width.%]="goal.pct"></i>
-            </div>
-            <p class="goal-note"><strong>{{ goal.pct }}%</strong> · {{ goal.note }}</p>
-          </div>
-        </div>
-
         @for (k of kpis(); track k.label; let i = $index) {
-          <a class="tile t-kpi tone-{{ k.tone }}" [style.grid-area]="'k' + (i + 1)" [routerLink]="k.link">
+          <a
+            class="tile t-kpi tone-{{ k.tone }}"
+            [style.grid-area]="'k' + (i + 1)"
+            [routerLink]="k.link"
+          >
             <span class="tag">{{ k.label }}</span>
             <strong class="kpi-value">{{ k.value }}</strong>
             <svg class="spark" viewBox="0 0 100 28" preserveAspectRatio="none" aria-hidden="true">
               <polyline [attr.points]="sparkPoints(k.spark)" />
             </svg>
             <span class="kpi-foot">
-              <span class="chip">{{ k.up === true ? '▲' : k.up === false ? '▼' : '•' }} {{ k.delta }}</span>
+              <span class="chip"
+                >{{ k.up === true ? '▲' : k.up === false ? '▼' : '•' }} {{ k.delta }}</span
+              >
               <span class="note">{{ k.note }}</span>
             </span>
           </a>
@@ -141,17 +169,11 @@
               }
             </li>
           } @empty {
-            <li class="empty">{{ loading() ? 'Loading…' : 'You’re all caught up — nothing needs your attention.' }}</li>
+            <li class="empty">
+              {{ loading() ? 'Loading…' : 'You’re all caught up — nothing needs your attention.' }}
+            </li>
           }
         </ul>
-
-        @let battle = role() === 'producer' ? producerBattle : listenerBattle;
-        <div class="tile t-bat">
-          <span class="tag">{{ battle.tag }}</span>
-          <p class="bat-title">{{ battle.title }}</p>
-          <p class="bat-note">{{ battle.note }}</p>
-          <a class="d-btn d-btn-sm" [routerLink]="battle.link">{{ battle.cta }} <i aria-hidden="true">→</i></a>
-        </div>
       </div>
     </section>
 
@@ -160,7 +182,11 @@
       <div class="sec-head">
         <span class="sec-num">03</span>
         <h2 id="sec-perf">{{ role() === 'producer' ? 'Performance' : 'Library' }}</h2>
-        <a class="more" [routerLink]="role() === 'producer' ? '/studio/tracks' : '/studio/purchases'">{{ role() === 'producer' ? 'All tracks' : 'Open library' }} →</a>
+        <a
+          class="more"
+          [routerLink]="role() === 'producer' ? '/studio/tracks' : '/studio/purchases'"
+          >{{ role() === 'producer' ? 'All tracks' : 'Open library' }} →</a
+        >
       </div>
 
       <div class="cols cols-perf">
@@ -169,18 +195,28 @@
             <h3 class="sub-head">Top beats</h3>
             <div class="table">
               <div class="tr th beat-row" aria-hidden="true">
-                <span></span><span>Title</span><span class="num">Plays</span><span class="num">Downloads</span><span class="num">Revenue</span>
+                <span></span><span>Title</span><span class="num">Plays</span
+                ><span class="num">Downloads</span><span class="num">Revenue</span>
               </div>
               @for (b of beats(); track b.id) {
                 <a class="tr beat-row" [routerLink]="['/', b.id]">
                   <span class="art" [style.background]="b.color">{{ initial(b.title) }}</span>
-                  <span class="name"><strong>{{ b.title }}</strong><small>{{ b.meta }}</small></span>
+                  <span class="name"
+                    ><strong>{{ b.title }}</strong
+                    ><small>{{ b.meta }}</small></span
+                  >
                   <span class="num hide-sm">{{ b.plays }}</span>
                   <span class="num hide-sm">{{ b.downloads }}</span>
                   <span class="num money">{{ b.revenue }}</span>
                 </a>
               } @empty {
-                <p class="empty">{{ loading() ? 'Loading…' : 'No plays or sales yet — publish a beat to get started.' }}</p>
+                <p class="empty">
+                  {{
+                    loading()
+                      ? 'Loading…'
+                      : 'No plays or sales yet — publish a beat to get started.'
+                  }}
+                </p>
               }
             </div>
           </div>
@@ -191,45 +227,21 @@
               @for (p of purchases(); track $index) {
                 <a class="tr purchase" routerLink="/studio/purchases">
                   <span class="art" [style.background]="p.color">{{ initial(p.title) }}</span>
-                  <span class="name"><strong>{{ p.title }}</strong><small>{{ p.meta }}</small></span>
+                  <span class="name"
+                    ><strong>{{ p.title }}</strong
+                    ><small>{{ p.meta }}</small></span
+                  >
                   <span class="num money">{{ p.price }}</span>
                   <span class="pill end" data-tone="ok">Download</span>
                 </a>
               } @empty {
-                <p class="empty">{{ loading() ? 'Loading…' : 'No purchases yet — find your first beat.' }}</p>
+                <p class="empty">
+                  {{ loading() ? 'Loading…' : 'No purchases yet — find your first beat.' }}
+                </p>
               }
             </div>
           </div>
         }
-
-        <div class="block-stack">
-          <div class="block">
-            <h3 class="sub-head">{{ splitTitle() }}</h3>
-            <ul class="split">
-              @for (s of split(); track s.label) {
-                <li>
-                  <div class="split-top"><span>{{ s.label }}</span><strong>{{ s.amount }}</strong></div>
-                  <div class="track"><i [style.width.%]="s.pct"></i></div>
-                </li>
-              } @empty {
-                <li class="empty">{{ loading() ? 'Loading…' : 'No data yet.' }}</li>
-              }
-            </ul>
-          </div>
-
-          <div class="block">
-            <h3 class="sub-head">{{ role() === 'producer' ? producerAudienceTitle : listenerAudienceTitle }}</h3>
-            <ul class="hbars">
-              @for (b of role() === 'producer' ? producerAudience : listenerAudience; track b.label) {
-                <li>
-                  <span>{{ b.label }}</span>
-                  <div class="hbar"><i [style.width.%]="b.pct * 2"></i></div>
-                  <strong>{{ b.pct }}%</strong>
-                </li>
-              }
-            </ul>
-          </div>
-        </div>
       </div>
     </section>
 
@@ -243,15 +255,22 @@
       <div class="cols cols-act">
         <div class="block">
           <h3 class="sub-head">
-            {{ role() === 'producer' ? ordersTitle : followingTitle }}
-            <a class="more" [routerLink]="role() === 'producer' ? '/studio/orders' : '/explore'">View all →</a>
+            {{ role() === 'producer' ? ordersTitle : 'Following is not available yet' }}
+            <a class="more" [routerLink]="role() === 'producer' ? '/studio/orders' : '/explore'"
+              >View all →</a
+            >
           </h3>
           <ul class="orders">
-            @for (o of peopleRows(); track $index) {
+            @for (o of role() === 'producer' ? peopleRows() : []; track $index) {
               <li>
                 <span class="avatar" [style.background]="o.color">{{ initial(o.name) }}</span>
-                <span class="name"><strong>{{ o.name }}</strong><small>{{ o.note }}</small></span>
-                <span class="pill" [attr.data-tone]="o.badge === 'New' ? 'info' : 'ok'">{{ o.badge }}</span>
+                <span class="name"
+                  ><strong>{{ o.name }}</strong
+                  ><small>{{ o.note }}</small></span
+                >
+                <span class="pill" [attr.data-tone]="o.badge === 'New' ? 'info' : 'ok'">{{
+                  o.badge
+                }}</span>
                 <time>{{ o.time }}</time>
               </li>
             } @empty {
@@ -266,7 +285,9 @@
             @for (a of activity(); track $index) {
               <li [attr.data-tone]="a.tone">
                 <span class="dot" aria-hidden="true"></span>
-                <p><strong>{{ a.strong }}</strong> {{ a.text }}</p>
+                <p>
+                  <strong>{{ a.strong }}</strong> {{ a.text }}
+                </p>
                 <time>{{ a.time }}</time>
               </li>
             } @empty {
@@ -287,7 +308,10 @@
       <nav class="links" aria-label="Shortcuts">
         @for (q of role() === 'producer' ? producerLinks : listenerLinks; track q.label) {
           <a class="link-row" [routerLink]="q.link">
-            <span><strong>{{ q.label }}</strong><small>{{ q.hint }}</small></span>
+            <span
+              ><strong>{{ q.label }}</strong
+              ><small>{{ q.hint }}</small></span
+            >
             <i aria-hidden="true">→</i>
           </a>
         }

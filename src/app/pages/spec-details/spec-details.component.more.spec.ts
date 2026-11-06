@@ -1,7 +1,7 @@
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { ActivatedRoute, convertToParamMap } from '@angular/router';
-import { BehaviorSubject, NEVER, of, throwError } from 'rxjs';
+import { BehaviorSubject, NEVER, of, throwError, Subject } from 'rxjs';
 import {
   AnalyticsService,
   CartService,
@@ -23,6 +23,7 @@ function makeSpec(over: any = {}): any {
     key: 'C',
     price: 25,
     duration: 100,
+    waveformPeaks: Array(64).fill(40),
     imageUrl: 'cover.jpg',
     genres: [{ id: 'g', name: 'Trap', slug: 'trap' }],
     tags: ['dark', 'club'],
@@ -55,6 +56,7 @@ describe('SpecDetailsComponent (extended)', () => {
   async function setup(spec: any = makeSpec(), related: any[] = []) {
     params$ = new BehaviorSubject(convertToParamMap({ id: 'beat-1' }));
     labMock = {
+      refresh$: new Subject<void>(),
       getSpecById: vi.fn().mockReturnValue(spec === 'never' ? NEVER : of(spec)),
       getSpecs: vi.fn().mockReturnValue(of(related)),
     };
@@ -349,43 +351,10 @@ describe('SpecDetailsComponent (extended)', () => {
     expect(() => component.scrollToFaq()).not.toThrow();
   });
 
-  it('handles comment sorting, drafting, posting and liking', async () => {
-    const { component } = await setup();
-    component.setCommentSort('newest');
-    expect(component.commentSort()).toBe('newest');
-    expect(toast.info).toHaveBeenCalledWith('Sorted by newest');
-    component.setCommentSort('top');
-    expect(toast.info).toHaveBeenCalledWith('Sorted by top');
-
-    const textarea = document.createElement('textarea');
-    textarea.value = '  hello world  ';
-    component.updateCommentDraft({ target: textarea } as any);
-    expect(component.commentDraft()).toBe('  hello world  ');
-    expect(textarea.style.height).toBe(`${textarea.scrollHeight}px`);
-
-    const before = component.comments().length;
-    component.postComment();
-    expect(component.comments().length).toBe(before + 1);
-    expect(component.comments()[0].text).toBe('hello world');
-    expect(component.comments()[0].name).toBe('You');
-    expect(component.commentDraft()).toBe('');
-    expect(toast.success).toHaveBeenCalledWith('Comment posted');
-
-    component.commentDraft.set('   ');
-    component.postComment();
-    expect(component.comments().length).toBe(before + 1);
-
-    component.toggleCommentLike(1);
-    expect(component.comments().find((c: any) => c.id === 1)).toMatchObject({
-      liked: true,
-      likes: 25,
-    });
-    component.toggleCommentLike(1);
-    expect(component.comments().find((c: any) => c.id === 1)).toMatchObject({
-      liked: false,
-      likes: 24,
-    });
-    expect(component.comments().find((c: any) => c.id === 2).likes).toBe(9);
+  it('keeps unsupported discussion off the public beat page', async () => {
+    const { fixture, component } = await setup();
+    expect(component.comments()).toEqual([]);
+    expect(fixture.nativeElement.querySelector('#comments')).toBeNull();
   });
 
   it('shows reference notice toast', async () => {
@@ -581,9 +550,9 @@ describe('SpecDetailsComponent (extended)', () => {
 
     component.loadWaveformForSpec(makeSpec({ waveformPeaks: [NaN] }));
     const fallback = component.waveformBars();
-    expect(fallback).toHaveLength(64);
+    expect(fallback).toEqual([]);
     expect(fallback.every((v: number) => v >= 12 && v <= 94)).toBe(true);
-    component.loadWaveformForSpec(makeSpec());
+    component.loadWaveformForSpec(makeSpec({ waveformPeaks: [] }));
     expect(component.waveformBars()).toEqual(fallback);
     component.loadWaveformForSpec(undefined);
     expect(component.waveformBars()).toEqual([]);

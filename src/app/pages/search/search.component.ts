@@ -87,52 +87,11 @@ export class SearchPageComponent implements OnInit, OnDestroy {
   genres = Object.values(Genre);
   keys = ['All', ...Object.values(MusicalKey)];
 
-  tickerItems = [
-    'Fresh drops every Friday',
-    '40,000+ artists trust Waveyard',
-    'Filter by BPM, key, and mood',
-    'Use the rack your way',
-  ];
-
-  quickFilters = [
-    { label: 'Trap', sub: '808 ready', genre: 'TRAP', tone: 'c-hot', count: '38' },
-    { label: 'Drill', sub: 'dark bounce', genre: 'DRILL', tone: 'c-lime', count: '24' },
-    { label: 'Lo-Fi', sub: 'warm tape', genre: 'LO-FI', tone: 'c-sun', count: '19' },
-    { label: 'Hip-Hop', sub: 'classic bounce', genre: 'HIP-HOP', tone: 'c-cobalt', count: '31' },
-    { label: 'R&B', sub: 'late night', genre: 'R&B', tone: 'c-lavender', count: '16' },
-    { label: 'House', sub: 'club cuts', genre: 'HOUSE', tone: 'c-tangerine', count: '12' },
-  ];
-
   sortOptions = [
     { value: 'newest', label: 'Newest drops' },
     { value: 'name', label: 'Name A-Z' },
     { value: 'price_asc', label: 'Price low' },
     { value: 'price_desc', label: 'Price high' },
-  ];
-
-  inertLicenses = [
-    { label: 'Any license', count: '142' },
-    { label: 'Basic', count: '118' },
-    { label: 'Premium', count: '74' },
-    { label: 'Exclusive', count: '11' },
-  ];
-
-  inertMoodTags = ['Dark', 'Dreamy', 'Romantic', 'Aggressive', 'Cinematic', 'Hype'];
-
-  inertInstruments = [
-    { label: 'Piano', count: '487' },
-    { label: '808 / Bass', count: '612' },
-    { label: 'Guitar', count: '234' },
-    { label: 'Strings', count: '178' },
-    { label: 'Synth', count: '389' },
-    { label: 'Vocals', count: '142' },
-  ];
-
-  inertExtras = [
-    { title: 'Has stems', sub: 'separate tracks included' },
-    { title: 'Tagless preview', sub: 'no voice tag in demo' },
-    { title: 'New this week', sub: 'dropped in last 7 days' },
-    { title: 'Trending', sub: 'rising in sales' },
   ];
 
   activeFilterChips = computed(() => {

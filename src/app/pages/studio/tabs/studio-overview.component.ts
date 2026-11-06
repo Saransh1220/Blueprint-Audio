@@ -7,12 +7,7 @@ import { AuthService, LabService } from '../../../services';
 import { AnalyticsService } from '../../../services/analytics.service';
 import { CurrencyService } from '../../../services/currency.service';
 import { PaymentService } from '../../../services/payment.service';
-import {
-  type SuAccent,
-  SuPageHeadComponent,
-  SuPanelComponent,
-  SuStatComponent,
-} from '../ui';
+import { type SuAccent, SuPageHeadComponent, SuPanelComponent, SuStatComponent } from '../ui';
 
 interface StatTile {
   label: string;
@@ -119,22 +114,13 @@ export class StudioOverviewComponent {
     ];
   });
 
-  liveBeatCount = computed(() => this.topSpecs().length || 24);
-  readyToWithdraw = computed(() =>
-    Math.round((this.analyticsData()?.total_revenue ?? 124700) * 0.18),
-  );
-  recentOrderCount = computed(() => Math.max(this.recentOrders().length, 3));
+  liveBeatCount = computed(() => this.topSpecs().length);
+  recentOrderCount = computed(() => this.recentOrders().length);
 
   revenuePoints = computed(() => {
     const rows = this.analyticsData()?.revenue_by_day ?? [];
-    const source = rows.length
-      ? rows.slice(-30).map((row) => row.revenue)
-      : Array.from({ length: 30 }, (_, i) =>
-          Math.round(900 + i * 45 + Math.sin(i * 0.7) * 260 + Math.sin(i * 0.23) * 140),
-        );
-    const labels = rows.length
-      ? rows.slice(-30).map((row) => this.shortDate(row.date))
-      : source.map((_, i) => `Day ${i + 1}`);
+    const source = rows.slice(-30).map((row) => row.revenue);
+    const labels = rows.slice(-30).map((row) => this.shortDate(row.date));
     const max = Math.max(...source, 1);
     const width = 600;
     const pad = 10;
@@ -169,40 +155,9 @@ export class StudioOverviewComponent {
       }));
   });
 
-  activityItems = computed(() => {
-    const sale = this.recentSales()[0];
-    return [
-      {
-        avatar: 'j',
-        colorClass: 'c1',
-        text: sale
-          ? `${sale.buyer} bought ${sale.license} for ${sale.title}.`
-          : 'Jamie O. left a 5-star review on your latest beat.',
-        time: '2m',
-      },
-      {
-        avatar: 'Rs',
-        colorClass: 'c4',
-        text: sale
-          ? `License sold. ${this.currency(sale.amount || 0)} added to pending revenue.`
-          : 'License sold. Premium WAV added to pending revenue.',
-        time: '18m',
-      },
-      {
-        avatar: '*',
-        colorClass: 'c3',
-        text: 'Ghostwire was added to 3 carts in the last hour.',
-        time: '1h',
-      },
-      { avatar: 'm', colorClass: 'c2', text: 'Meridian started following you.', time: '3h' },
-      {
-        avatar: 'v',
-        colorClass: 'icon',
-        text: 'Your top beat was wishlisted 9 times today.',
-        time: '6h',
-      },
-    ];
-  });
+  activityItems = computed(
+    () => [] as { avatar: string; colorClass: string; text: string; time: string }[],
+  );
 
   // Sparkline
   trendPoints = computed(() => {
@@ -298,7 +253,9 @@ export class StudioOverviewComponent {
       .join(' ');
   }
 
-  private playsSeries = computed(() => (this.analyticsData()?.plays_by_day ?? []).map((r) => r.count));
+  private playsSeries = computed(() =>
+    (this.analyticsData()?.plays_by_day ?? []).map((r) => r.count),
+  );
   private downloadsSeries = computed(() =>
     (this.analyticsData()?.downloads_by_day ?? []).map((r) => r.count),
   );
@@ -311,12 +268,7 @@ export class StudioOverviewComponent {
 
   statTiles = computed<StatTile[]>(() => {
     const cards = this.kpiCards();
-    const make = (
-      index: number,
-      accent: SuAccent,
-      series: number[],
-      hint: string,
-    ): StatTile => {
+    const make = (index: number, accent: SuAccent, series: number[], hint: string): StatTile => {
       const change = this.weekChange(series);
       return {
         label: cards[index].label,

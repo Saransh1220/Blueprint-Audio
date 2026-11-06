@@ -1,35 +1,48 @@
-import { Injectable } from '@angular/core';
-import { type AppCurrency, type Money, minorToMajor } from '../models/money';
+import { Injectable, inject } from '@angular/core';
+import {
+  type AppCurrency,
+  type Money,
+  type MoneyFormatOptions,
+  formatMoneyValue,
+  normalizeCurrencyCode,
+} from '../models/money';
+import { CurrencyConfigurationService } from './currency-configuration.service';
 
 @Injectable({ providedIn: 'root' })
 export class CurrencyService {
+  private readonly configuration = inject(CurrencyConfigurationService);
   formatMoney(
     money?: Money | null,
     fallbackAmount?: number,
     fallbackCurrency: AppCurrency = 'INR',
+    options: MoneyFormatOptions = {},
   ) {
-    const currency = money?.currency ?? fallbackCurrency;
-    const amount = money ? minorToMajor(money.amount_minor, currency) : (fallbackAmount ?? 0);
-    return new Intl.NumberFormat(currency === 'INR' ? 'en-IN' : 'en-US', {
-      style: 'currency',
-      currency,
-      maximumFractionDigits: amount % 1 === 0 ? 0 : 2,
-    }).format(amount);
+    return formatMoneyValue(
+      money,
+      fallbackAmount ?? 0,
+      fallbackCurrency,
+      this.configuration.currencies(),
+      options,
+    );
   }
 
   formatMinorMoney(amountMinor: number, currency?: string) {
     const normalizedCurrency = this.normalizeCurrency(currency);
-    const amount = minorToMajor(amountMinor, normalizedCurrency);
-    const hasFraction = amountMinor % 100 !== 0;
-    return new Intl.NumberFormat(normalizedCurrency === 'INR' ? 'en-IN' : 'en-US', {
-      style: 'currency',
-      currency: normalizedCurrency,
-      minimumFractionDigits: hasFraction ? 2 : 0,
-      maximumFractionDigits: hasFraction ? 2 : 0,
-    }).format(amount);
+    return this.formatMoney({ amount_minor: amountMinor, currency: normalizedCurrency });
+  }
+
+  formatCompactMoney(amount: number, currency: AppCurrency): string {
+    return formatMoneyValue(null, amount, currency, this.configuration.currencies(), {
+      notation: 'compact',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 1,
+    });
   }
 
   normalizeCurrency(currency?: string): AppCurrency {
-    return currency?.toUpperCase() === 'USD' ? 'USD' : 'INR';
+    // Missing currency belongs only to legacy INR records. Non-empty codes are
+    // preserved or rejected by the formatter, never silently relabeled as INR.
+    if (!currency?.trim()) return 'INR';
+    return normalizeCurrencyCode(currency) ?? currency;
   }
 }

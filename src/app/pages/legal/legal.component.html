@@ -1,0 +1,232 @@
+<div class="legal-page">
+  <div class="legal-shell">
+    <a routerLink="/" class="back-link"><span aria-hidden="true">←</span> Back to store</a>
+    <nav class="document-nav" aria-label="Legal documents">
+      <a
+        routerLink="/terms"
+        [class.active]="currentKey() === 'terms'"
+        [attr.aria-current]="currentKey() === 'terms' ? 'page' : null"
+        >Terms of Use</a
+      >
+      <a
+        routerLink="/privacy"
+        [class.active]="currentKey() === 'privacy'"
+        [attr.aria-current]="currentKey() === 'privacy' ? 'page' : null"
+        >Privacy Policy</a
+      >
+      <a
+        routerLink="/licensing"
+        [class.active]="currentKey() === 'licensing'"
+        [attr.aria-current]="currentKey() === 'licensing' ? 'page' : null"
+        >Licensing Guide</a
+      >
+    </nav>
+    @if (isLoading()) {
+      <div class="loading-state" role="status" aria-live="polite">
+        <span></span>
+        <p>Loading document…</p>
+      </div>
+    } @else if (activeVersion(); as version) {
+      <header class="doc-header">
+        <p class="eyebrow">{{ brand.name }} <span aria-hidden="true">/</span> Legal</p>
+        <h1>{{ version.title }}</h1>
+        @if (version.summary) {
+          <p class="doc-introduction">{{ version.summary }}</p>
+        }
+        <div class="doc-meta-bar">
+          <div class="document-facts">
+            <span
+              >Effective <time>{{ version.effectiveAt | date: 'longDate' }}</time></span
+            >
+            <span class="fact-divider" aria-hidden="true"></span
+            ><span>Version {{ version.displayVersion }}</span>
+            <span class="policy-status" [class.archived]="version.status === 'archived'"
+              ><span aria-hidden="true"></span
+              >{{ version.status === 'archived' ? 'Archived' : 'Current policy' }}</span
+            >
+          </div>
+          <button
+            type="button"
+            class="print-button"
+            (click)="printDocument()"
+            title="Print or save as PDF"
+          >
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.5"
+              aria-hidden="true"
+            >
+              <path
+                d="M7 8V3h10v5M7 17H5a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2M7 14h10v7H7zM17 11h1"
+              />
+            </svg>
+            Print / Save PDF
+          </button>
+        </div>
+      </header>
+      <div class="legal-layout">
+        <aside class="legal-sidebar" aria-label="Document contents">
+          <details class="contents-menu" open>
+            <summary>
+              <span>On this page</span
+              ><span class="contents-count">{{ version.sections.length }} sections</span
+              ><svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.5"
+                aria-hidden="true"
+              >
+                <path d="m7 10 5 5 5-5" />
+              </svg>
+            </summary>
+            <nav class="toc-links" aria-label="Sections">
+              @for (sec of version.sections; track sec.id) {
+                <a
+                  [href]="'/' + currentKey() + '#' + sec.id"
+                  (click)="scrollToSection($event, sec.id)"
+                  [class.active]="activeSectionId() === sec.id"
+                  [attr.aria-current]="activeSectionId() === sec.id ? 'location' : null"
+                  ><span class="toc-number">{{ sec.order < 10 ? '0' + sec.order : sec.order }}</span
+                  ><span>{{ sec.title }}</span></a
+                >
+              }
+              @if (versionHistory().length > 1) {
+                <a
+                  [href]="'/' + currentKey() + '#version-history'"
+                  (click)="scrollToSection($event, 'version-history')"
+                  [class.active]="activeSectionId() === 'version-history'"
+                  ><span class="toc-number" aria-hidden="true">↗</span
+                  ><span>Version history</span></a
+                >
+              }
+            </nav>
+          </details>
+          <p class="contents-note">
+            Looking for another policy?<br />Use the document links above.
+          </p>
+        </aside>
+        <article class="legal-canvas" [attr.aria-label]="version.title">
+          @for (sec of version.sections; track sec.id) {
+            <section [id]="sec.id" class="doc-section" [attr.aria-labelledby]="sec.id + '-title'">
+              <header class="section-header">
+                <span class="section-number" aria-hidden="true">{{
+                  sec.order < 10 ? '0' + sec.order : sec.order
+                }}</span>
+                <h2 [id]="sec.id + '-title'">{{ sec.title }}</h2>
+                <a
+                  [href]="'/' + currentKey() + '#' + sec.id"
+                  (click)="scrollToSection($event, sec.id)"
+                  class="anchor-link"
+                  [attr.aria-label]="'Link to ' + sec.title"
+                  title="Link to this section"
+                  >#</a
+                >
+              </header>
+              @if (sec.summary) {
+                <div class="section-summary">
+                  <span>In brief</span>
+                  <p>{{ sec.summary }}</p>
+                </div>
+              }
+              <div class="section-body">
+                <p>{{ sec.content }}</p>
+              </div>
+              @if (sec.table) {
+                <div
+                  class="table-container"
+                  tabindex="0"
+                  role="region"
+                  [attr.aria-label]="sec.title + ' table'"
+                >
+                  <table>
+                    <caption>
+                      {{
+                        sec.title
+                      }}
+                    </caption>
+                    <thead>
+                      <tr>
+                        @for (col of sec.table.headers; track $index) {
+                          <th scope="col">{{ col }}</th>
+                        }
+                      </tr>
+                    </thead>
+                    <tbody>
+                      @for (row of sec.table.rows; track $index) {
+                        <tr>
+                          @for (cell of row; track $index) {
+                            <td>{{ cell }}</td>
+                          }
+                        </tr>
+                      }
+                    </tbody>
+                  </table>
+                </div>
+              }
+            </section>
+          }
+          @if (versionHistory().length > 1) {
+            <section
+              id="version-history"
+              class="doc-section history-section"
+              aria-labelledby="history-title"
+            >
+              <header class="section-header"><h2 id="history-title">Version history</h2></header>
+              <p class="history-intro">
+                Previous publications of this document, preserved for reference.
+              </p>
+              <div class="history-list">
+                @for (hist of versionHistory(); track hist.id) {
+                  <div class="history-row">
+                    <div class="history-version">
+                      v{{ hist.displayVersion }}
+                      @if (hist.displayVersion === version.displayVersion) {
+                        <span>Viewing</span>
+                      }
+                    </div>
+                    <div>
+                      <p>{{ hist.summary }}</p>
+                      <time>Published {{ hist.publishedAt | date: 'mediumDate' }}</time>
+                    </div>
+                    @if (hist.displayVersion !== version.displayVersion) {
+                      <a
+                        [routerLink]="['/' + currentKey()]"
+                        [queryParams]="{ version: hist.displayVersion }"
+                        >View version <span aria-hidden="true">↗</span></a
+                      >
+                    }
+                  </div>
+                }
+              </div>
+            </section>
+          }
+          <footer class="doc-footer">
+            <div class="document-end"><span aria-hidden="true"></span>End of document</div>
+            @if (version.contentHash) {
+              <details class="document-details">
+                <summary>Document details <span aria-hidden="true">+</span></summary>
+                <div class="integrity-details">
+                  <p>SHA-256 content hash</p>
+                  <code>{{ version.contentHash }}</code
+                  ><button
+                    type="button"
+                    (click)="copyContentHash(version.contentHash)"
+                    [class.copied]="hashCopied()"
+                  >
+                    <span aria-live="polite">{{ hashCopied() ? 'Copied!' : 'Copy hash' }}</span>
+                  </button>
+                </div>
+              </details>
+            }
+            <p class="document-copyright">
+              &copy; {{ currentYear }} {{ brand.name }}. All rights reserved.
+            </p>
+          </footer>
+        </article>
+      </div>
+    }
+  </div>
+</div>

@@ -1,3 +1,8 @@
+@if (authError()) {
+  <p role="alert" class="auth-error" style="padding: 1rem; color: var(--hot, #b83347)">
+    {{ authError() }}
+  </p>
+}
 <div class="auth-page" [attr.data-screen]="isLoginView ? 'signin' : 'signup'">
   <div class="split">
     <aside class="visual">
@@ -11,9 +16,9 @@
       />
       <div class="visual-shade" aria-hidden="true"></div>
 
-      <a class="brand" routerLink="/" aria-label="Waveyard home">
+      <a class="brand" routerLink="/" aria-label="{{ brand.name }} home">
         <img src="/logo-dark-cropped.webp" alt="" />
-        <span>Waveyard</span>
+        <span>{{ brand.name }}</span>
       </a>
 
       <div class="tagline">
@@ -25,9 +30,9 @@
 
     <section class="panel">
       <div class="panel-top">
-        <a class="brand brand-mobile" routerLink="/" aria-label="Waveyard home">
+        <a class="brand brand-mobile" routerLink="/" aria-label="{{ brand.name }} home">
           <img src="/logo-dark-cropped.webp" alt="" />
-          <span>Waveyard</span>
+          <span>{{ brand.name }}</span>
         </a>
 
         <p class="switch">
@@ -47,7 +52,7 @@
         <header class="panel-head">
           @if (isLoginView) {
             <h1>Welcome <span>back</span></h1>
-            <p>Sign in to continue to Waveyard</p>
+            <p>Sign in to continue to {{ brand.name }}</p>
           } @else {
             <h1>Create your <span>account</span></h1>
             <p>Set up your account and start sharing your sound.</p>

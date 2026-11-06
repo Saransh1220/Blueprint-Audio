@@ -1,3 +1,4 @@
+import { BRAND } from '../../../core/config/brand';
 import { CommonModule } from '@angular/common';
 import { Component, computed, effect, inject, OnInit, signal, ViewChild } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -17,6 +18,7 @@ import { resolveMediaUrl } from '../../../utils/media-url';
   styleUrl: './studio-profile.component.scss',
 })
 export class StudioProfileComponent implements OnInit {
+  readonly brand = BRAND;
   private fb = inject(FormBuilder);
   private authService = inject(AuthService);
   private userService = inject(UserService);

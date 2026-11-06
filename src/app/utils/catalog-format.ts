@@ -1,4 +1,4 @@
-import type { Money } from '../models/money';
+import { formatMoneyValue, type Money } from '../models/money';
 
 export interface AccentTitleParts {
   readonly before: string;
@@ -18,11 +18,7 @@ export function splitAccentTitle(title: string, accent: string): AccentTitlePart
 
 export function formatCatalogPrice(price: Money): string {
   if (price.amount_minor === 0) return 'Free';
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: price.currency,
-    minimumFractionDigits: price.amount_minor % 100 === 0 ? 0 : 2,
-  }).format(price.amount_minor / 100);
+  return formatMoneyValue(price);
 }
 
 export function formatCatalogDuration(durationSeconds: number): string {

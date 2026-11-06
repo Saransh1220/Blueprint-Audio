@@ -40,6 +40,7 @@ export interface Spec {
   id: string;
   producerId: string;
   producerName: string;
+  producerHandle?: string;
   producerAvatarUrl?: string;
   type: string;
   category: 'beat' | 'sample';

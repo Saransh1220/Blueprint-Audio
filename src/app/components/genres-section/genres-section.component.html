@@ -5,8 +5,8 @@
       <h2 class="section-h">pick a <em>flavor</em>, any flavor.</h2>
     </div>
     <div class="head-meta">
-      <p>Six living collections. Each one curated by a resident producer, refreshed weekly.</p>
-      <a class="arrow-link" href="#" (click)="$event.preventDefault()"
+      <p>Find beats by genre.</p>
+      <a class="arrow-link" routerLink="/explore"
         >See all genres
         <svg
           width="12"
@@ -24,7 +24,14 @@
   </div>
 
   <div class="category-grid">
-    <div class="cat-tile">
+    <div
+      class="cat-tile"
+      role="link"
+      tabindex="0"
+      routerLink="/explore"
+      [queryParams]="{ genres: 'Trap' }"
+      (keydown.enter)="$any($event.target).click()"
+    >
       <img
         class="cat-art"
         src="/assets/images/genres/trap.webp"
@@ -37,10 +44,16 @@
       <div class="cat-num">01</div>
       <div>
         <h3>Trap &amp; <em>Drill</em></h3>
-        <p class="cat-count">214 beats</p>
       </div>
     </div>
-    <div class="cat-tile">
+    <div
+      class="cat-tile"
+      role="link"
+      tabindex="0"
+      routerLink="/explore"
+      [queryParams]="{ genres: 'RnB' }"
+      (keydown.enter)="$any($event.target).click()"
+    >
       <img
         class="cat-art"
         src="/assets/images/genres/rnb.webp"
@@ -53,10 +66,16 @@
       <div class="cat-num">02</div>
       <div>
         <h3>R&amp;B <em>Soul</em></h3>
-        <p class="cat-count">168 beats</p>
       </div>
     </div>
-    <div class="cat-tile">
+    <div
+      class="cat-tile"
+      role="link"
+      tabindex="0"
+      routerLink="/explore"
+      [queryParams]="{ genres: 'Synthwave' }"
+      (keydown.enter)="$any($event.target).click()"
+    >
       <img
         class="cat-art"
         src="/assets/images/genres/synth.webp"
@@ -69,10 +88,16 @@
       <div class="cat-num">03</div>
       <div>
         <h3>Synth <em>Wave</em></h3>
-        <p class="cat-count">91 beats</p>
       </div>
     </div>
-    <div class="cat-tile">
+    <div
+      class="cat-tile"
+      role="link"
+      tabindex="0"
+      routerLink="/explore"
+      [queryParams]="{ genres: 'Boom Bap' }"
+      (keydown.enter)="$any($event.target).click()"
+    >
       <img
         class="cat-art"
         src="/assets/images/genres/boom-bap.webp"
@@ -85,10 +110,16 @@
       <div class="cat-num">04</div>
       <div>
         <h3>Boom <em>Bap</em></h3>
-        <p class="cat-count">132 beats</p>
       </div>
     </div>
-    <div class="cat-tile">
+    <div
+      class="cat-tile"
+      role="link"
+      tabindex="0"
+      routerLink="/explore"
+      [queryParams]="{ genres: 'Lo-fi' }"
+      (keydown.enter)="$any($event.target).click()"
+    >
       <img
         class="cat-art"
         src="/assets/images/genres/lofi.webp"
@@ -101,10 +132,16 @@
       <div class="cat-num">05</div>
       <div>
         <h3>Lo-<em>Fi</em></h3>
-        <p class="cat-count">77 beats</p>
       </div>
     </div>
-    <div class="cat-tile">
+    <div
+      class="cat-tile"
+      role="link"
+      tabindex="0"
+      routerLink="/explore"
+      [queryParams]="{ genres: 'Afrobeat' }"
+      (keydown.enter)="$any($event.target).click()"
+    >
       <img
         class="cat-art"
         src="/assets/images/genres/afro.webp"
@@ -117,7 +154,6 @@
       <div class="cat-num">06</div>
       <div>
         <h3>Afro <em>beat</em></h3>
-        <p class="cat-count">189 beats</p>
       </div>
     </div>
   </div>

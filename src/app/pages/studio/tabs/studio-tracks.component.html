@@ -4,21 +4,6 @@
     <h1 class="page-h">your <em>catalog</em>.</h1>
   </div>
   <div style="display: flex; gap: 8px; flex-wrap: wrap">
-    <button class="btn" type="button">
-      <svg
-        width="12"
-        height="12"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="2.2"
-      >
-        <polygon
-          points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"
-        />
-      </svg>
-      Promote
-    </button>
     <a class="btn dark" routerLink="../upload">
       Upload beat
       <svg
@@ -54,7 +39,7 @@
       </span>
       <input
         type="text"
-        placeholder="search your catalog..."
+        placeholder="search tracks on this page..."
         [value]="searchTerm()"
         (input)="setSearch($any($event.target).value)"
       />
@@ -85,9 +70,9 @@
       (change)="setSortMode($any($event.target).value)"
     >
       <option value="newest">Newest</option>
-      <option value="plays">Most plays</option>
-      <option value="revenue">Most revenue</option>
-      <option value="alpha">Alphabetical</option>
+      <option value="plays">Most plays on this page</option>
+
+      <option value="alpha">Alphabetical on this page</option>
     </select>
   </div>
 
@@ -137,15 +122,6 @@
   </div>
 </div>
 
-<div class="bulk-bar" [class.show]="selectedCount() > 0">
-  <span class="count-lbl">{{ selectedCount() }} selected</span>
-  <div class="bactions">
-    <button class="btn sm" type="button">Promote</button>
-    <button class="btn sm" type="button">Unpublish</button>
-    <button class="btn sm dark" type="button">Delete</button>
-  </div>
-</div>
-
 @if (isLoading()) {
   <div class="tracks-skeleton">
     @for (i of [1, 2, 3, 4, 5]; track i) {
@@ -161,8 +137,7 @@
       <div>Track</div>
       <div class="hide-md">Genre · BPM · Key</div>
       <div class="hide-sm">Plays</div>
-      <div class="hide-sm">Licenses</div>
-      <div class="hide-sm">Revenue</div>
+
       <div class="hide-md">Status</div>
       <div style="text-align: right">Actions</div>
     </div>
@@ -186,8 +161,7 @@
         <div class="hide-sm stat-m">
           {{ getPlayCount(track).toLocaleString('en-IN') }} <em>plays</em>
         </div>
-        <div class="hide-sm stat-m">{{ getSoldCount(track) }} <em>sold</em></div>
-        <div class="hide-sm money-m">{{ currency(getEarned(track)) }}</div>
+
         <div class="hide-md">
           @if (getStatus(track) === 'live') {
             <span class="badge live">Live</span>
@@ -198,36 +172,53 @@
           }
         </div>
         <div class="row-actions">
-          <button class="ra-btn" aria-label="Play" type="button">
-            <svg width="9" height="9" viewBox="0 0 24 24" fill="currentColor">
-              <polygon points="6 3 20 12 6 21 6 3" />
-            </svg>
+          <button
+            class="ra-btn"
+            type="button"
+            aria-label="Play"
+            (click)="actions.playSong($event, track)"
+          >
+            ▶
           </button>
-          <button class="ra-btn" aria-label="Edit" type="button">
+          <button
+            class="ra-btn"
+            type="button"
+            aria-label="Edit beat"
+            title="Edit beat"
+            (click)="editTrack($event, track)"
+          >
             <svg
-              width="11"
-              height="11"
+              width="12"
+              height="12"
               viewBox="0 0 24 24"
               fill="none"
               stroke="currentColor"
               stroke-width="2.2"
             >
-              <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
-              <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+              <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z" />
             </svg>
           </button>
-          <button class="ra-btn" aria-label="More" type="button">
+          <button
+            class="ra-btn danger"
+            type="button"
+            aria-label="Delete beat"
+            title="Delete beat"
+            (click)="confirmDelete($event, track)"
+          >
             <svg
-              width="11"
-              height="11"
+              width="12"
+              height="12"
               viewBox="0 0 24 24"
               fill="none"
               stroke="currentColor"
-              stroke-width="3"
+              stroke-width="2.2"
             >
-              <circle cx="12" cy="12" r="1" />
-              <circle cx="12" cy="5" r="1" />
-              <circle cx="12" cy="19" r="1" />
+              <polyline points="3 6 5 6 21 6" />
+              <path
+                d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"
+              />
+              <line x1="10" y1="11" x2="10" y2="17" />
+              <line x1="14" y1="11" x2="14" y2="17" />
             </svg>
           </button>
         </div>
@@ -260,7 +251,12 @@
           } @else {
             <span class="badge draft tg-status">Draft</span>
           }
-          <button class="tg-play" type="button" aria-label="Play">
+          <button
+            class="tg-play"
+            type="button"
+            (click)="actions.playSong($event, track)"
+            aria-label="Play"
+          >
             <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
               <polygon points="6 3 20 12 6 21 6 3" />
             </svg>
@@ -270,23 +266,52 @@
           }
         </div>
         <div class="tg-body">
+          <div class="tg-actions-row">
+            <button
+              class="ra-btn"
+              type="button"
+              aria-label="Edit beat"
+              title="Edit beat"
+              (click)="editTrack($event, track)"
+            >
+              <svg
+                width="12"
+                height="12"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2.2"
+              >
+                <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z" />
+              </svg>
+            </button>
+            <button
+              class="ra-btn danger"
+              type="button"
+              aria-label="Delete beat"
+              title="Delete beat"
+              (click)="confirmDelete($event, track)"
+            >
+              <svg
+                width="12"
+                height="12"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2.2"
+              >
+                <polyline points="3 6 5 6 21 6" />
+                <path
+                  d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"
+                />
+                <line x1="10" y1="11" x2="10" y2="17" />
+                <line x1="14" y1="11" x2="14" y2="17" />
+              </svg>
+            </button>
+          </div>
           <div class="tg-title">{{ track.title || 'Untitled' }}</div>
           <div class="tg-meta">
             {{ track.bpm || '—' }} BPM · {{ track.key || '—' }} · {{ getGenreLabel(track) }}
-          </div>
-          <div class="tg-stats">
-            <div class="tg-stat">
-              <div class="lbl">Plays</div>
-              <div class="val">{{ getPlayCount(track).toLocaleString('en-IN') }}</div>
-            </div>
-            <div class="tg-stat">
-              <div class="lbl">Sold</div>
-              <div class="val">{{ getSoldCount(track) }}</div>
-            </div>
-            <div class="tg-stat">
-              <div class="lbl">Earned</div>
-              <div class="val">{{ currency(getEarned(track)) }}</div>
-            </div>
           </div>
         </div>
       </div>
@@ -357,3 +382,5 @@
     </div>
   </div>
 }
+
+<app-confirm-dialog (confirmed)="onDeleteConfirmed()" />

@@ -20,7 +20,17 @@ import { StudioComponent } from './pages/studio/studio.component';
 import { UploadComponent } from './pages/upload/upload.component';
 import { AuthService } from './services';
 
+import { unreleasedFeatureGuard } from './core/config/feature-availability';
+import { UnavailableComponent } from './pages/unavailable/unavailable.component';
+import { LegalComponent } from './pages/legal/legal.component';
+
 export const routes: Routes = [
+  { path: 'unavailable', component: UnavailableComponent },
+  ...(['terms', 'privacy', 'licensing'] as const).map((path) => ({
+    path,
+    component: LegalComponent,
+    data: { document: path },
+  })),
   { path: '', component: HomeComponent },
   { path: 'cart', component: CartComponent },
   { path: 'explore', component: SearchPageComponent },
@@ -32,15 +42,29 @@ export const routes: Routes = [
       ),
   },
   { path: 'search', redirectTo: 'explore', pathMatch: 'full' },
-  { path: 'battles', component: BattlesComponent },
-  { path: 'battles/:id', component: BattleDetailsComponent },
+  {
+    path: 'battles',
+    canActivate: [unreleasedFeatureGuard],
+    data: { feature: 'Battles' },
+    component: BattlesComponent,
+  },
+  {
+    path: 'battles/:id',
+    canActivate: [unreleasedFeatureGuard],
+    data: { feature: 'Battles' },
+    component: BattleDetailsComponent,
+  },
   {
     path: 'loops',
+    canActivate: [unreleasedFeatureGuard],
+    data: { feature: 'Loops' },
     loadComponent: () =>
       import('./pages/loops/loops-page/loops-page.component').then((m) => m.LoopsPageComponent),
   },
   {
     path: 'sample-packs',
+    canActivate: [unreleasedFeatureGuard],
+    data: { feature: 'Sample Packs' },
     loadComponent: () =>
       import('./pages/sample-packs/sample-packs-page/sample-packs-page.component').then(
         (m) => m.SamplePacksPageComponent,
@@ -48,6 +72,8 @@ export const routes: Routes = [
   },
   {
     path: 'sample-packs/:slug',
+    canActivate: [unreleasedFeatureGuard],
+    data: { feature: 'Sample Packs' },
     loadComponent: () =>
       import('./pages/sample-pack-detail/sample-pack-detail-page/sample-pack-detail-page.component').then(
         (m) => m.SamplePackDetailPageComponent,
@@ -141,6 +167,8 @@ export const routes: Routes = [
       },
       {
         path: 'earnings',
+        canActivate: [unreleasedFeatureGuard],
+        data: { feature: 'Earnings' },
         loadComponent: () =>
           import('./pages/studio/tabs/studio-earnings.component').then(
             (m) => m.StudioEarningsComponent,
@@ -148,6 +176,8 @@ export const routes: Routes = [
       },
       {
         path: 'messages',
+        canActivate: [unreleasedFeatureGuard],
+        data: { feature: 'Messages' },
         loadComponent: () =>
           import('./pages/studio/tabs/studio-messages.component').then(
             (m) => m.StudioMessagesComponent,
@@ -155,6 +185,8 @@ export const routes: Routes = [
       },
       {
         path: 'settings-studio',
+        canActivate: [unreleasedFeatureGuard],
+        data: { feature: 'Settings Studio' },
         loadComponent: () =>
           import('./pages/studio/tabs/studio-settings.component').then(
             (m) => m.StudioSettingsComponent,

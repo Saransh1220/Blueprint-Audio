@@ -1,5 +1,5 @@
-import type { AdminLicense, AdminSpec, AdminUser, AppCurrency } from '../../models';
-import { minorToMajor } from '../../models';
+import type { AdminLicense, AdminSpec, AdminUser } from '../../models';
+import { formatMoneyValue } from '../../models/money';
 
 /** How loudly a status badge speaks. */
 export type Tone = 'ok' | 'warn' | 'bad' | 'muted';
@@ -15,15 +15,9 @@ export function formatNumber(value: number | null | undefined): string {
 
 /** Amounts from the API are minor units (paise, cents). */
 export function formatMoney(minor: number | string | null | undefined, currency = 'INR'): string {
-  const code = currency.toUpperCase();
-  const amount = Number(minor ?? 0);
-  const major =
-    code === 'INR' || code === 'USD' ? minorToMajor(amount, code as AppCurrency) : amount / 100;
-  try {
-    return new Intl.NumberFormat(undefined, { style: 'currency', currency: code }).format(major);
-  } catch {
-    return `${code} ${major.toFixed(2)}`;
-  }
+  return formatMoneyValue({ amount_minor: Number(minor ?? 0), currency }, 0, 'INR', undefined, {
+    trailingZeros: true,
+  });
 }
 
 export function formatDate(value: string | null | undefined): string {

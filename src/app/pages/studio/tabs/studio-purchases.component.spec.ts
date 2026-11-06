@@ -29,8 +29,8 @@ describe('StudioPurchasesComponent', () => {
 
   it('loads fallback rows and maps live licenses', () => {
     const component = create();
-    expect(component.rows().length).toBe(8);
-    expect(component.totalSpent()).toContain('1,324');
+    expect(component.rows()).toEqual([]);
+    expect(component.totalSpent()).toBe('—');
 
     fetchUserLicenses.mockReturnValueOnce(
       of([
@@ -115,7 +115,10 @@ describe('StudioPurchasesComponent', () => {
     expect(component.licenses()).toEqual([]);
 
     const stopPropagation = vi.fn();
-    component.download(component.fallbackRows[0], { stopPropagation } as unknown as Event);
+    component.download(
+      { id: 'license-1', title: 'Purchased beat' } as any,
+      { stopPropagation } as unknown as Event,
+    );
     expect(stopPropagation).toHaveBeenCalled();
     expect(component.showDownloadPopup()).toBe(true);
     expect(component.downloadLinks().length).toBe(3);
@@ -127,7 +130,10 @@ describe('StudioPurchasesComponent', () => {
   it('maps licenses with missing optional fields using defaults', () => {
     const component = create();
     fetchUserLicenses.mockReturnValueOnce(
-      of([{ id: 'x', created_at: '2026-01-05T12:00:00' }, { id: 'y', created_at: '2026-01-06T12:00:00', license_type: 'Unlimited' }]),
+      of([
+        { id: 'x', created_at: '2026-01-05T12:00:00' },
+        { id: 'y', created_at: '2026-01-06T12:00:00', license_type: 'Unlimited' },
+      ]),
     );
     component.loadPurchases(1);
     const [first, second] = component.rows();
@@ -149,7 +155,7 @@ describe('StudioPurchasesComponent', () => {
     fetchUserLicenses.mockReturnValueOnce(of(null));
     component.loadPurchases(1);
     expect(component.licenses()).toEqual([]);
-    expect(component.rows().length).toBe(8);
+    expect(component.rows()).toEqual([]);
 
     component.searchQuery.set('zzz');
     expect(component.rows()).toEqual([]);
@@ -160,14 +166,14 @@ describe('StudioPurchasesComponent', () => {
     const component = create();
     const evt = { stopPropagation: vi.fn() } as unknown as Event;
     getLicenseDownloads.mockReturnValueOnce(throwError(() => new Error('no')));
-    component.download(component.fallbackRows[0], evt);
+    component.download({ id: 'license-1', title: 'Purchased beat' } as any, evt);
     expect(component.isDownloading()).toBe(false);
     expect(component.downloadLinks()).toEqual([]);
     expect(errSpy).toHaveBeenCalled();
 
     getLicenseDownloads.mockReturnValueOnce(of({ mp3_url: 'only' }));
-    component.download(component.fallbackRows[1], evt);
-    expect(component.downloadTitle()).toBe('Paper Moon');
+    component.download({ id: 'license-2', title: 'Purchased beat' } as any, evt);
+    expect(component.downloadTitle()).toBe('Purchased beat');
     expect(component.downloadLinks()).toEqual([{ type: 'MP3', url: 'only' }]);
     errSpy.mockRestore();
   });

@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
 import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
+import { STUDIO_ITEMS, menuItemsFor } from '../../components/nav-menu/nav-menu.items';
 import { Role } from '../../models';
 import { AuthService } from '../../services';
 import { StudioShellService } from './studio-shell.service';
@@ -18,14 +19,15 @@ export class StudioComponent {
 
   currentUser = this.authService.currentUser;
   isMobileNavOpen = this.studioShell.isMobileNavOpen;
-  navItems = [
-    { path: 'overview', label: 'Overview' },
-    { path: 'tracks', label: 'My Tracks' },
-    { path: 'analytics', label: 'Analytics' },
-    { path: 'orders', label: 'Orders' },
-    { path: 'purchases', label: 'Purchases' },
-    { path: 'profile', label: 'Profile' },
-  ];
+  readonly availableNavItems = computed(() =>
+    menuItemsFor(STUDIO_ITEMS, this.currentUser()?.role === Role.PRODUCER),
+  );
+  readonly navItems = computed(() =>
+    this.availableNavItems().map((item) => ({
+      path: item.route.replace('/studio/', ''),
+      label: item.label,
+    })),
+  );
 
   displayName = computed(() => {
     const user = this.currentUser();
@@ -65,8 +67,8 @@ export class StudioComponent {
   });
 
   sidebarStats = computed(() => ({
-    beats: 24,
-    followers: 847,
+    beats: 0,
+    followers: 0,
   }));
 
   toggleMobileNav() {

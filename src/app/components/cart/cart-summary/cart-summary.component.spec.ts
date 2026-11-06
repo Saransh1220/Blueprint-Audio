@@ -47,10 +47,10 @@ describe('CartSummaryComponent', () => {
     const checkout = vi.fn();
     fixture.componentInstance.checkout.subscribe(checkout);
     render({ itemCount: 1, totalMoney: { amount_minor: 2500, currency: 'USD' } });
-    expect(button().textContent).toContain('Proceed to checkout');
-    expect(button().disabled).toBe(false);
+    expect(button().textContent).toContain('Cart checkout is not available yet');
+    expect(button().disabled).toBe(true);
     button().click();
-    expect(checkout).toHaveBeenCalledTimes(1);
+    expect(checkout).not.toHaveBeenCalled();
   });
 
   it('does not invent one total for mixed currencies, and blocks checkout', () => {
@@ -58,7 +58,7 @@ describe('CartSummaryComponent', () => {
     expect(text('.line dd')).toBe('Mixed currencies');
     expect(text('.total strong')).toBe('—');
     expect(button().disabled).toBe(true);
-    expect(button().textContent).toContain('Choose one currency');
+    expect(button().textContent).toContain('Cart checkout is not available yet');
   });
 
   it('lists what the buyer can count on', () => {

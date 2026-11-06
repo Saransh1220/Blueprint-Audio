@@ -2,6 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import {
   GetPublicProfileRequest,
+  GetProducerByHandleRequest,
   PublicUserResponse,
   UpdateProfileDto,
   UpdateProfileRequest,
@@ -13,6 +14,10 @@ import { ApiService } from '../core/services/api.service';
 })
 export class UserService {
   private api = inject(ApiService);
+
+  getProducerByHandle(handle: string): Observable<PublicUserResponse> {
+    return this.api.execute(new GetProducerByHandleRequest(handle));
+  }
 
   updateProfile(data: UpdateProfileDto): Observable<PublicUserResponse> {
     return this.api.execute(new UpdateProfileRequest(data));

@@ -25,7 +25,8 @@ export class CartComponent {
         .map((item) => item.license?.displayPriceMoney?.currency)
         .filter((currency): currency is AppCurrency => !!currency),
     );
-    const hasMixedCurrencies = currencies.size > 1;
+    const hasMixedCurrencies =
+      currencies.size > 1 || items.some((item) => !item.license?.displayPriceMoney);
     const currency = items[0]?.license?.displayPriceMoney?.currency;
     const totalMoney =
       !hasMixedCurrencies && currency
@@ -79,7 +80,6 @@ export class CartComponent {
   }
 
   checkout() {
-    console.log('Proceeding to checkout with items:', this.cartService.items());
-    // TODO: Implement Stripe/Payment logic
+    // Cart checkout remains disabled until the multi-item order contract is implemented.
   }
 }

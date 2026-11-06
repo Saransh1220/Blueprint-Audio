@@ -1,4 +1,5 @@
 import type { Spec } from '../../models';
+import { formatMoneyValue, FALLBACK_CURRENCIES, type CurrencyDefinition } from '../../models/money';
 import type { DiscItem } from '../disc-carousel/disc-carousel';
 
 export function formatPlays(spec: Spec): string {
@@ -8,19 +9,23 @@ export function formatPlays(spec: Spec): string {
   return String(plays);
 }
 
-export function startingPrice(spec: Spec): string {
-  const minor = spec.displayPriceMoney?.amount_minor;
-  const amount = minor ? minor / 100 : (spec.price ?? 0);
-  const currency = spec.displayPriceMoney?.currency || 'USD';
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency,
-    maximumFractionDigits: amount % 1 === 0 ? 0 : 2,
-  }).format(amount);
+export function startingPrice(
+  spec: Spec,
+  currencies: readonly CurrencyDefinition[] = FALLBACK_CURRENCIES,
+): string {
+  return formatMoneyValue(
+    spec.displayPriceMoney ?? spec.priceMoney,
+    spec.price ?? 0,
+    'USD',
+    currencies,
+  );
 }
 
 /** A beat as a disc: cover art as the label, its metadata as the credits, its numbers as the stats. */
-export function specToDisc(spec: Spec): DiscItem {
+export function specToDisc(
+  spec: Spec,
+  currencies: readonly CurrencyDefinition[] = FALLBACK_CURRENCIES,
+): DiscItem {
   return {
     id: spec.id,
     title: spec.title,
@@ -34,7 +39,7 @@ export function specToDisc(spec: Spec): DiscItem {
     ],
     stats: [
       { label: 'Plays', value: formatPlays(spec) },
-      { label: 'From', value: startingPrice(spec) },
+      { label: 'From', value: startingPrice(spec, currencies) },
     ],
   };
 }

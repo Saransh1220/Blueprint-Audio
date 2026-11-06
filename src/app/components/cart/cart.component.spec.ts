@@ -39,7 +39,7 @@ describe('CartComponent', () => {
     component.removeItem('1');
     expect(removeItem).toHaveBeenCalledWith('1');
     component.checkout();
-    expect(logSpy).toHaveBeenCalled();
+    expect(logSpy).not.toHaveBeenCalled();
   });
 
   it('returns a single total when cart currencies match', () => {
@@ -79,7 +79,7 @@ describe('CartComponent', () => {
   it('returns null when items do not have display money', () => {
     const component = TestBed.runInInjectionContext(() => new CartComponent());
 
-    expect(component.hasMixedCurrencies).toBe(false);
+    expect(component.hasMixedCurrencies).toBe(true);
     expect(component.totalMoney).toBeNull();
   });
 
@@ -214,7 +214,7 @@ describe('CartComponent', () => {
       expect(clear).toHaveBeenCalled();
 
       (el.querySelector('app-cart-summary .checkout') as HTMLButtonElement).click();
-      expect(logSpy).toHaveBeenCalled();
+      expect(logSpy).not.toHaveBeenCalled();
     });
 
     it('shows the items, not the basket, once there is something in the cart', async () => {

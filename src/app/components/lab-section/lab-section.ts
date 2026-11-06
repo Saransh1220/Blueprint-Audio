@@ -12,6 +12,7 @@ import {
 import { Router } from '@angular/router';
 import { type LicenseType, type Spec } from '../../models';
 import { LabService, PlayerService } from '../../services';
+import { CurrencyService } from '../../services/currency.service';
 import { SpecCardComponent } from '../spec-card/spec-card';
 import { LoadingSpinnerComponent } from '../ui/loading-spinner/loading-spinner.component';
 
@@ -25,6 +26,7 @@ import { LoadingSpinnerComponent } from '../ui/loading-spinner/loading-spinner.c
 })
 export class LabSectionComponent implements OnInit {
   private labService = inject(LabService);
+  private currencyService = inject(CurrencyService);
   private playerService = inject(PlayerService);
   private router = inject(Router);
   private host = inject(ElementRef<HTMLElement>);
@@ -238,18 +240,14 @@ export class LabSectionComponent implements OnInit {
   }
 
   startingPrice(spec: Spec) {
-    const amount = spec.displayPriceMoney?.amount_minor
-      ? spec.displayPriceMoney.amount_minor / 100
-      : (spec.price ?? 0);
-    const currency = spec.displayPriceMoney?.currency || 'USD';
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency,
-      maximumFractionDigits: amount % 1 === 0 ? 0 : 2,
-    }).format(amount);
+    return this.currencyService.formatMoney(
+      spec.displayPriceMoney ?? spec.priceMoney,
+      spec.price ?? 0,
+      'USD',
+    );
   }
 
-  chartTrend(index: number) {
-    return ['-', 'up', 'down', 'up', 'down', '-'][index % 6];
+  chartTrend(_index: number): 'up' | 'down' | '-' {
+    return '-';
   }
 }

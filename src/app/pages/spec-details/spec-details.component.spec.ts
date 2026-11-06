@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ActivatedRoute, convertToParamMap } from '@angular/router';
-import { of, throwError } from 'rxjs';
+import { of, throwError, Subject } from 'rxjs';
 import { MusicalKey, type Spec } from '../../models';
 import {
   AnalyticsService,
@@ -58,6 +58,7 @@ describe('SpecDetailsComponent', () => {
   };
 
   const labServiceMock = {
+    refresh$: new Subject<void>(),
     getSpecById: vi.fn().mockReturnValue(of(mockSpec)),
     getSpecs: vi.fn().mockReturnValue(of([])),
   };

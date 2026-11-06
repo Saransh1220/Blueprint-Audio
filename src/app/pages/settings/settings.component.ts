@@ -1,3 +1,4 @@
+import { BRAND } from '../../core/config/brand';
 import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
 import { AppearanceSettingsComponent } from '../../components/settings/appearance-settings/appearance-settings.component';
@@ -12,6 +13,7 @@ import { ThemeService } from '../../services/theme.service';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SettingsComponent {
+  readonly brand = BRAND;
   themeService = inject(ThemeService);
   activeTab: 'appearance' | 'preferences' | 'account' = 'appearance';
 }

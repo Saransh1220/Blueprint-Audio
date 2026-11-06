@@ -12,11 +12,11 @@
   $line,
   $on-brand,
   $faded-rgb,
-  $noise-blend: multiply,
-  $noise-opacity: 0.06
+  $noise-blend: normal,
+  $noise-opacity: 0
 ) {
-  --noise-blend: #{$noise-blend};
-  --noise-opacity: #{$noise-opacity};
+  --noise-blend: normal;
+  --noise-opacity: 0;
 
   --bg-color: #{$bg};
   --bg-color-rgb:
@@ -145,17 +145,7 @@ body.dark-theme {
 }
 
 .theme-preview-dark {
-  @include theme-properties(
-    #0e0d0b,
-    #1a1814,
-    #f0e9d6,
-    #ff4d68,
-    #f0e9d6,
-    #0e0d0b,
-    null,
-    screen,
-    0.08
-  );
+  @include theme-properties(#0e0d0b, #1a1814, #f0e9d6, #ff4d68, #f0e9d6, #0e0d0b, null, normal, 0);
   --cream-2: #1a1814;
   --cream-3: #26241e;
   --ink-2: #c4bdab;

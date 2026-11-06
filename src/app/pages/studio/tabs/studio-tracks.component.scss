@@ -26,7 +26,7 @@
 
 // Reference table layout override for track rows
 :host .tracks-table .track-row {
-  grid-template-columns: 36px 1fr minmax(0, 1.1fr) 80px 80px 90px 90px 100px;
+  grid-template-columns: 36px minmax(160px, 1fr) minmax(0, 1.1fr) 80px 90px 190px;
 }
 
 .search-field {
@@ -146,6 +146,13 @@
 
 .tg-body {
   padding: 12px;
+}
+
+.tg-actions-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
 }
 
 .tg-title {

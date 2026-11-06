@@ -29,7 +29,8 @@ describe('admin formatting', () => {
     expect(formatMoney(150000, 'INR')).toContain('1,500.00');
     expect(formatMoney(2599, 'usd')).toContain('25.99');
     expect(formatMoney('1000', 'EUR')).toContain('10.00');
-    expect(formatMoney(1000, 'NOPE')).toBe('NOPE 10.00');
+    expect(formatMoney(1000, 'NOPE')).toBe('—');
+    expect(formatMoney(1234, 'JPY')).toContain('1,234');
     expect(formatMoney(undefined)).toContain('0.00');
   });
 

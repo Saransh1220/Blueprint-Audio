@@ -37,9 +37,9 @@ export class SamplePackDetailPageComponent {
   readonly wishlisted = signal(false);
   readonly following = signal(false);
 
-  readonly pack = computed<SamplePackDetail>(() => {
+  readonly pack = computed<SamplePackDetail | null>(() => {
     const slug = this.params().get('slug');
-    return this.catalog.getSamplePackDetail(slug) ?? this.catalog.getSamplePackDetail(null)!;
+    return slug ? (this.catalog.getSamplePackDetail(slug) ?? null) : null;
   });
 
   toggleDemo(): void {
@@ -55,10 +55,11 @@ export class SamplePackDetailPageComponent {
     this.following.update((value) => !value);
   }
   acquire(): void {
+    if (!this.pack()) return;
     this.toast.show(
-      this.pack().price.amount_minor === 0
-        ? `${this.pack().title} is ready to download.`
-        : `${this.pack().title} added to cart.`,
+      this.pack()!.price.amount_minor === 0
+        ? `${this.pack()!.title} is ready to download.`
+        : `${this.pack()!.title} added to cart.`,
       'success',
     );
   }

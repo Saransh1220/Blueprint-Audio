@@ -1,3 +1,4 @@
+import { BRAND } from '../../../core/config/brand';
 import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import type { AppCurrency } from '../../../models/money';
@@ -11,6 +12,7 @@ import { AuthService, ToastService } from '../../../services';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class StudioSettingsComponent {
+  readonly brand = BRAND;
   private authService = inject(AuthService);
   private toastService = inject(ToastService);
 

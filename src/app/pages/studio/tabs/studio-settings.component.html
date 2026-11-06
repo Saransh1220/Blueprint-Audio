@@ -35,7 +35,9 @@
     <div style="padding: 4px 0">
       <div class="eh-mini" style="border-color: var(--cream-3)">
         <span class="eh-mini-lbl" style="color: var(--ink-mute)">Subscription</span>
-        <span class="eh-mini-val" style="color: var(--ink); font-size: 16px">Redwave Pro</span>
+        <span class="eh-mini-val" style="color: var(--ink); font-size: 16px"
+          >{{ brand.name }} Pro</span
+        >
       </div>
       <div class="eh-mini" style="border-color: var(--cream-3)">
         <span class="eh-mini-lbl" style="color: var(--ink-mute)">Renews</span>
@@ -219,7 +221,7 @@
       <div class="brand-preview light">
         <div class="logo">
           <img class="logo-mark" src="/Logo-cropped.webp" alt="" aria-hidden="true" />
-          <span class="logo-word">Waveyard</span>
+          <span class="logo-word">{{ brand.name }}</span>
         </div>
         <span class="brand-label">Primary · horizontal</span>
       </div>
@@ -228,7 +230,7 @@
       <div class="brand-preview dark">
         <div class="logo on-dark">
           <img class="logo-mark" src="/logo-dark-cropped.webp" alt="" aria-hidden="true" />
-          <span class="logo-word">Waveyard</span>
+          <span class="logo-word">{{ brand.name }}</span>
         </div>
         <span class="brand-label on-dark">on dark · reversed</span>
       </div>

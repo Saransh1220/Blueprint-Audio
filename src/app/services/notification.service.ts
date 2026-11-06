@@ -1,5 +1,5 @@
 import { HttpClient } from '@angular/common/http';
-import { computed, effect, Injectable, inject, signal } from '@angular/core';
+import { effect, Injectable, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { of } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
@@ -21,10 +21,8 @@ export class NotificationService {
   private _notifications = signal<Notification[]>([]);
   notifications = this._notifications.asReadonly();
 
-  unreadCount = computed(() => {
-    const notifications = this._notifications();
-    return notifications ? notifications.filter((n) => !n.is_read).length : 0;
-  });
+  private readonly _unreadCount = signal(0);
+  readonly unreadCount = this._unreadCount.asReadonly();
 
   private wsService = inject(WebSocketService);
   private toastService = inject(ToastService);
@@ -50,18 +48,42 @@ export class NotificationService {
     effect(() => {
       const user = this.authService.currentUser();
       if (user) {
+        this._notifications.set([]);
+        this._unreadCount.set(0);
         this.refresh();
       } else {
         this._notifications.set([]);
+        this._unreadCount.set(0);
       }
     });
   }
 
   private addNotification(notification: Notification) {
-    this._notifications.update((current) => [notification, ...current]);
+    this._notifications.update((current) => [
+      notification,
+      ...current.filter((n) => n.id !== notification.id),
+    ]);
+    this.refreshUnreadCount();
+  }
+
+  refreshUnreadCount() {
+    const userId = this.authService.currentUser()?.id;
+    this.http.get<{ count: number }>(`${this.apiUrl}/unread-count`).subscribe({
+      next: (response) => {
+        if (
+          userId === this.authService.currentUser()?.id &&
+          Number.isFinite(response.count) &&
+          response.count >= 0
+        )
+          this._unreadCount.set(response.count);
+      },
+      error: () => {},
+    });
   }
 
   refresh() {
+    const userId = this.authService.currentUser()?.id;
+    this.refreshUnreadCount();
     this.http
       .get<{ data: Notification[] }>(this.apiUrl, { params: { limit: 10 } })
       .pipe(
@@ -72,12 +94,12 @@ export class NotificationService {
         }),
       )
       .subscribe((data) => {
-        this._notifications.set(data || []);
+        if (userId === this.authService.currentUser()?.id) this._notifications.set(data || []);
       });
   }
 
   markAsRead(id: string) {
-    // Optimistic update
+    // Optimistic update; reconcile the authoritative count after the server response.
     this._notifications.update((list) =>
       list.map((n) => (n.id === id ? { ...n, is_read: true } : n)),
     );
@@ -92,11 +114,11 @@ export class NotificationService {
           return of(null);
         }),
       )
-      .subscribe();
+      .subscribe(() => this.refreshUnreadCount());
   }
 
   markAllAsRead() {
-    // Optimistic update
+    // Optimistic update; reconcile the authoritative count after the server response.
     this._notifications.update((list) => list.map((n) => ({ ...n, is_read: true })));
 
     this.http
@@ -108,6 +130,6 @@ export class NotificationService {
           return of(null);
         }),
       )
-      .subscribe();
+      .subscribe(() => this.refreshUnreadCount());
   }
 }

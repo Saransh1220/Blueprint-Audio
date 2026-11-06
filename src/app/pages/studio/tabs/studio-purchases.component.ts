@@ -47,130 +47,14 @@ export class StudioPurchasesComponent implements OnInit {
   // Pagination metadata from service
   pagination = this.paymentService.licensePagination;
 
-  readonly fallbackRows: PurchaseRow[] = [
-    this.row(
-      'ref-1',
-      'Apr 19',
-      '2026',
-      'Violet Hour',
-      'Kita Sol',
-      '92 BPM · Em',
-      'Premium',
-      'WAV',
-      '3 of unlimited',
-      7999,
-      'v',
-      'a1',
-    ),
-    this.row(
-      'ref-2',
-      'Apr 12',
-      '2026',
-      'Paper Moon',
-      'Meridian',
-      '74 BPM · F#m',
-      'Basic',
-      'MP3',
-      '1 of 3 left',
-      2499,
-      'p',
-      'a4',
-    ),
-    this.row(
-      'ref-3',
-      'Mar 28',
-      '2026',
-      'Ghostwire',
-      'Rufio Ash',
-      '140 BPM · Bm',
-      'Unlimited',
-      'Pro',
-      '5 of unlimited',
-      19999,
-      'g',
-      'a3',
-    ),
-    this.row(
-      'ref-4',
-      'Mar 15',
-      '2026',
-      'Iron Lullaby',
-      'Rufio Ash',
-      '68 BPM · Em',
-      'Premium',
-      'WAV',
-      '2 of unlimited',
-      7999,
-      'i',
-      'a6',
-    ),
-    this.row(
-      'ref-5',
-      'Mar 03',
-      '2026',
-      'Mint Smoke',
-      'Meridian',
-      '102 BPM · Dm',
-      'Basic',
-      'MP3',
-      '3 of 3 used',
-      3300,
-      'm',
-      'a2',
-    ),
-    this.row(
-      'ref-6',
-      'Feb 22',
-      '2026',
-      'Lavender Static',
-      'Kita Sol',
-      '110 BPM · F',
-      'Premium',
-      'WAV',
-      '4 of unlimited',
-      7999,
-      'l',
-      'a5',
-    ),
-    this.row(
-      'ref-7',
-      'Feb 14',
-      '2026',
-      'Copper Saints',
-      'Kita Sol',
-      '86 BPM · Gm',
-      'Unlimited',
-      'Pro',
-      '7 of unlimited',
-      19999,
-      'c',
-      'a4',
-    ),
-    this.row(
-      'ref-8',
-      'Feb 02',
-      '2026',
-      'Rust Belt',
-      'Kita Sol',
-      '88 BPM · Am',
-      'Basic',
-      'MP3',
-      '2 of 3 left',
-      2499,
-      'r',
-      'a6',
-    ),
-  ];
-
   rows = computed(() => {
     const live = this.licenses();
-    if (!live.length && !this.searchQuery()) return this.fallbackRows;
     return live.map((license, index) => this.mapLicense(license, index));
   });
 
   totalSpent = computed(() => {
     const live = this.licenses();
-    if (!live.length) return this.currencyService.formatMinorMoney(132400, 'INR');
+    if (!live.length) return '—';
 
     const totals = live.reduce<Record<string, number>>((sum, item) => {
       const currency = this.currencyService.normalizeCurrency(item.currency);
@@ -274,7 +158,7 @@ export class StudioPurchasesComponent implements OnInit {
       date: date.toLocaleDateString('en-US', { month: 'short', day: '2-digit' }),
       year: String(date.getFullYear()),
       title,
-      producer: 'Waveyard',
+      producer: 'Producer',
       meta: `License key · ${license.license_key?.slice(0, 8) || 'active'}`,
       license: licenseName,
       format,
@@ -282,36 +166,6 @@ export class StudioPurchasesComponent implements OnInit {
       paid: this.currencyService.formatMinorMoney(license.purchase_price || 0, license.currency),
       letter: title.slice(0, 1).toLowerCase(),
       artClass: `a${(index % 6) + 1}`,
-    };
-  }
-
-  private row(
-    id: string,
-    date: string,
-    year: string,
-    title: string,
-    producer: string,
-    meta: string,
-    license: string,
-    format: string,
-    downloads: string,
-    paid: number,
-    letter: string,
-    artClass: string,
-  ): PurchaseRow {
-    return {
-      id,
-      date,
-      year,
-      title,
-      producer,
-      meta,
-      license,
-      format,
-      downloads,
-      paid: this.currencyService.formatMinorMoney(paid, 'INR'),
-      letter,
-      artClass,
     };
   }
 }

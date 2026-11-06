@@ -61,12 +61,7 @@
             <div class="hero-by">
               <span class="by-avatar">{{ s.producerName.charAt(0).toLowerCase() }}</span>
               prod.
-              <a
-                [routerLink]="['/@', s.producerName.toLowerCase().replaceAll(' ', '-')]"
-                [queryParams]="{ id: s.producerId }"
-                >{{ s.producerName }}</a
-              >
-              <span class="verified">✓</span>
+              <a [routerLink]="['/@', s.producerHandle || s.producerId]">{{ s.producerName }}</a>
             </div>
           </div>
         </div>
@@ -190,26 +185,6 @@
               <circle cx="18" cy="19" r="3" />
               <line x1="8.59" y1="13.51" x2="15.42" y2="17.49" />
               <line x1="15.41" y1="6.51" x2="8.59" y2="10.49" />
-            </svg>
-          </button>
-          <button
-            class="ha-btn"
-            type="button"
-            (click)="showReferenceNotice('More options coming soon')"
-            aria-label="More"
-          >
-            <svg
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2.5"
-              aria-hidden="true"
-            >
-              <circle cx="12" cy="12" r="1" />
-              <circle cx="19" cy="12" r="1" />
-              <circle cx="5" cy="12" r="1" />
             </svg>
           </button>
         </div>
@@ -387,12 +362,7 @@
           </div>
           <div>
             <div class="prod-name">
-              <a
-                [routerLink]="['/@', s.producerName.toLowerCase().replaceAll(' ', '-')]"
-                [queryParams]="{ id: s.producerId }"
-                >{{ s.producerName }}</a
-              >
-              <span class="verified">✓</span>
+              <a [routerLink]="['/@', s.producerHandle || s.producerId]">{{ s.producerName }}</a>
             </div>
             <div class="prod-stats">
               {{ producerStats().beatCount }} beats ·
@@ -478,101 +448,9 @@
     </div>
   </section>
 
-  <section class="section" id="comments">
-    <div class="section-inner">
-      <div class="comments-head-row">
-        <div>
-          <div class="section-eyebrow comments-eyebrow"><span class="dot"></span>Discussion</div>
-          <h2 class="section-h">{{ 13 + comments().length }} <em>comments</em>.</h2>
-        </div>
-        <div class="comment-sort">
-          <button
-            type="button"
-            [class.on]="commentSort() === 'top'"
-            (click)="setCommentSort('top')"
-          >
-            Top
-          </button>
-          <button
-            type="button"
-            [class.on]="commentSort() === 'newest'"
-            (click)="setCommentSort('newest')"
-          >
-            Newest
-          </button>
-        </div>
-      </div>
-
-      <div class="comment-composer">
-        <div class="composer-avatar"></div>
-        <div class="composer-box">
-          <textarea
-            class="composer-input"
-            rows="1"
-            [value]="commentDraft()"
-            placeholder="What do you think of this beat?"
-            (input)="updateCommentDraft($event)"
-          ></textarea>
-          <div class="composer-actions">
-            <button class="composer-post" type="button" (click)="postComment()">Post</button>
-          </div>
-        </div>
-      </div>
-
-      <div class="comment-list">
-        <article
-          class="comment-item"
-          *ngFor="let comment of comments()"
-          [class.reply]="comment.reply"
-        >
-          <div class="c-avatar" [style.background]="comment.color">{{ comment.initial }}</div>
-          <div class="c-body">
-            <div class="c-head">
-              <span class="c-name">{{ comment.name }}</span
-              ><span class="c-badge" *ngIf="comment.badge">{{ comment.badge }}</span
-              ><span class="c-time">{{ comment.time }}</span>
-            </div>
-            <div class="c-text">{{ comment.text }}</div>
-            <div class="c-actions">
-              <button
-                type="button"
-                [class.liked]="comment.liked"
-                (click)="toggleCommentLike(comment.id)"
-              >
-                <svg
-                  width="12"
-                  height="12"
-                  viewBox="0 0 24 24"
-                  [attr.fill]="comment.liked ? 'currentColor' : 'none'"
-                  stroke="currentColor"
-                  stroke-width="2"
-                  aria-hidden="true"
-                >
-                  <path
-                    d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"
-                  />
-                </svg>
-                <span>{{ comment.likes }}</span>
-              </button>
-              <button type="button" (click)="showReferenceNotice('Reply box opened')">Reply</button>
-            </div>
-          </div>
-        </article>
-      </div>
-
-      <button
-        class="load-more"
-        type="button"
-        (click)="showReferenceNotice('Loading more comments')"
-      >
-        Load more comments
-      </button>
-    </div>
-  </section>
-
   <footer class="beat-footer">
-    <a routerLink="/" class="logo"><span class="star">★</span>waveyard</a>
-    <span class="foot-mark">© 2026 Waveyard · all rights reserved</span>
+    <a routerLink="/" class="logo"><span class="star">★</span>{{ brand.name }}</a>
+    <span class="foot-mark">© 2026 {{ brand.name }} · all rights reserved</span>
   </footer>
 </div>
 

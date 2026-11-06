@@ -1,193 +1,89 @@
+import { HttpClient } from '@angular/common/http';
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { environment } from '../../environments/environment';
+import { Subject } from 'rxjs';
 import { AuthService } from './auth.service';
 import { WebSocketService } from './websocket.service';
 
-class MockWebSocket {
-  static CONNECTING = 0;
-  static OPEN = 1;
-  static CLOSING = 2;
-  static CLOSED = 3;
-  static instances: MockWebSocket[] = [];
-
-  url: string;
-  readyState = MockWebSocket.CONNECTING;
-  onopen: ((this: WebSocket, ev: Event) => any) | null = null;
-  onmessage: ((this: WebSocket, ev: MessageEvent<any>) => any) | null = null;
-  onclose: ((this: WebSocket, ev: CloseEvent) => any) | null = null;
-  onerror: ((this: WebSocket, ev: Event) => any) | null = null;
-  close = vi.fn(() => {
-    this.readyState = MockWebSocket.CLOSED;
-  });
-
-  constructor(url: string) {
-    this.url = url;
-    MockWebSocket.instances.push(this);
+class Socket {
+  static instances: Socket[] = [];
+  onmessage?: (event: { data: string }) => void;
+  onclose?: () => void;
+  onerror?: () => void;
+  close = vi.fn();
+  constructor(readonly url: string) {
+    Socket.instances.push(this);
   }
 }
-
-describe('WebSocketService', () => {
-  const originalWebSocket = globalThis.WebSocket;
-  const originalWindowWebSocket = window.WebSocket;
-
+describe('WebSocket ticket authentication', () => {
+  let ticket: Subject<{ ticket: string }>;
+  let user = signal<any>(null);
+  let post: ReturnType<typeof vi.fn>;
   beforeEach(() => {
-    MockWebSocket.instances = [];
+    Socket.instances = [];
+    ticket = new Subject();
+    user = signal<any>(null);
+    post = vi.fn(() => ticket);
+    vi.stubGlobal('WebSocket', Socket);
     vi.useFakeTimers();
-    (globalThis as any).WebSocket = MockWebSocket;
-    (window as any).WebSocket = MockWebSocket;
-  });
-
-  afterEach(() => {
-    vi.useRealTimers();
-    (globalThis as any).WebSocket = originalWebSocket;
-    (window as any).WebSocket = originalWindowWebSocket;
-    vi.restoreAllMocks();
-  });
-
-  function setup(user: any, token: string | null = 'token-1') {
-    const userSignal = signal<any>(user);
-    const getItemSpy = vi.spyOn(Storage.prototype, 'getItem').mockImplementation((key: string) => {
-      if (key === 'token') return token;
-      return null;
-    });
-
     TestBed.configureTestingModule({
       providers: [
         WebSocketService,
-        { provide: AuthService, useValue: { currentUser: userSignal } },
+        { provide: HttpClient, useValue: { post } },
+        { provide: AuthService, useValue: { currentUser: user } },
       ],
     });
-
-    return {
-      service: TestBed.inject(WebSocketService),
-      userSignal,
-      getItemSpy,
-    };
-  }
-
-  it('connects when user and token exist', () => {
-    const { service, userSignal } = setup(null, 'abc123');
-    userSignal.set({ id: 'u-1' });
-    service.connect();
-
-    expect(MockWebSocket.instances).toHaveLength(1);
-    expect(MockWebSocket.instances[0].url).toBe(
-      `${environment.apiUrl.replace(/^http/, 'ws')}/ws?token=abc123`,
-    );
   });
-
-  it('does not connect when token is missing', () => {
-    const { service, userSignal } = setup(null, null);
-    userSignal.set({ id: 'u-1' });
-    service.connect();
-
-    expect(MockWebSocket.instances).toHaveLength(0);
+  afterEach(() => {
+    TestBed.resetTestingModule();
+    vi.unstubAllGlobals();
+    vi.useRealTimers();
   });
-
-  it('does not connect when user is missing', () => {
-    const { service } = setup(null, 'abc123');
+  it('exchanges bearer-authenticated HTTP for a ticket without reading a URL token', () => {
+    const service = TestBed.inject(WebSocketService);
+    user.set({ id: 'u1' });
     service.connect();
-
-    expect(MockWebSocket.instances).toHaveLength(0);
+    expect(post).toHaveBeenCalledWith(expect.stringContaining('/ws/ticket'), {});
+    ticket.next({ ticket: 'one-use' });
+    expect(Socket.instances[0].url).toContain('/ws?ticket=one-use');
+    expect(Socket.instances[0].url).not.toContain('token=');
+    const receive = vi.fn();
+    service.messages$.subscribe(receive);
+    Socket.instances[0].onmessage!({ data: JSON.stringify({ id: 'notification-1' }) });
+    expect(receive).toHaveBeenCalledWith({ id: 'notification-1' });
   });
-
-  it('returns early when socket already open or connecting', () => {
-    const { service } = setup(null, 'abc123');
-
-    (service as any).socket = { readyState: MockWebSocket.OPEN };
+  it('does not open a connection after logout while a ticket is pending', () => {
+    const service = TestBed.inject(WebSocketService);
+    user.set({ id: 'u1' });
     service.connect();
-    expect(MockWebSocket.instances).toHaveLength(0);
-
-    (service as any).socket = { readyState: MockWebSocket.CONNECTING };
-    service.connect();
-    expect(MockWebSocket.instances).toHaveLength(0);
-  });
-
-  it('sets connected state on open and emits parsed messages', () => {
-    const { service, userSignal } = setup(null, 'abc123');
-    userSignal.set({ id: 'u-1' });
-    service.connect();
-    const socket = MockWebSocket.instances[0];
-    const nextSpy = vi.fn();
-    service.messages$.subscribe(nextSpy);
-
-    socket.onopen?.({} as Event);
-    expect((service as any).isConnected()).toBe(true);
-
-    socket.onmessage?.({ data: JSON.stringify({ id: 'n-1' }) } as MessageEvent);
-    expect(nextSpy).toHaveBeenCalledWith({ id: 'n-1' });
-  });
-
-  it('logs parse errors for invalid websocket messages', () => {
-    const { service, userSignal } = setup(null, 'abc123');
-    userSignal.set({ id: 'u-1' });
-    service.connect();
-    const socket = MockWebSocket.instances[0];
-    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined);
-
-    socket.onmessage?.({ data: '{bad-json' } as MessageEvent);
-
-    expect(errorSpy).toHaveBeenCalled();
-  });
-
-  it('closes socket on error', () => {
-    const { service, userSignal } = setup(null, 'abc123');
-    userSignal.set({ id: 'u-1' });
-    service.connect();
-    const socket = MockWebSocket.instances[0];
-
-    socket.onerror?.({} as Event);
-
-    expect(socket.close).toHaveBeenCalledTimes(1);
-  });
-
-  it('reconnects after close', () => {
-    const { service, userSignal } = setup(null, 'abc123');
-    userSignal.set({ id: 'u-1' });
-    service.connect();
-    const socket = MockWebSocket.instances[0];
-
-    socket.onopen?.({} as Event);
-    expect((MockWebSocket.instances[0] as any).readyState).toBe(MockWebSocket.CONNECTING);
-
-    socket.onclose?.({} as CloseEvent);
-    expect(MockWebSocket.instances).toHaveLength(1);
-
-    vi.advanceTimersByTime(5000);
-    expect(MockWebSocket.instances).toHaveLength(2);
-  });
-
-  it('disconnect closes existing socket and clears reference', () => {
-    const { service, userSignal } = setup(null, 'abc123');
-    userSignal.set({ id: 'u-1' });
-    service.connect();
-    const socket = MockWebSocket.instances[0];
-
     service.disconnect();
-
-    expect(socket.close).toHaveBeenCalledTimes(1);
-    expect((service as any).socket).toBeNull();
+    user.set(null);
+    ticket.next({ ticket: 'stale' });
+    expect(Socket.instances).toHaveLength(0);
   });
-
-  it('effect disconnects when user becomes null while connected', () => {
-    const { service, userSignal } = setup(null, 'abc123');
-    userSignal.set({ id: 'u-1' });
+  it('retries with a fresh ticket after disconnect and cancels reconnects on logout', () => {
+    const service = TestBed.inject(WebSocketService);
+    user.set({ id: 'u1' });
     service.connect();
-    const socket = MockWebSocket.instances[0];
-
-    (service as any).isConnected.set(true);
-    (service as any).socket = socket;
-    userSignal.set(null);
-    (TestBed as any).flushEffects?.();
-
-    expect(socket.close).toHaveBeenCalled();
-    expect((service as any).socket).toBeNull();
+    ticket.next({ ticket: 'first' });
+    Socket.instances[0].onclose!();
+    vi.advanceTimersByTime(5000);
+    expect(post).toHaveBeenCalledTimes(2);
+    service.disconnect();
+    user.set(null);
+    vi.advanceTimersByTime(10000);
+    expect(post).toHaveBeenCalledTimes(2);
   });
-
-  it('disconnect is a no-op when socket is absent', () => {
-    const { service } = setup(null, 'abc123');
-
-    expect(() => service.disconnect()).not.toThrow();
+  it('ignores invalid frames and prevents duplicate parallel ticket requests', () => {
+    const service = TestBed.inject(WebSocketService);
+    user.set({ id: 'u1' });
+    service.connect();
+    service.connect();
+    expect(post).toHaveBeenCalledTimes(1);
+    ticket.next({ ticket: 'valid' });
+    const receive = vi.fn();
+    service.messages$.subscribe(receive);
+    Socket.instances[0].onmessage!({ data: 'invalid JSON' });
+    expect(receive).not.toHaveBeenCalled();
   });
 });

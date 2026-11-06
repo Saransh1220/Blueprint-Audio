@@ -9,6 +9,8 @@ import { LabService } from '../../services/lab';
 import { SpecUploadMonitorService } from '../../services/spec-upload-monitor.service';
 import { SpecUploadCompletionError, SpecUploadService } from '../../services/spec-upload.service';
 import { ToastService } from '../../services/toast.service';
+import { ApiService } from '../../core/services/api.service';
+import { SpecService } from '../../services/spec.service';
 import { UploadComponent } from './upload.component';
 
 describe('UploadFormBase (more)', () => {
@@ -16,6 +18,8 @@ describe('UploadFormBase (more)', () => {
   const router = { navigate: vi.fn() };
   const labService = { notifyRefresh: vi.fn() };
   const monitor = { monitor: vi.fn() };
+  const api = { execute: vi.fn() };
+  const specService = { updateSpec: vi.fn() };
   const specUploadService = {
     createDraft: vi.fn(),
     uploadFile: vi.fn(),
@@ -45,6 +49,8 @@ describe('UploadFormBase (more)', () => {
         { provide: SpecUploadService, useValue: specUploadService },
         { provide: Router, useValue: router },
         { provide: ToastService, useValue: toast },
+        { provide: ApiService, useValue: api },
+        { provide: SpecService, useValue: specService },
       ],
     });
     const c = TestBed.runInInjectionContext(() => new UploadComponent());
@@ -277,15 +283,24 @@ describe('UploadFormBase (more)', () => {
     expect(input.value).toBe('');
     c.onFileSelected({ target: { value: 'y' } } as any, 'cover');
     expect(spy).not.toHaveBeenCalled();
-    c.onFileDropped({ preventDefault: vi.fn(), stopPropagation: vi.fn(), dataTransfer: { files: [] } } as any, 'wav');
+    c.onFileDropped(
+      { preventDefault: vi.fn(), stopPropagation: vi.fn(), dataTransfer: { files: [] } } as any,
+      'wav',
+    );
     c.onFileDropped({ preventDefault: vi.fn(), stopPropagation: vi.fn() } as any, 'wav');
     expect(spy).not.toHaveBeenCalled();
   });
 
   it('uploads each file type end-to-end through the draft session', async () => {
     const c = create();
-    c.onFileSelected({ target: { files: [file('c.png', 'image/png')], value: '' } } as any, 'cover');
-    c.onFileSelected({ target: { files: [file('p.mp3', 'audio/mpeg')], value: '' } } as any, 'preview');
+    c.onFileSelected(
+      { target: { files: [file('c.png', 'image/png')], value: '' } } as any,
+      'cover',
+    );
+    c.onFileSelected(
+      { target: { files: [file('p.mp3', 'audio/mpeg')], value: '' } } as any,
+      'preview',
+    );
     c.onFileSelected({ target: { files: [file('m.wav', 'audio/wav')], value: '' } } as any, 'wav');
     c.onFileSelected({ target: { files: [file('s.ZIP')], value: '' } } as any, 'stems');
     await tick();
@@ -302,7 +317,12 @@ describe('UploadFormBase (more)', () => {
     expect(c.stemsSummary()?.detail).toBeUndefined();
     expect(c.formatFileState('stems')).toContain('s.ZIP - 1B');
     expect(c.formatFileState('wav')).toBe('m.wav - 1B - 1:15');
-    expect(specUploadService.uploadFile.mock.calls.map((x: any) => x[1].kind).sort()).toEqual(['image', 'preview', 'stems', 'wav']);
+    expect(specUploadService.uploadFile.mock.calls.map((x: any) => x[1].kind).sort()).toEqual([
+      'image',
+      'preview',
+      'stems',
+      'wav',
+    ]);
     c.ngOnDestroy();
   });
 
@@ -310,28 +330,52 @@ describe('UploadFormBase (more)', () => {
     const c = create();
     const h = (f: File, t: any) => (c as any).handleFile(f, t);
     await h(file('c.png', 'image/png', 6 * 1024 * 1024), 'cover');
-    expect(toast.show).toHaveBeenLastCalledWith('File too large. Max size for cover is 5MB', 'error');
+    expect(toast.show).toHaveBeenLastCalledWith(
+      'File too large. Max size for cover is 5MB',
+      'error',
+    );
     await h(file('c.gif', 'image/gif'), 'cover');
     expect(toast.show).toHaveBeenLastCalledWith('Cover art must be a JPG or PNG image.', 'error');
     imageFails = true;
     await h(file('c.png', 'image/png'), 'cover');
-    expect(toast.show).toHaveBeenLastCalledWith('Cover art must be a valid JPG or PNG image.', 'error');
+    expect(toast.show).toHaveBeenLastCalledWith(
+      'Cover art must be a valid JPG or PNG image.',
+      'error',
+    );
     imageFails = false;
     imageSize = { width: 0, height: 0 };
     await h(file('c.png', 'image/png'), 'cover');
-    expect(toast.show).toHaveBeenLastCalledWith('Cover art must be a valid JPG or PNG image.', 'error');
+    expect(toast.show).toHaveBeenLastCalledWith(
+      'Cover art must be a valid JPG or PNG image.',
+      'error',
+    );
     await h(file('p.mp3', 'audio/mpeg', 31 * 1024 * 1024), 'preview');
-    expect(toast.show).toHaveBeenLastCalledWith('File too large. Max size for preview is 30MB', 'error');
+    expect(toast.show).toHaveBeenLastCalledWith(
+      'File too large. Max size for preview is 30MB',
+      'error',
+    );
     await h(file('p.wav', 'audio/wav'), 'preview');
     expect(toast.show).toHaveBeenLastCalledWith('Preview audio must be an MP3 file.', 'error');
     await h(file('w.mp3', 'audio/mpeg'), 'wav');
-    expect(toast.show).toHaveBeenLastCalledWith('Invalid file type. Please upload a WAV file.', 'error');
+    expect(toast.show).toHaveBeenLastCalledWith(
+      'Invalid file type. Please upload a WAV file.',
+      'error',
+    );
     await h(file('s.7z'), 'stems');
-    expect(toast.show).toHaveBeenLastCalledWith('Invalid file type. Please upload a ZIP or RAR file.', 'error');
+    expect(toast.show).toHaveBeenLastCalledWith(
+      'Invalid file type. Please upload a ZIP or RAR file.',
+      'error',
+    );
     await h(file('w.wav', 'audio/wav', 301 * 1024 * 1024), 'wav');
-    expect(toast.show).toHaveBeenLastCalledWith('File too large. Max size for wav is 300MB', 'error');
+    expect(toast.show).toHaveBeenLastCalledWith(
+      'File too large. Max size for wav is 300MB',
+      'error',
+    );
     await h(file('s.zip', '', 1025 * 1024 * 1024), 'stems');
-    expect(toast.show).toHaveBeenLastCalledWith('File too large. Max size for stems is 1GB', 'error');
+    expect(toast.show).toHaveBeenLastCalledWith(
+      'File too large. Max size for stems is 1GB',
+      'error',
+    );
     expect(c.coverFile()).toBeNull();
     expect(specUploadService.createDraft).not.toHaveBeenCalled();
   });
@@ -366,7 +410,9 @@ describe('UploadFormBase (more)', () => {
     specUploadService.uploadFile.mockReturnValue(subj);
     await (c as any).handleFile(file('s.zip'), 'stems');
     await tick();
-    expect(c.fileUploadLabel('stems')).toBe('Preparing secure upload'.length ? c.fileUploadLabel('stems') : '');
+    expect(c.fileUploadLabel('stems')).toBe(
+      'Preparing secure upload'.length ? c.fileUploadLabel('stems') : '',
+    );
     subj.next({ type: 'progress', percent: 42 });
     expect(c.fileUploadLabel('stems')).toBe('Uploading 42%');
     expect(c.fileUploadState('stems').phase).toBe('uploading');
@@ -385,7 +431,9 @@ describe('UploadFormBase (more)', () => {
 
   it('handles file upload errors (service, draft creation) and details formats', async () => {
     const c = create();
-    specUploadService.uploadFile.mockReturnValue(throwError(() => ({ error: { message: 'quota' } })));
+    specUploadService.uploadFile.mockReturnValue(
+      throwError(() => ({ error: { message: 'quota' } })),
+    );
     await (c as any).handleFile(file('s.zip'), 'stems');
     await tick();
     expect(c.fileUploadState('stems').error).toBe('Failed - quota');
@@ -406,7 +454,10 @@ describe('UploadFormBase (more)', () => {
     await (c as any).handleFile(file('c.png', 'image/png'), 'cover');
     await tick();
     expect(c.fileUploadState('cover').error).toBe('Upload failed - select again');
-    expect(toast.show).toHaveBeenLastCalledWith('Cover upload failed: Please select it again.', 'error');
+    expect(toast.show).toHaveBeenLastCalledWith(
+      'Cover upload failed: Please select it again.',
+      'error',
+    );
   });
 
   it('fails the file upload when the draft cannot be created', async () => {
@@ -550,7 +601,9 @@ describe('UploadFormBase (more)', () => {
 
     c.pendingCompletionId.set(null);
     specUploadService.publishBeat.mockReturnValueOnce(
-      throwError(() => new SpecUploadCompletionError('u-400', { status: 400, error: { message: 'bad' } })),
+      throwError(
+        () => new SpecUploadCompletionError('u-400', { status: 400, error: { message: 'bad' } }),
+      ),
     );
     c.submitUpload();
     expect(c.pendingCompletionId()).toBeNull();
@@ -646,7 +699,9 @@ describe('UploadFormBase (more)', () => {
     const empty = { get: () => null } as any;
     expect(c.getLicenseDisplayFormat(empty)).toBe('');
     expect(c.getLicenseSummaryName(empty)).toBe('License');
-    const typed = { get: (k: string) => (k === 'type' ? { value: 'Basic' } : { value: '' }) } as any;
+    const typed = {
+      get: (k: string) => (k === 'type' ? { value: 'Basic' } : { value: '' }),
+    } as any;
     expect(c.getLicenseSummaryName(typed)).toBe('Basic');
     c.stepHints;
     expect(c.getStepHint()).toContain('files');
@@ -664,5 +719,56 @@ describe('UploadFormBase (more)', () => {
     expect(c.requiredAudioCount()).toBe(1);
     c.selectedMoods.set(['a', 'b', 'c', 'd', 'e']);
     expect(c.beatPreviewTags()).toHaveLength(5);
+  });
+
+  it('loads and pre-fills an existing beat for editing', () => {
+    const mockSpec = {
+      id: 'beat-123',
+      title: 'Midnight Jazz',
+      category: 'beat',
+      bpm: 128,
+      key: 'F MINOR',
+      description: 'A smooth late night jam',
+      free_mp3_enabled: true,
+      genres: [{ name: 'Jazz' }],
+      tags: ['smooth', 'chill'],
+      image_url: 'https://example.com/cover.jpg',
+      licenses: [
+        {
+          id: 'lic-1',
+          type: 'Basic',
+          name: 'Basic Lease',
+          price: 19.99,
+          features: ['MP3'],
+          file_types: ['MP3'],
+        },
+      ],
+    };
+    api.execute.mockReturnValue(of(mockSpec));
+    const c = create();
+    c.editingSpecId.set('beat-123');
+    c.loadSpecForEditing('beat-123');
+    expect(c.uploadForm.get('title')?.value).toBe('Midnight Jazz');
+    expect(c.uploadForm.get('bpm')?.value).toBe(128);
+    expect(c.uploadForm.get('key')?.value).toBe('F MINOR');
+    expect(c.uploadForm.get('genre')?.value).toBe('Jazz');
+    expect(c.coverPreviewUrl()).toBe('https://example.com/cover.jpg');
+    expect(c.isEditMode()).toBe(true);
+  });
+
+  it('saves an edited beat and navigates to successRoute', () => {
+    specService.updateSpec.mockReturnValue(of({ id: 'beat-123' }));
+    const c = create();
+    c.editingSpecId.set('beat-123');
+    c.uploadForm.patchValue({
+      title: 'Updated Beat',
+      genre: 'Trap',
+      bpm: 140,
+      key: 'C MINOR',
+    });
+    c.saveEditedSpec();
+    expect(specService.updateSpec).toHaveBeenCalled();
+    expect(toast.show).toHaveBeenCalledWith('Beat updated successfully', 'success');
+    expect(router.navigate).toHaveBeenCalledWith(c.successRoute);
   });
 });

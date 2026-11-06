@@ -191,10 +191,10 @@ describe('StudioAnalyticsComponent', () => {
     expect(component.donutSegments()).toEqual([]);
     expect(component.totalLicenseCount()).toBe(0);
     expect(component.topSpecRows()).toEqual([]);
-    expect(component.bigSeries().revenue.length).toBe(1);
-    expect(component.analyticsCards()[0].value).toBe('0');
+    expect(component.bigSeries().revenue).toEqual([]);
+
     component.data.set(null);
-    expect(component.bigSeries().revenue.length).toBe(1);
+    expect(component.bigSeries().revenue).toEqual([]);
     component.exportCSV();
     expect(downloadAnalyticsCsv).not.toHaveBeenCalled();
   });
@@ -259,7 +259,12 @@ describe('StudioAnalyticsComponent (refreshed analytics)', () => {
     const tiles = c.metricTiles();
     expect(tiles.map((t) => t.label)).toEqual(['Plays', 'Revenue', 'Downloads', 'Favorites']);
     expect(tiles[0]).toEqual(
-      expect.objectContaining({ value: '210', delta: '+100.0%', up: true, hint: 'vs earlier half' }),
+      expect.objectContaining({
+        value: '210',
+        delta: '+100.0%',
+        up: true,
+        hint: 'vs earlier half',
+      }),
     );
     expect(tiles[0].spark.split(' ').length).toBe(14);
     expect(tiles[1].value).toBe('$210');
@@ -328,22 +333,22 @@ describe('StudioAnalyticsComponent (refreshed analytics)', () => {
     const { c } = setup();
     expect(c.hasTrend()).toBe(true);
     const s = c.bigSeries();
-    expect(s.revenue.length).toBe(14);
-    expect(s.revenue[0].label).toBe(c.shortDate('2026-02-01'));
+    expect(s.revenue).toEqual([]);
+    expect(s.plays[0].label).toBe(c.shortDate('2026-02-01'));
   });
 
   it('treats revenue-only data as a trend and falls back for plays', () => {
     getOverview.mockReturnValue(of({ ...dataOverview(), plays_by_day: [] }));
     const { c } = setup();
     expect(c.hasTrend()).toBe(true);
-    expect(c.bigSeries().plays.length).toBe(14);
+    expect(c.bigSeries().plays).toEqual([]);
     expect(c.bigSeries().revenue[0].label).toBe(c.shortDate('2026-02-01'));
   });
 
   it('uses day labels for placeholder series when no rows exist', () => {
     getOverview.mockReturnValue(of({ ...dataOverview(), plays_by_day: [], revenue_by_day: [] }));
     const { c } = setup();
-    expect(c.bigSeries().revenue[0].label).toBe('Day 1');
+    expect(c.bigSeries().revenue).toEqual([]);
   });
 
   it('clamps the hovered plays point when plays are shorter than revenue', () => {
@@ -455,7 +460,7 @@ describe('StudioAnalyticsComponent (refreshed analytics)', () => {
     expect(el.querySelector('.cover-fallback')?.textContent?.trim()).toBe('B');
     expect(el.querySelectorAll('.donut-seg').length).toBe(2);
     expect(el.textContent).toContain('Premium');
-    expect(el.textContent).toContain('Top countries');
+    expect(el.textContent).not.toContain('Top countries');
 
     const chart = el.querySelector('.chart') as HTMLElement;
     chart.getBoundingClientRect = () => ({ left: 0, width: 800 }) as DOMRect;

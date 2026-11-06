@@ -13,12 +13,7 @@ import type { ProducerOrderDto } from '../../core/api/payment.requests';
 import { Role } from '../../models';
 import { type AppCurrency, minorToMajor } from '../../models/money';
 import type { License } from '../../models/payment';
-import {
-  AnalyticsService,
-  AuthService,
-  NotificationService,
-  PaymentService,
-} from '../../services';
+import { AnalyticsService, AuthService, NotificationService, PaymentService } from '../../services';
 import { CurrencyService } from '../../services/currency.service';
 
 type RoleView = 'producer' | 'listener';
@@ -276,13 +271,7 @@ export class DashboardComponent {
   }
 
   private compactMoney(amount: number): string {
-    const currency = this.currency();
-    return new Intl.NumberFormat(currency === 'INR' ? 'en-IN' : 'en-US', {
-      style: 'currency',
-      currency,
-      notation: 'compact',
-      maximumFractionDigits: 1,
-    }).format(amount);
+    return this.currencyService.formatCompactMoney(amount, this.currency());
   }
 
   private compact(n: number): string {
@@ -417,11 +406,7 @@ export class DashboardComponent {
   });
 
   // ── Today strip ──────────────────────────────────────
-  private listenerToday: Metric[] = [
-    { label: 'Listened today', value: '2.1h' },
-    { label: 'Downloads', value: '1' },
-    { label: 'Saved', value: '3' },
-  ];
+  private listenerToday: Metric[] = [];
 
   today = computed<Metric[]>(() => {
     if (this.role() !== 'producer') return this.listenerToday;
@@ -472,16 +457,6 @@ export class DashboardComponent {
         },
         // Followers has no data source yet
         {
-          tone: 'tang',
-          label: 'Followers',
-          value: '2,106',
-          delta: '+54',
-          up: true,
-          note: 'this week',
-          spark: [3, 4, 3, 5, 5, 6, 6, 8, 7, 9],
-          link: '/studio/profile',
-        },
-        {
           tone: 'ink',
           label: 'Favorites',
           value: this.compact(o?.total_favorites ?? 0),
@@ -514,16 +489,6 @@ export class DashboardComponent {
       },
       // Wishlist has no data source yet
       {
-        tone: 'cobalt',
-        label: 'Wishlist',
-        value: '12',
-        delta: '2 on sale',
-        up: true,
-        note: 'saved beats',
-        spark: [3, 4, 4, 5, 5, 5, 6, 6, 7, 7],
-        link: '/explore',
-      },
-      {
         tone: 'tang',
         label: 'Downloads',
         value: String(totalDownloads),
@@ -534,51 +499,8 @@ export class DashboardComponent {
         link: '/studio/purchases',
       },
       // Following has no data source yet
-      {
-        tone: 'ink',
-        label: 'Following',
-        value: '9',
-        delta: '+1',
-        up: true,
-        note: 'producers',
-        spark: [2, 2, 3, 3, 4, 4, 5, 5, 6, 6],
-        link: '/explore',
-      },
     ];
   });
-
-  // ── Payout + goal (no data source yet) ───────────────
-  readonly producerHighlight: Highlight = {
-    label: 'Ready to withdraw',
-    value: '$1,240',
-    note: 'Next automatic payout on Friday.',
-    cta: 'Withdraw',
-    link: '/studio/earnings',
-  };
-
-  readonly listenerHighlight: Highlight = {
-    label: 'On sale now',
-    value: '2 beats',
-    note: 'Wishlist beats just dropped in price.',
-    cta: 'See offers',
-    link: '/explore',
-  };
-
-  readonly producerGoal: Goal = {
-    title: 'Monthly goal',
-    current: '$4,820',
-    target: '$6,000',
-    pct: 80,
-    note: '$1,180 to go · 7 days left',
-  };
-
-  readonly listenerGoal: Goal = {
-    title: 'Listening goal',
-    current: '68 hrs',
-    target: '80 hrs',
-    pct: 85,
-    note: '12 hrs to go · 7 days left',
-  };
 
   // ── Needs attention + activity (notifications) ───────
   attention = computed<AttentionItem[]>(() =>
@@ -662,7 +584,10 @@ export class DashboardComponent {
       }
       entries = [...totals.entries()];
     }
-    const sorted = entries.filter(([, v]) => v > 0).sort((a, b) => b[1] - a[1]).slice(0, 4);
+    const sorted = entries
+      .filter(([, v]) => v > 0)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 4);
     const total = this.sum(sorted.map(([, v]) => v)) || 1;
     return sorted.map(([label, value]) => ({
       label,
@@ -671,53 +596,11 @@ export class DashboardComponent {
     }));
   });
 
-  // ── Audience / taste (no data source yet) ────────────
-  readonly producerAudienceTitle = 'Top countries';
-  readonly listenerAudienceTitle = 'Your top genres';
-
-  readonly producerAudience: Bar[] = [
-    { label: 'United States', pct: 38 },
-    { label: 'India', pct: 21 },
-    { label: 'United Kingdom', pct: 12 },
-    { label: 'Germany', pct: 8 },
-    { label: 'Brazil', pct: 6 },
-  ];
-
-  readonly listenerAudience: Bar[] = [
-    { label: 'Trap', pct: 34 },
-    { label: 'R&B', pct: 26 },
-    { label: 'Lo-fi', pct: 18 },
-    { label: 'House', pct: 12 },
-    { label: 'Drill', pct: 10 },
-  ];
-
-  // ── Battle (no data source yet) ──────────────────────
-  readonly producerBattle: Battle = {
-    tag: 'Beat Battle #14',
-    title: 'Midnight Heat',
-    note: 'Closes in 2d 4h · 128 entries',
-    cta: 'Enter battle',
-    link: '/battles',
-  };
-
-  readonly listenerBattle: Battle = {
-    tag: 'Beat Battle #14',
-    title: 'Midnight Heat',
-    note: 'Closes in 2d 4h · vote for your favorite',
-    cta: 'Vote now',
-    link: '/battles',
-  };
-
   // ── Orders / following ───────────────────────────────
   readonly ordersTitle = 'Recent orders';
   readonly followingTitle = 'Following';
 
-  private readonly following: OrderRow[] = [
-    { name: 'Kita Sol', note: 'Violet Hour II', badge: 'New', time: '2m', color: '#6c4de6' },
-    { name: 'Meridian', note: 'Lo-fi pack · 12 beats', badge: 'New', time: '1h', color: '#b57700' },
-    { name: 'Rufio Ash', note: 'Ghostwire VIP', badge: 'Beat', time: '1d', color: '#1f8f55' },
-    { name: 'Nova Keys', note: 'Midnight Run', badge: 'Beat', time: '2d', color: '#d3213f' },
-  ];
+  private readonly following: OrderRow[] = [];
 
   peopleRows = computed<OrderRow[]>(() => {
     if (this.role() !== 'producer') return this.following;
@@ -746,8 +629,7 @@ export class DashboardComponent {
   readonly listenerLinks: QuickLink[] = [
     { label: 'Explore beats', hint: 'Browse the catalog', link: '/explore' },
     { label: 'Your library', hint: 'Purchases and downloads', link: '/studio/purchases' },
-    { label: 'Beat battles', hint: 'Vote and compete', link: '/battles' },
-    { label: 'Cart', hint: 'Finish checkout', link: '/cart' },
+    { label: 'Cart', hint: 'Your saved selections', link: '/cart' },
   ];
 
   // ── Actions ──────────────────────────────────────────

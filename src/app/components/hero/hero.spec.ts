@@ -54,16 +54,16 @@ describe('HeroComponent', () => {
   it('lists beats, sample packs and loops in the dropdown', () => {
     expect(options()).toHaveLength(0);
     openMenu();
-    expect(options().map((o) => o.textContent?.trim())).toEqual(['Beats', 'Sample packs', 'Loops']);
+    expect(options().map((o) => o.textContent?.trim())).toEqual(['Beats']);
     expect(options()[0].getAttribute('aria-selected')).toBe('true');
   });
 
   it('switching the option updates the label and placeholder and closes the menu', () => {
     openMenu();
-    options()[2].click();
+    options()[0].click();
     fixture.detectChanges();
-    expect(el.querySelector('.scope-label')?.textContent?.trim()).toBe('Loops');
-    expect(el.querySelector<HTMLInputElement>('.search-input')?.placeholder).toContain('loops');
+    expect(el.querySelector('.scope-label')?.textContent?.trim()).toBe('Beats');
+    expect(el.querySelector<HTMLInputElement>('.search-input')?.placeholder).toContain('beats');
     expect(options()).toHaveLength(0);
   });
 
@@ -73,31 +73,31 @@ describe('HeroComponent', () => {
     expect(navigate).toHaveBeenLastCalledWith(['/explore'], { queryParams: { search: 'lofi' } });
 
     openMenu();
-    options()[1].click();
+    options()[0].click();
     fixture.detectChanges();
     el.querySelector('form')!.dispatchEvent(new Event('submit'));
-    expect(navigate).toHaveBeenLastCalledWith(['/sample-packs'], {
+    expect(navigate).toHaveBeenLastCalledWith(['/explore'], {
       queryParams: { search: 'lofi' },
     });
 
     openMenu();
-    options()[2].click();
+    options()[0].click();
     type('  ');
     el.querySelector('form')!.dispatchEvent(new Event('submit'));
-    expect(navigate).toHaveBeenLastCalledWith(['/loops'], { queryParams: {} });
+    expect(navigate).toHaveBeenLastCalledWith(['/explore'], { queryParams: {} });
   });
 
   it('offers the same three scopes as a segmented control for phones', () => {
     const segments = Array.from(el.querySelectorAll<HTMLElement>('.segment'));
-    expect(segments.map((s) => s.textContent?.trim())).toEqual(['Beats', 'Sample packs', 'Loops']);
+    expect(segments.map((s) => s.textContent?.trim())).toEqual(['Beats']);
     expect(segments[0].getAttribute('aria-checked')).toBe('true');
 
-    segments[2].click();
+    segments[0].click();
     fixture.detectChanges();
-    expect(component.scope().id).toBe('loops');
-    expect(el.querySelector<HTMLInputElement>('.search-input')?.placeholder).toContain('loops');
-    expect(segments[2].getAttribute('aria-checked')).toBe('true');
-    expect(segments[0].getAttribute('aria-checked')).toBe('false');
+    expect(component.scope().id).toBe('beats');
+    expect(el.querySelector<HTMLInputElement>('.search-input')?.placeholder).toContain('beats');
+    expect(segments[0].getAttribute('aria-checked')).toBe('true');
+    expect(segments[0].getAttribute('aria-checked')).toBe('true');
   });
 
   it('moves the segmented control with the arrow keys and wraps around', () => {
@@ -106,7 +106,7 @@ describe('HeroComponent', () => {
         .querySelector('.segment')!
         .dispatchEvent(new KeyboardEvent('keydown', { key, cancelable: true }));
     press('ArrowLeft');
-    expect(component.scope().id).toBe('loops');
+    expect(component.scope().id).toBe('beats');
     press('ArrowRight');
     expect(component.scope().id).toBe('beats');
   });
@@ -133,7 +133,7 @@ describe('HeroComponent', () => {
     expect(component.open()).toBe(true);
     key('ArrowDown');
     key('Enter');
-    expect(component.scope().id).toBe('sample-packs');
+    expect(component.scope().id).toBe('beats');
     expect(component.open()).toBe(false);
     key('ArrowDown');
     key('Escape');

@@ -32,12 +32,15 @@
     </strong>
   </div>
 
-  <button type="button" class="checkout" [disabled]="mixedCurrencies()" (click)="checkout.emit()">
-    {{ mixedCurrencies() ? 'Choose one currency' : 'Proceed to checkout' }}
+  <button type="button" class="checkout" [disabled]="true" (click)="checkout.emit()">
+    Cart checkout is not available yet
     <i class="fas fa-arrow-right" aria-hidden="true"></i>
   </button>
 
-  <ul class="trust">
+  <p role="status">
+    Your cart is saved on this device. To buy a beat now, choose a license on its beat page.
+  </p>
+  <ul class="trust" hidden>
     <li><i class="fas fa-lock" aria-hidden="true"></i> Secure, encrypted checkout</li>
     <li><i class="fas fa-download" aria-hidden="true"></i> Instant audio and license delivery</li>
     <li><i class="fas fa-shield-halved" aria-hidden="true"></i> Protected purchase</li>

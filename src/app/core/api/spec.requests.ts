@@ -22,6 +22,7 @@ export interface SpecDto {
   id: string;
   producer_id: string;
   producer_name: string;
+  producer_handle?: string;
   producer_avatar_url?: string;
   producer_image_url?: string;
   producer_photo_url?: string;

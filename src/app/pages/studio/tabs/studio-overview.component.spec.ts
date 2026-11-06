@@ -108,13 +108,13 @@ describe('StudioOverviewComponent', () => {
     expect(component.formattedDownloads()).toBe('90');
     expect(component.formattedFavorites()).toBe('12');
     expect(component.liveBeatCount()).toBe(2);
-    expect(component.readyToWithdraw()).toBe(1022);
-    expect(component.recentOrderCount()).toBe(3);
+
+    expect(component.recentOrderCount()).toBe(component.recentOrders().length);
     expect(component.revenueTotalLabel()).toBe('₹5,678');
     expect(component.recentSales()[0]).toEqual(
       expect.objectContaining({ id: 'o1', title: 'First', buyer: 'Sam', license: 'Basic' }),
     );
-    expect(component.activityItems()[0].text).toContain('Sam bought Basic');
+    expect(component.activityItems()).toEqual([]);
     expect(component.topBeatRows()[0]).toEqual(
       expect.objectContaining({ rank: '01', share: 100, letter: 'f', imageUrl: 'cover.png' }),
     );
@@ -155,14 +155,14 @@ describe('StudioOverviewComponent', () => {
     expect(component.firstName()).toBe('Producer');
     expect(component.formattedPlays()).toBe('999');
     expect(component.formattedRevenue()).toBe('1.2L');
-    expect(component.liveBeatCount()).toBe(24);
-    expect(component.recentOrderCount()).toBe(3);
-    expect(component.activityItems()[0].text).toContain('5-star review');
+    expect(component.liveBeatCount()).toBe(0);
+    expect(component.recentOrderCount()).toBe(component.recentOrders().length);
+    expect(component.activityItems()).toEqual([]);
     expect(component.licenseRows()).toEqual([
       { label: 'Premium', value: 300, share: 75 },
       { label: 'Basic', value: 100, share: 25 },
     ]);
-    expect(component.revenuePoints().length).toBe(30);
+    expect(component.revenuePoints()).toEqual([]);
     expect(component.trendPoints()).toEqual([]);
     expect(component.playsLinePoints()).toBe('');
     expect(component.playsAreaPoints()).toBe('');
@@ -264,7 +264,12 @@ describe('StudioOverviewComponent (refreshed overview)', () => {
     const tiles = c.statTiles();
     expect(tiles.map((t) => t.label)).toEqual(['Plays', 'Revenue', 'Downloads', 'Favorites']);
     expect(tiles[0]).toEqual(
-      expect.objectContaining({ delta: '+100.0%', up: true, hint: '7d vs prior 7d', accent: 'hot' }),
+      expect.objectContaining({
+        delta: '+100.0%',
+        up: true,
+        hint: '7d vs prior 7d',
+        accent: 'hot',
+      }),
     );
     expect(tiles[0].spark.split(' ').length).toBe(14);
     expect(tiles[3]).toEqual(
@@ -432,7 +437,7 @@ describe('StudioOverviewComponent (refreshed overview)', () => {
     expect(c.recentSales()[0]).toEqual(
       expect.objectContaining({ title: 'Untitled beat', buyer: 'Customer', license: 'License' }),
     );
-    expect(c.activityItems()[1].text).toContain('added to pending revenue');
+    expect(c.activityItems()).toEqual([]);
     const rows = c.topBeatRows();
     expect(rows[0].imageUrl).toBe('second.png');
     expect(rows[0].share).toBe(12);

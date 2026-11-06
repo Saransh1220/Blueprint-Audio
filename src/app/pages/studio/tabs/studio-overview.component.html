@@ -26,8 +26,6 @@
   <!-- Revenue + top beats -->
   <div class="row row-main">
     <su-panel heading="Revenue" hint="Last 30 days" tone="dark" accent="hot">
-      <a panelActions routerLink="../earnings">Earnings →</a>
-
       @if (isLoadingAnalytics()) {
         <p class="state">Loading revenue…</p>
       } @else {
@@ -40,12 +38,20 @@
           }
         </div>
 
+        @if (!revenuePoints().length) {
+          <p class="state">No revenue history yet.</p>
+        }
         <div
           class="chart"
           (mousemove)="onRevenueChartMove($event)"
           (mouseleave)="clearRevenueHover()"
         >
-          <svg viewBox="0 0 600 240" preserveAspectRatio="none" role="img" aria-label="Revenue over the last 30 days">
+          <svg
+            viewBox="0 0 600 240"
+            preserveAspectRatio="none"
+            role="img"
+            aria-label="Revenue over the last 30 days"
+          >
             <line class="grid" x1="0" y1="40" x2="600" y2="40" />
             <line class="grid" x1="0" y1="100" x2="600" y2="100" />
             <line class="grid" x1="0" y1="160" x2="600" y2="160" />
@@ -109,7 +115,9 @@
 
       @for (sale of recentSales(); track sale.id) {
         <div class="row-item sale">
-          <span class="avatar" [style.background]="buyerColor(sale.buyer)">{{ sale.buyer.charAt(0).toUpperCase() }}</span>
+          <span class="avatar" [style.background]="buyerColor(sale.buyer)">{{
+            sale.buyer.charAt(0).toUpperCase()
+          }}</span>
           <span class="sale-info">
             <strong>{{ sale.title }}</strong>
             <small>{{ sale.buyer }} · {{ sale.license }}</small>

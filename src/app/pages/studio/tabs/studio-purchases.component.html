@@ -16,26 +16,14 @@
         <span class="stat-lbl">Total spent</span><span class="stat-ic">💰</span>
       </div>
       <div class="stat-val">{{ totalSpent() }}</div>
-      <div class="stat-foot">across your license library</div>
+      <div class="stat-foot">on this page of your license library</div>
     </div>
     <div class="stat-cell c2">
       <div class="stat-top">
         <span class="stat-lbl">Purchases</span><span class="stat-ic">↓</span>
       </div>
-      <div class="stat-val">{{ rows().length || 47 }}</div>
+      <div class="stat-val">{{ pagination()?.total ?? rows().length }}</div>
       <div class="stat-foot">beats in your crate</div>
-    </div>
-    <div class="stat-cell c3">
-      <div class="stat-top">
-        <span class="stat-lbl">Downloads</span><span class="stat-ic">↧</span>
-      </div>
-      <div class="stat-val">86</div>
-      <div class="stat-foot">files pulled all time</div>
-    </div>
-    <div class="stat-cell c4">
-      <div class="stat-top"><span class="stat-lbl">Stems</span><span class="stat-ic">+</span></div>
-      <div class="stat-val">19</div>
-      <div class="stat-foot">premium packs owned</div>
     </div>
   </div>
 
@@ -69,34 +57,7 @@
         <option>Unlimited Pro</option>
         <option>Exclusive</option>
       </select>
-      <select class="filter-select">
-        <option>All time</option>
-        <option>This week</option>
-        <option>This month</option>
-        <option>This year</option>
-      </select>
-      <select class="filter-select">
-        <option>Newest first</option>
-        <option>Oldest first</option>
-        <option>Highest price</option>
-        <option>By producer</option>
-      </select>
     </div>
-    <button class="btn dark" type="button">
-      <svg
-        width="12"
-        height="12"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="2.2"
-      >
-        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-        <polyline points="7 10 12 15 17 10" />
-        <line x1="12" y1="15" x2="12" y2="3" />
-      </svg>
-      Download all
-    </button>
   </div>
 
   <div class="tracks-table">

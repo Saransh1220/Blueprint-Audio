@@ -1,9 +1,13 @@
 import { computed, Directive, inject, OnDestroy, OnInit, signal } from '@angular/core';
 import { FormArray, FormBuilder, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { firstValueFrom, Subscription } from 'rxjs';
 import { Genre, MusicalKey } from '../../models';
 import { AuthService, LabService, ToastService } from '../../services';
+import { CurrencyService } from '../../services/currency.service';
+import { ApiService } from '../../core/services/api.service';
+import { GetSpecRequest, SpecDto } from '../../core/api/spec.requests';
+import { SpecService } from '../../services/spec.service';
 import {
   normalizeSpecUploadContentType,
   SpecUploadCompletionError,
@@ -43,12 +47,21 @@ export abstract class UploadFormBase implements OnInit, OnDestroy {
   protected authService = inject(AuthService);
   protected fb = inject(FormBuilder);
   protected router = inject(Router);
+  protected route = inject(ActivatedRoute, { optional: true });
   protected toastService = inject(ToastService);
+  protected currencyService = inject(CurrencyService);
+  protected api = inject(ApiService, { optional: true });
+  protected specService = inject(SpecService, { optional: true });
 
   currentUser = this.authService.currentUser;
 
   abstract successRoute: string[];
   abstract closeRoute: string;
+
+  editingSpecId = signal<string | null>(null);
+  isEditMode = computed(() => !!this.editingSpecId());
+  isLoadingSpec = signal(false);
+  editingSpecOriginal = signal<SpecDto | null>(null);
 
   totalSteps = 4;
   currentStep = signal(1);
@@ -199,6 +212,11 @@ export abstract class UploadFormBase implements OnInit, OnDestroy {
     this.initializeLicenses();
     this.syncKeyFromValue(this.uploadForm.get('key')?.value || 'E MINOR');
     this.restorePendingCompletion();
+    const editId = this.route?.snapshot?.queryParamMap?.get('edit');
+    if (editId) {
+      this.editingSpecId.set(editId);
+      this.loadSpecForEditing(editId);
+    }
   }
 
   ngOnDestroy() {
@@ -206,6 +224,165 @@ export abstract class UploadFormBase implements OnInit, OnDestroy {
       subscription.unsubscribe();
     }
     this.fileUploadSubscriptions.clear();
+  }
+
+  loadSpecForEditing(id: string) {
+    if (!this.api) return;
+    this.isLoadingSpec.set(true);
+    this.api.execute(new GetSpecRequest(id)).subscribe({
+      next: (dto: SpecDto) => {
+        this.isLoadingSpec.set(false);
+        this.editingSpecOriginal.set(dto);
+
+        this.uploadForm.patchValue({
+          title: dto.title || '',
+          category: dto.category || 'beat',
+          bpm: dto.bpm as any,
+          key: dto.key || 'E MINOR',
+          description: dto.description || '',
+          freeMp3Enabled: !!dto.free_mp3_enabled,
+        });
+
+        if (dto.genres && dto.genres.length > 0) {
+          const firstGenre =
+            typeof dto.genres[0] === 'string'
+              ? dto.genres[0]
+              : (dto.genres[0] as any).name || (dto.genres[0] as any).slug || '';
+          this.uploadForm.get('genre')?.setValue(firstGenre);
+        }
+
+        if (dto.key) {
+          this.syncKeyFromValue(dto.key);
+        }
+
+        this.tags.clear();
+        for (const tag of dto.tags ?? []) {
+          this.tags.push(this.fb.control(tag));
+        }
+
+        if (dto.image_url) {
+          this.coverPreviewUrl.set(dto.image_url);
+          this.coverSummary.set({
+            name: 'Current artwork',
+            size: 'Saved cover',
+          });
+          this.setFileUploadState('cover', { phase: 'uploaded', progress: 100 });
+        }
+
+        this.previewSummary.set({ name: 'Current preview', size: 'Audio uploaded' });
+        this.wavSummary.set({ name: 'Current WAV master', size: 'WAV uploaded' });
+        this.setFileUploadState('preview', { phase: 'uploaded', progress: 100 });
+        this.setFileUploadState('wav', { phase: 'uploaded', progress: 100 });
+        this.setFileUploadState('stems', { phase: 'uploaded', progress: 100 });
+
+        if (dto.licenses && dto.licenses.length > 0) {
+          this.licenses.clear();
+          for (const lic of dto.licenses) {
+            this.licenses.push(
+              this.fb.group({
+                enabled: [true],
+                id: [lic.id],
+                type: [lic.type],
+                name: [lic.name, Validators.required],
+                subtitle: [this.getLicenseSubtitle(lic.type)],
+                price: [lic.price, [Validators.required, Validators.min(0)]],
+                features: [lic.features || []],
+                file_types: [lic.file_types || []],
+              }),
+            );
+          }
+        }
+      },
+      error: () => {
+        this.isLoadingSpec.set(false);
+        this.toastService.show('Unable to load this beat for editing. Please try again.', 'error');
+        this.router.navigate(this.closeRoute ? [this.closeRoute] : this.successRoute);
+      },
+    });
+  }
+
+  private getLicenseSubtitle(type: string): string {
+    switch (type) {
+      case 'Basic':
+        return 'mp3';
+      case 'Premium':
+        return 'mp3 + wav';
+      case 'Trackout':
+        return 'wav + stems';
+      case 'Unlimited':
+        return 'pro';
+      default:
+        return 'license';
+    }
+  }
+
+  cancelEdit() {
+    this.router.navigate(this.closeRoute ? [this.closeRoute] : this.successRoute);
+  }
+
+  saveEditedSpec() {
+    const specId = this.editingSpecId();
+    if (!specId || !this.specService) return;
+
+    if (this.uploadForm.invalid) {
+      this.uploadForm.markAllAsTouched();
+      this.toastService.show('Please fix the errors in the form before saving.', 'error');
+      return;
+    }
+
+    const enabledLicenses = this.licenses.controls
+      .filter((lic) => !!lic.get('enabled')?.value)
+      .map((lic) => ({
+        id: lic.get('id')?.value,
+        type: lic.get('type')?.value,
+        name: lic.get('name')?.value,
+        price: Number(lic.get('price')?.value),
+        features: lic.get('features')?.value || [],
+        file_types: lic.get('file_types')?.value || [],
+      }));
+
+    if (enabledLicenses.length === 0) {
+      this.toastService.show('Please enable at least one license option.', 'error');
+      return;
+    }
+
+    const basePrice = Math.min(...enabledLicenses.map((l) => l.price));
+    const formVal = this.uploadForm.value;
+
+    const metadata = {
+      title: formVal.title,
+      price: basePrice,
+      bpm: Number(formVal.bpm) || 0,
+      key: formVal.key || '',
+      tags: this.tags.value || [],
+      description: formVal.description || '',
+      free_mp3_enabled: !!formVal.freeMp3Enabled,
+      licenses: enabledLicenses,
+    };
+
+    const formData = new FormData();
+    formData.append('metadata', JSON.stringify(metadata));
+
+    const file = this.coverFile();
+    if (file) {
+      formData.append('image', file);
+    }
+
+    this.isSubmitting.set(true);
+    this.specService.updateSpec(specId, formData).subscribe({
+      next: () => {
+        this.isSubmitting.set(false);
+        this.toastService.show('Beat updated successfully', 'success');
+        this.labService.notifyRefresh();
+        this.router.navigate(this.successRoute);
+      },
+      error: (err: any) => {
+        this.isSubmitting.set(false);
+        const msg =
+          err?.error?.message || err?.message || 'Unable to update this beat. Please try again.';
+        this.toastService.show(msg, 'error');
+      },
+    });
   }
 
   initializeLicenses() {
@@ -691,8 +868,7 @@ export abstract class UploadFormBase implements OnInit, OnDestroy {
   formatCurrency(value: number | string) {
     const amount = Number(value || 0);
     const storeCurrency = this.authService.currentUser()?.store_currency || 'USD';
-    const symbol = storeCurrency === 'INR' ? '₹' : '$';
-    return `${symbol}${amount.toFixed(2)}`;
+    return this.currencyService.formatMoney(null, amount, storeCurrency, { trailingZeros: true });
   }
 
   formatFileState(type: UploadFileType) {

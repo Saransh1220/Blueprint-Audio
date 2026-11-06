@@ -14,7 +14,10 @@ describe('SamplePacksPageComponent', () => {
     await TestBed.configureTestingModule({
       imports: [SamplePacksPageComponent],
       providers: [
-        { provide: Router, useValue: { navigate, createUrlTree: () => ({}), serializeUrl: () => '' } },
+        {
+          provide: Router,
+          useValue: { navigate, createUrlTree: () => ({}), serializeUrl: () => '' },
+        },
         { provide: ToastService, useValue: { show } },
       ],
     }).compileComponents();

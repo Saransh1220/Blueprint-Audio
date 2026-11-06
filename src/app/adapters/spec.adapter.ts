@@ -23,6 +23,7 @@ export class SpecAdapter {
       id: dto.id,
       producerId: dto.producer_id,
       producerName: dto.producer_name,
+      producerHandle: dto.producer_handle,
       producerAvatarUrl:
         dto.producer_avatar_url || dto.producer_image_url || dto.producer_photo_url || undefined,
       type: dto.type,

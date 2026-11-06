@@ -1,3 +1,4 @@
+import { BRAND } from '../../core/config/brand';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -31,6 +32,7 @@ import { defaultLicense, formatLength, licenseFeatures, licenseSubtitle } from '
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PurchaseWarpComponent {
+  readonly brand = BRAND;
   private readonly dialog = inject(PurchaseDialogService);
   private readonly cart = inject(CartService);
   private readonly payment = inject(PaymentService);

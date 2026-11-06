@@ -113,7 +113,12 @@ describe('StudioProfileComponent (more)', () => {
   });
 
   it('renders banner, preview and save bar controls', () => {
-    setup({ ...baseUser(), banner_url: 'http://x/banner.png', avatar_url: 'http://x/a.png', instagram_url: 'https://i.com' });
+    setup({
+      ...baseUser(),
+      banner_url: 'http://x/banner.png',
+      avatar_url: 'http://x/a.png',
+      instagram_url: 'https://i.com',
+    });
     const el = fixture.nativeElement as HTMLElement;
     expect(el.querySelector('.banner-image')).toBeTruthy();
     expect(el.querySelector('.preview-banner img')).toBeTruthy();
@@ -255,7 +260,9 @@ describe('StudioProfileComponent (more)', () => {
     expect(show).not.toHaveBeenCalled();
 
     component.onBannerFileSelected({
-      target: { files: [new File([new Uint8Array(6 * 1024 * 1024)], 'b.png', { type: 'image/png' })] },
+      target: {
+        files: [new File([new Uint8Array(6 * 1024 * 1024)], 'b.png', { type: 'image/png' })],
+      },
     } as any);
     expect(show).toHaveBeenCalledWith('Banner must be less than 5MB', 'error');
 

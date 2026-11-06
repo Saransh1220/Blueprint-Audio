@@ -3,13 +3,13 @@
     <div class="page-num"><span class="dot"></span> 04 · Orders</div>
     <h1 class="page-h">incoming <em>sales</em>.</h1>
   </div>
-  <p class="page-sub">Every license sold appears here. Payments settle within <em>48 hours</em>.</p>
+  <p class="page-sub">View orders and their current payment status.</p>
 </div>
 
 <div class="stats-grid" style="grid-template-columns: repeat(3, 1fr)">
   <div class="stat-cell c1">
     <div class="stat-top">
-      <span class="stat-lbl">This month · revenue</span><span class="stat-ic">💰</span>
+      <span class="stat-lbl">Revenue on this page</span><span class="stat-ic">💰</span>
     </div>
     <div class="stat-val">
       @if (isLoading()) {
@@ -18,11 +18,11 @@
         {{ monthlyRevenue() }}
       }
     </div>
-    <div class="stat-foot"><span class="stat-delta up">+12% vs last</span></div>
+    <div class="stat-foot"><span class="stat-delta up"></span></div>
   </div>
   <div class="stat-cell c2">
     <div class="stat-top">
-      <span class="stat-lbl">Orders · this month</span><span class="stat-ic">◉</span>
+      <span class="stat-lbl">Total orders</span><span class="stat-ic">◉</span>
     </div>
     <div class="stat-val">
       @if (isLoading()) {
@@ -44,7 +44,7 @@
         {{ avgOrderValue() }}
       }
     </div>
-    <div class="stat-foot"><span class="stat-delta up">+8%</span></div>
+    <div class="stat-foot"><span class="stat-delta up"></span></div>
   </div>
 </div>
 

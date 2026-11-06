@@ -1,3 +1,5 @@
+import { isFeatureAvailable } from '../../core/config/feature-availability';
+
 export type NavTint = 'hot' | 'cobalt' | 'lime' | 'sun' | 'lavender' | 'cream';
 
 export interface NavMenuItem {
@@ -119,5 +121,7 @@ export function menuItemsFor(
   items: readonly NavMenuItem[],
   isProducer: boolean,
 ): readonly NavMenuItem[] {
-  return isProducer ? items : items.filter((item) => !item.producerOnly);
+  return items.filter(
+    (item) => isFeatureAvailable(item.route) && (isProducer || !item.producerOnly),
+  );
 }

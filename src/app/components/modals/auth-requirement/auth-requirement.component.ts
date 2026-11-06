@@ -1,3 +1,4 @@
+import { BRAND } from '../../../core/config/brand';
 import { Component, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { ModalService } from '../../../services/modal.service';
@@ -9,6 +10,7 @@ import { ModalService } from '../../../services/modal.service';
   styleUrl: './auth-requirement.component.scss',
 })
 export class AuthRequirementComponent {
+  readonly brand = BRAND;
   readonly perks = [
     { icon: 'fa-heart', label: 'Save beats you like' },
     { icon: 'fa-cart-shopping', label: 'Keep your cart' },

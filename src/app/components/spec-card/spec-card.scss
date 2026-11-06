@@ -25,9 +25,7 @@
   &:hover .beat-artwork,
   &.playing .beat-artwork {
     border-color: var(--hot);
-    box-shadow:
-      0 0 0 1px color-mix(in srgb, var(--hot) 80%, transparent),
-      4px 4px 0 var(--hot);
+    box-shadow: 0 8px 24px -4px rgba(0, 0, 0, 0.45);
   }
 
   &:hover .beat-play,

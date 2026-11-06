@@ -1,3 +1,4 @@
+import { BRAND } from '../../../core/config/brand';
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 
 @Component({
@@ -7,4 +8,6 @@ import { ChangeDetectionStrategy, Component } from '@angular/core';
   styleUrl: './studio-messages.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class StudioMessagesComponent {}
+export class StudioMessagesComponent {
+  readonly brand = BRAND;
+}

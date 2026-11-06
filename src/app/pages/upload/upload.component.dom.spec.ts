@@ -36,7 +36,12 @@ describe('UploadComponent (rendered layout)', () => {
         { provide: SpecUploadMonitorService, useValue: { monitor: vi.fn() } },
         {
           provide: SpecUploadService,
-          useValue: { createDraft: vi.fn(), uploadFile: vi.fn(), publishBeat: vi.fn(), completeUpload: vi.fn() },
+          useValue: {
+            createDraft: vi.fn(),
+            uploadFile: vi.fn(),
+            publishBeat: vi.fn(),
+            completeUpload: vi.fn(),
+          },
         },
         { provide: Router, useValue: { navigate: vi.fn() } },
         { provide: ToastService, useValue: { show: vi.fn() } },
@@ -50,7 +55,9 @@ describe('UploadComponent (rendered layout)', () => {
 
   it('renders the page heading and the three form panels plus preview and checklist', () => {
     expect(el.querySelector('su-page-head h1')?.textContent).toContain('Press');
-    const headings = Array.from(el.querySelectorAll('su-panel .panel-head h2')).map((h) => h.textContent?.trim());
+    const headings = Array.from(el.querySelectorAll('su-panel .panel-head h2')).map((h) =>
+      h.textContent?.trim(),
+    );
     expect(headings).toEqual(['Files', 'Details', 'Licenses', 'Live preview', 'Ready to publish?']);
   });
 
@@ -161,7 +168,9 @@ describe('UploadComponent (rendered layout)', () => {
     fixture.detectChanges();
     expect(el.querySelector('.preview-title')?.textContent).toContain('Violet Hour');
     expect(el.querySelector('.preview-meta')?.textContent).toContain('140 BPM');
-    expect(el.querySelectorAll('.preview-licenses li').length).toBe(component.selectedLicenses().length);
+    expect(el.querySelectorAll('.preview-licenses li').length).toBe(
+      component.selectedLicenses().length,
+    );
   });
 
   it('updates the publish checklist as requirements are met', () => {
@@ -178,7 +187,9 @@ describe('UploadComponent (rendered layout)', () => {
   it('only enables Publish once the required files are uploaded, and publishes on click', () => {
     const publish = el.querySelector('.act.primary') as HTMLButtonElement;
     expect(publish.disabled).toBe(true);
-    expect(el.querySelector('.sticky-footer p')?.textContent).toContain('as soon as you select them');
+    expect(el.querySelector('.sticky-footer p')?.textContent).toContain(
+      'as soon as you select them',
+    );
 
     markRequiredFilesUploaded();
     const submit = vi.spyOn(component, 'submitUpload').mockImplementation(() => undefined);

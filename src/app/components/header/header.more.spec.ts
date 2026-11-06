@@ -54,7 +54,10 @@ describe('HeaderComponent (more)', () => {
   });
 
   const el = () => fixture.nativeElement as HTMLElement;
-  const render = () => fixture.detectChanges();
+  const render = () => {
+    fixture.changeDetectorRef.markForCheck();
+    fixture.detectChanges();
+  };
 
   it('detects studio, browse and studio-section routes', () => {
     url = '/studio/overview';
@@ -218,7 +221,7 @@ describe('HeaderComponent (more)', () => {
       time: 'now',
     });
     expect(byId('f').time).toBe('now');
-    expect(items.length).toBe(6 + 7);
+    expect(items.length).toBe(6);
   });
 
   it('filters notifications and reports counts', () => {
@@ -230,34 +233,30 @@ describe('HeaderComponent (more)', () => {
     component.setNotificationFilter('unread');
     expect(component.visibleNotificationItems().every((i) => i.unread)).toBe(true);
     component.setNotificationFilter('sale');
-    expect(component.visibleNotificationItems().map((i) => i.kind)).toEqual(['sale', 'sale']);
+    expect(component.visibleNotificationItems().map((i) => i.kind)).toEqual([]);
     component.setNotificationFilter('follow');
-    expect(component.visibleNotificationItems().length).toBe(1);
+    expect(component.visibleNotificationItems().length).toBe(0);
     component.setNotificationFilter('milestone');
     component.setNotificationFilter('system');
     expect(component.visibleNotificationItems()).toEqual([]);
 
     const counts = component.notificationFilterCounts();
     expect(counts.all).toBe(all);
-    expect(counts.sale).toBe(2);
-    expect(counts.message).toBe(2);
-    expect(counts.unread).toBe(3);
+    expect(counts.sale).toBe(0);
+    expect(counts.message).toBe(1);
+    expect(counts.unread).toBe(0);
   });
 
-  it('marks reference items read locally only and live items via service', () => {
+  it('delegates read mutations to the API service without adding local reference rows', () => {
     const ev = { stopPropagation: vi.fn() } as any;
     notifications.set([
-      { id: 'l1', type: 'info', title: 'T', message: 'm', is_read: false, created_at: new Date() },
+      { id: 'live-1', type: 'info', is_read: false, title: 'Real', created_at: new Date() },
     ]);
-    const before = component.notificationFilterCounts().unread;
-    component.markAsRead('ref-sale-copper-saints', ev);
-    expect(notif.markAsRead).not.toHaveBeenCalled();
-    expect(component.notificationFilterCounts().unread).toBe(before - 1);
-    component.markAsRead('l1', ev);
-    expect(notif.markAsRead).toHaveBeenCalledWith('l1');
+    component.markAsRead('live-1', ev);
+    expect(notif.markAsRead).toHaveBeenCalledWith('live-1');
     component.markAllAsRead();
     expect(notif.markAllAsRead).toHaveBeenCalled();
-    expect(component.notificationFilterCounts().unread).toBe(0);
+    expect(component.notificationItems().map((item) => item.id)).toEqual(['live-1']);
   });
 
   it('renders logged-out state', () => {
@@ -287,6 +286,8 @@ describe('HeaderComponent (more)', () => {
     isSuperAdmin.set(true);
     render();
     expect(el().querySelector('.upload-btn-cta')).toBeTruthy();
+    notif.unreadCount.set(2);
+    render();
     expect(el().querySelector('.notification-badge')?.textContent).toContain('2');
     expect(el().textContent).toContain('Creator Tools');
     expect(el().textContent).toContain('Pro · @bob');
@@ -306,22 +307,10 @@ describe('HeaderComponent (more)', () => {
     (el().querySelector('.notification-btn') as HTMLElement).click();
     render();
     expect(el().querySelector('.notifications-menu')).toBeTruthy();
-    expect(el().querySelectorAll('.notif-item').length).toBe(7);
-    expect(el().querySelector('.ni-mini-art')).toBeTruthy();
-    const filters = el().querySelectorAll('.notif-filter');
-    (filters[1] as HTMLElement).click();
-    render();
-    expect(component.notificationFilter()).toBe('unread');
-    expect(el().querySelectorAll('.notif-item').length).toBe(2);
-    (el().querySelector('.notif-item') as HTMLElement).click();
-    render();
-    expect(el().querySelectorAll('.notif-item').length).toBe(1);
-    (el().querySelector('.notif-mark-read') as HTMLElement).click();
-    render();
+    expect(el().querySelectorAll('.notif-item').length).toBe(0);
     expect(el().querySelector('.notif-empty')).toBeTruthy();
-    expect(el().querySelector('.notif-pill')?.textContent).toContain('all caught up');
-    (el().querySelector('.notif-foot a') as HTMLElement).click();
-    expect(component.isNotificationsOpen).toBe(false);
+    component.closeNotifications();
+    render();
 
     // user menu
     (el().querySelector('.user-btn') as HTMLElement).click();

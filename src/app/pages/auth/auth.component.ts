@@ -1,3 +1,4 @@
+import { BRAND } from '../../core/config/brand';
 import { GoogleSigninButtonModule, SocialAuthService } from '@abacritt/angularx-social-login';
 import { Location } from '@angular/common';
 import { Component, effect, inject, type OnDestroy, type OnInit, signal } from '@angular/core';
@@ -16,6 +17,7 @@ import { ToastService } from '../../services/toast.service';
   styleUrls: ['./auth.component.scss'],
 })
 export class AuthComponent implements OnInit, OnDestroy {
+  readonly brand = BRAND;
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private location = inject(Location);
@@ -26,6 +28,7 @@ export class AuthComponent implements OnInit, OnDestroy {
 
   isLoginView = true;
   isLoading = signal(false);
+  authError = signal('');
   showLoginPassword = false;
   showRegisterPassword = false;
 
@@ -40,7 +43,7 @@ export class AuthComponent implements OnInit, OnDestroy {
   registerRole: 'artist' | 'producer' = 'artist';
 
   readonly tickerItems = [
-    'Waveyard Auth',
+    `${BRAND.name} Auth`,
     'Sign in and keep your crate close',
     'New drops every Friday',
     'Artists and producers welcome',
@@ -55,10 +58,11 @@ export class AuthComponent implements OnInit, OnDestroy {
         this.authService.googleLogin(user.idToken).subscribe({
           next: () => {
             this.isLoading.set(false);
-            this.toastService.show('Welcome to Waveyard!', 'success');
+            this.toastService.show(`Welcome to ${BRAND.name}!`, 'success');
             this.router.navigate(['/dashboard']);
           },
           error: (err) => {
+            this.authError.set(err.error?.error || 'Google sign-in failed. Please try again.');
             this.isLoading.set(false);
             this.toastService.show(
               'Google Login failed: ' + (err.error?.error || 'Unknown error'),
@@ -123,6 +127,7 @@ export class AuthComponent implements OnInit, OnDestroy {
   }
 
   onLoginSubmit() {
+    this.authError.set('');
     if (!this.loginEmail || !this.loginPassword) {
       this.toastService.show('Please enter email and password', 'error');
       return;
@@ -141,6 +146,7 @@ export class AuthComponent implements OnInit, OnDestroy {
           this.router.navigate(['/dashboard']);
         },
         error: (err) => {
+          this.authError.set(err.error?.error || 'Sign-in failed. Please try again.');
           this.isLoading.set(false);
           if (err.error?.error === 'email not verified') {
             this.toastService.show('Verify your email before signing in.', 'error');
@@ -201,6 +207,7 @@ export class AuthComponent implements OnInit, OnDestroy {
           });
         },
         error: (err) => {
+          this.authError.set(err.error?.error || 'Sign-in failed. Please try again.');
           this.isLoading.set(false);
           this.toastService.show(
             'Registration failed: ' + (err.error?.error || 'Unknown error'),

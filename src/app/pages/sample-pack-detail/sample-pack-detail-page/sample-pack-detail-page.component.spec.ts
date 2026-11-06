@@ -33,14 +33,14 @@ describe('SamplePackDetailPageComponent', () => {
 
   it('falls back to default detail when slug missing or unknown', () => {
     const { component } = create(null);
-    expect(component.pack()).toBe(repo.getSamplePackDetail(null));
+    expect(component.pack()).toBeNull();
     const second = TestBed.createComponent(SamplePackDetailPageComponent);
     expect(second.componentInstance).toBeTruthy();
   });
 
   it('falls back for unknown slug and resolves known slug', () => {
     const { component, params$ } = create('nope-nope');
-    expect(component.pack().id).toBe(repo.getSamplePackDetail(null)!.id);
+    expect(component.pack()).toBeNull();
     const known = repo.listSamplePacks()[0];
     params$.next(convertToParamMap({ slug: known.slug }));
     expect(component.pack().id).toBe(known.id);
@@ -64,7 +64,7 @@ describe('SamplePackDetailPageComponent', () => {
 
   it('toasts on acquire for free and paid packs and on download', () => {
     const { component } = create(null);
-    const base = component.pack();
+    const base = repo.getSamplePackDetail(null)!;
     const paid = { ...base, price: { ...base.price, amount_minor: 900 } };
     const free = { ...base, price: { ...base.price, amount_minor: 0 } };
     const spy = vi.spyOn(component, 'pack');

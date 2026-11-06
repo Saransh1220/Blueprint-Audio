@@ -6,12 +6,7 @@ import { LabService } from '../../../services';
 import { AnalyticsService } from '../../../services/analytics.service';
 import { CurrencyService } from '../../../services/currency.service';
 import { PaymentService } from '../../../services/payment.service';
-import {
-  type SuAccent,
-  SuPageHeadComponent,
-  SuPanelComponent,
-  SuStatComponent,
-} from '../ui';
+import { type SuAccent, SuPageHeadComponent, SuPanelComponent, SuStatComponent } from '../ui';
 
 interface MetricTile {
   label: string;
@@ -110,20 +105,9 @@ export class StudioAnalyticsComponent {
     const data = this.data();
     const revenue = data?.revenue_by_day ?? [];
     const plays = data?.plays_by_day ?? [];
-    const len = Math.max(revenue.length, plays.length, 1);
-    const fallbackRevenue = Array.from(
-      { length: len || 30 },
-      (_, i) => 1200 + i * 80 + Math.sin(i * 0.7) * 450,
-    );
-    const fallbackPlays = Array.from(
-      { length: len || 30 },
-      (_, i) => 80 + i * 5 + Math.cos(i * 0.8) * 22,
-    );
-    const revenueValues = revenue.length ? revenue.map((row) => row.revenue) : fallbackRevenue;
-    const playValues = plays.length ? plays.map((row) => row.count) : fallbackPlays;
-    const labels = (revenue.length ? revenue : plays).length
-      ? (revenue.length ? revenue : plays).map((row) => this.shortDate(row.date))
-      : revenueValues.map((_, i) => `Day ${i + 1}`);
+    const revenueValues = revenue.map((row) => row.revenue);
+    const playValues = plays.map((row) => row.count);
+    const labels = (revenue.length ? revenue : plays).map((row) => this.shortDate(row.date));
     const max = Math.max(...revenueValues, ...playValues.map((v) => v * 20), 1);
     const width = 800;
     const height = 280;
@@ -156,41 +140,6 @@ export class StudioAnalyticsComponent {
     })),
   );
 
-  analyticsCards = computed(() => [
-    {
-      cls: 'c1',
-      label: 'Total plays',
-      icon: '▶',
-      value: (this.data()?.total_plays ?? 0).toLocaleString('en-IN'),
-      delta: '+24%',
-      spark: '0,18 10,16 20,12 30,10 40,8 50,6 60,7 70,4 80,2',
-    },
-    {
-      cls: 'c2',
-      label: 'Unique listeners',
-      icon: '◉',
-      value: '18,420',
-      delta: '+16%',
-      spark: '0,16 10,14 20,11 30,10 40,8 50,9 60,6 70,5 80,3',
-    },
-    {
-      cls: 'c3',
-      label: 'Avg. watch time',
-      icon: '⏱',
-      value: '1:48',
-      delta: '+8s',
-      spark: '0,14 10,12 20,13 30,10 40,11 50,8 60,9 70,6 80,7',
-    },
-    {
-      cls: 'c4',
-      label: 'Bounce rate',
-      icon: '↩',
-      value: '32%',
-      delta: '-4%',
-      spark: '0,4 10,6 20,8 30,7 40,10 50,11 60,13 70,14 80,16',
-    },
-  ]);
-
   donutSegments = computed(() => {
     const items = this.licenseBreakdown();
     const circumference = 302;
@@ -202,30 +151,6 @@ export class StudioAnalyticsComponent {
       return segment;
     });
   });
-
-  heatmapCells = Array.from({ length: 24 }, (_, i) => {
-    const intensity = Math.round(
-      18 + Math.max(0, Math.sin((i - 13) / 3)) * 68 + (i >= 21 && i <= 23 ? 22 : 0),
-    );
-    return { hour: i, color: `rgba(255, 61, 90, ${intensity / 100})` };
-  });
-
-  topCountries = [
-    { label: 'United States', pct: 32, color: 'var(--hot)' },
-    { label: 'Nigeria', pct: 20, color: 'var(--cobalt)' },
-    { label: 'United Kingdom', pct: 14, color: 'var(--sun)' },
-    { label: 'Germany', pct: 9, color: 'var(--lime)' },
-    { label: 'Canada', pct: 7, color: 'var(--lavender)' },
-    { label: 'Other', pct: 13, color: 'var(--ink-mute)' },
-  ];
-
-  referrers = [
-    { label: 'redwave.com · search', pct: 44, color: 'var(--hot)' },
-    { label: 'instagram.com', pct: 22, color: 'var(--cobalt)' },
-    { label: 'tiktok.com', pct: 17, color: 'var(--lime)' },
-    { label: 'Direct', pct: 11, color: 'var(--sun)' },
-    { label: 'youtube.com', pct: 6, color: 'var(--lavender)' },
-  ];
 
   revenueBars = computed(() => {
     const d = this.data();
@@ -299,12 +224,7 @@ export class StudioAnalyticsComponent {
     const revenue = (d?.revenue_by_day ?? []).map((r) => r.revenue);
     const range = this.rangeLabel();
 
-    const make = (
-      label: string,
-      value: string,
-      accent: SuAccent,
-      series: number[],
-    ): MetricTile => {
+    const make = (label: string, value: string, accent: SuAccent, series: number[]): MetricTile => {
       const change = this.halfChange(series);
       return {
         label,

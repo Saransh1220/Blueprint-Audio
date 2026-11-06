@@ -1,20 +1,39 @@
+import { ConfirmDialogComponent } from '../../../components/confirm-dialog/confirm-dialog.component';
+import { SpecActionService } from '../../../services/spec-action.service';
+import { SpecService } from '../../../services/spec.service';
+import { SpecAdapter } from '../../../adapters/spec.adapter';
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  inject,
+  signal,
+  viewChild,
+} from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { Spec } from '../../../models';
-import { AuthService, LabService } from '../../../services';
+import { AuthService, LabService, ToastService } from '../../../services';
 
 @Component({
   selector: 'app-studio-tracks',
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, RouterLink, ConfirmDialogComponent],
   templateUrl: './studio-tracks.component.html',
   styleUrl: './studio-tracks.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class StudioTracksComponent {
   private labService = inject(LabService);
+  private specService = inject(SpecService);
+  private adapter = inject(SpecAdapter);
+  readonly actions = inject(SpecActionService);
   private authService = inject(AuthService);
+  private router = inject(Router);
+  private toastService = inject(ToastService);
+
+  readonly confirmation = viewChild(ConfirmDialogComponent);
+  readonly trackPendingDelete = signal<Spec | null>(null);
 
   currentUser = this.authService.currentUser;
   tracks = signal<Spec[]>([]);
@@ -28,13 +47,17 @@ export class StudioTracksComponent {
   currentPage = signal(1);
   perPage = signal(12);
 
-  pagination = this.labService.specsPagination;
+  pagination = signal<{ total: number } | null>(null);
   trackCount = computed(() => {
     const pagination = typeof this.pagination === 'function' ? this.pagination() : null;
     return pagination?.total ?? this.tracks().length;
   });
-  liveCount = computed(() => this.tracks().filter((track) => !!track.price).length);
-  draftCount = computed(() => this.tracks().filter((track) => !track.price).length);
+  liveCount = computed(
+    () => this.tracks().filter((track) => this.getStatus(track) === 'live').length,
+  );
+  draftCount = computed(
+    () => this.tracks().filter((track) => this.getStatus(track) === 'draft').length,
+  );
   selectedCount = computed(() => this.selectedTracks().size);
   totalPages = computed(() => Math.max(1, Math.ceil(this.trackCount() / this.perPage())));
   pageStart = computed(() =>
@@ -55,8 +78,8 @@ export class StudioTracksComponent {
       const matchesGenre = !genre || genreText.includes(genre);
 
       if (!matchesQuery || !matchesGenre) return false;
-      if (this.filterMode() === 'drafts') return !track.price;
-      if (this.filterMode() === 'live') return !!track.price;
+      if (this.filterMode() === 'drafts') return this.getStatus(track) === 'draft';
+      if (this.filterMode() === 'live') return this.getStatus(track) === 'live';
       if (this.filterMode() === 'sold') return false;
       return true;
     });
@@ -81,9 +104,16 @@ export class StudioTracksComponent {
   loadTracks(page = this.currentPage()) {
     this.isLoading.set(true);
     this.currentPage.set(page);
-    this.labService.getSpecs(this.buildApiFilters()).subscribe({
-      next: (specs) => {
-        this.tracks.set(specs);
+    const user = this.currentUser();
+    if (!user) {
+      this.tracks.set([]);
+      this.isLoading.set(false);
+      return;
+    }
+    this.specService.getUserSpecs(user.id, page, this.perPage()).subscribe({
+      next: (response) => {
+        this.pagination.set(response.metadata);
+        this.tracks.set(response.data.map((dto) => this.adapter.adapt(dto)));
         this.selectedTracks.set(new Set());
         this.isLoading.set(false);
       },
@@ -141,6 +171,38 @@ export class StudioTracksComponent {
     });
   }
 
+  editTrack(event: Event, track: Spec) {
+    event.stopPropagation();
+    this.router.navigate(['/studio/upload'], { queryParams: { edit: track.id } });
+  }
+
+  confirmDelete(event: Event, track: Spec) {
+    event.stopPropagation();
+    this.trackPendingDelete.set(track);
+    this.confirmation()?.open({
+      title: 'Delete beat?',
+      message: `Remove “${track.title || 'this track'}” from your catalog?`,
+      confirmText: 'Delete beat',
+      type: 'danger',
+    });
+  }
+
+  onDeleteConfirmed() {
+    const track = this.trackPendingDelete();
+    if (!track) return;
+    this.specService.deleteSpec(track.id).subscribe({
+      next: () => {
+        this.toastService.success('Beat deleted');
+        this.trackPendingDelete.set(null);
+        this.loadTracks();
+      },
+      error: () => {
+        this.toastService.error('Unable to delete this beat. Please try again.');
+        this.trackPendingDelete.set(null);
+      },
+    });
+  }
+
   getGenreLabel(track: Spec) {
     return track.genres?.[0]?.name || 'Beat';
   }
@@ -158,7 +220,7 @@ export class StudioTracksComponent {
   }
 
   getSoldCount(track: Spec) {
-    return Math.max(0, Math.round((track.analytics?.favoriteCount ?? 0) / 3));
+    return 0; // Sales figures are hidden until the per-track sales endpoint is connected.
   }
 
   getEarned(track: Spec) {
@@ -166,7 +228,7 @@ export class StudioTracksComponent {
   }
 
   getStatus(track: Spec): 'live' | 'review' | 'draft' {
-    if (!track.price) return 'draft';
+    if (track.processingStatus === 'failed') return 'draft';
     if (track.processingStatus === 'pending' || track.processingStatus === 'processing')
       return 'review';
     return 'live';
@@ -174,14 +236,14 @@ export class StudioTracksComponent {
 
   releaseMeta(track: Spec) {
     const status = this.getStatus(track);
-    if (status === 'draft') return 'Draft · 80% complete · needs cover art';
+    if (status === 'draft') return 'Draft';
     if (status === 'review') return 'Submitted recently · awaiting review';
-    return `Released · ${this.getGenreLabel(track).toLowerCase()} · with stems`;
+    return `Released · ${this.getGenreLabel(track).toLowerCase()}`;
   }
 
   currency(value: number) {
     if (!value) return '—';
-    return `$${Math.round(value).toLocaleString('en-IN')}`;
+    return '—';
   }
   private buildApiFilters() {
     const search = this.searchTerm().trim();

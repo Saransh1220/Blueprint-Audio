@@ -147,7 +147,10 @@ describe('SearchPageComponent (more)', () => {
   it('scrolls to top after updatePage and resets flag on error', () => {
     const c = create();
     c.updatePage(2);
-    expect(navigate).toHaveBeenCalledWith([], expect.objectContaining({ queryParams: { page: 2 } }));
+    expect(navigate).toHaveBeenCalledWith(
+      [],
+      expect.objectContaining({ queryParams: { page: 2 } }),
+    );
     c.fetchSpecs();
     expect(window.scrollTo).toHaveBeenCalledWith({ top: 0, behavior: 'smooth' });
     (window.scrollTo as any).mockClear();

@@ -109,8 +109,8 @@ describe('LabSectionComponent', () => {
 
     expect(compiled.querySelector('.release-strip')).toBeFalsy();
     expect(compiled.querySelector('.charts-section')).toBeTruthy();
-    expect(compiled.querySelector('.type-beats-section')).toBeTruthy();
-    expect(compiled.querySelector('.licensing-section')).toBeTruthy();
+    expect(compiled.querySelector('.type-beats-section')).toBeNull();
+    expect(compiled.querySelector('.licensing-section')).toBeNull();
 
     expect(compiled.querySelector('.search-bar')).toBeFalsy();
     expect(compiled.querySelector('.chip-row')).toBeFalsy();
