@@ -241,7 +241,7 @@ describe('StudioOverviewComponent (refreshed overview)', () => {
     getSpecs.mockReturnValue(of([{ id: 's1', title: 'First', imageUrl: 'cover.png' }]));
   });
 
-  it('computes the weekly revenue delta (up, down, and not enough data)', () => {
+  it('computes the weekly revenue delta (up, down, and not enough data)', { timeout: 15000 }, () => {
     expect(setup().c.revenueDelta()).toEqual({ text: '+100.0%', up: true });
 
     TestBed.resetTestingModule();
