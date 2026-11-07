@@ -103,4 +103,42 @@ describe('BentoInsightsComponent', () => {
     expect(empty.el.textContent).toContain('Upload beats to see your top performers here.');
     expect(empty.el.textContent).toContain('No plays in this period yet.');
   });
+
+  it('overview variant leads with revenue and has no stream or weekday cards', () => {
+    const { el } = make({ variant: 'overview', data: overview(), topSpecs: overview().top_specs });
+    expect(el.querySelector('app-bento-stream-chart')).toBeNull();
+    expect(el.querySelector('app-bento-weekday-bars')).toBeNull();
+    expect(el.querySelector('app-bento-wave.tall')).not.toBeNull();
+    expect(el.querySelectorAll('app-bento-stat-tile').length).toBe(4);
+    expect(el.querySelectorAll('app-bento-gauge line').length).toBe(56);
+
+    TestBed.resetTestingModule();
+    const empty = make({ variant: 'overview', state: 'unavailable' });
+    expect(empty.el.textContent).toContain('Unavailable right now.');
+  });
+
+  it('analytics variant adds derived figures, a series switch and a table', () => {
+    const { el, fixture } = make({
+      variant: 'analytics',
+      data: overview(),
+      topSpecs: overview().top_specs,
+    });
+    const text = el.textContent ?? '';
+    expect(text).toContain('Best day');
+    expect(text).toContain('Download rate');
+    expect(text).toContain('Revenue per 1k plays');
+    expect(el.querySelectorAll('.table .tr').length).toBe(3);
+    expect(el.querySelectorAll('app-bento-stream-chart .layers path').length).toBe(2);
+    (el.querySelectorAll('[aria-label="Stream series"] button')[2] as HTMLElement).click();
+    fixture.detectChanges();
+    expect(el.querySelectorAll('app-bento-stream-chart .layers path').length).toBe(1);
+
+    TestBed.resetTestingModule();
+    const empty = make({
+      variant: 'analytics',
+      data: { ...overview(), plays_by_day: [], downloads_by_day: [], revenue_by_day: [] },
+    });
+    expect(empty.el.textContent).toContain('—');
+    expect(empty.el.textContent).toContain('Your top-performing beats will appear here.');
+  });
 });

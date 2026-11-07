@@ -1,4 +1,5 @@
-import { ChangeDetectionStrategy, Component, computed, inject, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, input, signal } from '@angular/core';
+import { RouterLink } from '@angular/router';
 import type { AnalyticsOverviewResponse, TopSpecStat } from '../../core/api/analytics.requests';
 import type { AppCurrency } from '../../models/money';
 import { CurrencyService } from '../../services/currency.service';
@@ -7,6 +8,7 @@ import { buildInsightSeries, shortDateLabel } from '../../utils/bento-insights';
 import { BentoCardComponent } from './bento-card.component';
 import { BentoGaugeComponent, type BentoShare } from './bento-gauge.component';
 import { type BentoRankRow, BentoRankListComponent } from './bento-rank-list.component';
+import { BentoSegmentedComponent } from './bento-segmented.component';
 import { BentoStatTileComponent } from './bento-stat-tile.component';
 import { BentoStreamChartComponent } from './bento-stream-chart.component';
 import { BentoWaveComponent } from './bento-wave.component';
@@ -23,7 +25,9 @@ const SHARE_COLORS = ['#ffffff', '#a9b2ff', '#ffb37a', '#e8ff1f', '#7fe0b0'];
 @Component({
   selector: 'app-bento-insights',
   imports: [
+    RouterLink,
     BentoCardComponent,
+    BentoSegmentedComponent,
     BentoGaugeComponent,
     BentoRankListComponent,
     BentoStatTileComponent,
@@ -38,6 +42,8 @@ const SHARE_COLORS = ['#ffffff', '#a9b2ff', '#ffb37a', '#e8ff1f', '#7fe0b0'];
 export class BentoInsightsComponent {
   private readonly currencyService = inject(CurrencyService);
 
+  /** `dashboard` (glance), `overview` (money first) or `analytics` (audience deep dive). */
+  readonly variant = input<'dashboard' | 'overview' | 'analytics'>('dashboard');
   readonly data = input<AnalyticsOverviewResponse | null>(null);
   readonly state = input<'loading' | 'ready' | 'unavailable'>('ready');
   readonly currency = input.required<AppCurrency>();
@@ -173,6 +179,74 @@ export class BentoInsightsComponent {
       };
     });
   });
+
+  // ── Overview ─────────────────────────────────────────
+  protected readonly revenueChip = computed(() => formatPercent(this.series().change.revenue));
+
+  // ── Analytics ────────────────────────────────────────
+  protected readonly streamModes = [
+    { value: 'both', label: 'Both' },
+    { value: 'plays', label: 'Plays' },
+    { value: 'downloads', label: 'Downloads' },
+  ];
+  protected readonly streamMode = signal<'both' | 'plays' | 'downloads'>('both');
+  protected readonly streamShown = computed(() => {
+    const mode = this.streamMode();
+    return this.stream().filter((s) => mode === 'both' || s.label.toLowerCase() === mode);
+  });
+
+  protected onStreamMode(value: string | number) {
+    this.streamMode.set(value as 'both' | 'plays' | 'downloads');
+  }
+
+  /** Figures derived only from the loaded daily rows. */
+  protected readonly derived = computed(() => {
+    const s = this.series();
+    const days = s.dates.length;
+    const peak = peakIndex(s.plays);
+    const none = '—';
+    const plays = s.totals.plays;
+    return [
+      {
+        label: 'Best day',
+        icon: 'fa-solid fa-trophy',
+        value: peak >= 0 ? this.labels()[peak] : none,
+        hint: peak >= 0 ? `${this.count(s.plays[peak])} plays` : this.periodLabel(),
+      },
+      {
+        label: 'Plays per day',
+        icon: 'fa-solid fa-chart-simple',
+        value: days ? this.count(plays / days) : none,
+        hint: `average over ${days} days`,
+      },
+      {
+        label: 'Download rate',
+        icon: 'fa-solid fa-download',
+        value: plays > 0 ? `${((s.totals.downloads / plays) * 100).toFixed(1)}%` : none,
+        hint: 'downloads per play',
+      },
+      {
+        label: 'Revenue per 1k plays',
+        icon: 'fa-solid fa-coins',
+        value: plays > 0 ? this.money((s.totals.revenue / plays) * 1000) : none,
+        hint: this.periodLabel(),
+      },
+    ];
+  });
+
+  protected readonly table = computed(() =>
+    this.state() !== 'ready'
+      ? []
+      : this.topSpecs().map((spec) => ({
+          id: spec.spec_id,
+          title: spec.title,
+          plays: this.count(spec.plays ?? 0),
+          downloads: this.count(spec.downloads ?? 0),
+          revenue: this.money(spec.revenue ?? 0),
+          rate:
+            spec.plays > 0 ? `${(((spec.downloads ?? 0) / spec.plays) * 100).toFixed(1)}%` : '—',
+        })),
+  );
 
   protected readonly emptyText = computed(() =>
     this.state() === 'loading' ? 'Loading…' : 'Unavailable right now.',

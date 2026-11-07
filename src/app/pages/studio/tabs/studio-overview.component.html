@@ -9,6 +9,7 @@
   </div>
 
   <app-bento-insights
+    variant="overview"
     [data]="analyticsData()"
     [state]="insightState()"
     [currency]="producerCurrency()"
@@ -20,13 +21,25 @@
     gaugeHint="Share of revenue"
     tilesLink="../analytics"
     [animateKey]="producerCurrency()"
-  />
-
-  <app-bento-card heading="Recent sales" [span]="12" [index]="9">
-    <a cardActions class="more" routerLink="../orders">All orders →</a>
-    <app-bento-feed
-      [rows]="saleRows()"
-      [empty]="isLoadingOrders() ? 'Loading sales…' : 'No sales yet. New orders will appear here.'"
-    />
-  </app-bento-card>
+  >
+    <app-bento-card
+      sideCard
+      heading="Recent sales"
+      [span]="4"
+      [spanMd]="12"
+      [height]="376"
+      [index]="1"
+    >
+      <a cardActions class="more" routerLink="../orders">All orders →</a>
+      <app-bento-feed
+        [rows]="saleRows()"
+        [empty]="
+          isLoadingOrders() ? 'Loading sales…' : 'No sales yet. New orders will appear here.'
+        "
+      />
+    </app-bento-card>
+    <app-bento-card footCard heading="Jump to" [span]="12" [index]="8">
+      <app-bento-feed [rows]="quickLinks" [columns]="4" />
+    </app-bento-card>
+  </app-bento-insights>
 </app-bento-page>

@@ -64,6 +64,13 @@ export class StudioOverviewComponent {
     return 'INR';
   });
 
+  readonly quickLinks: BentoFeedRow[] = [
+    { id: 'upload', title: 'Upload a beat', text: 'Publish new work', link: '/studio/upload' },
+    { id: 'tracks', title: 'My tracks', text: 'Manage your catalog', link: '/studio/tracks' },
+    { id: 'orders', title: 'Orders', text: 'Buyers and licenses', link: '/studio/orders' },
+    { id: 'analytics', title: 'Analytics', text: 'Plays and audience', link: '/studio/analytics' },
+  ];
+
   readonly insightState = computed<'loading' | 'ready' | 'unavailable'>(() =>
     this.isLoadingAnalytics() ? 'loading' : this.analyticsData() ? 'ready' : 'unavailable',
   );

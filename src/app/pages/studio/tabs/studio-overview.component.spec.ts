@@ -341,9 +341,11 @@ describe('StudioOverviewComponent (refreshed overview)', () => {
     expect(el.querySelector('app-bento-rank-list .letter')?.textContent?.trim()).toBe('S');
     expect(el.textContent).toContain('Sam');
     expect(el.textContent).toContain('Premium');
-    expect(el.querySelectorAll('app-bento-stream-chart .axis span').length).toBe(3);
+    expect(el.querySelectorAll('app-bento-wave .axis span').length).toBe(3);
+    expect(el.querySelector('app-bento-stream-chart')).toBeNull();
+    expect(el.textContent).toContain('Jump to');
 
-    const chart = el.querySelector('app-bento-stream-chart .wrap') as HTMLElement;
+    const chart = el.querySelector('app-bento-wave .wrap') as HTMLElement;
     chart.getBoundingClientRect = () => ({ left: 0, width: 600 }) as DOMRect;
     chart.dispatchEvent(new MouseEvent('pointermove', { clientX: 300 }));
     fixture.detectChanges();
