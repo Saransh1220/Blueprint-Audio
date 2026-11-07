@@ -29,8 +29,8 @@ describe('CsvExportService', () => {
     expect(csv).toContain('Analytics Report');
     expect(csv).toContain('Generated on,01/01/2026');
     expect(csv).toContain('Revenue by License');
-    expect(csv).toContain('Title,Plays,Downloads,Revenue');
-    expect(csv).toContain('"Night ""Drive""",88,12,999');
+    expect(csv).toContain('Title,Plays,Downloads,Revenue,Currency');
+    expect(csv).toContain('"Night ""Drive""",88,12,999,INR');
     expect(csv).toContain('Daily Plays Timeline');
 
     dateSpy.mockRestore();

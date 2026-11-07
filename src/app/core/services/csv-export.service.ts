@@ -5,20 +5,20 @@ import { AnalyticsOverviewResponse } from '../api/analytics.requests';
   providedIn: 'root',
 })
 export class CsvExportService {
-  downloadAnalyticsCsv(data: AnalyticsOverviewResponse, days: number): void {
+  downloadAnalyticsCsv(data: AnalyticsOverviewResponse, days: number, currency: string = 'INR'): void {
     const sections: string[] = [];
 
     // 1. Report Header
-    sections.push(this.generateHeader(days));
+    sections.push(this.generateHeader(days, currency));
 
     // 2. Summary Stats
-    sections.push(this.generateSummary(data));
+    sections.push(this.generateSummary(data, currency));
 
     // 3. Revenue Breakdown
-    sections.push(this.generateRevenueBreakdown(data.revenue_by_license));
+    sections.push(this.generateRevenueBreakdown(data.revenue_by_license, currency));
 
     // 4. Top Specs
-    sections.push(this.generateTopSpecs(data.top_specs));
+    sections.push(this.generateTopSpecs(data.top_specs, currency));
 
     // 5. Daily Plays (Timeline)
     sections.push(this.generateDailyPlays(data.plays_by_day));
@@ -28,37 +28,38 @@ export class CsvExportService {
     this.downloadFile(csvContent, `analytics-report-${days}d.csv`);
   }
 
-  private generateHeader(days: number): string {
+  private generateHeader(days: number, currency: string = 'INR'): string {
     const today = new Date().toLocaleDateString();
-    return `Analytics Report\nGenerated on,${today}\nPeriod,Last ${days} Days`;
+    return `Analytics Report\nGenerated on,${today}\nPeriod,Last ${days} Days\nCurrency,${currency}`;
   }
 
-  private generateSummary(data: AnalyticsOverviewResponse): string {
+  private generateSummary(data: AnalyticsOverviewResponse, currency: string = 'INR'): string {
     return [
       'Summary',
-      'Metric,Value',
-      `Total Plays,${data.total_plays}`,
-      `Total Revenue,${data.total_revenue}`,
-      `Total Favorites,${data.total_favorites}`,
-      `Total Downloads,${data.total_downloads}`,
+      'Metric,Value,Currency',
+      `Total Plays,${data.total_plays},—`,
+      `Total Revenue,${data.total_revenue},${currency}`,
+      `Total Favorites,${data.total_favorites},—`,
+      `Total Downloads,${data.total_downloads},—`,
     ].join('\n');
   }
 
-  private generateRevenueBreakdown(revenue: { [key: string]: number }): string {
-    const rows = Object.entries(revenue).map(([license, amount]) => `${license},${amount}`);
-    return ['Revenue by License', 'License Type,Amount', ...rows].join('\n');
+  private generateRevenueBreakdown(revenue: { [key: string]: number }, currency: string = 'INR'): string {
+    const rows = Object.entries(revenue).map(([license, amount]) => `${license},${amount},${currency}`);
+    return ['Revenue by License', 'License Type,Amount,Currency', ...rows].join('\n');
   }
 
   private generateTopSpecs(
     specs: { title: string; plays: number; downloads: number; revenue: number }[],
+    currency: string = 'INR',
   ): string {
     if (!specs.length) return 'Top Specs\nNo data available';
 
     // Sanitize titles to avoid CSV injection or broken cols (wrap in quotes if needed)
     const rows = specs.map(
-      (s) => `"${s.title.replace(/"/g, '""')}",${s.plays},${s.downloads},${s.revenue}`,
+      (s) => `"${s.title.replace(/"/g, '""')}",${s.plays},${s.downloads},${s.revenue},${currency}`,
     );
-    return ['Top Performing Specs', 'Title,Plays,Downloads,Revenue', ...rows].join('\n');
+    return ['Top Performing Specs', 'Title,Plays,Downloads,Revenue,Currency', ...rows].join('\n');
   }
 
   private generateDailyPlays(days: { date: string; count: number }[]): string {

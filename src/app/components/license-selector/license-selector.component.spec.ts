@@ -188,8 +188,8 @@ describe('LicenseSelectorComponent', () => {
 
     expect(close).not.toHaveBeenCalled(); // Modal stays open for buyer review!
     expect(component.priceChangedAlert()).toEqual({
-      previousFormatted: 'USD 15.00',
-      currentFormatted: 'USD 20.00',
+      previousFormatted: '$15',
+      currentFormatted: '$20',
       currency: 'USD',
     });
     expect(license.selectedPrice.revision).toBe(2);

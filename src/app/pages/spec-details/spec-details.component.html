@@ -417,45 +417,7 @@
     </div>
   </section>
 
-  <section class="section alt">
-    <div class="section-inner">
-      <div class="section-head">
-        <div>
-          <div class="section-eyebrow"><span class="dot"></span>Pairs well together</div>
-          <h2 class="section-h">bought <em>together</em>.</h2>
-        </div>
-      </div>
-      <div class="bundle-row">
-        <div class="bundle-items">
-          <img class="bundle-art" [src]="s.imageUrl" [alt]="s.title" />
-          <div class="bundle-info">
-            <div class="bi-lbl">This beat</div>
-            <div class="bi-name">{{ s.title }} · {{ selectedLicense()?.name || 'Premium' }}</div>
-          </div>
-        </div>
-        <span class="bundle-plus">+</span>
-        <div class="bundle-items">
-          <div class="bundle-art paired-art"></div>
-          <div class="bundle-info">
-            <div class="bi-lbl">Frequently paired</div>
-            <div class="bi-name">Copper Saints · Premium</div>
-          </div>
-        </div>
-        <div class="bundle-total">
-          <div class="bundle-price-wrap">
-            <span class="bundle-old">$159.98</span><span class="bundle-price">$134.99</span>
-          </div>
-          <button
-            class="bundle-buy"
-            type="button"
-            (click)="showReferenceNotice('Added bundle to cart')"
-          >
-            Add both to cart
-          </button>
-        </div>
-      </div>
-    </div>
-  </section>
+
 
   <footer class="beat-footer">
     <a routerLink="/" class="logo"><span class="star">★</span>{{ brand.name }}</a>
