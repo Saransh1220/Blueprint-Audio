@@ -84,6 +84,14 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./pages/spec-details/spec-details.component').then((m) => m.SpecDetailsComponent),
   },
+  {
+    path: 'payment/return',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./pages/payment-result/payment-result.component').then(
+        (m) => m.PaymentResultComponent,
+      ),
+  },
   { path: 'login', component: AuthComponent, canActivate: [guestGuard] },
   { path: 'register', component: AuthComponent, canActivate: [guestGuard] },
   { path: 'verify-email', component: VerifyEmailComponent, canActivate: [guestGuard] },

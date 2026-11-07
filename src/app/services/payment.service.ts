@@ -1,12 +1,13 @@
 import { BRAND } from '../core/config/brand';
 import { Injectable, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
-import { catchError, map, Observable, of, tap, throwError } from 'rxjs';
+import { catchError, defer, EMPTY, expand, map, Observable, of, switchMap, tap, throwError, timer } from 'rxjs';
 import { environment } from '../../environments/environment';
 import {
   CreateOrderBody,
   CreateOrderRequest,
   GetLicenseDownloadsRequest,
+  GetOrderStatusRequest,
   GetProducerOrdersRequest,
   GetUserLicensesRequest,
   ProducerOrderResponse,
@@ -18,6 +19,7 @@ import {
   License,
   LicenseDownloadsResponse,
   Order,
+  OrderStatusDto,
   PaginationMetadata,
   PaymentVerificationRequest,
   RazorpayOptions,
@@ -93,6 +95,11 @@ export class PaymentService {
    * Open Razorpay checkout modal
    */
   private openRazorpayCheckout(order: Order, specTitle: string): void {
+    if (typeof window === 'undefined' || typeof (window as any).Razorpay === 'undefined') {
+      this.toast.show('Razorpay SDK failed to load. Please check your connection and try again.', 'error');
+      return;
+    }
+
     const user = this.auth.currentUser();
 
     const options: RazorpayOptions = {
@@ -133,22 +140,54 @@ export class PaymentService {
       razorpay_signature: response.razorpay_signature,
     };
 
+    // Fast-path client verification, always route to payment return page
     this.api
       .execute(new VerifyPaymentRequest(verificationData))
       .pipe(
-        tap((result) => {
-          this.toast.show(result.message, 'success');
-          // Refresh user licenses
+        tap(() => {
           this.fetchUserLicenses().subscribe();
-          // Navigate to purchases page
-          this.router.navigate(['/dashboard']);
         }),
-        catchError((error) => {
-          this.toast.show('Payment verification failed. Please contact support.', 'error');
+        catchError(() => {
+          // If fast-path returns error or hangs, return page polling and webhook will resolve it
           return of(null);
         }),
       )
-      .subscribe();
+      .subscribe(() => {
+        this.router.navigate(['/payment/return'], { queryParams: { order_id: orderId } });
+      });
+  }
+
+  /**
+   * Get single order status snapshot
+   */
+  getOrderStatus(orderId: string): Observable<OrderStatusDto> {
+    return this.api.execute(new GetOrderStatusRequest(orderId));
+  }
+
+  /**
+   * Poll order status until terminal status or timeout (easing interval, capped at 90s)
+   */
+  pollOrderStatus(orderId: string, maxDurationMs: number = 90000): Observable<OrderStatusDto> {
+    const startTime = Date.now();
+    let currentDelayMs = 2000;
+
+    return defer(() => this.getOrderStatus(orderId)).pipe(
+      expand((status) => {
+        const elapsed = Date.now() - startTime;
+        const terminalStatuses: string[] = ['paid', 'failed', 'cancelled', 'refunded'];
+        if (terminalStatuses.includes(status.status) || elapsed >= maxDurationMs) {
+          return EMPTY;
+        }
+
+        const delayMs =
+          status.retry_after_seconds > 0
+            ? status.retry_after_seconds * 1000
+            : Math.min(currentDelayMs * 1.5, 5000);
+        currentDelayMs = delayMs;
+
+        return timer(delayMs).pipe(switchMap(() => this.getOrderStatus(orderId)));
+      }),
+    );
   }
 
   // Track active licenses and pagination

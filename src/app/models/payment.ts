@@ -20,6 +20,20 @@ export interface Order {
 
 export type OrderStatus = 'pending' | 'processing' | 'paid' | 'failed' | 'cancelled' | 'refunded';
 
+export interface OrderLicenseSummary {
+  id: string;
+  license_key: string;
+}
+
+export interface OrderStatusDto {
+  order_id: string;
+  status: OrderStatus;
+  provider: string;
+  expires_at: string;
+  license?: OrderLicenseSummary | null;
+  retry_after_seconds: number;
+}
+
 // License model - matches backend response
 export interface License {
   id: string;

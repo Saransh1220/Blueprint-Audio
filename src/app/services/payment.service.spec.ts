@@ -6,6 +6,7 @@ import {
   GetLicenseDownloadsRequest,
   GetProducerOrdersRequest,
   GetUserLicensesRequest,
+  GetOrderStatusRequest,
   VerifyPaymentRequest,
 } from '../core/api/payment.requests';
 import { ApiService } from '../core/services/api.service';
@@ -108,9 +109,9 @@ describe('PaymentService', () => {
     expect(show).toHaveBeenCalledWith('Failed to create order. Please try again.', 'error');
   });
 
-  it('handlePaymentSuccess verifies payment and navigates on success', () => {
+  it('handlePaymentSuccess verifies payment and navigates to payment return page on success', () => {
     const execute = vi.fn().mockReturnValue(of({ message: 'Payment verified' }));
-    const { service, show, navigate } = setup(execute);
+    const { service, navigate } = setup(execute);
     const fetchSpy = vi.spyOn(service, 'fetchUserLicenses').mockReturnValue(of([]));
 
     (service as any).handlePaymentSuccess('order-1', {
@@ -121,11 +122,12 @@ describe('PaymentService', () => {
 
     expect(execute.mock.calls[0][0]).toBeInstanceOf(VerifyPaymentRequest);
     expect(fetchSpy).toHaveBeenCalled();
-    expect(show).toHaveBeenCalledWith('Payment verified', 'success');
-    expect(navigate).toHaveBeenCalledWith(['/dashboard']);
+    expect(navigate).toHaveBeenCalledWith(['/payment/return'], {
+      queryParams: { order_id: 'order-1' },
+    });
   });
 
-  it('handlePaymentSuccess shows error toast when verification fails', () => {
+  it('handlePaymentSuccess navigates to payment return page even when fast-path fails', () => {
     const execute = vi.fn().mockReturnValue(throwError(() => new Error('verify failed')));
     const { service, show, navigate } = setup(execute);
     const fetchSpy = vi.spyOn(service, 'fetchUserLicenses');
@@ -136,12 +138,51 @@ describe('PaymentService', () => {
       razorpay_order_id: 'rzp-order-1',
     });
 
+    expect(execute.mock.calls[0][0]).toBeInstanceOf(VerifyPaymentRequest);
+    expect(show).not.toHaveBeenCalled();
+    expect(fetchSpy).not.toHaveBeenCalled();
+    expect(navigate).toHaveBeenCalledWith(['/payment/return'], {
+      queryParams: { order_id: 'order-1' },
+    });
+  });
+
+  it('openRazorpayCheckout shows error toast if window.Razorpay is undefined', () => {
+    const origRazorpay = (window as any).Razorpay;
+    delete (window as any).Razorpay;
+    const { service, show } = setup(vi.fn());
+
+    (service as any).openRazorpayCheckout(
+      { id: 'o1', amount: 1000, currency: 'INR', razorpay_order_id: 'rzp-1' },
+      'Spec',
+    );
+
     expect(show).toHaveBeenCalledWith(
-      'Payment verification failed. Please contact support.',
+      'Razorpay SDK failed to load. Please check your connection and try again.',
       'error',
     );
-    expect(fetchSpy).not.toHaveBeenCalled();
-    expect(navigate).not.toHaveBeenCalled();
+    (window as any).Razorpay = origRazorpay;
+  });
+
+  it('getOrderStatus executes GetOrderStatusRequest', () => {
+    const execute = vi.fn().mockReturnValue(of({ order_id: 'o1', status: 'paid' }));
+    const { service } = setup(execute);
+
+    let result: any;
+    service.getOrderStatus('o1').subscribe((res) => (result = res));
+
+    expect(execute.mock.calls[0][0]).toBeInstanceOf(GetOrderStatusRequest);
+    expect(result.status).toBe('paid');
+  });
+
+  it('pollOrderStatus emits statuses and stops on terminal status', () => {
+    const execute = vi.fn().mockReturnValue(of({ order_id: 'o1', status: 'paid', retry_after_seconds: 0 }));
+    const { service } = setup(execute);
+
+    const emitted: any[] = [];
+    service.pollOrderStatus('o1').subscribe((res) => emitted.push(res));
+
+    expect(emitted.length).toBe(1);
+    expect(emitted[0].status).toBe('paid');
   });
 
   it('openRazorpayCheckout wires handler and dismiss callbacks', () => {
