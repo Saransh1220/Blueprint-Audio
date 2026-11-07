@@ -359,6 +359,7 @@ export class StudioAnalyticsComponent {
 
   loadData() {
     this.isLoading.set(true);
+    this.error.set(null);
     if (this.reportCurrencyOverride()) this.data.set(null);
     this.analyticsService.getOverview(
         this.currentDays(),
@@ -368,6 +369,7 @@ export class StudioAnalyticsComponent {
       next: (res) => {
         this.data.set(res);
         this.setChartCompatibilityData(res);
+        this.error.set(null);
         this.isLoading.set(false);
       },
       error: () => {
