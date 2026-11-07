@@ -6,6 +6,7 @@ import { CartService } from '../../services/cart.service';
 import { ModalService } from '../../services/modal.service';
 import { PaymentService } from '../../services/payment.service';
 import { ToastService } from '../../services/toast.service';
+import { CurrencyService } from '../../services/currency.service';
 import { MoneyPipe } from '../../shared/pipes/money.pipe';
 
 @Component({
@@ -20,6 +21,7 @@ export class LicenseSelectorComponent {
   private modalService = inject(ModalService);
   private toastService = inject(ToastService);
   private paymentService = inject(PaymentService);
+  private currencyService = inject(CurrencyService);
 
   private specValue!: Spec;
 
@@ -89,9 +91,11 @@ export class LicenseSelectorComponent {
         this.isProcessing.set(false);
         if (err?.status === 409 && err.error?.code === 'PRICE_CHANGED' && err.error?.current_offer) {
           const currentOffer = err.error.current_offer;
-          const oldMajor = license.selectedPrice?.amount_major ?? license.price;
+          const oldMinor =
+            license.selectedPrice?.amount_minor ??
+            (license.price ? Math.round(license.price * 100) : 0);
           const oldCurrency = license.selectedPrice?.currency ?? 'INR';
-          const newMajor = currentOffer.amount_major;
+          const newMinor = currentOffer.amount_minor;
           const newCurrency = currentOffer.currency;
 
           license.selectedPrice = currentOffer;
@@ -101,8 +105,8 @@ export class LicenseSelectorComponent {
           };
 
           this.priceChangedAlert.set({
-            previousFormatted: `${oldCurrency} ${oldMajor.toFixed(2)}`,
-            currentFormatted: `${newCurrency} ${newMajor.toFixed(2)}`,
+            previousFormatted: this.currencyService.formatMinorMoney(oldMinor, oldCurrency),
+            currentFormatted: this.currencyService.formatMinorMoney(newMinor, newCurrency),
             currency: newCurrency,
           });
           return;

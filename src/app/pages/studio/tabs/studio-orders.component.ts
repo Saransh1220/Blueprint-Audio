@@ -41,12 +41,12 @@ export class StudioOrdersComponent {
     const orders = this.orders();
     const sums: { [currency: string]: number } = {};
     for (const o of orders) {
-      const curr = o.currency || 'INR';
-      sums[curr] = (sums[curr] || 0) + (o.amount || 0);
+      if (!o.currency) continue;
+      sums[o.currency] = (sums[o.currency] || 0) + (o.amount || 0);
     }
     const keys = Object.keys(sums);
     if (keys.length === 0) {
-      return this.currencyService.formatMoney(null, 0, 'INR');
+      return '—';
     }
     return keys
       .map((curr) => this.currencyService.formatMoney(null, sums[curr], curr as AppCurrency))
@@ -56,18 +56,19 @@ export class StudioOrdersComponent {
   avgOrderValue = computed(() => {
     const orders = this.orders();
     if (!orders.length) {
-      return this.currencyService.formatMoney(null, 0, 'INR');
+      return '—';
     }
     const groups: { [currency: string]: { sum: number; count: number } } = {};
     for (const o of orders) {
-      const curr = o.currency || 'INR';
-      if (!groups[curr]) {
-        groups[curr] = { sum: 0, count: 0 };
+      if (!o.currency) continue;
+      if (!groups[o.currency]) {
+        groups[o.currency] = { sum: 0, count: 0 };
       }
-      groups[curr].sum += o.amount || 0;
-      groups[curr].count += 1;
+      groups[o.currency].sum += o.amount || 0;
+      groups[o.currency].count += 1;
     }
     const keys = Object.keys(groups);
+    if (!keys.length) return '—';
     return keys
       .map((curr) => {
         const avg = groups[curr].sum / groups[curr].count;

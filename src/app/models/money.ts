@@ -44,6 +44,8 @@ export interface MoneyFormatOptions extends Intl.NumberFormatOptions {
 }
 
 /** Compatibility metadata used when an older/offline API has no configuration endpoint. */
+export const DEFAULT_LEGACY_CURRENCY: AppCurrency = 'INR';
+
 export const FALLBACK_CURRENCIES: readonly CurrencyDefinition[] = Object.freeze([
   Object.freeze({
     code: 'INR',

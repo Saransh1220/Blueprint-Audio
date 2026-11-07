@@ -13,10 +13,14 @@ export function startingPrice(
   spec: Spec,
   currencies: readonly CurrencyDefinition[] = FALLBACK_CURRENCIES,
 ): string {
+  const fallbackCurrency =
+    spec.displayPriceMoney?.currency ||
+    spec.priceMoney?.currency ||
+    'USD';
   return formatMoneyValue(
     spec.displayPriceMoney ?? spec.priceMoney,
     spec.price ?? 0,
-    'USD',
+    fallbackCurrency,
     currencies,
   );
 }

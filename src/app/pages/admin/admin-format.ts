@@ -1,5 +1,5 @@
 import type { AdminLicense, AdminSpec, AdminUser } from '../../models';
-import { formatMoneyValue } from '../../models/money';
+import { type CurrencyDefinition, DEFAULT_LEGACY_CURRENCY, formatMoneyValue } from '../../models/money';
 
 /** How loudly a status badge speaks. */
 export type Tone = 'ok' | 'warn' | 'bad' | 'muted';
@@ -14,10 +14,21 @@ export function formatNumber(value: number | null | undefined): string {
 }
 
 /** Amounts from the API are minor units (paise, cents). */
-export function formatMoney(minor: number | string | null | undefined, currency = 'INR'): string {
-  return formatMoneyValue({ amount_minor: Number(minor ?? 0), currency }, 0, 'INR', undefined, {
-    trailingZeros: true,
-  });
+export function formatMoney(
+  minor: number | string | null | undefined,
+  currency?: string,
+  definitions?: readonly CurrencyDefinition[],
+): string {
+  const targetCurrency = currency?.trim() || DEFAULT_LEGACY_CURRENCY;
+  return formatMoneyValue(
+    { amount_minor: Number(minor ?? 0), currency: targetCurrency },
+    0,
+    targetCurrency,
+    definitions,
+    {
+      trailingZeros: true,
+    },
+  );
 }
 
 export function formatDate(value: string | null | undefined): string {
