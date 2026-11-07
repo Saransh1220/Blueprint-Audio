@@ -51,7 +51,7 @@ const H = 300;
           }
         </svg>
         @if (hover(); as hv) {
-          <app-bento-tooltip [x]="hv.x" [y]="hv.y">
+          <app-bento-tooltip [x]="hv.x" [y]="hv.y" [width]="hv.w">
             <span class="tt-label">{{ labels()[hv.index] }}</span>
             @for (s of series(); track s.label) {
               <span class="tt-row">
@@ -205,7 +205,7 @@ export class BentoStreamChartComponent {
     computation: (_, previous) => ((previous?.value ?? 0) + 1) % 2,
   });
 
-  protected readonly hover = signal<{ index: number; x: number; y: number } | null>(null);
+  protected readonly hover = signal<{ index: number; x: number; y: number; w: number } | null>(null);
 
   protected readonly hasData = computed(() =>
     this.series().some((s) => s.values.some((v) => v > 0)),
@@ -243,6 +243,11 @@ export class BentoStreamChartComponent {
     const rect = (event.currentTarget as HTMLElement).getBoundingClientRect();
     const ratio = (event.clientX - rect.left) / Math.max(rect.width, 1);
     const index = Math.min(n - 1, Math.max(0, Math.round(ratio * (n - 1))));
-    this.hover.set({ index, x: event.clientX, y: event.clientY });
+    this.hover.set({
+      index,
+      x: event.clientX - rect.left,
+      y: event.clientY - rect.top,
+      w: rect.width,
+    });
   }
 }

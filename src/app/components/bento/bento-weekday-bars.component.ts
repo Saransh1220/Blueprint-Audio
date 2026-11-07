@@ -12,7 +12,7 @@ import { BentoTooltipComponent } from './bento-tooltip.component';
         @for (b of bars(); track b.label) {
           <div
             class="col"
-            (pointermove)="hover.set({ i: b.i, x: $event.clientX, y: $event.clientY })"
+            (pointermove)="onMove(b.i, $event)"
             (pointerleave)="hover.set(null)"
           >
             <span class="track">
@@ -28,7 +28,7 @@ import { BentoTooltipComponent } from './bento-tooltip.component';
         }
       </div>
       @if (hover(); as hv) {
-        <app-bento-tooltip [x]="hv.x" [y]="hv.y">
+        <app-bento-tooltip [x]="hv.x" [y]="hv.y" [width]="hv.w">
           <span class="tt-label">{{ bars()[hv.i].label }}</span>
           <strong class="tt-value">{{ format()(values()[hv.i]) }} {{ unit() }}</strong>
         </app-bento-tooltip>
@@ -39,6 +39,7 @@ import { BentoTooltipComponent } from './bento-tooltip.component';
   `,
   styles: `
     :host {
+      position: relative;
       display: flex;
       flex: 1;
       flex-direction: column;
@@ -120,7 +121,18 @@ export class BentoWeekdayBarsComponent {
   readonly unit = input('');
   readonly empty = input('No activity in this period yet.');
 
-  protected readonly hover = signal<{ i: number; x: number; y: number } | null>(null);
+  protected readonly hover = signal<{ i: number; x: number; y: number; w: number } | null>(null);
+
+  protected onMove(i: number, event: PointerEvent) {
+    const host = (event.currentTarget as HTMLElement).closest('app-bento-weekday-bars');
+    const rect = (host ?? (event.currentTarget as HTMLElement)).getBoundingClientRect();
+    this.hover.set({
+      i,
+      x: event.clientX - rect.left,
+      y: event.clientY - rect.top,
+      w: rect.width,
+    });
+  }
 
   protected readonly hasData = computed(() => this.values().some((v) => v > 0));
 

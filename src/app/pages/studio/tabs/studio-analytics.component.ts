@@ -37,7 +37,24 @@ export class StudioAnalyticsComponent {
   private paymentService = inject(PaymentService);
   private currencyService = inject(CurrencyService);
 
-  producerCurrency = signal<AppCurrency>('INR');
+  private readonly ordersCurrency = signal<AppCurrency>('INR');
+  /** Set when the producer picks a currency; revenue is then requested in it. */
+  readonly reportCurrencyOverride = signal<string | undefined>(undefined);
+  producerCurrency = computed<AppCurrency>(
+    () => this.reportCurrencyOverride() ?? this.ordersCurrency(),
+  );
+
+  readonly currencyOptions = computed(() =>
+    this.currencyService.currencies().map((c) => ({ value: c.code, label: c.code })),
+  );
+
+  onCurrencySelected(value: string | number) {
+    const code = String(value);
+    if (this.producerCurrency() === code) return;
+    this.reportCurrencyOverride.set(code);
+    this.loadData();
+  }
+
 
   readonly periodOptions = [
     { value: 7, label: '7D' },
@@ -327,7 +344,7 @@ export class StudioAnalyticsComponent {
     this.paymentService.getProducerOrders(1, 5).subscribe({
       next: (res) => {
         if (res.orders && res.orders.length > 0 && res.orders[0].currency) {
-          this.producerCurrency.set(res.orders[0].currency as AppCurrency);
+          this.ordersCurrency.set(res.orders[0].currency as AppCurrency);
         }
       },
       error: () => {},
@@ -342,7 +359,12 @@ export class StudioAnalyticsComponent {
 
   loadData() {
     this.isLoading.set(true);
-    this.analyticsService.getOverview(this.currentDays(), this.sortBy()).subscribe({
+    if (this.reportCurrencyOverride()) this.data.set(null);
+    this.analyticsService.getOverview(
+        this.currentDays(),
+        this.sortBy(),
+        ...(this.reportCurrencyOverride() ? ([this.reportCurrencyOverride()] as [string]) : []),
+      ).subscribe({
       next: (res) => {
         this.data.set(res);
         this.setChartCompatibilityData(res);

@@ -33,7 +33,7 @@
 .flow {
   flex: 1;
   --bento-wave: #fff;
-  --wave-h: 190px;
+  --wave-min: 190px;
 }
 
 .empty {
@@ -44,7 +44,7 @@
 }
 
 .flow.tall {
-  --wave-h: 250px;
+  --wave-min: 250px;
 }
 
 .table {
@@ -105,4 +105,20 @@
   .hide-sm {
     display: none;
   }
+}
+
+.shares {
+  margin: 4px 0 18px;
+}
+
+.pill {
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.14);
+  font: 500 11px var(--bento-mono, monospace);
+}
+
+.tr.top .rk,
+.tr.top a {
+  color: var(--bento-accent, #e8ff1f);
 }

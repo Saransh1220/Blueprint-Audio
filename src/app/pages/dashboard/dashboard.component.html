@@ -13,6 +13,12 @@
       (selected)="onRangeSelected($event)"
     />
     @if (role() === 'producer') {
+      <app-bento-segmented
+        label="Revenue currency"
+        [options]="currencyOptions()"
+        [value]="currency()"
+        (selected)="onCurrencySelected($event)"
+      />
       <a class="cta" routerLink="/upload">
         <i class="fa-solid fa-arrow-up-from-bracket" aria-hidden="true"></i> Upload beat
       </a>
@@ -114,22 +120,41 @@
 
   <app-bento-card
     [heading]="role() === 'producer' ? 'Needs attention' : 'For you'"
+    palette="graphite"
     [span]="4"
     [spanMd]="6"
     [spanSm]="12"
+    [height]="300"
     [index]="9"
   >
+    <div class="headline">
+      <strong class="big">{{ attentionRows().length }}</strong>
+      <span class="unit">{{ attentionRows().length === 1 ? 'item' : 'items' }} unread</span>
+    </div>
     <app-bento-feed
       [rows]="attentionRows()"
+      emptyIcon="fa-solid fa-check"
       [empty]="loading() ? 'Loading…' : 'You’re all caught up — nothing needs your attention.'"
       (act)="markRead($event)"
     />
   </app-bento-card>
 
   @if (role() === 'producer') {
-    <app-bento-card heading="Recent orders" [span]="4" [spanMd]="6" [spanSm]="12" [index]="10">
+    <app-bento-card
+      heading="Recent orders"
+      palette="blue"
+      [span]="4"
+      [spanMd]="6"
+      [spanSm]="12"
+      [height]="300"
+      [index]="10"
+    >
       <a cardActions class="more" routerLink="/studio/orders">View all →</a>
-      <app-bento-feed [rows]="orderRows()" empty="No orders yet." />
+      <div class="headline">
+        <strong class="big">{{ orderRows().length }}</strong>
+        <span class="unit">latest {{ orderRows().length === 1 ? 'order' : 'orders' }}</span>
+      </div>
+      <app-bento-feed [rows]="orderRows()" emptyIcon="fa-solid fa-receipt" empty="No orders yet." />
     </app-bento-card>
   }
 
@@ -138,13 +163,19 @@
     [span]="4"
     [spanMd]="role() === 'producer' ? 12 : 6"
     [spanSm]="12"
+    [height]="300"
     [index]="11"
   >
-    <app-bento-feed [rows]="activityRows()" empty="No recent activity." />
+    <app-bento-feed
+      [rows]="activityRows()"
+      emptyIcon="fa-solid fa-bell"
+      empty="No recent activity."
+    />
   </app-bento-card>
 
   <app-bento-card
     heading="Shortcuts"
+    palette="lime"
     [span]="role() === 'producer' ? 12 : 4"
     [spanMd]="12"
     [index]="12"

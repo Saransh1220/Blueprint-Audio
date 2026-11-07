@@ -201,7 +201,7 @@ export class DashboardComponent {
   });
 
   // ── Remote data ──────────────────────────────────────
-  private overviewCache = new Map<Range, AnalyticsOverviewResponse>();
+  private overviewCache = new Map<string, AnalyticsOverviewResponse>();
   private ordersRequested = false;
   private licensesRequested = false;
 
@@ -222,9 +222,10 @@ export class DashboardComponent {
     effect(() => {
       const role = this.role();
       const range = this.range();
+      const override = this.reportCurrencyOverride();
       untracked(() => {
         if (role === 'producer') {
-          this.loadOverview(range);
+          this.loadOverview(range, override);
           this.loadOrders();
         } else {
           this.loadLicenses();
@@ -233,23 +234,29 @@ export class DashboardComponent {
     });
   }
 
-  private loadOverview(range: Range) {
-    const cached = this.overviewCache.get(range);
+  private loadOverview(range: Range, currency?: string) {
+    const key = `${range}:${currency ?? ''}`;
+    const cached = this.overviewCache.get(key);
     if (cached) {
       this.overview.set(cached);
       return;
     }
+    this.overview.set(null);
     this.producerLoading.set(true);
     // Ask for two windows so we can compare against the previous period
-    this.analyticsService.getOverview(DAYS[range] * 2, 'revenue').subscribe({
+    this.analyticsService.getOverview(DAYS[range] * 2, 'revenue', ...(currency ? ([currency] as [string]) : [])).subscribe({
       next: (data) => {
-        this.overviewCache.set(range, data);
-        if (this.range() === range) this.overview.set(data);
-        this.producerLoading.set(false);
+        this.overviewCache.set(key, data);
+        if (this.range() === range && this.reportCurrencyOverride() === currency) {
+          this.overview.set(data);
+          this.producerLoading.set(false);
+        }
       },
       error: () => {
-        if (this.range() === range) this.overview.set(null);
-        this.producerLoading.set(false);
+        if (this.range() === range && this.reportCurrencyOverride() === currency) {
+          this.overview.set(null);
+          this.producerLoading.set(false);
+        }
       },
     });
   }
@@ -281,8 +288,22 @@ export class DashboardComponent {
   }
 
   // ── Money helpers ────────────────────────────────────
+  /** Set when the producer picks a currency; revenue is then requested in it. */
+  readonly reportCurrencyOverride = signal<string | undefined>(undefined);
+  readonly currencyOptions = computed(() =>
+    this.currencyService.currencies().map((c) => ({ value: c.code, label: c.code })),
+  );
+
+  onCurrencySelected(value: string | number) {
+    const code = String(value);
+    if (this.currency() === code) return;
+    this.reportCurrencyOverride.set(code);
+  }
+
   currency = computed<AppCurrency>(() => {
     if (this.role() === 'producer') {
+      const override = this.reportCurrencyOverride();
+      if (override) return override;
       return this.currencyService.normalizeCurrency(this.orders()[0]?.currency);
     }
     return this.currencyService.normalizeCurrency(this.licenses()[0]?.currency);
@@ -728,12 +749,23 @@ export class DashboardComponent {
       link: '/studio/purchases',
     })),
   );
+  private readonly linkIcons: Record<string, string> = {
+    '/upload': 'fa-solid fa-arrow-up-from-bracket',
+    '/studio/analytics': 'fa-solid fa-chart-line',
+    '/studio/orders': 'fa-solid fa-receipt',
+    '/studio/profile': 'fa-solid fa-user',
+    '/explore': 'fa-solid fa-compass',
+    '/studio/purchases': 'fa-solid fa-music',
+    '/cart': 'fa-solid fa-cart-shopping',
+  };
+
   readonly linkRows = computed<BentoFeedRow[]>(() =>
     (this.role() === 'producer' ? this.producerLinks : this.listenerLinks).map((q) => ({
       id: q.link,
       title: q.label,
       text: q.hint,
       link: q.link,
+      icon: this.linkIcons[q.link],
     })),
   );
 

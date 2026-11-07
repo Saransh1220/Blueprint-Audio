@@ -13,6 +13,7 @@ import {
   type BentoFeedRow,
   BentoInsightsComponent,
   BentoPageComponent,
+  BentoSegmentedComponent,
 } from '../../../components/bento';
 import type { SuAccent } from '../ui';
 
@@ -34,6 +35,7 @@ interface StatTile {
     BentoFeedComponent,
     BentoInsightsComponent,
     BentoPageComponent,
+    BentoSegmentedComponent,
   ],
   templateUrl: './studio-overview.component.html',
   styleUrl: './studio-overview.component.scss',
@@ -56,7 +58,23 @@ export class StudioOverviewComponent {
   trackArtwork = signal<Record<string, string>>({});
   hoveredRevenuePoint = signal<{ x: number; y: number; value: number; label: string } | null>(null);
 
+  /** Set when the producer picks a currency; revenue is then requested in it. */
+  readonly reportCurrencyOverride = signal<string | undefined>(undefined);
+
+  readonly currencyOptions = computed(() =>
+    this.currencyService.currencies().map((c) => ({ value: c.code, label: c.code })),
+  );
+
+  onCurrencySelected(value: string | number) {
+    const code = String(value);
+    if (this.reportCurrencyOverride() === code || this.producerCurrency() === code) return;
+    this.reportCurrencyOverride.set(code);
+    this.loadAnalytics();
+  }
+
   producerCurrency = computed<AppCurrency>(() => {
+    const override = this.reportCurrencyOverride();
+    if (override) return override;
     const orders = this.recentOrders();
     if (orders.length > 0 && orders[0].currency) {
       return orders[0].currency as AppCurrency;
@@ -65,10 +83,10 @@ export class StudioOverviewComponent {
   });
 
   readonly quickLinks: BentoFeedRow[] = [
-    { id: 'upload', title: 'Upload a beat', text: 'Publish new work', link: '/studio/upload' },
-    { id: 'tracks', title: 'My tracks', text: 'Manage your catalog', link: '/studio/tracks' },
-    { id: 'orders', title: 'Orders', text: 'Buyers and licenses', link: '/studio/orders' },
-    { id: 'analytics', title: 'Analytics', text: 'Plays and audience', link: '/studio/analytics' },
+    { id: 'upload', icon: 'fa-solid fa-arrow-up-from-bracket', title: 'Upload a beat', text: 'Publish new work', link: '/studio/upload' },
+    { id: 'tracks', icon: 'fa-solid fa-music', title: 'My tracks', text: 'Manage your catalog', link: '/studio/tracks' },
+    { id: 'orders', icon: 'fa-solid fa-receipt', title: 'Orders', text: 'Buyers and licenses', link: '/studio/orders' },
+    { id: 'analytics', icon: 'fa-solid fa-chart-line', title: 'Analytics', text: 'Plays and audience', link: '/studio/analytics' },
   ];
 
   readonly insightState = computed<'loading' | 'ready' | 'unavailable'>(() =>
@@ -361,13 +379,21 @@ export class StudioOverviewComponent {
 
   private loadAnalytics() {
     this.isLoadingAnalytics.set(true);
-    this.analyticsService.getOverview(30, 'plays').subscribe({
+    const currency = this.reportCurrencyOverride();
+    if (currency) {
+      // Never keep showing figures that belong to the previously selected currency.
+      this.analyticsData.set(null);
+      this.topSpecs.set([]);
+    }
+    this.analyticsService.getOverview(30, 'plays', ...(currency ? ([currency] as [string]) : [])).subscribe({
       next: (res) => {
+        if (this.reportCurrencyOverride() !== currency) return;
         this.analyticsData.set(res);
         this.topSpecs.set(res.top_specs?.slice(0, 5) || []);
         this.isLoadingAnalytics.set(false);
       },
       error: () => {
+        if (this.reportCurrencyOverride() !== currency) return;
         this.isLoadingAnalytics.set(false);
       },
     });

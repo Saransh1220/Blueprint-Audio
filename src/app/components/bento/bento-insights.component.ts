@@ -3,12 +3,19 @@ import { RouterLink } from '@angular/router';
 import type { AnalyticsOverviewResponse, TopSpecStat } from '../../core/api/analytics.requests';
 import type { AppCurrency } from '../../models/money';
 import { CurrencyService } from '../../services/currency.service';
-import { bucketSum, formatPercent, peakIndex, weekdayTotals } from '../../utils/bento-chart';
+import {
+  WEEKDAYS,
+  bucketSum,
+  formatPercent,
+  peakIndex,
+  weekdayTotals,
+} from '../../utils/bento-chart';
 import { buildInsightSeries, shortDateLabel } from '../../utils/bento-insights';
 import { BentoCardComponent } from './bento-card.component';
 import { BentoGaugeComponent, type BentoShare } from './bento-gauge.component';
 import { type BentoRankRow, BentoRankListComponent } from './bento-rank-list.component';
 import { BentoSegmentedComponent } from './bento-segmented.component';
+import { BentoShareBarComponent, type BentoShareSegment } from './bento-share-bar.component';
 import { BentoStatTileComponent } from './bento-stat-tile.component';
 import { BentoStreamChartComponent } from './bento-stream-chart.component';
 import { BentoWaveComponent } from './bento-wave.component';
@@ -28,6 +35,7 @@ const SHARE_COLORS = ['#ffffff', '#a9b2ff', '#ffb37a', '#e8ff1f', '#7fe0b0'];
     RouterLink,
     BentoCardComponent,
     BentoSegmentedComponent,
+    BentoShareBarComponent,
     BentoGaugeComponent,
     BentoRankListComponent,
     BentoStatTileComponent,
@@ -70,6 +78,8 @@ export class BentoInsightsComponent {
 
   protected readonly money = (value: number) =>
     this.currencyService.formatMoney(null, value, this.currency());
+  protected readonly moneyShort = (value: number) =>
+    this.currencyService.formatCompactMoney(value, this.currency());
   protected readonly count = (value: number) => Math.round(value).toLocaleString('en-US');
 
   private readonly compact = (value: number) =>
@@ -162,6 +172,7 @@ export class BentoInsightsComponent {
     const by = this.rankBy();
     const specs = this.topSpecs();
     const max = Math.max(...specs.map((s) => s[by] ?? 0), 0) || 1;
+    const total = specs.reduce((sum, s) => sum + (s[by] ?? 0), 0) || 1;
     const art = this.artwork();
     return specs.map((spec) => {
       const value = spec[by] ?? 0;
@@ -169,10 +180,11 @@ export class BentoInsightsComponent {
         id: spec.spec_id,
         title: spec.title,
         value: by === 'revenue' ? this.money(value) : this.count(value),
-        meta:
+        meta: `${Math.round((value / total) * 100)}% of top beats · ${
           by === 'plays'
             ? `${this.compact(spec.downloads ?? 0)} downloads`
-            : `${this.compact(spec.plays ?? 0)} plays`,
+            : `${this.compact(spec.plays ?? 0)} plays`
+        }`,
         percent: Math.max(4, (value / max) * 100),
         imageUrl: art[spec.spec_id] || art[(spec.title || '').toLowerCase()] || null,
         link: ['/', spec.spec_id],
@@ -247,6 +259,37 @@ export class BentoInsightsComponent {
             spec.plays > 0 ? `${(((spec.downloads ?? 0) / spec.plays) * 100).toFixed(1)}%` : '—',
         })),
   );
+
+  // ── Card personality: headline figures ──────────────
+  private readonly beatColors = ['#fff4e8', '#ffd2a8', '#ffb37a', '#f08a4b', '#d9692c'];
+
+  protected readonly beatTotal = computed(() => {
+    const by = this.rankBy();
+    const total = this.topSpecs().reduce((sum, s) => sum + (s[by] ?? 0), 0);
+    return by === 'revenue' ? this.money(total) : this.count(total);
+  });
+  protected readonly beatUnit = computed(() =>
+    this.rankBy() === 'revenue' ? 'from top beats' : this.rankBy() + ' across top beats',
+  );
+  protected readonly beatSegments = computed<BentoShareSegment[]>(() => {
+    if (this.state() !== 'ready') return [];
+    const by = this.rankBy();
+    const specs = this.topSpecs().filter((s) => (s[by] ?? 0) > 0);
+    const total = specs.reduce((sum, s) => sum + s[by], 0);
+    return specs.map((s, i) => ({
+      label: s.title,
+      share: Math.round((s[by] / total) * 100),
+      color: this.beatColors[i % this.beatColors.length],
+    }));
+  });
+
+  protected readonly weekdayTotal = computed(() =>
+    this.count(this.weekdays().reduce((a, b) => a + b, 0)),
+  );
+  protected readonly weekdayPeakLabel = computed(() => {
+    const i = this.weekdayPeak();
+    return i < 0 ? '' : `peak ${WEEKDAYS[i]}`;
+  });
 
   protected readonly emptyText = computed(() =>
     this.state() === 'loading' ? 'Loading…' : 'Unavailable right now.',

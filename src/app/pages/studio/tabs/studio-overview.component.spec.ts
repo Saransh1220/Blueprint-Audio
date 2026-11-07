@@ -502,4 +502,20 @@ describe('StudioOverviewComponent (refreshed overview)', () => {
     const { el } = setup();
     expect(el.textContent).toContain('Loading…');
   });
+
+  it('requests revenue in the picked currency and drops figures from the old one', () => {
+    const { c } = setup();
+    const other = c.producerCurrency() === 'EUR' ? 'GBP' : 'EUR';
+    getOverview.mockReturnValueOnce(throwError(() => new Error('unconfirmed')));
+    c.onCurrencySelected(other);
+    expect(getOverview).toHaveBeenLastCalledWith(30, 'plays', other);
+    expect(c.producerCurrency()).toBe(other);
+    expect(c.analyticsData()).toBeNull();
+    expect(c.topSpecs()).toEqual([]);
+    expect(c.insightState()).toBe('unavailable');
+    const calls = getOverview.mock.calls.length;
+    c.onCurrencySelected(other);
+    expect(getOverview.mock.calls.length).toBe(calls);
+    expect(Array.isArray(c.currencyOptions())).toBe(true);
+  });
 });

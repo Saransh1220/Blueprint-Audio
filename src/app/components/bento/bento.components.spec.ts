@@ -7,6 +7,7 @@ import { BentoGaugeComponent } from './bento-gauge.component';
 import { BentoPageComponent } from './bento-page.component';
 import { BentoRankListComponent } from './bento-rank-list.component';
 import { BentoSegmentedComponent } from './bento-segmented.component';
+import { BentoShareBarComponent } from './bento-share-bar.component';
 import { BentoStatTileComponent } from './bento-stat-tile.component';
 import { BentoStreamChartComponent } from './bento-stream-chart.component';
 import { BentoTickBarComponent } from './bento-tick-bar.component';
@@ -23,7 +24,7 @@ function make<T>(type: Type<T>, inputs: Record<string, unknown> = {}) {
 }
 
 const rect = (el: Element) => {
-  el.getBoundingClientRect = () => ({ left: 0, width: 100 }) as DOMRect;
+  el.getBoundingClientRect = () => ({ left: 0, top: 0, width: 100 }) as DOMRect;
 };
 
 describe('bento components', () => {
@@ -80,11 +81,17 @@ describe('bento components', () => {
   });
 
   it('tooltip stays inside the viewport', () => {
-    const { el, fixture } = make(BentoTooltipComponent, { x: 10, y: 5 });
-    expect(el.style.transform).toBe('translate(26px,8px)');
-    fixture.componentRef.setInput('x', window.innerWidth - 10);
+    const { el, fixture } = make(BentoTooltipComponent, { x: 10, y: 5, width: 400 });
+    expect(el.style.left).toBe('90px');
+    expect(el.style.transform).toContain('18px');
+    fixture.componentRef.setInput('x', 395);
+    fixture.componentRef.setInput('y', 200);
     fixture.detectChanges();
-    expect(el.style.transform).toContain(`${window.innerWidth - 10 - 216}px`);
+    expect(el.style.left).toBe('310px');
+    expect(el.style.transform).toContain('100%');
+    fixture.componentRef.setInput('width', 0);
+    fixture.detectChanges();
+    expect(el.style.left).toBe('395px');
   });
 
   it('tick bar fills the right number of ticks and clamps', () => {
@@ -289,10 +296,49 @@ describe('bento components', () => {
     (el.querySelector('a.act') as HTMLElement).click();
     expect(spy).toHaveBeenCalledWith('b');
     expect(spy).toHaveBeenCalledWith('c');
-    expect(el.querySelectorAll('.av')[2].textContent).toBe('Z');
+    expect(el.querySelectorAll('.av')[2].textContent?.trim()).toBe('Z');
     fixture.componentRef.setInput('rows', []);
     fixture.componentRef.setInput('empty', 'none');
     fixture.detectChanges();
     expect(el.querySelector('.empty')?.textContent).toBe('none');
+  });
+
+  it('share bar colours ticks by share and summarises segments', () => {
+    const { el, fixture } = make(BentoShareBarComponent, {
+      segments: [
+        { label: 'A', share: 75, color: '#fff' },
+        { label: 'B', share: 25, color: '#aaa' },
+      ],
+      count: 8,
+    });
+    expect(el.querySelectorAll('line').length).toBe(8);
+    expect(el.querySelector('svg')?.getAttribute('aria-label')).toBe('A 75%, B 25%');
+    expect(el.querySelectorAll('li').length).toBe(2);
+    fixture.componentRef.setInput('segments', []);
+    fixture.detectChanges();
+    expect(el.querySelector('svg')).toBeNull();
+  });
+
+  it('wave draws y-axis labels only when a formatter is given', () => {
+    const { el, fixture } = make(BentoWaveComponent, { values: [0, 4, 8] });
+    expect(el.querySelector('.ylabels')).toBeNull();
+    fixture.componentRef.setInput('yFormat', (v: number) => `${v}k`);
+    fixture.detectChanges();
+    expect(el.querySelectorAll('.ylabels span').length).toBe(3);
+    expect(el.querySelector('.ylabels span')?.textContent).toBe('6k');
+    fixture.componentRef.setInput('values', [0, 0]);
+    fixture.detectChanges();
+    expect(el.querySelector('.ylabels')).toBeNull();
+  });
+
+  it('feed shows an avatar icon and an empty-state icon', () => {
+    const { el, fixture } = make(BentoFeedComponent, {
+      rows: [{ id: 'a', title: 'Go', icon: 'fa-solid fa-user' }],
+    });
+    expect(el.querySelector('.av i')).not.toBeNull();
+    fixture.componentRef.setInput('rows', []);
+    fixture.componentRef.setInput('emptyIcon', 'fa-solid fa-check');
+    fixture.detectChanges();
+    expect(el.querySelector('.empty-wrap i')).not.toBeNull();
   });
 });

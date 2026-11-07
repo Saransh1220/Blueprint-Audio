@@ -637,4 +637,15 @@ describe('DashboardComponent', () => {
     const el = fixture.nativeElement as HTMLElement;
     expect(el.textContent).toContain('No purchases yet');
   });
+
+  it('reloads the producer overview in the picked currency', () => {
+    const { c } = setup();
+    const other = c.currency() === 'EUR' ? 'GBP' : 'EUR';
+    c.onCurrencySelected(other);
+    TestBed.tick();
+    expect(getOverview).toHaveBeenLastCalledWith(60, 'revenue', other);
+    expect(c.currency()).toBe(other);
+    c.onCurrencySelected(other);
+    expect(Array.isArray(c.currencyOptions())).toBe(true);
+  });
 });

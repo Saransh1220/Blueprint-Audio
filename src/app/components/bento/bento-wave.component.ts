@@ -28,6 +28,9 @@ const H = 140;
         [attr.aria-label]="ariaLabel()"
       >
         @if (!compact()) {
+          @for (g of gridLines; track g) {
+            <line class="grid" x1="0" [attr.y1]="g * h" [attr.x2]="w" [attr.y2]="g * h" />
+          }
           <line class="base" x1="0" [attr.y1]="h - 1" [attr.x2]="w" [attr.y2]="h - 1" />
         }
         @if (area()) {
@@ -46,11 +49,18 @@ const H = 140;
           <line class="guide" [attr.x1]="p.x" y1="0" [attr.x2]="p.x" [attr.y2]="h" />
         }
       </svg>
+      @if (!compact() && yLabels().length) {
+        <div class="ylabels" aria-hidden="true">
+          @for (y of yLabels(); track $index) {
+            <span [style.top.%]="y.top">{{ y.text }}</span>
+          }
+        </div>
+      }
       @if (hoverPoint(); as p) {
         <span class="dot" [style.left.%]="(p.x / w) * 100" [style.top.%]="(p.y / h) * 100"></span>
       }
       @if (hover(); as hv) {
-        <app-bento-tooltip [x]="hv.x" [y]="hv.y">
+        <app-bento-tooltip [x]="hv.x" [y]="hv.y" [width]="hv.w">
           <span class="tt-label">{{ labels()[hv.index] }}</span>
           <strong class="tt-value">{{ format()(values()[hv.index]) }}</strong>
         </app-bento-tooltip>
@@ -66,13 +76,15 @@ const H = 140;
   `,
   styles: `
     :host {
-      display: block;
+      display: flex;
+      flex-direction: column;
       color: var(--bento-wave, #fff);
     }
     .wrap {
       position: relative;
-      height: var(--wave-h, 100%);
-      min-height: 40px;
+      flex: 1;
+      height: var(--wave-h, auto);
+      min-height: var(--wave-min, 40px);
       touch-action: pan-y;
     }
     svg {
@@ -92,6 +104,23 @@ const H = 140;
       stroke: rgba(255, 255, 255, 0.14);
       stroke-width: 1;
       vector-effect: non-scaling-stroke;
+    }
+    .grid {
+      stroke: rgba(255, 255, 255, 0.12);
+      stroke-width: 1;
+      vector-effect: non-scaling-stroke;
+    }
+    .ylabels {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+    }
+    .ylabels span {
+      position: absolute;
+      left: 2px;
+      transform: translateY(-110%);
+      color: rgba(255, 255, 255, 0.6);
+      font: 400 10.5px var(--bento-mono, monospace);
     }
     .guide {
       stroke: rgba(255, 255, 255, 0.4);
@@ -164,6 +193,7 @@ const H = 140;
 export class BentoWaveComponent {
   private static uid = 0;
   protected readonly gid = `bento-wave-${BentoWaveComponent.uid++}`;
+  protected readonly gridLines = [0.25, 0.5, 0.75];
   protected readonly w = W;
   protected readonly h = H;
 
@@ -171,6 +201,8 @@ export class BentoWaveComponent {
   readonly labels = input<string[]>([]);
   readonly format = input<(value: number) => string>((v) => String(v));
   readonly compact = input(false);
+  /** Short formatter for the y-axis labels (empty = no labels). */
+  readonly yFormat = input<((value: number) => string) | null>(null);
   readonly ariaLabel = input('Trend');
   /** Changing this replays the grow animation (for example when the period changes). */
   readonly animateKey = input('');
@@ -181,7 +213,9 @@ export class BentoWaveComponent {
     computation: (_, previous) => ((previous?.value ?? 0) + 1) % 2,
   });
 
-  protected readonly hover = signal<{ index: number; x: number; y: number } | null>(null);
+  protected readonly hover = signal<{ index: number; x: number; y: number; w: number } | null>(
+    null,
+  );
 
   private readonly points = computed(() =>
     linePoints(this.values(), W, H - 6, { pad: 0 }).map((p) => ({ x: p.x, y: p.y + 3 })),
@@ -191,6 +225,12 @@ export class BentoWaveComponent {
   protected readonly hoverPoint = computed(() => {
     const hv = this.hover();
     return hv ? this.points()[hv.index] : null;
+  });
+  protected readonly yLabels = computed(() => {
+    const fmt = this.yFormat();
+    const max = Math.max(...this.values(), 0);
+    if (!fmt || max <= 0) return [];
+    return [0.25, 0.5, 0.75].map((g) => ({ top: g * 100, text: fmt(max * (1 - g)) }));
   });
   protected readonly axis = computed(() => {
     const l = this.labels();
@@ -203,6 +243,11 @@ export class BentoWaveComponent {
     const rect = (event.currentTarget as HTMLElement).getBoundingClientRect();
     const ratio = (event.clientX - rect.left) / Math.max(rect.width, 1);
     const index = Math.min(n - 1, Math.max(0, Math.round(ratio * (n - 1))));
-    this.hover.set({ index, x: event.clientX, y: event.clientY });
+    this.hover.set({
+      index,
+      x: event.clientX - rect.left,
+      y: event.clientY - rect.top,
+      w: rect.width,
+    });
   }
 }

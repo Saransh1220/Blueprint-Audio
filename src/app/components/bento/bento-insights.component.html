@@ -19,6 +19,7 @@
         </div>
         <app-bento-wave
           class="flow tall"
+          [yFormat]="moneyShort"
           [values]="series().revenue"
           [labels]="labels()"
           [format]="money"
@@ -49,7 +50,19 @@
         [index]="2 + i"
       />
     }
-    <app-bento-card heading="Top beats" [hint]="rankHint()" [span]="6" [spanMd]="12" [index]="6">
+    <app-bento-card
+      heading="Top beats"
+      palette="copper"
+      [hint]="rankHint()"
+      [span]="6"
+      [spanMd]="12"
+      [index]="6"
+    >
+      <div class="headline">
+        <strong class="big">{{ beatTotal() }}</strong>
+        <span class="unit">{{ beatUnit() }}</span>
+      </div>
+      <app-bento-share-bar class="shares" [segments]="beatSegments()" />
       <app-bento-rank-list
         [rows]="ranked()"
         [empty]="
@@ -65,6 +78,9 @@
       [spanMd]="12"
       [index]="7"
     >
+      <span cardActions class="pill"
+        >{{ shares().length }} {{ shares().length === 1 ? 'license' : 'licenses' }}</span
+      >
       <app-bento-gauge
         [shares]="shares()"
         caption="Top license"
@@ -120,6 +136,12 @@
       [height]="330"
       [index]="5"
     >
+      @if (state() === 'ready' && weekdayPeakLabel()) {
+        <div class="headline">
+          <strong class="big">{{ weekdayTotal() }}</strong>
+          <span class="chip">{{ weekdayPeakLabel() }}</span>
+        </div>
+      }
       <app-bento-weekday-bars
         [values]="weekdays()"
         [highlight]="weekdayPeak()"
@@ -138,6 +160,9 @@
       [height]="330"
       [index]="6"
     >
+      <span cardActions class="pill"
+        >{{ shares().length }} {{ shares().length === 1 ? 'license' : 'licenses' }}</span
+      >
       <app-bento-gauge
         [shares]="shares()"
         caption="Top license"
@@ -159,6 +184,7 @@
         </div>
         <app-bento-wave
           class="flow"
+          [yFormat]="moneyShort"
           [values]="series().revenue"
           [labels]="labels()"
           [format]="money"
@@ -186,7 +212,7 @@
             <span role="columnheader" class="num hide-sm">Download rate</span>
           </div>
           @for (r of table(); track r.id; let i = $index) {
-            <div class="tr" role="row">
+            <div class="tr" role="row" [class.top]="i === 0">
               <span class="rk">{{ i + 1 }}</span>
               <a [routerLink]="['/', r.id]">{{ r.title }}</a>
               <span class="num">{{ r.plays }}</span>
@@ -241,6 +267,9 @@
       [height]="376"
       [index]="1"
     >
+      <span cardActions class="pill"
+        >{{ shares().length }} {{ shares().length === 1 ? 'license' : 'licenses' }}</span
+      >
       <app-bento-gauge
         [shares]="shares()"
         caption="Top license"
@@ -281,6 +310,7 @@
         </div>
         <app-bento-wave
           class="flow"
+          [yFormat]="moneyShort"
           [values]="series().revenue"
           [labels]="labels()"
           [format]="money"
@@ -297,6 +327,7 @@
     </app-bento-card>
     <app-bento-card
       heading="Top beats"
+      palette="copper"
       [hint]="rankHint()"
       [span]="4"
       [spanMd]="6"
@@ -305,6 +336,11 @@
       [index]="7"
     >
       <span cardActions><ng-content select="[rankActions]" /></span>
+      <div class="headline">
+        <strong class="big">{{ beatTotal() }}</strong>
+        <span class="unit">{{ beatUnit() }}</span>
+      </div>
+      <app-bento-share-bar class="shares" [segments]="beatSegments()" />
       <app-bento-rank-list
         [rows]="ranked()"
         [empty]="
@@ -322,6 +358,12 @@
       [height]="330"
       [index]="8"
     >
+      @if (state() === 'ready' && weekdayPeakLabel()) {
+        <div class="headline">
+          <strong class="big">{{ weekdayTotal() }}</strong>
+          <span class="chip">{{ weekdayPeakLabel() }}</span>
+        </div>
+      }
       <app-bento-weekday-bars
         [values]="weekdays()"
         [highlight]="weekdayPeak()"

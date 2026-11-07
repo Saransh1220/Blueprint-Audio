@@ -504,4 +504,16 @@ describe('StudioAnalyticsComponent (refreshed analytics)', () => {
     expect(c.currentDays()).toBe(3650);
     expect(c.periodValue()).toBe(3650);
   });
+
+  it('requests revenue in the picked currency and clears the previous report', () => {
+    const { c } = setup();
+    const other = c.producerCurrency() === 'EUR' ? 'GBP' : 'EUR';
+    getOverview.mockReturnValueOnce(throwError(() => new Error('unconfirmed')));
+    c.onCurrencySelected(other);
+    expect(getOverview).toHaveBeenLastCalledWith(30, 'plays', other);
+    expect(c.producerCurrency()).toBe(other);
+    expect(c.data()).toBeNull();
+    c.onCurrencySelected(other);
+    expect(Array.isArray(c.currencyOptions())).toBe(true);
+  });
 });
