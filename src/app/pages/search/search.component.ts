@@ -22,6 +22,7 @@ import { Genre, MusicalKey, type Spec } from '../../models';
 import type { AppCurrency } from '../../models/money';
 import { AuthService } from '../../services/auth.service';
 import { CurrencyService } from '../../services/currency.service';
+import { BuyerCurrencyService } from '../../services/buyer-currency.service';
 import { LabService } from '../../services/lab';
 import { ToastService } from '../../services/toast.service';
 
@@ -51,6 +52,7 @@ export class SearchPageComponent implements OnInit, OnDestroy {
   private toastService = inject(ToastService);
   private authService = inject(AuthService);
   private currencyService = inject(CurrencyService);
+  private buyerCurrency = inject(BuyerCurrencyService);
   private document = inject(DOCUMENT);
   private ngZone = inject(NgZone);
 
@@ -402,7 +404,7 @@ export class SearchPageComponent implements OnInit, OnDestroy {
   }
 
   getCurrencyCode(): AppCurrency {
-    return this.authService.currentUser()?.store_currency ?? 'USD';
+    return this.buyerCurrency.effective() ?? 'USD';
   }
 
   setViewMode(mode: 'grid' | 'list') {

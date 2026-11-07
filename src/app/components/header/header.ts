@@ -18,6 +18,7 @@ import { AuthService, AuthzService, CartService, NotificationService } from '../
 import { NavMenuComponent } from '../nav-menu/nav-menu';
 import { BROWSE_ITEMS, menuItemsFor, STUDIO_ITEMS } from '../nav-menu/nav-menu.items';
 import { UserMenuComponent } from '../user-menu/user-menu';
+import { CurrencySwitcherComponent } from '../currency-switcher/currency-switcher.component';
 
 type NotificationKind =
   | 'all'
@@ -56,6 +57,7 @@ interface HeaderNotificationItem {
     RouterLinkActive,
     NavMenuComponent,
     UserMenuComponent,
+    CurrencySwitcherComponent,
   ],
   templateUrl: './header.html',
   styleUrls: ['./header.scss'],

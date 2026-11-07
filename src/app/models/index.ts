@@ -12,3 +12,4 @@ export * from './user.model';
 export * from './user-api.model';
 export * from './catalog';
 export * from './legal.model';
+export * from './preference';
