@@ -25,7 +25,9 @@
     </p>
   </div>
 
-  <span class="price">{{ item().license.displayPriceMoney | money: item().license.price }}</span>
+  <span class="price">{{
+    item().license.displayPriceMoney | money: item().license.price : item().license.selectedPrice
+  }}</span>
 
   <button
     type="button"

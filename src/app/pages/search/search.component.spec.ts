@@ -5,6 +5,7 @@ import { of, Subject, throwError } from 'rxjs';
 import { AuthService } from '../../services/auth.service';
 import { LabService } from '../../services/lab';
 import { ToastService } from '../../services/toast.service';
+import { GetSpecsRequest } from '../../core/api/spec.requests';
 import { SearchPageComponent } from './search.component';
 
 describe('SearchPageComponent', () => {
@@ -75,6 +76,34 @@ describe('SearchPageComponent', () => {
         per_page: 10,
       }),
     );
+  });
+
+  it('omits price bounds for Any so native-fallback beats remain discoverable', () => {
+    const component = create();
+    component.fetchSpecs();
+    const request = new GetSpecsRequest(getSpecs.mock.lastCall![0]);
+    expect(request.params.has('min_price')).toBe(false);
+    expect(request.params.has('max_price')).toBe(false);
+  });
+
+  it('keeps explicit price ranges and removes them again after reset', () => {
+    const component = create();
+    component.priceRange.set([500, 50000]);
+    component.fetchSpecs();
+    let request = new GetSpecsRequest(getSpecs.mock.lastCall![0]);
+    expect(request.params.get('min_price')).toBe('500');
+    expect(request.params.get('max_price')).toBe('50000');
+
+    component.priceRange.set([0, 1500]);
+    component.fetchSpecs();
+    request = new GetSpecsRequest(getSpecs.mock.lastCall![0]);
+    expect(request.params.get('max_price')).toBe('1500');
+
+    component.priceRange.set([0, 50000]);
+    component.fetchSpecs();
+    request = new GetSpecsRequest(getSpecs.mock.lastCall![0]);
+    expect(request.params.has('min_price')).toBe(false);
+    expect(request.params.has('max_price')).toBe(false);
   });
 
   it('handles fetch success and error states', () => {

@@ -11,7 +11,9 @@
     </div>
     <div class="sb-right">
       <span class="sb-from">from</span>
-      <span class="sb-price">{{ displayPriceMoney() | money: displayPrice() }}</span>
+      <span class="sb-price">{{
+        displayPriceMoney() | money: displayPrice() : spec()?.selectedPrice
+      }}</span>
       <button class="sb-buy" type="button" (click)="scrollToLicenses()">
         Choose license
         <svg
@@ -148,6 +150,7 @@
                 d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"
               />
             </svg>
+            <span aria-hidden="true">Wishlist</span>
           </button>
           <button
             class="ha-btn"
@@ -169,6 +172,7 @@
               <polyline points="7 10 12 15 17 10" />
               <line x1="12" y1="15" x2="12" y2="3" />
             </svg>
+            <span aria-hidden="true">Demo</span>
           </button>
           <button class="ha-btn" type="button" (click)="copyBeatLink()" aria-label="Share">
             <svg
@@ -186,6 +190,7 @@
               <line x1="8.59" y1="13.51" x2="15.42" y2="17.49" />
               <line x1="15.41" y1="6.51" x2="8.59" y2="10.49" />
             </svg>
+            <span aria-hidden="true">Share</span>
           </button>
         </div>
       </aside>
@@ -220,7 +225,9 @@
             </span>
             <span class="lr-radio" aria-hidden="true"></span>
             <span class="lr-name">{{ license.name }}</span>
-            <span class="lr-price">{{ license.displayPriceMoney | money: license.price }}</span>
+            <span class="lr-price">{{
+              license.displayPriceMoney | money: license.price : license.selectedPrice
+            }}</span>
             <span class="lr-meta">
               <em>{{ getLicenseFormatLabel(license) }}</em>
               <span class="lr-for">{{ getLicenseSubtitle(license, i) }}</span>
@@ -241,7 +248,9 @@
           </div>
           <div class="lr-sel">
             <span class="lr-sel-label">Total</span>
-            <span class="lr-sel-name">{{ chosen.displayPriceMoney | money: chosen.price }}</span>
+            <span class="lr-sel-name">{{
+              chosen.displayPriceMoney | money: chosen.price : chosen.selectedPrice
+            }}</span>
           </div>
           <button class="lr-buy" type="button" (click)="addLicenseToCart(chosen)">
             <i class="fas fa-cart-shopping" aria-hidden="true"></i>

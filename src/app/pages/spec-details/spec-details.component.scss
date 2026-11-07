@@ -35,7 +35,10 @@ a {
 .beat-page {
   min-height: 100vh;
   overflow-x: hidden;
-  background: var(--cream);
+  background:
+    radial-gradient(ellipse 640px 480px at 8% 180px, rgba(255, 77, 104, 0.12), transparent 75%),
+    radial-gradient(ellipse 780px 560px at 88% 260px, rgba(255, 173, 99, 0.07), transparent 75%),
+    var(--cream);
   color: var(--ink);
   font-family: var(--display);
   line-height: 1.5;
@@ -216,16 +219,17 @@ em {
   background: var(--tangerine);
 }
 
-// ── Beat workspace: the beat on the left, a hairline, the licenses on the right ──
+// Give the beat a left-hand presence while keeping the licensing area open.
 .beat-main {
   padding: 28px 32px 48px;
 }
 
 .bm-inner {
   display: grid;
-  grid-template-columns: minmax(300px, 350px) minmax(0, 1fr);
+  grid-template-columns: minmax(320px, 380px) minmax(0, 1fr);
   align-items: start;
-  max-width: 1120px;
+  gap: 32px;
+  max-width: 1440px;
   margin: 0 auto;
 }
 
@@ -238,7 +242,23 @@ em {
   flex-direction: column;
   gap: 22px;
   min-width: 0;
-  padding-right: 40px;
+  padding: 24px;
+  border-radius: 24px;
+  isolation: isolate;
+}
+
+// Fade only the decorative surface; controls and text stay crisp to the bottom.
+.bs-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse at 0% 0%, rgba(255, 160, 173, 0.055), transparent 75%),
+    linear-gradient(145deg, rgba(255, 233, 214, 0.04), rgba(255, 233, 214, 0.015));
+  mask-image: linear-gradient(to bottom, #000 15%, rgba(0, 0, 0, 0.8) 40%, transparent 95%);
 }
 
 .bc-head {
@@ -391,9 +411,14 @@ em {
 }
 
 .hero-player {
-  display: flex;
+  display: grid;
+  grid-template-columns: 46px minmax(0, 1fr);
   align-items: center;
-  gap: 14px;
+  gap: 4px 14px;
+}
+
+.hero-player .hp-play {
+  grid-row: span 2;
 }
 
 .hp-play {
@@ -449,6 +474,8 @@ em {
 }
 
 .hp-time {
+  grid-column: 2;
+  justify-self: end;
   flex-shrink: 0;
   color: var(--ink-mute);
   font-family: var(--mono);
@@ -520,15 +547,30 @@ em {
 
 .hero-actions {
   display: flex;
-  align-items: center;
   gap: 10px;
 }
 
 .hero-actions .ha-btn {
-  width: 46px;
-  height: 46px;
-  border: 1px solid color-mix(in srgb, var(--ink) 22%, transparent);
+  flex: 1;
+  min-width: 0;
+  width: auto;
+  height: 48px;
+  gap: 8px;
+  border: 0;
   border-radius: 12px;
+  background: color-mix(in srgb, var(--ink) 5%, transparent);
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.hero-actions .ha-btn:hover {
+  background: color-mix(in srgb, var(--ink) 12%, transparent);
+  color: var(--ink);
+}
+
+.hero-actions .ha-btn.liked {
+  background: color-mix(in srgb, var(--hot) 18%, transparent);
+  color: var(--hot);
 }
 
 .section {
@@ -1568,7 +1610,7 @@ em {
   }
 
   .bs-card {
-    padding-right: 0;
+    padding: 24px;
   }
 
   .bs-licenses {
@@ -1579,7 +1621,7 @@ em {
   }
 
   .bs-card {
-    position: static;
+    position: relative;
   }
 
   .related-beat-grid {
@@ -1614,6 +1656,7 @@ em {
 
   .bs-card {
     gap: 22px;
+    padding: 20px;
   }
 
   .bc-art {

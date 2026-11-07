@@ -37,6 +37,7 @@ export class SpecAdapter {
       price: dto.price,
       priceMoney: dto.price_money,
       displayPriceMoney: dto.display_price_money,
+      selectedPrice: dto.selected_price,
       audioUrl: dto.preview_url, // Mapping preview_url to audioUrl for playback
       genres: dto.genres ? dto.genres : [],
       licenses: dto.licenses ? dto.licenses.map((l) => this.mapLicenseDto(l)) : [],
@@ -61,6 +62,8 @@ export class SpecAdapter {
       price: dto.price,
       priceMoney: dto.price_money,
       displayPriceMoney: dto.display_price_money,
+      selectedPrice: dto.selected_price,
+      prices: dto.prices,
       features: dto.features,
       fileTypes: dto.file_types,
     };

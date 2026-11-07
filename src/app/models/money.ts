@@ -1,6 +1,31 @@
 /** Currency codes come from API configuration; historical records retain their code. */
 export type AppCurrency = string;
 
+export type PriceSelectionStatus = 'exact' | 'native_fallback' | 'unavailable';
+
+export interface StoredPrice {
+  id: string;
+  license_option_id: string;
+  currency: AppCurrency;
+  amount_minor: number;
+  amount_major: number;
+  source: string;
+  revision: number;
+  is_active: boolean;
+}
+
+export interface SelectedPriceOffer {
+  price_id?: string;
+  revision: number;
+  amount_minor: number;
+  amount_major: number;
+  currency: AppCurrency;
+  selection: PriceSelectionStatus;
+  fallback_reason?: string;
+  is_purchasable: boolean;
+  available_currencies: string[];
+}
+
 export interface Money {
   amount_minor: number;
   currency: AppCurrency;

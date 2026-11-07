@@ -1,5 +1,5 @@
 import type { MusicalKey } from './enums';
-import type { Money } from './money';
+import type { Money, SelectedPriceOffer, StoredPrice } from './money';
 
 export interface GenreModel {
   id: string;
@@ -16,6 +16,8 @@ export interface LicenseOption {
   price: number;
   priceMoney?: Money;
   displayPriceMoney?: Money;
+  selectedPrice?: SelectedPriceOffer;
+  prices?: StoredPrice[];
   features: string[];
   fileTypes: string[];
 }
@@ -52,6 +54,7 @@ export interface Spec {
   price: number; // Starting price
   priceMoney?: Money;
   displayPriceMoney?: Money;
+  selectedPrice?: SelectedPriceOffer;
   genres: GenreModel[];
   licenses: LicenseOption[];
   processingStatus: 'pending' | 'processing' | 'completed' | 'failed';

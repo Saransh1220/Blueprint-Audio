@@ -91,7 +91,9 @@
     <div class="stat-m row-tags">
       {{ getGenreLabel() }} · <em>{{ spec.bpm }} BPM</em> · {{ spec.key }}
     </div>
-    <div class="money-m row-bpm">{{ spec.displayPriceMoney | money: spec.price }}</div>
+    <div class="money-m row-bpm">
+      {{ spec.displayPriceMoney | money: spec.price : spec.selectedPrice }}
+    </div>
     <div class="stat-m row-key">{{ spec.category }}</div>
     <div class="stat-m row-dur">
       @if (spec.duration) {
@@ -112,7 +114,9 @@
     }
 
     <button class="purchase-pill lr-act cart" (click)="addToCart($event)" title="Add to cart">
-      <span class="row-price">{{ spec.displayPriceMoney | money: spec.price }}</span>
+      <span class="row-price">{{
+        spec.displayPriceMoney | money: spec.price : spec.selectedPrice
+      }}</span>
       <span class="purchase-icon"><i class="fas fa-cart-shopping"></i></span>
     </button>
   </div>

@@ -1,5 +1,11 @@
-import { computed, Injectable, signal } from '@angular/core';
+import { computed, Injectable, signal, inject } from '@angular/core';
 import type { LicenseOption, Spec } from '../models';
+import { HttpClient } from '@angular/common/http';
+import { finalize, forkJoin, of, catchError } from 'rxjs';
+import { environment } from '../../environments/environment';
+import { SpecAdapter } from '../adapters/spec.adapter';
+import type { SpecDto } from '../core/api/spec.requests';
+import { summarizeCartMoney } from '../utils/cart-money';
 
 export interface CartItem {
   id: string; // Unique ID for the cart item (e.g., timestamp)
@@ -37,20 +43,79 @@ export class CartService {
       return [];
     }
   }
-  readonly hasMixedCurrencies = computed(() => {
-    const currencies = this.itemsSignal().map(
-      (item) => item.license.displayPriceMoney?.currency ?? item.license.priceMoney?.currency,
-    );
-    return currencies.some((currency) => !currency) || new Set(currencies).size > 1;
-  });
+  private readonly http = inject(HttpClient, { optional: true });
+  readonly isRefreshing = signal(false);
+  readonly needsRefresh = signal(this.itemsSignal().length > 0);
+  private readonly summary = computed(() => summarizeCartMoney(this.itemsSignal()));
+  readonly hasUnavailableItems = computed(
+    () => this.summary().hasUnavailable || this.needsRefresh(),
+  );
+  readonly hasMixedCurrencies = computed(() => this.summary().hasMixedCurrencies);
+  readonly totalMoney = computed(() =>
+    this.needsRefresh() || this.isRefreshing() ? null : this.summary().totalMoney,
+  );
+  readonly totalMinor = computed(
+    () => this.totalMoney()?.amount_minor ?? (this.itemsSignal().length ? null : 0),
+  );
+
+  refresh(): void {
+    if (!this.http || this.isRefreshing() || !this.itemsSignal().length) return;
+    this.isRefreshing.set(true);
+    const ids = [...new Set(this.itemsSignal().map((item) => item.spec.id))];
+    forkJoin(
+      ids.map((id) =>
+        this.http!.get<SpecDto>(`${environment.apiUrl}/specs/${encodeURIComponent(id)}`).pipe(
+          catchError(() => of(null)),
+        ),
+      ),
+    )
+      .pipe(finalize(() => this.isRefreshing.set(false)))
+      .subscribe((results) => {
+        const adapter = new SpecAdapter();
+        const current = new Map(
+          ids.map((id, i) => [id, results[i] ? adapter.adapt(results[i]!) : null]),
+        );
+        let failed = false;
+        this.itemsSignal.update((items) =>
+          items.map((item) => {
+            if (!current.has(item.spec.id)) {
+              failed = true;
+              return item;
+            }
+            const spec = current.get(item.spec.id);
+            const license = spec?.licenses.find((license) => license.id === item.license.id);
+            if (!spec || !license) {
+              failed = true;
+              return {
+                ...item,
+                license: {
+                  ...item.license,
+                  selectedPrice: {
+                    amount_minor: 0,
+                    amount_major: 0,
+                    currency: '',
+                    revision: 0,
+                    selection: 'unavailable',
+                    is_purchasable: false,
+                    available_currencies: [],
+                  },
+                },
+              };
+            }
+            return { ...item, spec, license };
+          }),
+        );
+        this.needsRefresh.set(failed);
+        this.persist();
+      });
+  }
 
   readonly items = this.itemsSignal.asReadonly();
 
-  readonly total = computed(() =>
-    this.hasMixedCurrencies()
-      ? 0
-      : this.itemsSignal().reduce((sum, item) => sum + item.license.price, 0),
-  );
+  readonly total = computed(() => {
+    const money = this.totalMoney();
+    return money ? money.amount_minor / 100 : 0;
+  });
 
   readonly count = computed(() => this.itemsSignal().length);
 

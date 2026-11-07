@@ -10,8 +10,10 @@
       <dd>
         @if (mixedCurrencies()) {
           Mixed currencies
+        } @else if (totalMoney()) {
+          {{ totalMoney() | money }}
         } @else {
-          {{ totalMoney() | money: total() }}
+          Unavailable
         }
       </dd>
     </div>
@@ -26,8 +28,10 @@
     <strong>
       @if (mixedCurrencies()) {
         —
+      } @else if (totalMoney()) {
+        {{ totalMoney() | money }}
       } @else {
-        {{ totalMoney() | money: total() }}
+        —
       }
     </strong>
   </div>
