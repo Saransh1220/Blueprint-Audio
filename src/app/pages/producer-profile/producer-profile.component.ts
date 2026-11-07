@@ -14,6 +14,7 @@ import { SpecAdapter } from '../../adapters/spec.adapter';
 import { SpecCardComponent } from '../../components/spec-card/spec-card';
 import type { Spec } from '../../models';
 import { CurrencyService } from '../../services/currency.service';
+import { BuyerCurrencyService } from '../../services/buyer-currency.service';
 import { SpecActionService } from '../../services/spec-action.service';
 import { SpecService } from '../../services/spec.service';
 import { UserService } from '../../services/user.service';
@@ -34,6 +35,7 @@ export class ProducerProfileComponent implements OnDestroy {
   private adapter = inject(SpecAdapter);
   private actions = inject(SpecActionService);
   private currency = inject(CurrencyService);
+  readonly buyerCurrency = inject(BuyerCurrencyService);
   private document = inject(DOCUMENT);
 
   profile = signal<PublicUserResponse | null>(null);
@@ -137,10 +139,15 @@ export class ProducerProfileComponent implements OnDestroy {
     this.actions.addToCart(event, spec);
   }
   price(spec: Spec) {
+    const fallbackCurrency =
+      spec.displayPriceMoney?.currency ??
+      spec.priceMoney?.currency ??
+      this.buyerCurrency.effective() ??
+      'USD';
     return this.currency.formatMoney(
       spec.displayPriceMoney ?? spec.priceMoney,
       spec.price,
-      this.profile()?.store_currency || 'USD',
+      fallbackCurrency,
     );
   }
 }

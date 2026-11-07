@@ -169,7 +169,7 @@ describe('ProducerProfileComponent', () => {
     expect(currencyServiceMock.formatMoney).toHaveBeenCalledWith(
       trapSpec.displayPriceMoney,
       trapSpec.price,
-      'INR',
+      'USD',
     );
 
     component.profile.set({ ...profile, display_name: undefined, store_currency: undefined });

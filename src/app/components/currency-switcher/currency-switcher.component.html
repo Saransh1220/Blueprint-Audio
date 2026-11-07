@@ -1,0 +1,62 @@
+<div class="currency-switcher-wrap" [class.open]="isOpen()">
+  <button
+    type="button"
+    class="currency-trigger-btn"
+    [class.active]="isOpen()"
+    (click)="toggle()"
+    [attr.aria-expanded]="isOpen()"
+    aria-haspopup="listbox"
+    aria-label="Change currency"
+  >
+    <i class="fas fa-coins currency-icon" aria-hidden="true"></i>
+    <span class="currency-code">{{ effectiveCurrency() }}</span>
+    @if (isAutomatic()) {
+      <span class="auto-indicator" title="Automatic (from location)">Auto</span>
+    }
+    <i class="fas fa-chevron-down caret-icon" [class.rotated]="isOpen()" aria-hidden="true"></i>
+  </button>
+
+  @if (isOpen()) {
+    <div class="currency-dropdown" role="listbox" aria-label="Available currencies">
+      <div class="dropdown-header">Display Currency</div>
+      
+      <button
+        type="button"
+        class="currency-option"
+        [class.selected]="isAutomatic()"
+        (click)="select(null)"
+        role="option"
+        [attr.aria-selected]="isAutomatic()"
+      >
+        <div class="option-main">
+          <span class="option-title">Automatic</span>
+          <span class="option-desc">Based on location</span>
+        </div>
+        @if (isAutomatic()) {
+          <i class="fas fa-check check-icon" aria-hidden="true"></i>
+        }
+      </button>
+
+      <div class="dropdown-divider"></div>
+
+      @for (curr of availableCurrencies(); track curr.code) {
+        <button
+          type="button"
+          class="currency-option"
+          [class.selected]="!isAutomatic() && effectiveCurrency() === curr.code"
+          (click)="select(curr.code)"
+          role="option"
+          [attr.aria-selected]="!isAutomatic() && effectiveCurrency() === curr.code"
+        >
+          <div class="option-main">
+            <span class="option-title">{{ curr.code }}</span>
+            <span class="option-symbol">({{ curr.symbol }})</span>
+          </div>
+          @if (!isAutomatic() && effectiveCurrency() === curr.code) {
+            <i class="fas fa-check check-icon" aria-hidden="true"></i>
+          }
+        </button>
+      }
+    </div>
+  }
+</div>

@@ -1,0 +1,138 @@
+:host {
+  display: inline-block;
+  position: relative;
+}
+
+.currency-switcher-wrap {
+  position: relative;
+}
+
+.currency-trigger-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: transparent;
+  color: var(--text-color, #e5e7eb);
+  border: 1px solid var(--line-color, #333333);
+  padding: 6px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  line-height: 1;
+  transition: border-color 0.15s ease, background-color 0.15s ease;
+
+  &:hover {
+    border-color: var(--brand-color, #ef4444);
+    background: rgba(255, 255, 255, 0.04);
+  }
+
+  &.active {
+    border-color: var(--brand-color, #ef4444);
+    background: rgba(255, 255, 255, 0.06);
+  }
+}
+
+.currency-icon {
+  font-size: 0.75rem;
+  opacity: 0.7;
+}
+
+.currency-code {
+  letter-spacing: 0.02em;
+}
+
+.auto-indicator {
+  font-size: 0.6875rem;
+  text-transform: uppercase;
+  color: var(--brand-color, #ef4444);
+  opacity: 0.9;
+  letter-spacing: 0.04em;
+}
+
+.caret-icon {
+  font-size: 0.625rem;
+  opacity: 0.6;
+  transition: transform 0.15s ease;
+
+  &.rotated {
+    transform: rotate(180deg);
+  }
+}
+
+.currency-dropdown {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  min-width: 180px;
+  background: var(--card-bg-color, #1f1a28);
+  border: 1px solid var(--line-color, #333333);
+  border-radius: 4px;
+  padding: 6px 0;
+  z-index: 1000;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+}
+
+.dropdown-header {
+  padding: 6px 12px 4px;
+  font-size: 0.6875rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-color, #e5e7eb);
+  opacity: 0.5;
+}
+
+.dropdown-divider {
+  height: 1px;
+  background: var(--line-color, #333333);
+  margin: 4px 0;
+}
+
+.currency-option {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  background: transparent;
+  border: none;
+  color: var(--text-color, #e5e7eb);
+  cursor: pointer;
+  text-align: left;
+  font-size: 0.8125rem;
+  transition: background-color 0.15s ease;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.06);
+  }
+
+  &.selected {
+    color: var(--brand-color, #ef4444);
+    font-weight: 600;
+  }
+}
+
+.option-main {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.option-title {
+  font-weight: 500;
+}
+
+.option-desc {
+  font-size: 0.6875rem;
+  opacity: 0.6;
+}
+
+.option-symbol {
+  font-size: 0.75rem;
+  opacity: 0.7;
+}
+
+.check-icon {
+  font-size: 0.75rem;
+  color: var(--brand-color, #ef4444);
+}

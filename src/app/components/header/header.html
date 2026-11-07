@@ -152,6 +152,8 @@
         <a routerLink="/upload" class="upload-btn-cta"> Upload </a>
       }
 
+      <app-currency-switcher />
+
       <a class="icon-btn cart-btn" routerLink="/cart" aria-label="View cart">
         <i class="fas fa-shopping-cart"></i>
         @if (cartService.count() > 0) {

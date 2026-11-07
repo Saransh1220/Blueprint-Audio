@@ -14,6 +14,7 @@ import { ToastComponent } from './components/toast/toast.component';
 import { PlayerService } from './services/player.service';
 import { SpecUploadMonitorService } from './services/spec-upload-monitor.service';
 import { ThemeService } from './services/theme.service';
+import { BuyerCurrencyService } from './services/buyer-currency.service';
 
 @Component({
   selector: 'app-root',
@@ -40,11 +41,13 @@ export class AppComponent {
   // Dark-only: creating the service keeps the dark class on the page.
   private theme = inject(ThemeService);
   private specUploadMonitor = inject(SpecUploadMonitorService);
+  private buyerCurrency = inject(BuyerCurrencyService);
   playerService = inject(PlayerService);
 
   constructor() {
     inject(Title).setTitle(BRAND.name);
     this.specUploadMonitor.resumePersisted();
+    this.buyerCurrency.load().subscribe();
     this.router.events.pipe(filter((event) => event instanceof NavigationEnd)).subscribe(() => {
       setTimeout(() => {
         window.scrollTo({ top: 0, behavior: 'auto' });

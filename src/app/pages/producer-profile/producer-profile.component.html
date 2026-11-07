@@ -81,7 +81,7 @@
             </button>
           }
         </div>
-        <span>All prices in {{ profile()?.store_currency || 'USD' }}</span>
+        <span>All prices in {{ buyerCurrency.effective() }}</span>
       </div>
       @if (filteredSpecs().length) {
         <div class="tracks-grid">

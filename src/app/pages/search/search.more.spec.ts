@@ -3,6 +3,7 @@ import { TestBed } from '@angular/core/testing';
 import { ActivatedRoute, Router } from '@angular/router';
 import { BehaviorSubject, of, Subject, throwError } from 'rxjs';
 import { AuthService } from '../../services/auth.service';
+import { BuyerCurrencyService } from '../../services/buyer-currency.service';
 import { LabService } from '../../services/lab';
 import { ToastService } from '../../services/toast.service';
 import { SearchPageComponent } from './search.component';
@@ -16,7 +17,7 @@ describe('SearchPageComponent (more)', () => {
 
   const spec = (id: string) => ({ id, title: id }) as any;
 
-  function create(user: unknown = null) {
+  function create(user: unknown = null, buyerCurrencyCode: any = 'USD') {
     pagination = signal<any>(null);
     queryParams$ = new BehaviorSubject<Record<string, string>>({});
     TestBed.configureTestingModule({
@@ -26,6 +27,7 @@ describe('SearchPageComponent (more)', () => {
         { provide: ActivatedRoute, useValue: { queryParams: queryParams$ } },
         { provide: ToastService, useValue: { show } },
         { provide: AuthService, useValue: { currentUser: signal(user) } },
+        { provide: BuyerCurrencyService, useValue: { effective: signal(buyerCurrencyCode) } },
       ],
     });
     return TestBed.runInInjectionContext(() => new SearchPageComponent());
@@ -303,7 +305,7 @@ describe('SearchPageComponent (more)', () => {
   });
 
   it('summaries, labels and currency', () => {
-    const c = create({ store_currency: 'EUR' });
+    const c = create(null, 'EUR');
     expect(c.getGenreSummary()).toBe('Any');
     c.genre.set(['TRAP']);
     expect(c.getGenreSummary()).toBe('TRAP');
@@ -317,7 +319,7 @@ describe('SearchPageComponent (more)', () => {
     expect(c.getSortLabel()).toBe('Newest');
   });
 
-  it('defaults currency to USD without a user', () => {
+  it('defaults currency to USD without a preference', () => {
     expect(create().getCurrencyCode()).toBe('USD');
   });
 
