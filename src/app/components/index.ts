@@ -21,3 +21,4 @@ export * from './ticker/ticker';
 export * from './halftone-nebula/halftone-nebula';
 export * from './toast/toast.component';
 export * from './ui/loading-spinner/loading-spinner.component';
+export * from './currency-price-field/currency-price-field.component';

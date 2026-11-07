@@ -93,7 +93,8 @@ describe('StudioSettingsComponent', () => {
       expect(q('.save-btn').disabled).toBe(true);
       const options = Array.from(el.querySelectorAll('.currency-btn')) as HTMLButtonElement[];
       expect(options.length).toBe(2);
-      options[0].click();
+      const usdOption = options.find((opt) => opt.textContent?.includes('USD')) ?? options[1];
+      usdOption.click();
       fixture.detectChanges();
       expect(q('.save-btn').disabled).toBe(false);
       q('.save-btn').click();

@@ -84,6 +84,63 @@ export function minorToMajor(amountMinor: number, currency: AppCurrency, scale?:
   return amountMinor / currencyScale(currency, scale);
 }
 
+export const MAX_AMOUNT_MINOR = 100_000_000;
+
+/**
+ * Parses a user input decimal amount into integer minor units using string manipulation
+ * to prevent floating point inaccuracies (e.g. 19.99 * 100 = 1998.9999999999998).
+ * Returns NaN for invalid strings, negative numbers, multiple dots, commas, non-numeric chars,
+ * or decimals exceeding scale precision.
+ */
+export function parseMajorToMinor(
+  text: string | number | null | undefined,
+  scale = 100,
+): number {
+  if (text === null || text === undefined) return NaN;
+  const str = String(text).trim();
+  if (!str) return NaN;
+
+  if (!/^\d+(\.\d+)?$/.test(str)) {
+    return NaN;
+  }
+
+  const maxDecimals = Math.max(0, Math.round(Math.log10(scale)));
+  const parts = str.split('.');
+  const wholePart = parts[0];
+  const fracPart = parts[1] || '';
+
+  if (fracPart.length > maxDecimals) {
+    return NaN;
+  }
+
+  const paddedFrac = fracPart.padEnd(maxDecimals, '0');
+  const combinedStr = `${wholePart}${paddedFrac}`;
+  const minor = Number(combinedStr);
+
+  if (!Number.isSafeInteger(minor) || minor < 0 || minor > MAX_AMOUNT_MINOR) {
+    return NaN;
+  }
+
+  return minor;
+}
+
+/**
+ * Formats an integer minor amount into a major decimal string without floating point inaccuracies.
+ */
+export function minorToMajorString(minor: number, scale = 100): string {
+  if (!Number.isSafeInteger(minor) || minor < 0) return '0';
+  const maxDecimals = Math.max(0, Math.round(Math.log10(scale)));
+  if (maxDecimals === 0) {
+    return String(minor);
+  }
+
+  const s = String(minor).padStart(maxDecimals + 1, '0');
+  const splitIdx = s.length - maxDecimals;
+  const whole = s.slice(0, splitIdx);
+  const frac = s.slice(splitIdx);
+  return `${whole}.${frac}`;
+}
+
 /** Shared by injectable formatters and framework-independent view helpers. */
 export function formatMoneyValue(
   money?: Money | null,

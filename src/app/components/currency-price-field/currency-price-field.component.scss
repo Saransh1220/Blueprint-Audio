@@ -1,0 +1,165 @@
+:host {
+  display: block;
+  font-family: inherit;
+}
+
+.field-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+  gap: 8px;
+}
+
+.field-label-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.field-label {
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--text-color);
+  letter-spacing: 0.01em;
+}
+
+.native-badge {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 1px 6px;
+  background: transparent;
+  color: var(--brand-color);
+  border: 1px solid var(--brand-color);
+  border-radius: 2px;
+}
+
+.autofill-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: transparent;
+  border: 1px solid var(--line-color);
+  color: var(--text-color);
+  font-size: 0.75rem;
+  font-weight: 500;
+  padding: 3px 8px;
+  border-radius: 2px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+
+  &:hover:not(:disabled) {
+    border-color: var(--brand-color);
+    color: var(--brand-color);
+  }
+
+  &:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+  }
+}
+
+.field-input-box {
+  display: flex;
+  align-items: center;
+  background: var(--bg-color);
+  border: 1px solid var(--line-color);
+  border-radius: 2px;
+  padding: 0 10px;
+  height: 38px;
+  transition: border-color 0.15s ease;
+
+  &:focus-within {
+    border-color: var(--brand-color);
+  }
+
+  &.field-input-error {
+    border-color: #ef4444;
+  }
+}
+
+.currency-prefix {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-color);
+  opacity: 0.65;
+  margin-right: 6px;
+  user-select: none;
+}
+
+.price-input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: var(--text-color);
+  font-size: 0.9375rem;
+  font-family: inherit;
+  font-weight: 500;
+  min-width: 0;
+
+  &::placeholder {
+    color: var(--text-color);
+    opacity: 0.3;
+  }
+
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+  }
+}
+
+.currency-code {
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  color: var(--text-color);
+  opacity: 0.5;
+  margin-left: 6px;
+  user-select: none;
+}
+
+.field-error-message {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 5px;
+  font-size: 0.75rem;
+  color: #ef4444;
+
+  i {
+    font-size: 0.6875rem;
+  }
+}
+
+.rate-status {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 5px;
+  font-size: 0.75rem;
+  color: var(--text-color);
+  opacity: 0.65;
+
+  i {
+    font-size: 0.6875rem;
+  }
+
+  &.stale {
+    opacity: 0.9;
+    color: #f59e0b;
+  }
+}
+
+.stale-badge {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  padding: 1px 5px;
+  border: 1px solid #f59e0b;
+  border-radius: 2px;
+  color: #f59e0b;
+  background: transparent;
+}

@@ -519,10 +519,9 @@ button {
 }
 
 .license {
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr) 150px;
-  align-items: center;
-  gap: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
   padding: 14px 16px;
   border: 1px solid var(--su-line-2);
   border-radius: 14px;
@@ -533,6 +532,39 @@ button {
   &.off {
     border-color: var(--su-line);
     opacity: 0.55;
+  }
+}
+
+.license-top-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.license-prices-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+  padding-top: 12px;
+  border-top: 1px solid var(--su-line-2);
+}
+
+.native-only-toggle {
+  margin-top: 8px;
+
+  .native-only-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.75rem;
+    color: var(--text-color);
+    opacity: 0.8;
+    cursor: pointer;
+
+    input[type="checkbox"] {
+      cursor: pointer;
+      accent-color: var(--brand-color);
+    }
   }
 }
 

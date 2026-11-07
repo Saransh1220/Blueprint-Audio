@@ -77,25 +77,21 @@
         </p>
 
         <div class="currency-selector">
-          <button
-            class="currency-btn"
-            [class.active]="selectedCurrency() === 'USD'"
-            (click)="selectCurrency('USD')"
-            type="button"
-          >
-            <span class="symbol">$</span>
-            <span class="code">USD (US Dollar)</span>
-          </button>
-          <button
-            class="currency-btn"
-            [class.active]="selectedCurrency() === 'INR'"
-            (click)="selectCurrency('INR')"
-            type="button"
-          >
-            <span class="symbol">₹</span>
-            <span class="code">INR (Indian Rupee)</span>
-          </button>
+          @for (c of currencies(); track c.code) {
+            <button
+              class="currency-btn"
+              [class.active]="selectedCurrency() === c.code"
+              (click)="selectCurrency(c.code)"
+              type="button"
+            >
+              <span class="symbol">{{ c.symbol }}</span>
+              <span class="code">{{ c.code }}</span>
+            </button>
+          }
         </div>
+        <p class="currency-notice" style="font-size: 0.75rem; color: var(--text-color); opacity: 0.7; margin-top: 8px;">
+          Note: Changing your store currency affects <strong>new uploads only</strong>. Existing beats retain their original native currency.
+        </p>
       </div>
 
       <div class="pref-callout-wrap">
