@@ -169,7 +169,7 @@ export class AuthService {
       twitter_url: response.twitter_url || null,
       youtube_url: response.youtube_url || null,
       spotify_url: response.spotify_url || null,
-      store_currency: response.store_currency || 'USD',
+      store_currency: response.store_currency || undefined,
       created_at: response.created_at,
       updated_at: response.updated_at,
     };

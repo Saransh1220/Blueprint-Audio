@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import type { AppCurrency } from '../../../models/money';
 import { AuthService, ToastService } from '../../../services';
+import { CurrencyConfigurationService } from '../../../services/currency-configuration.service';
 
 @Component({
   selector: 'app-studio-settings',
@@ -15,7 +16,9 @@ export class StudioSettingsComponent {
   readonly brand = BRAND;
   private authService = inject(AuthService);
   private toastService = inject(ToastService);
+  private currencyConfig = inject(CurrencyConfigurationService);
 
+  readonly currencies = this.currencyConfig.currencies;
   currentUser = this.authService.currentUser;
 
   displayName = computed(

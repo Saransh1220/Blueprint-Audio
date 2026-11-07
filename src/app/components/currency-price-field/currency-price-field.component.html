@@ -1,0 +1,60 @@
+<div class="field-header">
+  <div class="field-label-group">
+    @if (label()) {
+      <label class="field-label">{{ label() }}</label>
+    }
+    @if (isNative()) {
+      <span class="native-badge">Native</span>
+    }
+  </div>
+
+  @if (showAutoFill()) {
+    <button
+      type="button"
+      class="autofill-btn"
+      [disabled]="disabled() || autoFillLoading()"
+      (click)="onAutoFillClick($event)"
+      title="Auto-fill price from current exchange rate"
+    >
+      @if (autoFillLoading()) {
+        <i class="fas fa-spinner fa-spin"></i>
+        <span>Calculating...</span>
+      } @else {
+        <i class="fas fa-wand-magic-sparkles"></i>
+        <span>Auto-fill FX</span>
+      }
+    </button>
+  }
+</div>
+
+<div class="field-input-box" [class.field-input-error]="!!error()">
+  <span class="currency-prefix">{{ symbol() }}</span>
+  <input
+    type="text"
+    class="price-input"
+    [value]="value()"
+    [disabled]="disabled()"
+    [placeholder]="placeholder()"
+    (input)="onInputChange($event)"
+    autocomplete="off"
+    inputmode="decimal"
+  />
+  <span class="currency-code">{{ currency() }}</span>
+</div>
+
+@if (error()) {
+  <div class="field-error-message">
+    <i class="fas fa-circle-exclamation"></i>
+    <span>{{ error() }}</span>
+  </div>
+}
+
+@if (rateInfo()) {
+  <div class="rate-status" [class.stale]="isStale()">
+    <i class="fas fa-clock"></i>
+    <span>{{ rateInfo() }}</span>
+    @if (isStale()) {
+      <span class="stale-badge" title="FX rate is older than 36h">Stale rate</span>
+    }
+  </div>
+}

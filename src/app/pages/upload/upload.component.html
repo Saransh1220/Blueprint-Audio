@@ -244,30 +244,68 @@
           <div class="licenses" formArrayName="licenses">
             @for (license of licenses.controls; track license; let i = $index) {
               <div class="license" [class.off]="!license.get('enabled')?.value" [formGroupName]="i">
-                <button
-                  type="button"
-                  class="switch"
-                  [class.on]="license.get('enabled')?.value"
-                  [attr.aria-pressed]="license.get('enabled')?.value"
-                  aria-label="Enable license"
-                  (click)="license.patchValue({ enabled: !license.get('enabled')?.value })"
-                ></button>
-                <div class="lic-info">
-                  <strong>
-                    {{ getReferenceLicenseName(license.get('type')?.value) }}
-                    <em>{{ getReferenceLicenseFormat(license.get('type')?.value) }}</em>
-                  </strong>
-                  <small>{{ getReferenceLicenseSub(license.get('type')?.value) }}</small>
+                <div class="license-top-row">
+                  <button
+                    type="button"
+                    class="switch"
+                    [class.on]="license.get('enabled')?.value"
+                    [attr.aria-pressed]="license.get('enabled')?.value"
+                    aria-label="Enable license"
+                    (click)="license.patchValue({ enabled: !license.get('enabled')?.value })"
+                  ></button>
+                  <div class="lic-info">
+                    <strong>
+                      {{ getReferenceLicenseName(license.get('type')?.value) }}
+                      <em>{{ getReferenceLicenseFormat(license.get('type')?.value) }}</em>
+                    </strong>
+                    <small>{{ getReferenceLicenseSub(license.get('type')?.value) }}</small>
+                  </div>
                 </div>
-                <label class="price">
-                  <span>Price</span>
-                  <input
-                    class="input"
-                    type="number"
-                    formControlName="price"
-                    [attr.disabled]="license.get('enabled')?.value ? null : ''"
-                  />
-                </label>
+
+                <div class="license-prices-grid">
+                  <div class="price native-price-field">
+                    <app-currency-price-field
+                      [currency]="storeCurrency()"
+                      [value]="license.get('price')?.value"
+                      [label]="'Native Price (' + storeCurrency() + ')'"
+                      [symbol]="nativeCurrencySymbol()"
+                      [isNative]="true"
+                      [disabled]="!license.get('enabled')?.value"
+                      [error]="license.get('nativeError')?.value"
+                      (valueChange)="onNativePriceChange(i, $event)"
+                    />
+                  </div>
+
+                  <div class="secondary-price-wrapper">
+                    <app-currency-price-field
+                      [currency]="secondaryCurrency()"
+                      [value]="license.get('secondaryPrice')?.value"
+                      [label]="'Secondary Price (' + secondaryCurrency() + ')'"
+                      [symbol]="secondaryCurrencySymbol()"
+                      [isNative]="false"
+                      [disabled]="!license.get('enabled')?.value || license.get('sellNativeOnly')?.value"
+                      [error]="license.get('secondaryError')?.value"
+                      [showAutoFill]="!license.get('sellNativeOnly')?.value"
+                      [autoFillLoading]="license.get('autoFillLoading')?.value"
+                      [rateInfo]="license.get('rateInfo')?.value"
+                      [isStale]="license.get('isStale')?.value"
+                      (valueChange)="onSecondaryPriceChange(i, $event)"
+                      (autoFill)="autoFillSecondaryPrice(i)"
+                    />
+
+                    <div class="native-only-toggle">
+                      <label class="native-only-label">
+                        <input
+                          type="checkbox"
+                          [checked]="license.get('sellNativeOnly')?.value"
+                          [disabled]="!license.get('enabled')?.value"
+                          (change)="onSellNativeOnlyToggle(i, $event)"
+                        />
+                        <span>Sell only in {{ storeCurrency() }} (disable {{ secondaryCurrency() }})</span>
+                      </label>
+                    </div>
+                  </div>
+                </div>
               </div>
             }
           </div>
@@ -319,7 +357,12 @@
               @for (license of selectedLicenses(); track license) {
                 <li>
                   <span>{{ getReferenceLicenseName(license.get('type')?.value) }}</span>
-                  <b>{{ formatCurrency(license.get('price')?.value) }}</b>
+                  <b>
+                    {{ formatCurrency(license.get('price')?.value) }}
+                    @if (!license.get('sellNativeOnly')?.value && license.get('secondaryPrice')?.value) {
+                      / {{ formatSecondaryCurrency(license.get('secondaryPrice')?.value) }}
+                    }
+                  </b>
                 </li>
               }
             </ul>

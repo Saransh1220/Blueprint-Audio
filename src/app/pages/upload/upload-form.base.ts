@@ -17,6 +17,16 @@ import {
   SpecUploadService,
 } from '../../services/spec-upload.service';
 import { SpecUploadMonitorService } from '../../services/spec-upload-monitor.service';
+import { FxService, RateUnavailableError } from '../../services/fx.service';
+import { CurrencyConfigurationService } from '../../services/currency-configuration.service';
+import { LICENSE_TIER_DEFAULTS, getDefaultPrice } from '../../utils/license-price-defaults';
+import {
+  buildLicensePriceFormGroup,
+  extractLicensePricePayload,
+  populateLicensePriceGroupFromDto,
+  validatePriceInput,
+} from '../../utils/license-price-fields';
+import { parseMajorToMinor, minorToMajorString } from '../../models/money';
 
 type UploadFileType = 'cover' | 'preview' | 'wav' | 'stems';
 type FileUploadPhase = 'idle' | 'preparing' | 'uploading' | 'verifying' | 'uploaded' | 'error';
@@ -52,6 +62,28 @@ export abstract class UploadFormBase implements OnInit, OnDestroy {
   protected currencyService = inject(CurrencyService);
   protected api = inject(ApiService, { optional: true });
   protected specService = inject(SpecService, { optional: true });
+  protected fxService = inject(FxService, { optional: true });
+  protected currencyConfig = inject(CurrencyConfigurationService, { optional: true });
+
+  readonly storeCurrency = computed(() => this.authService.currentUser()?.store_currency || 'USD');
+  readonly secondaryCurrency = computed(() => {
+    const store = this.storeCurrency();
+    const currencies = this.currencyConfig?.currencies() ?? [];
+    const other =
+      currencies.find((c) => c.code !== store && c.gateway !== null) ||
+      currencies.find((c) => c.code !== store);
+    return other?.code || (store === 'USD' ? 'INR' : 'USD');
+  });
+  readonly nativeCurrencySymbol = computed(() => {
+    return (
+      this.currencyConfig?.currencies()?.find((c) => c.code === this.storeCurrency())?.symbol ?? ''
+    );
+  });
+  readonly secondaryCurrencySymbol = computed(() => {
+    return (
+      this.currencyConfig?.currencies()?.find((c) => c.code === this.secondaryCurrency())?.symbol ?? ''
+    );
+  });
 
   currentUser = this.authService.currentUser;
 
@@ -278,18 +310,38 @@ export abstract class UploadFormBase implements OnInit, OnDestroy {
         if (dto.licenses && dto.licenses.length > 0) {
           this.licenses.clear();
           for (const lic of dto.licenses) {
-            this.licenses.push(
-              this.fb.group({
-                enabled: [true],
-                id: [lic.id],
-                type: [lic.type],
-                name: [lic.name, Validators.required],
-                subtitle: [this.getLicenseSubtitle(lic.type)],
-                price: [lic.price, [Validators.required, Validators.min(0)]],
-                features: [lic.features || []],
-                file_types: [lic.file_types || []],
-              }),
+            const group = this.fb.group({
+              enabled: [true],
+              id: [lic.id],
+              type: [lic.type],
+              name: [lic.name, Validators.required],
+              subtitle: [this.getLicenseSubtitle(lic.type)],
+              price: [''],
+              nativePrice: [''],
+              secondaryPrice: [''],
+              sellNativeOnly: [false],
+              nativeError: [null as string | null],
+              secondaryError: [null as string | null],
+              rateInfo: [null as string | null],
+              isStale: [false],
+              autoFilled: [false],
+              autoFillLoading: [false],
+              nativeRevision: [1],
+              secondaryRevision: [1],
+              originalNativeMinor: [null as number | null],
+              originalSecondaryMinor: [null as number | null],
+              originalSellNativeOnly: [false],
+              features: [lic.features || []],
+              file_types: [lic.file_types || []],
+            });
+            populateLicensePriceGroupFromDto(
+              group,
+              lic,
+              this.storeCurrency(),
+              this.secondaryCurrency(),
             );
+            group.patchValue({ price: group.get('nativePrice')?.value });
+            this.licenses.push(group);
           }
         }
       },
@@ -330,21 +382,55 @@ export abstract class UploadFormBase implements OnInit, OnDestroy {
       return;
     }
 
-    const enabledLicenses = this.licenses.controls
-      .filter((lic) => !!lic.get('enabled')?.value)
-      .map((lic) => ({
+    const enabledLicenseGroups = this.licenses.controls.filter(
+      (lic) => !!lic.get('enabled')?.value,
+    );
+
+    if (enabledLicenseGroups.length === 0) {
+      this.toastService.show('Please enable at least one license option.', 'error');
+      return;
+    }
+
+    let hasPricingError = false;
+    for (const lic of enabledLicenseGroups) {
+      const nativeVal = lic.get('price')?.value;
+      const nativeErr = validatePriceInput(nativeVal);
+      lic.patchValue({ nativeError: nativeErr });
+      if (nativeErr) hasPricingError = true;
+
+      if (!lic.get('sellNativeOnly')?.value) {
+        const secVal = lic.get('secondaryPrice')?.value;
+        const secErr = validatePriceInput(secVal);
+        lic.patchValue({ secondaryError: secErr });
+        if (secErr) hasPricingError = true;
+      }
+    }
+
+    if (hasPricingError) {
+      this.toastService.show('Please fix license price errors before saving.', 'error');
+      return;
+    }
+
+    const enabledLicenses = enabledLicenseGroups.map((lic) => {
+      const patchList = extractLicensePricePayload(
+        lic as any,
+        this.storeCurrency(),
+        this.secondaryCurrency(),
+        true,
+      );
+      const result: any = {
         id: lic.get('id')?.value,
         type: lic.get('type')?.value,
         name: lic.get('name')?.value,
         price: Number(lic.get('price')?.value),
         features: lic.get('features')?.value || [],
         file_types: lic.get('file_types')?.value || [],
-      }));
-
-    if (enabledLicenses.length === 0) {
-      this.toastService.show('Please enable at least one license option.', 'error');
-      return;
-    }
+      };
+      if (patchList.length > 0) {
+        result.prices = patchList;
+      }
+      return result;
+    });
 
     const basePrice = Math.min(...enabledLicenses.map((l) => l.price));
     const formVal = this.uploadForm.value;
@@ -378,6 +464,17 @@ export abstract class UploadFormBase implements OnInit, OnDestroy {
       },
       error: (err: any) => {
         this.isSubmitting.set(false);
+        if (
+          err?.status === 409 ||
+          err?.error?.error === 'STALE_PRICE' ||
+          err?.error?.code === 'PRICE_CHANGED'
+        ) {
+          this.toastService.show(
+            'Prices were modified in another session. Please reload this beat to review the latest prices before saving.',
+            'error',
+          );
+          return;
+        }
         const msg =
           err?.error?.message || err?.message || 'Unable to update this beat. Please try again.';
         this.toastService.show(msg, 'error');
@@ -388,56 +485,130 @@ export abstract class UploadFormBase implements OnInit, OnDestroy {
   initializeLicenses() {
     if (this.licenses.length) return;
 
-    const defaultLicenses = [
-      {
-        type: 'Basic',
-        name: 'Basic Lease',
-        subtitle: 'mp3',
-        price: 14.99,
-        features: ['MP3', 'Untagged', 'Limited Streams (50k)'],
-        file_types: ['MP3'],
-      },
-      {
-        type: 'Premium',
-        name: 'Premium Lease',
-        subtitle: 'mp3 + wav',
-        price: 24.99,
-        features: ['MP3', 'WAV', 'Untagged', 'Limited Streams (500k)'],
-        file_types: ['MP3', 'WAV'],
-      },
-      {
-        type: 'Trackout',
-        name: 'Trackout Lease',
-        subtitle: 'wav + stems',
-        price: 49.99,
-        features: ['MP3', 'WAV', 'Stems', 'Untagged', 'Unlimited Streams'],
-        file_types: ['MP3', 'WAV', 'ZIP'],
-      },
-      {
-        type: 'Unlimited',
-        name: 'Unlimited Lease',
-        subtitle: 'pro',
-        price: 99.99,
-        features: ['Exclusive Rights', 'All Files Included', 'Full Ownership'],
-        file_types: ['MP3', 'WAV', 'ZIP'],
-      },
-    ];
+    const store = this.storeCurrency();
+    const secondary = this.secondaryCurrency();
 
-    defaultLicenses.forEach((lic) => {
+    LICENSE_TIER_DEFAULTS.forEach((lic) => {
+      const nativeDefault = getDefaultPrice(lic.type, store);
+      const secondaryDefault = getDefaultPrice(lic.type, secondary);
+      const nativeStr = nativeDefault !== null ? String(nativeDefault) : '';
+      const secondaryStr = secondaryDefault !== null ? String(secondaryDefault) : '';
+
       this.licenses.push(
         this.fb.group({
           enabled: [true],
           type: [lic.type],
           name: [lic.name, Validators.required],
           subtitle: [lic.subtitle],
-          price: [
-            lic.price,
-            [Validators.required, Validators.min(0.01), Validators.pattern(/^\d+(\.\d{1,2})?$/)],
-          ],
+          price: [nativeStr],
+          nativePrice: [nativeStr],
+          secondaryPrice: [secondaryStr],
+          sellNativeOnly: [false],
+          nativeError: [null as string | null],
+          secondaryError: [null as string | null],
+          rateInfo: [null as string | null],
+          isStale: [false],
+          autoFilled: [false],
+          autoFillLoading: [false],
+          nativeRevision: [1],
+          secondaryRevision: [1],
+          originalNativeMinor: [null as number | null],
+          originalSecondaryMinor: [null as number | null],
+          originalSellNativeOnly: [false],
           features: [lic.features],
           file_types: [lic.file_types],
         }),
       );
+    });
+  }
+
+  formatSecondaryCurrency(value: number | string) {
+    const amount = Number(value || 0);
+    const secCurr = this.secondaryCurrency();
+    return this.currencyService.formatMoney(null, amount, secCurr, { trailingZeros: true });
+  }
+
+  onNativePriceChange(index: number, val: string) {
+    const licenseGroup = this.licenses.at(index);
+    if (!licenseGroup) return;
+    licenseGroup.patchValue({
+      price: val,
+      nativePrice: val,
+      nativeError: null,
+    });
+  }
+
+  onSecondaryPriceChange(index: number, val: string) {
+    const licenseGroup = this.licenses.at(index);
+    if (!licenseGroup) return;
+    licenseGroup.patchValue({
+      secondaryPrice: val,
+      secondaryError: null,
+      autoFilled: false,
+    });
+  }
+
+  onSellNativeOnlyToggle(index: number, event: Event) {
+    const target = event.target as HTMLInputElement;
+    const licenseGroup = this.licenses.at(index);
+    if (!licenseGroup) return;
+    licenseGroup.patchValue({
+      sellNativeOnly: target.checked,
+      secondaryError: null,
+    });
+  }
+
+  autoFillSecondaryPrice(index: number) {
+    const licenseGroup = this.licenses.at(index);
+    if (!licenseGroup || !licenseGroup.get('enabled')?.value) return;
+
+    const nativeVal = licenseGroup.get('price')?.value ?? licenseGroup.get('nativePrice')?.value;
+    const err = validatePriceInput(nativeVal);
+    if (err) {
+      licenseGroup.patchValue({ nativeError: err });
+      this.toastService.show(`Please enter a valid native price before auto-filling: ${err}`, 'error');
+      return;
+    }
+
+    const nativeMinor = parseMajorToMinor(nativeVal, 100);
+    const fromCurr = this.storeCurrency();
+    const toCurr = this.secondaryCurrency();
+
+    licenseGroup.patchValue({ autoFillLoading: true, secondaryError: null });
+
+    if (!this.fxService) {
+      licenseGroup.patchValue({ autoFillLoading: false });
+      return;
+    }
+
+    this.fxService.suggestPrice(fromCurr, toCurr, nativeMinor).subscribe({
+      next: (suggestion) => {
+        const suggestedMajorStr = minorToMajorString(suggestion.amount_minor, 100);
+        let rateInfo = '';
+        if (suggestion.rate_as_of) {
+          const d = new Date(suggestion.rate_as_of);
+          rateInfo = `Rate as of ${d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
+        }
+        licenseGroup.patchValue({
+          secondaryPrice: suggestedMajorStr,
+          autoFilled: true,
+          autoFillLoading: false,
+          isStale: !!suggestion.stale,
+          rateInfo: rateInfo || null,
+          secondaryError: null,
+        });
+        this.toastService.show(`Auto-filled ${toCurr} price from exchange rate`, 'success');
+      },
+      error: (error) => {
+        licenseGroup.patchValue({ autoFillLoading: false });
+        if (error instanceof RateUnavailableError) {
+          this.toastService.show(error.message, 'info');
+        } else {
+          const msg =
+            error?.error?.message || error?.message || 'Unable to fetch exchange rate suggestion.';
+          this.toastService.show(msg, 'error');
+        }
+      },
     });
   }
 
@@ -655,16 +826,32 @@ export abstract class UploadFormBase implements OnInit, OnDestroy {
       return;
     }
 
-    const enabledLicenses = this.uploadForm
-      .getRawValue()
-      .licenses.filter((license: any) => license.enabled)
-      .map((license: any) => ({
-        ...license,
-        price: Number(license.price),
-      }));
+    const enabledLicenseGroups = this.licenses.controls.filter(
+      (license: any) => !!license.get('enabled')?.value,
+    );
 
-    if (!enabledLicenses.length) {
+    if (!enabledLicenseGroups.length) {
       this.toastService.show('Please enable at least one license option.', 'error');
+      return;
+    }
+
+    let hasPricingError = false;
+    for (const lic of enabledLicenseGroups) {
+      const nativeVal = lic.get('price')?.value;
+      const nativeErr = validatePriceInput(nativeVal);
+      lic.patchValue({ nativeError: nativeErr });
+      if (nativeErr) hasPricingError = true;
+
+      if (!lic.get('sellNativeOnly')?.value) {
+        const secVal = lic.get('secondaryPrice')?.value;
+        const secErr = validatePriceInput(secVal);
+        lic.patchValue({ secondaryError: secErr });
+        if (secErr) hasPricingError = true;
+      }
+    }
+
+    if (hasPricingError) {
+      this.toastService.show('Please fix license price errors before publishing.', 'error');
       return;
     }
 
@@ -672,8 +859,11 @@ export abstract class UploadFormBase implements OnInit, OnDestroy {
     this.uploadProgress.set(100);
 
     const formValue = this.uploadForm.getRawValue();
-    const basePrice = Math.min(...enabledLicenses.map((license: any) => license.price));
-    const storeCurrency = this.authService.currentUser()?.store_currency || 'USD';
+    const storeCurrency = this.storeCurrency();
+    const secondaryCurrency = this.secondaryCurrency();
+    const basePrice = Math.min(
+      ...enabledLicenseGroups.map((l: any) => Number(l.get('price')?.value || 0)),
+    );
 
     const metadata = {
       title: formValue.title,
@@ -694,10 +884,22 @@ export abstract class UploadFormBase implements OnInit, OnDestroy {
       free_mp3_enabled: formValue.freeMp3Enabled,
       moods: this.selectedMoods(),
       instruments: this.selectedInstruments(),
-      licenses: enabledLicenses.map(({ enabled, subtitle, ...license }: any) => ({
-        ...license,
-        price_currency: storeCurrency,
-      })),
+      licenses: enabledLicenseGroups.map((lic: any) => {
+        const val = lic.getRawValue();
+        const pricePayloads = extractLicensePricePayload(
+          lic as any,
+          storeCurrency,
+          secondaryCurrency,
+          false,
+        );
+        const { enabled, subtitle, ...rest } = val;
+        return {
+          ...rest,
+          price: Number(val.price || 0),
+          price_currency: storeCurrency,
+          prices: pricePayloads,
+        };
+      }),
     };
 
     this.specUploadService.publishBeat(uploadSessionId, metadata).subscribe({

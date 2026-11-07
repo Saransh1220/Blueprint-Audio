@@ -15,3 +15,4 @@ export * from './legal.service';
 export * from './currency.service';
 export * from './currency-configuration.service';
 export * from './buyer-currency.service';
+export * from './fx.service';
