@@ -590,20 +590,16 @@ describe('DashboardComponent', () => {
     expect(el.textContent).toContain('Ghostwire');
     expect(el.textContent).toContain('Upload beat');
     expect(el.textContent).not.toContain('Top countries');
-    expect(el.querySelectorAll('.bar').length).toBe(30);
-    expect(el.querySelectorAll('.t-kpi').length).toBe(3);
+    expect(el.querySelectorAll('app-bento-stat-tile').length).toBe(4);
+    expect(el.querySelectorAll('app-bento-stream-chart').length).toBe(1);
     expect(el.textContent).toContain('Upload failed');
 
-    (el.querySelector('a.go') as HTMLElement).click();
+    (el.querySelector('a.act') as HTMLElement).click();
     expect(markAsRead).toHaveBeenCalledWith('a');
-    (el.querySelector('button.go') as HTMLElement).click();
+    (el.querySelector('button.act') as HTMLElement).click();
     expect(markAsRead).toHaveBeenCalledWith('b');
 
-    (el.querySelectorAll('.swatches button')[2] as HTMLElement).click();
-    fixture.detectChanges();
-    expect(el.querySelector('.page')?.getAttribute('data-variant')).toBe('ink');
-
-    (el.querySelectorAll('.tabs-sm button')[0] as HTMLElement).click();
+    (el.querySelectorAll('[aria-label="Date range"] button')[0] as HTMLElement).click();
     fixture.detectChanges();
     expect(fixture.componentInstance.range()).toBe('7D');
   });
@@ -614,7 +610,7 @@ describe('DashboardComponent', () => {
     fixture.detectChanges();
     const el = fixture.nativeElement as HTMLElement;
     expect(el.textContent).toContain('nothing needs your attention');
-    expect(el.textContent).toContain('No plays or sales yet');
+    expect(el.textContent).toContain('Unavailable right now.');
     expect(el.querySelector('.block-stack')).toBeNull();
     expect(el.textContent).toContain('No orders yet.');
     expect(el.textContent).toContain('No recent activity.');
@@ -628,9 +624,8 @@ describe('DashboardComponent', () => {
     expect(el.textContent).toContain('Recent purchases');
     expect(el.textContent).toContain('Violet Hour');
     expect(el.textContent).not.toContain('Your top genres');
-    expect(el.textContent).toContain('Following is not available yet');
 
-    (el.querySelectorAll('.head-actions .tabs button')[0] as HTMLElement).click();
+    (el.querySelectorAll('[aria-label="Dashboard view"] button')[0] as HTMLElement).click();
     TestBed.tick();
     fixture.detectChanges();
     expect(c.role()).toBe('producer');

@@ -332,34 +332,32 @@ describe('StudioOverviewComponent (refreshed overview)', () => {
   });
 
   it('renders the loaded overview', () => {
-    const { c, el, fixture } = setup();
+    const { el, fixture } = setup();
     expect(el.textContent).toContain('Blaze.');
     expect(el.textContent).toContain('2 top beats tracked · 1 recent order.');
-    expect(el.querySelectorAll('su-stat').length).toBe(4);
-    expect(el.textContent).toContain('vs prior week');
+    expect(el.querySelectorAll('app-bento-stat-tile').length).toBe(4);
     expect(el.textContent).toContain('First');
-    expect(el.querySelector('img')?.getAttribute('src')).toBe('cover.png');
-    expect(el.querySelector('.cover-fallback')?.textContent?.trim()).toBe('s');
+    expect(el.querySelector('app-bento-rank-list img')?.getAttribute('src')).toBe('cover.png');
+    expect(el.querySelector('app-bento-rank-list .letter')?.textContent?.trim()).toBe('S');
     expect(el.textContent).toContain('Sam');
     expect(el.textContent).toContain('Premium');
-    expect(el.querySelectorAll('.axis span').length).toBe(3);
+    expect(el.querySelectorAll('app-bento-stream-chart .axis span').length).toBe(3);
 
-    const chart = el.querySelector('.chart') as HTMLElement;
+    const chart = el.querySelector('app-bento-stream-chart .wrap') as HTMLElement;
     chart.getBoundingClientRect = () => ({ left: 0, width: 600 }) as DOMRect;
-    chart.dispatchEvent(new MouseEvent('mousemove', { clientX: 300 }));
+    chart.dispatchEvent(new MouseEvent('pointermove', { clientX: 300 }));
     fixture.detectChanges();
-    expect(el.querySelector('.tooltip')).not.toBeNull();
-    expect(c.hoveredRevenuePoint()).not.toBeNull();
-    chart.dispatchEvent(new MouseEvent('mouseleave'));
+    expect(el.querySelector('app-bento-tooltip')).not.toBeNull();
+    chart.dispatchEvent(new MouseEvent('pointerleave'));
     fixture.detectChanges();
-    expect(el.querySelector('.tooltip')).toBeNull();
+    expect(el.querySelector('app-bento-tooltip')).toBeNull();
   });
 
   it('renders a down delta and empty states', () => {
     getOverview.mockReturnValue(of(dataOverview(20, 10)));
     getProducerOrders.mockReturnValue(of({ orders: [] }));
     const { el } = setup();
-    expect(el.querySelector('.delta.down')?.textContent).toContain('▼');
+    expect(el.querySelector('app-bento-stat-tile .chip.down')?.textContent).toBeTruthy();
     expect(el.textContent).toContain('No sales yet');
 
     TestBed.resetTestingModule();
@@ -367,7 +365,7 @@ describe('StudioOverviewComponent (refreshed overview)', () => {
     getProducerOrders.mockReturnValue(NEVER);
     const second = setup();
     expect(second.el.textContent).toContain('Upload beats to see your top performers');
-    expect(second.el.textContent).toContain('No license revenue yet.');
+    expect(second.el.textContent).toContain('No paid sales in this currency yet.');
     expect(second.el.textContent).toContain('Loading sales…');
   });
 
@@ -500,6 +498,6 @@ describe('StudioOverviewComponent (refreshed overview)', () => {
   it('renders the loading state for revenue', () => {
     getOverview.mockReturnValue(NEVER);
     const { el } = setup();
-    expect(el.textContent).toContain('Loading revenue…');
+    expect(el.textContent).toContain('Loading…');
   });
 });

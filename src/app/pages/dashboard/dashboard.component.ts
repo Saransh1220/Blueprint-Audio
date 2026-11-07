@@ -8,6 +8,18 @@ import {
   untracked,
 } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import {
+  BentoCardComponent,
+  BentoFeedComponent,
+  type BentoFeedRow,
+  BentoGaugeComponent,
+  BentoInsightsComponent,
+  BentoPageComponent,
+  BentoSegmentedComponent,
+  type BentoShare,
+  BentoStatTileComponent,
+  BentoStreamChartComponent,
+} from '../../components/bento';
 import type { AnalyticsOverviewResponse } from '../../core/api/analytics.requests';
 import type { ProducerOrderDto } from '../../core/api/payment.requests';
 import { Role } from '../../models';
@@ -133,7 +145,17 @@ const PALETTE = ['#1f8f55', '#6c4de6', '#2d4cff', '#b57700', '#d3213f', '#0f7c8a
 
 @Component({
   selector: 'app-dashboard',
-  imports: [RouterLink],
+  imports: [
+    RouterLink,
+    BentoCardComponent,
+    BentoFeedComponent,
+    BentoGaugeComponent,
+    BentoInsightsComponent,
+    BentoPageComponent,
+    BentoSegmentedComponent,
+    BentoStatTileComponent,
+    BentoStreamChartComponent,
+  ],
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -631,6 +653,97 @@ export class DashboardComponent {
     { label: 'Your library', hint: 'Purchases and downloads', link: '/studio/purchases' },
     { label: 'Cart', hint: 'Your saved selections', link: '/cart' },
   ];
+
+  // ── Bento presentation ───────────────────────────────
+  readonly roleOptions = [
+    { value: 'producer', label: 'Producer' },
+    { value: 'listener', label: 'Listener' },
+  ];
+  readonly rangeOptions = this.ranges.map((r) => ({ value: r, label: r }));
+  readonly insightState = computed<'loading' | 'ready' | 'unavailable'>(() =>
+    this.overview() ? 'ready' : this.loading() ? 'loading' : 'unavailable',
+  );
+  readonly windowDays = computed(() => DAYS[this.range()]);
+  readonly periodLabel = computed(() => `Last ${DAYS[this.range()]} days`);
+  readonly topSpecs = computed(() => (this.overview()?.top_specs ?? []).slice(0, 5));
+  readonly animateKey = computed(() => `${this.role()}:${this.range()}:${this.currency()}`);
+
+  readonly moneyFormat = (value: number) => this.money(value);
+
+  /** Listener spending as a one-series stream, labelled by day. */
+  readonly spendStream = computed(() => [
+    { label: 'Spent', color: 'var(--bento-s1, #fff)', values: this.series().values },
+  ]);
+  readonly spendLabels = computed(() =>
+    this.series().dates.map((iso) =>
+      new Date(`${iso}T00:00:00`).toLocaleDateString([], { month: 'short', day: 'numeric' }),
+    ),
+  );
+  readonly spendShares = computed<BentoShare[]>(() => {
+    const colors = ['#ffffff', '#a9b2ff', '#ffb37a', '#e8ff1f'];
+    return this.split().map((s, i) => ({
+      label: s.label,
+      share: s.pct,
+      amount: s.amount,
+      color: colors[i % colors.length],
+    }));
+  });
+
+  readonly attentionRows = computed<BentoFeedRow[]>(() =>
+    this.attention().map((a) => ({
+      id: a.id,
+      title: a.title,
+      text: a.text,
+      tone: a.tone,
+      link: a.link,
+      actionLabel: a.cta,
+    })),
+  );
+  readonly activityRows = computed<BentoFeedRow[]>(() =>
+    this.activity().map((a, i) => ({
+      id: String(i),
+      title: a.strong,
+      text: a.text,
+      time: a.time,
+      tone: a.tone,
+    })),
+  );
+  readonly orderRows = computed<BentoFeedRow[]>(() =>
+    this.peopleRows().map((o, i) => ({
+      id: String(i),
+      title: o.name,
+      text: o.note,
+      trailing: o.badge,
+      time: o.time,
+      tone: 'ok',
+    })),
+  );
+  readonly purchaseRows = computed<BentoFeedRow[]>(() =>
+    this.purchases().map((p, i) => ({
+      id: String(i),
+      title: p.title,
+      text: p.meta,
+      trailing: p.price,
+      tone: 'ok',
+      link: '/studio/purchases',
+    })),
+  );
+  readonly linkRows = computed<BentoFeedRow[]>(() =>
+    (this.role() === 'producer' ? this.producerLinks : this.listenerLinks).map((q) => ({
+      id: q.link,
+      title: q.label,
+      text: q.hint,
+      link: q.link,
+    })),
+  );
+
+  onRoleSelected(value: string | number) {
+    this.setRole(value as RoleView);
+  }
+
+  onRangeSelected(value: string | number) {
+    this.setRange(value as Range);
+  }
 
   // ── Actions ──────────────────────────────────────────
   setRole(role: RoleView) {

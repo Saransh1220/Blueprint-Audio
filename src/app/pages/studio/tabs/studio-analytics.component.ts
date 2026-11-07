@@ -6,7 +6,12 @@ import { LabService } from '../../../services';
 import { AnalyticsService } from '../../../services/analytics.service';
 import { CurrencyService } from '../../../services/currency.service';
 import { PaymentService } from '../../../services/payment.service';
-import { type SuAccent, SuPageHeadComponent, SuPanelComponent, SuStatComponent } from '../ui';
+import {
+  BentoInsightsComponent,
+  BentoPageComponent,
+  BentoSegmentedComponent,
+} from '../../../components/bento';
+import type { SuAccent } from '../ui';
 
 interface MetricTile {
   label: string;
@@ -20,7 +25,7 @@ interface MetricTile {
 
 @Component({
   selector: 'app-studio-analytics',
-  imports: [SuPageHeadComponent, SuPanelComponent, SuStatComponent],
+  imports: [BentoInsightsComponent, BentoPageComponent, BentoSegmentedComponent],
   templateUrl: './studio-analytics.component.html',
   styleUrl: './studio-analytics.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -33,6 +38,44 @@ export class StudioAnalyticsComponent {
   private currencyService = inject(CurrencyService);
 
   producerCurrency = signal<AppCurrency>('INR');
+
+  readonly periodOptions = [
+    { value: 7, label: '7D' },
+    { value: 30, label: '30D' },
+    { value: 90, label: '90D' },
+    { value: 365, label: '1Y' },
+    { value: 3650, label: 'All' },
+  ];
+
+  readonly sortOptions = [
+    { value: 'plays', label: 'Plays' },
+    { value: 'revenue', label: 'Revenue' },
+    { value: 'downloads', label: 'Downloads' },
+  ];
+
+  readonly insightState = computed<'loading' | 'ready' | 'unavailable'>(() =>
+    this.isLoading() ? 'loading' : this.data() ? 'ready' : 'unavailable',
+  );
+
+  /** Highlights the "All" option for any range longer than a year. */
+  readonly periodValue = computed(() => (this.currentDays() > 365 ? 3650 : this.currentDays()));
+
+  readonly periodTitle = computed(() => {
+    const label = this.rangeLabel();
+    return label.charAt(0).toUpperCase() + label.slice(1);
+  });
+
+  readonly rankHint = computed(
+    () => `By ${this.sortBy()} ${this.sortDirection() === 'asc' ? '↑' : '↓'}`,
+  );
+
+  onPeriodSelected(value: string | number) {
+    this.setFilter(Number(value));
+  }
+
+  onSortSelected(value: string | number) {
+    this.onSort(value as 'plays' | 'revenue' | 'downloads');
+  }
 
   isLoading = signal(true);
   error = signal<string | null>(null);

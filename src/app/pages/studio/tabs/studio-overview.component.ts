@@ -7,7 +7,14 @@ import { AuthService, LabService } from '../../../services';
 import { AnalyticsService } from '../../../services/analytics.service';
 import { CurrencyService } from '../../../services/currency.service';
 import { PaymentService } from '../../../services/payment.service';
-import { type SuAccent, SuPageHeadComponent, SuPanelComponent, SuStatComponent } from '../ui';
+import {
+  BentoCardComponent,
+  BentoFeedComponent,
+  type BentoFeedRow,
+  BentoInsightsComponent,
+  BentoPageComponent,
+} from '../../../components/bento';
+import type { SuAccent } from '../ui';
 
 interface StatTile {
   label: string;
@@ -21,7 +28,13 @@ interface StatTile {
 
 @Component({
   selector: 'app-studio-overview',
-  imports: [RouterLink, SuPageHeadComponent, SuPanelComponent, SuStatComponent],
+  imports: [
+    RouterLink,
+    BentoCardComponent,
+    BentoFeedComponent,
+    BentoInsightsComponent,
+    BentoPageComponent,
+  ],
   templateUrl: './studio-overview.component.html',
   styleUrl: './studio-overview.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -50,6 +63,23 @@ export class StudioOverviewComponent {
     }
     return 'INR';
   });
+
+  readonly insightState = computed<'loading' | 'ready' | 'unavailable'>(() =>
+    this.isLoadingAnalytics() ? 'loading' : this.analyticsData() ? 'ready' : 'unavailable',
+  );
+
+  /** Recent sales as feed rows (amounts formatted through CurrencyService). */
+  readonly saleRows = computed<BentoFeedRow[]>(() =>
+    this.recentSales().map((sale) => ({
+      id: sale.id,
+      title: sale.title,
+      text: `${sale.buyer} · ${sale.license}`,
+      trailing: this.currency(sale.amount || 0),
+      time: this.timeAgo(sale.createdAt),
+      tone: 'ok',
+      avatar: sale.buyer,
+    })),
+  );
 
   // User computed helpers
   displayName = computed(() => {

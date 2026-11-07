@@ -1,3 +1,4 @@
+import { provideRouter } from '@angular/router';
 import { TestBed } from '@angular/core/testing';
 import { NEVER, of, throwError } from 'rxjs';
 import { CsvExportService } from '../../../core/services/csv-export.service';
@@ -238,6 +239,7 @@ describe('StudioAnalyticsComponent (refreshed analytics)', () => {
         { provide: CsvExportService, useValue: { downloadAnalyticsCsv } },
         ...(withLab ? [{ provide: LabService, useValue: { getSpecs } }] : []),
         { provide: PaymentService, useValue: { getProducerOrders } },
+        provideRouter([]),
       ],
     });
     const fixture = TestBed.createComponent(StudioAnalyticsComponent);
@@ -436,58 +438,56 @@ describe('StudioAnalyticsComponent (refreshed analytics)', () => {
   it('renders the loading state', () => {
     getOverview.mockReturnValue(NEVER);
     const { el } = setup();
-    expect(el.textContent).toContain('Calculating trends…');
+    expect(el.textContent).toContain('Loading…');
   });
 
-  it('renders the error notice and the no-trend state', () => {
+  it('renders the error notice and the unavailable state', () => {
     getOverview.mockReturnValue(throwError(() => new Error('x')));
     getTopSpecs.mockReturnValue(of([]));
     const { el } = setup();
     expect(el.querySelector('.notice')?.textContent).toContain('Failed to load analytics data');
-    expect(el.textContent).toContain('No plays or sales in this range yet.');
-    expect(el.textContent).toContain('Your top-performing beats will appear here.');
-    expect(el.textContent).toContain('No license revenue in this range yet.');
-    expect((el.querySelector('.su-btn') as HTMLButtonElement).disabled).toBe(true);
+    expect(el.textContent).toContain('Unavailable right now.');
+    expect((el.querySelector('.export') as HTMLButtonElement).disabled).toBe(true);
   });
 
   it('renders the loaded dashboard and wires up the controls', () => {
     const { c, el, fixture } = setup();
     expect(el.textContent).toContain('Performance for the last 30 days.');
-    expect(el.querySelectorAll('su-stat').length).toBe(4);
-    expect(el.querySelectorAll('.axis span').length).toBe(3);
+    expect(el.querySelectorAll('app-bento-stat-tile').length).toBe(4);
+    expect(el.querySelectorAll('app-bento-stream-chart .axis span').length).toBe(3);
     expect(el.textContent).toContain('Alpha');
-    expect(el.querySelector('.row-beats img')?.getAttribute('src')).toBe('a.png');
-    expect(el.querySelector('.cover-fallback')?.textContent?.trim()).toBe('B');
-    expect(el.querySelectorAll('.donut-seg').length).toBe(2);
+    expect(el.querySelector('app-bento-rank-list img')?.getAttribute('src')).toBe('a.png');
+    expect(el.querySelector('app-bento-rank-list .letter')?.textContent?.trim()).toBe('B');
+    expect(el.querySelectorAll('app-bento-gauge line').length).toBe(56);
     expect(el.textContent).toContain('Premium');
     expect(el.textContent).not.toContain('Top countries');
 
-    const chart = el.querySelector('.chart') as HTMLElement;
+    const chart = el.querySelector('app-bento-stream-chart .wrap') as HTMLElement;
     chart.getBoundingClientRect = () => ({ left: 0, width: 800 }) as DOMRect;
-    chart.dispatchEvent(new MouseEvent('mousemove', { clientX: 400 }));
+    chart.dispatchEvent(new MouseEvent('pointermove', { clientX: 400 }));
     fixture.detectChanges();
-    expect(el.querySelector('.tooltip')).not.toBeNull();
-    chart.dispatchEvent(new MouseEvent('mouseleave'));
+    expect(el.querySelector('app-bento-tooltip')).not.toBeNull();
+    chart.dispatchEvent(new MouseEvent('pointerleave'));
     fixture.detectChanges();
-    expect(el.querySelector('.tooltip')).toBeNull();
+    expect(el.querySelector('app-bento-tooltip')).toBeNull();
 
-    const sortBtns = el.querySelectorAll('.seg-sm button');
+    const sortBtns = el.querySelectorAll('[aria-label="Sort beats by"] button');
     (sortBtns[0] as HTMLElement).click();
     fixture.detectChanges();
     expect(c.sortDirection()).toBe('asc');
-    expect(sortBtns[0].textContent).toContain('↑');
+    expect(c.rankHint()).toContain('↑');
     (sortBtns[1] as HTMLElement).click();
     fixture.detectChanges();
     expect(c.sortBy()).toBe('revenue');
-    expect(sortBtns[1].textContent).toContain('↓');
+    expect(c.rankHint()).toContain('↓');
     (sortBtns[2] as HTMLElement).click();
     fixture.detectChanges();
     expect(c.sortBy()).toBe('downloads');
 
-    (el.querySelector('.su-btn') as HTMLElement).click();
+    (el.querySelector('.export') as HTMLElement).click();
     expect(downloadAnalyticsCsv).toHaveBeenCalled();
 
-    const tabs = el.querySelectorAll('.seg[role=tablist] button');
+    const tabs = el.querySelectorAll('[aria-label="Date range"] button');
     (tabs[0] as HTMLElement).click();
     fixture.detectChanges();
     expect(c.currentDays()).toBe(7);
@@ -495,5 +495,6 @@ describe('StudioAnalyticsComponent (refreshed analytics)', () => {
     (tabs[4] as HTMLElement).click();
     fixture.detectChanges();
     expect(c.currentDays()).toBe(3650);
+    expect(c.periodValue()).toBe(3650);
   });
 });
