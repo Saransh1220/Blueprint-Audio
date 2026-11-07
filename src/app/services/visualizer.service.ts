@@ -1,11 +1,34 @@
 import { Injectable } from '@angular/core';
 import * as THREE from 'three';
+import { DEFAULT_VISUALIZER_FONT, loadVisualizerFont } from './visualizer-fonts';
 
-export type VisualizerKind = 'waveform' | 'fluid-gradient' | 'vinyl';
+export type VisualizerKind = 'waveform' | 'fluid-gradient' | 'vinyl' | 'timeline-wave';
+export type TimelineWaveStyle = 'bars' | 'needles' | 'smooth';
 export type VisualizerStyle = 'classic-bars' | 'mirror-wave' | 'line-pulse' | 'stacked-bars';
 export type VisualizerMode = 'static' | 'dynamic';
 export type VisualizerFormat = '1:1' | '9:16' | '16:9';
 export type VisualizerBackgroundMode = 'solid' | 'gradient';
+
+export interface TextLayer {
+  id: string;
+  text: string;
+  fontFamily: string;
+  weight: number;
+  italic: boolean;
+  /** Font size as a percentage of the canvas width. */
+  size: number;
+  color: string;
+  /** 0-100. */
+  opacity: number;
+  /** Letter spacing in hundredths of an em. */
+  letterSpacing: number;
+  uppercase: boolean;
+  /** 0-100 soft glow around the glyphs. */
+  glow: number;
+  /** Centre of the text as a 0-1 fraction of the canvas. */
+  x: number;
+  y: number;
+}
 
 export interface CommonVisualizerSettings {
   kind: VisualizerKind;
@@ -19,6 +42,7 @@ export interface CommonVisualizerSettings {
   grainAmount: number;
   showTitle: boolean;
   title: string;
+  textLayers: TextLayer[];
 }
 
 export interface WaveformVisualizerSettings extends CommonVisualizerSettings {
@@ -44,10 +68,27 @@ export interface VinylVisualizerSettings extends CommonVisualizerSettings {
   intensity: number;
 }
 
+export interface TimelineWaveVisualizerSettings extends CommonVisualizerSettings {
+  kind: 'timeline-wave';
+  style: TimelineWaveStyle;
+  /** Bars visible across the canvas. */
+  density: number;
+  /** Seconds of audio visible across the canvas. */
+  windowSeconds: number;
+  /** Horizontal playhead position, 0-100 % of the canvas width. */
+  playhead: number;
+  intensity: number;
+  noiseAmount: number;
+  noiseSize: number;
+  vignette: number;
+  glow: number;
+}
+
 export type VisualizerSettings =
   | WaveformVisualizerSettings
   | FluidGradientVisualizerSettings
-  | VinylVisualizerSettings;
+  | VinylVisualizerSettings
+  | TimelineWaveVisualizerSettings;
 
 export interface VisualizerFrameData {
   spectrum: number[];
@@ -57,6 +98,8 @@ export interface VisualizerFrameData {
   energy: number;
   progress: number;
   elapsed: number;
+  /** Whole-track peaks plus the absolute playback time, for scrolling waveforms. */
+  timeline?: { peaks: number[]; time: number; duration: number };
 }
 
 export interface VisualizerRenderer {
@@ -267,6 +310,7 @@ export class VisualizerService {
       grainAmount: shared?.grainAmount ?? 6,
       showTitle: shared?.showTitle ?? false,
       title: shared?.title ?? '',
+      textLayers: shared?.textLayers ?? [],
     };
     if (kind === 'fluid-gradient') {
       return {
@@ -281,7 +325,61 @@ export class VisualizerService {
     if (kind === 'vinyl') {
       return { ...common, kind, speed: 54, grooveResponse: 68, density: 64, intensity: 48 };
     }
+    if (kind === 'timeline-wave') {
+      return {
+        ...common,
+        kind,
+        mode: 'dynamic',
+        backgroundMode: shared?.backgroundMode ?? 'gradient',
+        style: 'bars',
+        density: 96,
+        windowSeconds: 12,
+        playhead: 50,
+        intensity: 46,
+        noiseAmount: 42,
+        noiseSize: 2,
+        vignette: 55,
+        glow: 40,
+      };
+    }
     return { ...common, kind, style: 'classic-bars', density: 84, intensity: 54 };
+  }
+
+  createTextLayer(preset: Partial<TextLayer> = {}): TextLayer {
+    return {
+      id: `t${Date.now().toString(36)}${Math.random().toString(36).slice(2, 7)}`,
+      text: 'Title',
+      fontFamily: DEFAULT_VISUALIZER_FONT,
+      weight: 400,
+      italic: false,
+      size: 9,
+      color: '#f0e9d6',
+      opacity: 100,
+      letterSpacing: 4,
+      uppercase: false,
+      glow: 0,
+      x: 0.5,
+      y: 0.2,
+      ...preset,
+    };
+  }
+
+  /** Size of a layer as 0-1 fractions of the canvas (for drag hit-boxes). */
+  measureTextLayer(layer: TextLayer, width: number, height: number) {
+    const px = (width * layer.size) / 100;
+    const text = this.layerText(layer);
+    const ctx = this.measureContext();
+    let measured = text.length * px * 0.55;
+    if (ctx && typeof ctx.measureText === 'function') {
+      this.applyTextFont(ctx, layer, px);
+      measured = ctx.measureText(text).width;
+    }
+    const w = Math.min(measured, width * 0.94);
+    return { width: w / width, height: (px * 1.2) / height };
+  }
+
+  async prepareFonts(layers: TextLayer[]): Promise<void> {
+    await Promise.all(layers.map((l) => loadVisualizerFont(l.fontFamily, l.weight, l.italic)));
   }
 
   drawWaveform(
@@ -412,6 +510,8 @@ export class VisualizerService {
       this.drawFluidFallback(ctx, canvas.width, canvas.height, settings, frame);
     else if (settings.kind === 'vinyl')
       this.drawVinyl(ctx, canvas.width, canvas.height, settings, frame);
+    else if (settings.kind === 'timeline-wave')
+      this.drawTimelineWave(ctx, canvas.width, canvas.height, settings, frame);
     else this.drawWaveformFrame(ctx, canvas.width, canvas.height, settings, frame);
   }
 
@@ -498,7 +598,7 @@ export class VisualizerService {
       ctx.fillRect(0, 0, width, height);
     }
     ctx.restore();
-    this.drawOverlays(ctx, width, height, settings);
+    this.drawOverlays(ctx, width, height, settings, true, false);
   }
 
   private drawVinyl(
@@ -605,6 +705,7 @@ export class VisualizerService {
     height: number,
     settings: VisualizerSettings,
     title = true,
+    layers = true,
   ) {
     if (title && settings.showTitle && settings.title.trim()) {
       ctx.fillStyle = settings.accentColor;
@@ -613,7 +714,270 @@ export class VisualizerService {
       ctx.font = `700 ${Math.max(24, Math.round(width * 0.045))}px sans-serif`;
       ctx.fillText(settings.title.trim(), width / 2, height * 0.18, width * 0.78);
     }
-    this.drawFilmGrain(ctx, width, height, settings.grainAmount);
+    if (layers) this.drawTextLayers(ctx, width, height, settings.textLayers);
+    // The timeline wave paints its own noise texture instead of sparse grain.
+    if (settings.kind !== 'timeline-wave')
+      this.drawFilmGrain(ctx, width, height, settings.grainAmount);
+  }
+
+  private layerText(layer: TextLayer) {
+    const text = layer.text.trim();
+    return layer.uppercase ? text.toUpperCase() : text;
+  }
+
+  private applyTextFont(ctx: CanvasRenderingContext2D, layer: TextLayer, px: number) {
+    ctx.font = `${layer.italic ? 'italic ' : ''}${layer.weight} ${px}px "${layer.fontFamily}", sans-serif`;
+    if ('letterSpacing' in ctx)
+      (ctx as unknown as { letterSpacing: string }).letterSpacing =
+        `${(px * layer.letterSpacing) / 100}px`;
+  }
+
+  private measureCtx: CanvasRenderingContext2D | null | undefined;
+  private measureContext() {
+    if (this.measureCtx !== undefined) return this.measureCtx;
+    try {
+      this.measureCtx =
+        typeof document === 'undefined' ? null : document.createElement('canvas').getContext('2d');
+    } catch {
+      this.measureCtx = null;
+    }
+    return this.measureCtx;
+  }
+
+  private drawTextLayers(
+    ctx: CanvasRenderingContext2D,
+    width: number,
+    height: number,
+    layers: TextLayer[] | undefined,
+  ) {
+    if (!layers?.length) return;
+    for (const layer of layers) {
+      const text = this.layerText(layer);
+      if (!text) continue;
+      const px = (width * layer.size) / 100;
+      ctx.save();
+      this.applyTextFont(ctx, layer, px);
+      ctx.globalAlpha = Math.max(0, Math.min(1, layer.opacity / 100));
+      ctx.fillStyle = layer.color;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      if (layer.glow > 0) {
+        ctx.shadowColor = layer.color;
+        ctx.shadowBlur = (px * layer.glow) / 120;
+      }
+      ctx.fillText(text, width * layer.x, height * layer.y, width * 0.94);
+      ctx.restore();
+    }
+  }
+
+  private noiseTile: HTMLCanvasElement | null | undefined;
+  private getNoiseTile() {
+    if (this.noiseTile !== undefined) return this.noiseTile;
+    this.noiseTile = null;
+    if (typeof document === 'undefined') return null;
+    try {
+      const tile = document.createElement('canvas');
+      tile.width = tile.height = 256;
+      const tctx = tile.getContext('2d');
+      if (!tctx?.createImageData) return null;
+      const image = tctx.createImageData(256, 256);
+      let seed = 1337;
+      for (let i = 0; i < image.data.length; i += 4) {
+        seed = (seed * 1664525 + 1013904223) >>> 0;
+        const v = seed >>> 24;
+        image.data[i] = image.data[i + 1] = image.data[i + 2] = v;
+        image.data[i + 3] = 255;
+      }
+      tctx.putImageData(image, 0, 0);
+      this.noiseTile = tile;
+    } catch {
+      this.noiseTile = null;
+    }
+    return this.noiseTile;
+  }
+
+  private drawNoise(
+    ctx: CanvasRenderingContext2D,
+    width: number,
+    height: number,
+    settings: TimelineWaveVisualizerSettings,
+    time: number,
+  ) {
+    const tile = this.getNoiseTile();
+    if (!tile || settings.noiseAmount <= 0 || !ctx.createPattern) return;
+    const pattern = ctx.createPattern(tile, 'repeat');
+    if (!pattern) return;
+    const scale = Math.max(1, settings.noiseSize) * Math.max(1, Math.min(width, height) / 720);
+    // Jitter the tile ~16x/s so the texture shimmers like film while playing but stays
+    // stable when paused (it is derived from playback time, not wall-clock time).
+    const step = Math.floor(time * 16);
+    const ox = ((step * 97) % 256) * scale;
+    const oy = ((step * 53) % 256) * scale;
+    ctx.save();
+    ctx.globalCompositeOperation = 'overlay';
+    ctx.globalAlpha = Math.min(1, (settings.noiseAmount / 100) * 0.55);
+    ctx.translate(-ox, -oy);
+    ctx.scale(scale, scale);
+    ctx.fillStyle = pattern;
+    ctx.fillRect(0, 0, (width + ox) / scale + 256, (height + oy) / scale + 256);
+    ctx.restore();
+  }
+
+  private demoPeaksCache: number[] | undefined;
+  private demoPeaks() {
+    this.demoPeaksCache ??= Array.from({ length: 3000 }, (_, i) => {
+      const t = i / 50;
+      const envelope = 0.5 + 0.35 * Math.sin(t * 0.55) * Math.sin(t * 0.13 + 1);
+      const hit = Math.pow(Math.abs(Math.sin(t * Math.PI * 2 * 1.9)), 3) * 0.45;
+      const jitter = ((i * 2654435761) % 1000) / 1000;
+      return Math.max(0.06, Math.min(1, envelope * 0.55 + hit + jitter * 0.16));
+    });
+    return this.demoPeaksCache;
+  }
+
+  private withAlpha(color: string, alpha: number) {
+    const hex = /^#([0-9a-f]{6})$/i.exec(color.trim());
+    if (!hex) return color;
+    const n = parseInt(hex[1], 16);
+    return `rgba(${n >> 16},${(n >> 8) & 255},${n & 255},${alpha})`;
+  }
+
+  private drawTimelineWave(
+    ctx: CanvasRenderingContext2D,
+    width: number,
+    height: number,
+    settings: TimelineWaveVisualizerSettings,
+    frame: VisualizerFrameData,
+  ) {
+    ctx.clearRect(0, 0, width, height);
+    this.drawBackground(ctx, width, height, settings);
+
+    const peaks = frame.timeline?.peaks?.length ? frame.timeline.peaks : this.demoPeaks();
+    const duration = frame.timeline?.duration || 60;
+    const time = frame.timeline?.time ?? 0;
+    const playheadX = (width * settings.playhead) / 100;
+    const centerY = height / 2;
+    const maxHeight = height * Math.max(0.18, Math.min(0.78, settings.intensity / 100));
+    const pxPerSecond = width / settings.windowSeconds;
+    const interval = settings.windowSeconds / settings.density;
+    const peaksPerSecond = peaks.length / duration;
+    const slot = width / settings.density;
+
+    const peakAt = (index: number) => {
+      const t0 = index * interval;
+      if (t0 + interval < 0 || t0 > duration) return 0;
+      const from = Math.max(0, Math.floor(t0 * peaksPerSecond));
+      const to = Math.min(
+        peaks.length,
+        Math.max(from + 1, Math.ceil((t0 + interval) * peaksPerSecond)),
+      );
+      let max = 0;
+      for (let i = from; i < to; i++) max = Math.max(max, peaks[i]);
+      return Math.pow(max, 0.8);
+    };
+    const xOf = (index: number) => playheadX + ((index + 0.5) * interval - time) * pxPerSecond;
+    const first = Math.floor((time - playheadX / pxPerSecond) / interval) - 1;
+    const last = Math.ceil((time + (width - playheadX) / pxPerSecond) / interval) + 1;
+    const fadeZone = width * 0.18;
+    const edge = (x: number) => Math.max(0, Math.min(1, Math.min(x, width - x) / fadeZone));
+
+    // Soft light pooling behind the playhead.
+    const pool = ctx.createRadialGradient(playheadX, centerY, 0, playheadX, centerY, width * 0.55);
+    pool.addColorStop(0, this.withAlpha(settings.accentColor, 0.16 * (settings.glow / 100) + 0.04));
+    pool.addColorStop(1, this.withAlpha(settings.accentColor, 0));
+    ctx.fillStyle = pool;
+    ctx.fillRect(0, 0, width, height);
+
+    const playedColor = settings.accentColor;
+    const upcomingColor = settings.waveformColor;
+    const glowBlur = (Math.min(width, height) * settings.glow) / 1400;
+
+    if (settings.style === 'smooth') {
+      const points: Array<{ x: number; h: number }> = [];
+      for (let i = first; i <= last; i++)
+        points.push({ x: xOf(i), h: Math.max(1.5, peakAt(i) * maxHeight * 0.5) });
+      const fill = (color: string, from: number, to: number, alpha: number) => {
+        const gradient = ctx.createLinearGradient(0, 0, width, 0);
+        gradient.addColorStop(0, this.withAlpha(color, 0));
+        gradient.addColorStop(0.18, this.withAlpha(color, alpha));
+        gradient.addColorStop(0.82, this.withAlpha(color, alpha));
+        gradient.addColorStop(1, this.withAlpha(color, 0));
+        ctx.save();
+        ctx.beginPath();
+        ctx.rect(from, 0, to - from, height);
+        ctx.clip();
+        ctx.beginPath();
+        // Top edge left -> right, then bottom edge right -> left, each smoothed through midpoints.
+        ctx.moveTo(points[0].x, centerY - points[0].h);
+        for (let i = 1; i < points.length; i++) {
+          const prev = points[i - 1];
+          const p = points[i];
+          ctx.quadraticCurveTo(prev.x, centerY - prev.h, (prev.x + p.x) / 2, centerY - (prev.h + p.h) / 2);
+        }
+        const tail = points[points.length - 1];
+        ctx.lineTo(tail.x, centerY + tail.h);
+        for (let i = points.length - 2; i >= 0; i--) {
+          const next = points[i + 1];
+          const p = points[i];
+          ctx.quadraticCurveTo(next.x, centerY + next.h, (next.x + p.x) / 2, centerY + (next.h + p.h) / 2);
+        }
+        ctx.closePath();
+        ctx.fillStyle = gradient;
+        if (color === playedColor && glowBlur > 0) {
+          ctx.shadowColor = playedColor;
+          ctx.shadowBlur = glowBlur * 2;
+        }
+        ctx.fill();
+        ctx.restore();
+      };
+      fill(upcomingColor, playheadX, width, 0.5);
+      fill(playedColor, 0, playheadX, 1);
+    } else {
+      const needle = settings.style === 'needles';
+      const barWidth = Math.max(needle ? 1.5 : 2, slot * (needle ? 0.22 : 0.58));
+      for (let i = first; i <= last; i++) {
+        const x = xOf(i);
+        const fade = edge(x);
+        if (fade <= 0) continue;
+        const barHeight = Math.max(needle ? 4 : barWidth, peakAt(i) * maxHeight);
+        const played = x <= playheadX;
+        ctx.save();
+        ctx.globalAlpha = fade * (played ? 1 : 0.5);
+        ctx.fillStyle = played ? playedColor : upcomingColor;
+        if (played && glowBlur > 0 && playheadX - x < width * 0.3) {
+          ctx.shadowColor = playedColor;
+          ctx.shadowBlur = glowBlur * (1 - (playheadX - x) / (width * 0.3));
+        }
+        this.roundRect(ctx, x - barWidth / 2, centerY - barHeight / 2, barWidth, barHeight, barWidth / 2);
+        ctx.restore();
+      }
+    }
+
+    // Playhead needle.
+    const line = ctx.createLinearGradient(0, height * 0.14, 0, height * 0.86);
+    line.addColorStop(0, this.withAlpha(playedColor, 0));
+    line.addColorStop(0.5, this.withAlpha(playedColor, 0.95));
+    line.addColorStop(1, this.withAlpha(playedColor, 0));
+    ctx.fillStyle = line;
+    const lineWidth = Math.max(1.5, width / 520);
+    ctx.fillRect(playheadX - lineWidth / 2, height * 0.14, lineWidth, height * 0.72);
+
+    if (settings.vignette > 0) {
+      const vignette = ctx.createRadialGradient(
+        width / 2,
+        height / 2,
+        Math.min(width, height) * 0.3,
+        width / 2,
+        height / 2,
+        Math.max(width, height) * 0.75,
+      );
+      vignette.addColorStop(0, 'rgba(0,0,0,0)');
+      vignette.addColorStop(1, `rgba(0,0,0,${(settings.vignette / 100) * 0.7})`);
+      ctx.fillStyle = vignette;
+      ctx.fillRect(0, 0, width, height);
+    }
+    this.drawNoise(ctx, width, height, settings, time);
+    this.drawOverlays(ctx, width, height, settings);
   }
 
   private drawFilmGrain(

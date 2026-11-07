@@ -17,7 +17,6 @@ export default defineConfig({
       include: ['src/app/**/*.ts'],
       exclude: [
         '**/*.spec.ts',
-        'src/app/components/hero/hero.ts',
         'src/app/components/index.ts',
         'src/app/pages/index.ts',
         'src/app/services/index.ts',

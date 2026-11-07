@@ -1,0 +1,16 @@
+<section
+  #root
+  class="nebula"
+  [class.interactive]="interactive()"
+  [class.draw]="touch() === 'draw'"
+  [style.height]="height()"
+  aria-label="A pixel-art nebula printed in halftone dots"
+>
+  @if (failed()) {
+    <!-- No WebGL2: a still picture of the same sky beats a black box. -->
+    <div class="fallback"></div>
+  } @else {
+    <canvas #canvas aria-hidden="true"></canvas>
+  }
+  <div class="overlay"><ng-content></ng-content></div>
+</section>

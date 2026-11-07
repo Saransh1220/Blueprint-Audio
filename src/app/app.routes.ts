@@ -64,6 +64,20 @@ export const routes: Routes = [
   { path: 'forgot-password', component: ForgotPasswordComponent, canActivate: [guestGuard] },
   { path: 'reset-password', component: ResetPasswordComponent, canActivate: [guestGuard] },
 
+  // ─── CREATOR TOOLS (standalone, producers only) ──────────────────────────
+  {
+    path: 'creator-tools',
+    canActivate: [
+      authGuard,
+      () =>
+        inject(AuthService).currentUser()?.role === Role.PRODUCER ||
+        inject(Router).parseUrl('/explore'),
+    ],
+    loadComponent: () =>
+      import('./pages/creator-tools/creator-tools.component').then((m) => m.CreatorToolsComponent),
+  },
+  { path: 'studio/tools', redirectTo: 'creator-tools', pathMatch: 'prefix' },
+
   // ─── STUDIO (unified producer workspace) ─────────────────────────────────
   {
     path: 'studio',
@@ -110,24 +124,6 @@ export const routes: Routes = [
           import('./pages/studio/tabs/studio-purchases.component').then(
             (m) => m.StudioPurchasesComponent,
           ),
-      },
-      {
-        path: 'tools',
-        canActivate: [
-          () =>
-            inject(AuthService).currentUser()?.role === Role.PRODUCER ||
-            inject(Router).parseUrl('/studio/purchases'),
-        ],
-        children: [
-          { path: '', redirectTo: 'visualizer', pathMatch: 'full' },
-          {
-            path: 'visualizer',
-            loadComponent: () =>
-              import('./pages/studio/tabs/studio-visualizer.component').then(
-                (m) => m.StudioVisualizerComponent,
-              ),
-          },
-        ],
       },
       {
         path: 'upload',

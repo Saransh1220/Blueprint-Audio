@@ -1,17 +1,16 @@
 import { ChangeDetectorRef, Injectable, inject, WritableSignal } from '@angular/core';
 import { Router } from '@angular/router';
 import { Subscription } from 'rxjs';
-import { LicenseSelectorComponent } from '../components/license-selector/license-selector.component';
 import { Spec } from '../models';
 import { AnalyticsService } from './analytics.service';
 import { AuthService } from './auth.service';
-import { ModalService } from './modal.service';
+import { PurchaseDialogService } from './purchase-dialog.service';
 import { PlayerService } from './player.service';
 
 @Injectable({ providedIn: 'root' })
 export class SpecActionService {
   private playerService = inject(PlayerService);
-  private modalService = inject(ModalService);
+  private purchaseDialog = inject(PurchaseDialogService);
   private router = inject(Router);
   private analyticsService = inject(AnalyticsService);
   private authService = inject(AuthService);
@@ -33,7 +32,7 @@ export class SpecActionService {
   addToCart(event: Event, spec: Spec) {
     event.stopPropagation();
     this.authService.requireAuth(() => {
-      this.modalService.open(LicenseSelectorComponent, 'Select License', { spec });
+      this.purchaseDialog.open(spec);
     });
   }
 

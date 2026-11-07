@@ -254,7 +254,7 @@ dt {
   }
 
   &.artist {
-    background-image: url('/battle-artist.png');
+    background-image: url('/battle-artist.webp');
     box-shadow: 4px 4px 0 var(--hot);
 
     &::before {
@@ -271,7 +271,7 @@ dt {
   }
 
   &.producer {
-    background-image: url('/battle-producer.png');
+    background-image: url('/battle-producer.webp');
     box-shadow: 4px 4px 0 var(--cobalt);
 
     &::before {

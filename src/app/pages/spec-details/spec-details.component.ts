@@ -1,12 +1,18 @@
-import { CommonModule } from '@angular/common';
-import { Component, computed, effect, HostListener, inject, signal } from '@angular/core';
+import { CommonModule, DOCUMENT } from '@angular/common';
+import {
+  Component,
+  DestroyRef,
+  HostListener,
+  computed,
+  effect,
+  inject,
+  signal,
+} from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { of } from 'rxjs';
-import { catchError, finalize, switchMap } from 'rxjs/operators';
+import { catchError, finalize, startWith, switchMap } from 'rxjs/operators';
 import { SpecCardComponent } from '../../components/spec-card/spec-card';
-import { BlazeEffectComponent } from '../../components/ui/blaze-effect.component';
-import { FlameWrapEffectComponent } from '../../components/ui/flame-wrap-effect.component';
 import { type LicenseOption, type Spec } from '../../models';
 import type { Money } from '../../models/money';
 import {
@@ -17,23 +23,18 @@ import {
   ToastService,
 } from '../../services';
 import { MoneyPipe } from '../../shared/pipes/money.pipe';
+import { isExclusiveLicense, licenseTiers, TIER_ICON, TIER_LABEL } from '../../utils/license-tiers';
 
 @Component({
   selector: 'app-spec-details',
   standalone: true,
-  imports: [
-    CommonModule,
-    RouterLink,
-    MoneyPipe,
-    SpecCardComponent,
-    BlazeEffectComponent,
-    FlameWrapEffectComponent,
-  ],
+  imports: [CommonModule, RouterLink, MoneyPipe, SpecCardComponent],
   templateUrl: './spec-details.component.html',
   styleUrls: ['./spec-details.component.scss'],
 })
 export class SpecDetailsComponent {
   private route = inject(ActivatedRoute);
+  private document = inject(DOCUMENT);
   private labService = inject(LabService);
   private playerService = inject(PlayerService);
   private cartService = inject(CartService);
@@ -142,6 +143,14 @@ export class SpecDetailsComponent {
     }
     return current?.duration || 0;
   });
+  /** This beat is the current track and audio is running. */
+  isSpecPlaying = computed(() => {
+    const current = this.spec();
+    const active = this.getActivePlayerTrack();
+    return !!current && active?.id === current.id && !!this.playerService.isPlaying?.();
+  });
+  /** Placeholder counts for the loading skeleton. */
+  readonly skeletonCards = [1, 2, 3, 4];
   isSpecLoading = computed(() => !this.specLoadSettled() && !this.spec());
   isSpecMissing = computed(() => this.specLoadSettled() && !this.spec());
   tickerItems = [
@@ -157,9 +166,11 @@ export class SpecDetailsComponent {
       switchMap((params) => {
         this.specLoadSettled.set(false);
         const idOrCode = params.get('id') || params.get('shortCode');
+        // Clear the old beat first, so moving between beats shows the skeleton, not stale content.
         return this.labService.getSpecById(idOrCode || '').pipe(
           catchError(() => of(undefined)),
           finalize(() => this.specLoadSettled.set(true)),
+          startWith(undefined),
         );
       }),
     ),
@@ -270,21 +281,14 @@ export class SpecDetailsComponent {
     ];
   });
 
-  getLicenseVariant(license: LicenseOption, index: number, total: number) {
-    const name = `${license.name} ${license.type}`.toLowerCase();
-    if (name.includes('exclusive') || (index === total - 1 && total >= 4)) {
-      return 'exclusive';
-    }
-    if (name.includes('premium') || index === 1) {
-      return 'popular';
-    }
-    return 'standard';
-  }
+  /** Popular and highest-tier flags per license, shared with the buy dialog. */
+  licenseTiers = computed(() => licenseTiers(this.spec()?.licenses ?? []));
+  readonly tierLabel = TIER_LABEL;
+  readonly tierIcon = TIER_ICON;
 
-  getLicenseSubtitle(license: LicenseOption, index: number, total: number) {
-    const variant = this.getLicenseVariant(license, index, total);
-    if (variant === 'exclusive') return 'the whole beat, yours alone';
-    if (variant === 'popular') return 'for proper releases';
+  getLicenseSubtitle(license: LicenseOption, index: number) {
+    if (isExclusiveLicense(license)) return 'the whole beat, yours alone';
+    if (this.licenseTiers()[index] === 'popular') return 'for proper releases';
     if (index === 0) return 'for demos and ideas';
     return 'for bigger placements';
   }
@@ -313,48 +317,20 @@ export class SpecDetailsComponent {
     return license.type === 'Trackout' ? 'WAV + Stems' : license.type;
   }
 
-  getLicenseFeatureRows(license: LicenseOption, index: number, total: number) {
-    const variant = this.getLicenseVariant(license, index, total);
-    const base = license.features.slice(0, 6).map((feature) => ({ text: feature, muted: false }));
-
-    if (variant === 'standard' && index === 0) {
-      return [
-        ...base,
-        { text: 'WAV or stems', muted: true },
-        { text: 'Radio broadcast', muted: true },
-      ].slice(0, 6);
-    }
-
-    if (variant === 'popular') {
-      return [
-        ...base,
-        { text: 'Radio broadcast (terrestrial)', muted: false },
-        { text: 'Royalty split included', muted: false },
-      ].slice(0, 6);
-    }
-
-    if (variant === 'exclusive') {
-      return [
-        ...base,
-        { text: 'Beat removed from store', muted: false },
-        { text: 'Direct producer handoff', muted: false },
-      ].slice(0, 6);
-    }
-
-    return [
-      ...base,
-      { text: 'Worldwide digital distribution', muted: false },
-      { text: 'Beat remains available to others', muted: true },
-    ].slice(0, 6);
+  /** What the license actually lists, nothing invented. */
+  getLicenseFeatureRows(license: LicenseOption) {
+    return (license.features ?? []).slice(0, 4);
   }
 
-  getLicenseButtonLabel(license: LicenseOption, index: number, total: number) {
-    return this.getLicenseVariant(license, index, total) === 'exclusive'
-      ? 'Buy Exclusive'
-      : `Buy ${license.name}`;
+  getLicenseButtonLabel(license: LicenseOption) {
+    return isExclusiveLicense(license) ? 'Buy exclusive' : 'Add to cart';
   }
 
   constructor() {
+    // A calm work surface: no film grain over the beat page.
+    this.document.body.classList.add('beat-page-active');
+    inject(DestroyRef).onDestroy(() => this.document.body.classList.remove('beat-page-active'));
+
     effect(() => {
       const s = this.spec();
       if (!s?.licenses?.length) {

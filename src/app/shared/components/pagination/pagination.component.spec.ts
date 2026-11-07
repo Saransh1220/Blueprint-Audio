@@ -95,4 +95,25 @@ describe('PaginationComponent', () => {
     expect(el.querySelector('.pagination-container')?.classList).toContain('waveyard');
     expect(el.querySelector('.pagination-info span')).toBeTruthy();
   });
+
+  it('renders the flat admin variant with a per-page picker and text buttons', () => {
+    fixture.componentRef.setInput('variant', 'admin');
+    fixture.componentRef.setInput('showPerPage', true);
+    fixture.componentRef.setInput('perPageOptions', [5, 10, 20, 50]);
+    fixture.componentRef.setInput('currentPage', 2);
+    fixture.detectChanges();
+    const el: HTMLElement = fixture.nativeElement;
+
+    expect(el.querySelector('.pagination-container')?.classList).toContain('admin');
+    expect(el.querySelector('.pagination-container')?.classList).not.toContain('studio');
+    expect(el.querySelector('.pagination-info')?.textContent).toContain('11-20');
+    expect(el.querySelector('.pagination-info strong')).toBeTruthy();
+    expect(el.querySelector('.prev')?.textContent).toContain('Prev');
+    expect(el.querySelector('.next')?.textContent).toContain('Next');
+
+    const options = Array.from(el.querySelectorAll('select option')).map(
+      (option) => (option as HTMLOptionElement).value,
+    );
+    expect(options).toEqual(['5', '10', '20', '50']);
+  });
 });

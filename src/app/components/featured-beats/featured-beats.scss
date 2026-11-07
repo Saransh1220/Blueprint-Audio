@@ -1,0 +1,108 @@
+@use '../../styles/variables' as *;
+
+.featured {
+  padding: 42px 20px 40px;
+  background: var(--bg-color);
+  color: var(--text-color);
+  border-top: 2px solid var(--ink);
+  content-visibility: auto;
+  contain-intrinsic-size: auto 800px;
+}
+
+.section-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 28px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+}
+
+.section-num {
+  font-family: $font-tech;
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--ink-mute);
+  padding-left: 12px;
+  border-left: 3px solid var(--brand-color);
+  margin-bottom: 14px;
+}
+
+.section-h {
+  font-family: $font-head;
+  font-weight: 700;
+  font-size: clamp(26px, 3.2vw, 42px);
+  letter-spacing: -0.035em;
+  line-height: 0.96;
+
+  em {
+    font-family: 'Instrument Serif', serif;
+    font-style: italic;
+    font-weight: 400;
+    color: var(--brand-color);
+  }
+}
+
+.head-meta {
+  max-width: 300px;
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--ink-mute);
+  text-align: right;
+}
+
+.actions {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 22px;
+  flex-wrap: wrap;
+}
+
+.act {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 42px;
+  max-width: 100%;
+  padding: 0 20px;
+  border: 1.5px solid var(--ink);
+  border-radius: 100px;
+  background: transparent;
+  color: var(--text-color);
+  font-family: $font-tech;
+  font-size: 11px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  cursor: pointer;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  transition:
+    background 0.2s ease,
+    color 0.2s ease;
+
+  &:hover {
+    background: var(--ink);
+    color: var(--bg-color);
+  }
+}
+
+.act-primary {
+  border-color: var(--brand-color);
+  background: var(--brand-color);
+  color: #fff;
+
+  &:hover {
+    background: var(--brand-color);
+    filter: brightness(1.1);
+    color: #fff;
+  }
+}
+
+@media (max-width: 640px) {
+  .head-meta {
+    text-align: left;
+  }
+}

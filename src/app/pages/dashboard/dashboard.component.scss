@@ -146,8 +146,8 @@ button {
 .head {
   display: flex;
   flex-direction: column;
-  gap: 22px;
-  margin-bottom: 44px;
+  gap: 16px;
+  margin-bottom: 30px;
 }
 
 .eyebrow {
@@ -159,10 +159,10 @@ button {
 }
 
 .head h1 {
-  margin-top: 8px;
-  font-size: clamp(40px, 11vw, 68px);
+  margin-top: 6px;
+  font-size: clamp(26px, 6vw, 36px);
   font-weight: 800;
-  line-height: 0.96;
+  line-height: 1.05;
   letter-spacing: -0.03em;
 
   em {
@@ -189,7 +189,7 @@ button {
 
   dd {
     margin: 0;
-    font-size: 26px;
+    font-size: 20px;
     font-weight: 800;
     letter-spacing: -0.03em;
     line-height: 1;
@@ -316,7 +316,7 @@ button {
 .sections {
   display: flex;
   flex-direction: column;
-  gap: 56px;
+  gap: 44px;
 }
 
 .sec-head {
@@ -328,7 +328,7 @@ button {
   border-bottom: var(--bw) solid var(--ink);
 
   h2 {
-    font-size: clamp(26px, 6vw, 34px);
+    font-size: clamp(22px, 4.5vw, 28px);
     font-weight: 800;
     letter-spacing: -0.03em;
     line-height: 1;
@@ -1154,7 +1154,7 @@ button {
   }
 
   .sections {
-    gap: 72px;
+    gap: 52px;
   }
 
   .overview {

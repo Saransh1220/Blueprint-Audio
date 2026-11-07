@@ -1,0 +1,424 @@
+// Disc cascade: CSS 3D discs on a slanted line. The stage is always dark, so the colours are fixed
+// rather than themed. Frames are written to inline transforms by the component.
+
+$text: #f6e2e8;
+$serif: 'Instrument Serif', 'Times New Roman', serif;
+
+// The pointer position is a registered number so the browser can ease it: the glint then glides
+// toward the mouse and back to rest on leave, instead of snapping with every pointer event.
+@property --dcc-px {
+  syntax: '<number>';
+  inherits: true;
+  initial-value: 0;
+}
+
+@property --dcc-py {
+  syntax: '<number>';
+  inherits: true;
+  initial-value: 0;
+}
+
+.dcc-root {
+  --dcc-s: clamp(180px, min(40cqw, 62cqh), 400px);
+  --dcc-pad: clamp(16px, 3.6cqw, 44px);
+  --dcc-sheen: 0.6;
+  --dcc-spin: 6s;
+
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+  height: clamp(500px, 74svh, 680px);
+  container-type: size;
+  color: $text;
+  background: radial-gradient(120% 90% at 50% 40%, #1d1520, #0a070d);
+  transition:
+    --dcc-px 0.5s ease-out,
+    --dcc-py 0.5s ease-out;
+  user-select: none;
+  touch-action: pan-y;
+  outline: none;
+  -webkit-tap-highlight-color: transparent;
+
+  &:focus-visible {
+    box-shadow: inset 0 0 0 2px #ff1f5a;
+  }
+
+  &[data-dragging],
+  &[data-dragging] .dcc-slide {
+    cursor: grabbing;
+  }
+}
+
+.dcc-defs {
+  position: absolute;
+}
+
+.dcc-stage {
+  position: absolute;
+  left: 50%;
+  top: 54%;
+  width: var(--dcc-s);
+  aspect-ratio: 1 / 1;
+  transform: translate(-50%, -50%);
+  perspective: calc(var(--dcc-s) * 3.2);
+}
+
+.dcc-slide {
+  position: absolute;
+  inset: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: none;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+  will-change: transform;
+  transform-style: preserve-3d;
+  -webkit-tap-highlight-color: transparent;
+  outline: none;
+
+  // Only the chosen disc's glint follows the mouse; the others keep their resting shine.
+  &[data-active] {
+    --dcc-gx: var(--dcc-px);
+  }
+
+  &[data-active]:hover {
+    --dcc-lift: calc(var(--dcc-s) * 0.05);
+  }
+}
+
+.dcc-tilt {
+  position: absolute;
+  inset: 0;
+  transform-style: preserve-3d;
+  transition: transform 0.5s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
+.dcc-slide[data-active] .dcc-tilt {
+  transform: translateZ(var(--dcc-lift, 0px)) rotateX(calc(var(--dcc-py, 0) * -12deg))
+    rotateY(calc(var(--dcc-px, 0) * 12deg));
+}
+
+.dcc-shade {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  pointer-events: none;
+  transform: translate3d(0, 7%, -18px) scale(0.97);
+  background: radial-gradient(
+    circle closest-side,
+    transparent 30%,
+    rgba(0, 0, 0, 0.5) 52%,
+    rgba(0, 0, 0, 0.3) 80%,
+    transparent 100%
+  );
+}
+
+.dcc-edge,
+.dcc-disc {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  mask: radial-gradient(circle closest-side, transparent 16.6%, #000 17.1%);
+}
+
+.dcc-edge {
+  transform: translateZ(-4px);
+  background: linear-gradient(160deg, #d7d9dc, #8d9196 55%, #c4c7cb);
+}
+
+.dcc-disc {
+  overflow: hidden;
+  background: #cfd2d6;
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.28),
+    inset 0 0 0 2px rgba(0, 0, 0, 0.08);
+}
+
+.dcc-roll,
+.dcc-idle {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+}
+
+.dcc-roll {
+  transform: rotate(var(--dcc-roll, 0deg));
+}
+
+.dcc-idle.dcc-spin {
+  animation: dcc-spin var(--dcc-spin) linear infinite;
+}
+
+@keyframes dcc-spin {
+  to {
+    transform: rotate(1turn);
+  }
+}
+
+.dcc-idle > img,
+.dcc-idle > svg,
+.dcc-hub {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  display: block;
+}
+
+.dcc-idle > img {
+  object-fit: cover;
+}
+
+.dcc-hub {
+  overflow: visible;
+  pointer-events: none;
+}
+
+.dcc-sheen {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  pointer-events: none;
+  mix-blend-mode: screen;
+  opacity: var(--dcc-sheen);
+  background:
+    conic-gradient(
+      from calc(var(--dcc-glint, 0deg) + var(--dcc-gx, 0) * 70deg),
+      transparent 0deg,
+      rgba(255, 255, 255, 0.5) 16deg,
+      transparent 38deg,
+      transparent 140deg,
+      rgba(150, 215, 255, 0.32) 168deg,
+      rgba(255, 170, 225, 0.32) 186deg,
+      rgba(255, 236, 170, 0.26) 200deg,
+      transparent 224deg,
+      transparent 360deg
+    ),
+    radial-gradient(circle at 32% 24%, rgba(255, 255, 255, 0.3), transparent 46%);
+}
+
+.dcc-slide:focus-visible .dcc-disc {
+  box-shadow:
+    inset 0 0 0 3px #0a070d,
+    inset 0 0 0 6px #ff1f5a;
+}
+
+// Credits block, top left.
+.dcc-head {
+  position: absolute;
+  top: var(--dcc-pad);
+  left: var(--dcc-pad);
+  z-index: 4;
+  width: clamp(170px, 24cqw, 300px);
+  pointer-events: none;
+}
+
+.dcc-title {
+  margin: 0 0 12px;
+  font-family: $serif;
+  font-weight: 400;
+  font-size: clamp(24px, 3cqw, 40px);
+  line-height: 0.98;
+  letter-spacing: -0.01em;
+  text-transform: uppercase;
+  text-wrap: balance;
+}
+
+.dcc-dl {
+  margin: 0;
+}
+
+.dcc-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 6px 0 7px;
+  border-top: 1px solid rgba($text, 0.28);
+
+  dt {
+    font-size: 9px;
+    line-height: 14px;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    opacity: 0.7;
+  }
+
+  dd {
+    margin: 0;
+    font-size: 12px;
+    line-height: 14px;
+    text-align: right;
+  }
+}
+
+.dcc-in {
+  animation: dcc-in 0.8s cubic-bezier(0.2, 0.7, 0.1, 1) both;
+  animation-delay: calc(var(--i, 0) * 60ms);
+}
+
+@keyframes dcc-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+    filter: blur(5px);
+  }
+}
+
+// Stats, bottom centre.
+.dcc-stats {
+  position: absolute;
+  bottom: calc(var(--dcc-pad) * 1.1);
+  left: 50%;
+  z-index: 4;
+  display: flex;
+  gap: clamp(28px, 8cqw, 100px);
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+
+.dcc-stat {
+  margin: 0;
+  text-align: center;
+}
+
+.dcc-stat-label {
+  margin-bottom: 4px;
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  opacity: 0.65;
+}
+
+.dcc-stat-value {
+  margin: 0;
+  font-family: $serif;
+  font-size: clamp(22px, 2.4cqw, 32px);
+  line-height: 1;
+}
+
+.dcc-ctl {
+  position: absolute;
+  right: var(--dcc-pad);
+  bottom: var(--dcc-pad);
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.dcc-btn {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  margin: 0;
+  padding: 0;
+  border: 1px solid rgba($text, 0.28);
+  border-radius: 999px;
+  background: rgba($text, 0.04);
+  color: inherit;
+  cursor: pointer;
+  transition:
+    background 0.2s,
+    transform 0.2s;
+
+  &:hover {
+    background: rgba($text, 0.12);
+  }
+
+  &:active {
+    transform: scale(0.9);
+  }
+
+  &:focus-visible {
+    outline: 2px solid #ff1f5a;
+    outline-offset: 3px;
+  }
+}
+
+.dcc-count {
+  min-width: 58px;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+
+  b {
+    font-weight: 600;
+  }
+}
+
+.dcc-hint {
+  position: absolute;
+  left: var(--dcc-pad);
+  bottom: var(--dcc-pad);
+  z-index: 4;
+  font-size: 9px;
+  line-height: 36px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+.dcc-sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+@container (max-width: 900px) {
+  .dcc-hint {
+    display: none;
+  }
+}
+
+@container (max-width: 720px) {
+  .dcc-stage {
+    --dcc-s: clamp(180px, min(58cqw, 52cqh), 400px);
+  }
+
+  .dcc-stat + .dcc-stat {
+    display: none;
+  }
+
+  // Stats sit bottom left so they don't run into the prev/next buttons.
+  .dcc-stats {
+    left: var(--dcc-pad);
+    transform: none;
+  }
+
+  .dcc-stat {
+    text-align: left;
+  }
+
+  .dcc-head {
+    width: clamp(150px, 46cqw, 240px);
+  }
+
+  .dcc-row:nth-child(n + 4) {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dcc-idle.dcc-spin,
+  .dcc-in {
+    animation: none;
+  }
+
+  .dcc-root,
+  .dcc-tilt,
+  .dcc-btn {
+    transition: none;
+  }
+}
