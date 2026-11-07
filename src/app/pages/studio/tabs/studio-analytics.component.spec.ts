@@ -456,8 +456,10 @@ describe('StudioAnalyticsComponent (refreshed analytics)', () => {
     expect(el.querySelectorAll('app-bento-stat-tile').length).toBe(4);
     expect(el.querySelectorAll('app-bento-stream-chart .axis span').length).toBe(3);
     expect(el.textContent).toContain('Alpha');
-    expect(el.querySelector('app-bento-rank-list img')?.getAttribute('src')).toBe('a.png');
-    expect(el.querySelector('app-bento-rank-list .letter')?.textContent?.trim()).toBe('B');
+    expect(el.querySelectorAll('.table .tr').length).toBe(3);
+    expect(el.querySelector('.table .tr:nth-child(2) a')?.textContent).toBe('Alpha');
+    expect(el.textContent).toContain('Best day');
+    expect(el.textContent).toContain('Download rate');
     expect(el.querySelectorAll('app-bento-gauge line').length).toBe(56);
     expect(el.textContent).toContain('Premium');
     expect(el.textContent).not.toContain('Top countries');
@@ -470,6 +472,11 @@ describe('StudioAnalyticsComponent (refreshed analytics)', () => {
     chart.dispatchEvent(new MouseEvent('pointerleave'));
     fixture.detectChanges();
     expect(el.querySelector('app-bento-tooltip')).toBeNull();
+
+    const modeBtns = el.querySelectorAll('[aria-label="Stream series"] button');
+    (modeBtns[1] as HTMLElement).click();
+    fixture.detectChanges();
+    expect(el.querySelectorAll('app-bento-stream-chart .layers path').length).toBe(1);
 
     const sortBtns = el.querySelectorAll('[aria-label="Sort beats by"] button');
     (sortBtns[0] as HTMLElement).click();
@@ -496,5 +503,17 @@ describe('StudioAnalyticsComponent (refreshed analytics)', () => {
     fixture.detectChanges();
     expect(c.currentDays()).toBe(3650);
     expect(c.periodValue()).toBe(3650);
+  });
+
+  it('requests revenue in the picked currency and clears the previous report', () => {
+    const { c } = setup();
+    const other = c.producerCurrency() === 'EUR' ? 'GBP' : 'EUR';
+    getOverview.mockReturnValueOnce(throwError(() => new Error('unconfirmed')));
+    c.onCurrencySelected(other);
+    expect(getOverview).toHaveBeenLastCalledWith(30, 'plays', other);
+    expect(c.producerCurrency()).toBe(other);
+    expect(c.data()).toBeNull();
+    c.onCurrencySelected(other);
+    expect(Array.isArray(c.currencyOptions())).toBe(true);
   });
 });

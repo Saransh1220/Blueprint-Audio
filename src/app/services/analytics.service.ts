@@ -78,8 +78,17 @@ export class AnalyticsService {
   getOverview(
     days: number = 30,
     sortBy: 'plays' | 'revenue' | 'downloads' = 'plays',
+    currency?: string,
   ): Observable<AnalyticsOverviewResponse> {
-    return this.api.execute(new GetOverviewRequest(days, sortBy));
+    return this.api.execute(new GetOverviewRequest(days, sortBy, currency)).pipe(
+      map((report) => {
+        // Never show amounts under a currency label the API did not confirm.
+        if (currency && report.revenue_currency !== currency) {
+          throw new Error('The API did not confirm the reporting currency.');
+        }
+        return report;
+      }),
+    );
   }
 
   /**

@@ -10,3 +10,4 @@ export * from './dashboard/dashboard.component';
 export * from './home/home.component';
 export * from './settings/settings.component';
 export * from './spec-details/spec-details.component';
+export * from './payment-result/payment-result.component';

@@ -76,6 +76,7 @@ import { BentoWaveComponent } from './bento-wave.component';
       display: contents;
     }
     .tile {
+      container-type: inline-size;
       position: relative;
       display: flex;
       flex: 1;
@@ -139,6 +140,11 @@ import { BentoWaveComponent } from './bento-wave.component';
     }
     .hint {
       opacity: 0.6;
+    }
+    @container (max-width: 230px) {
+      .spark {
+        display: none;
+      }
     }
     .spark {
       position: absolute;

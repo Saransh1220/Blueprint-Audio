@@ -4,6 +4,12 @@
 >
   <div bentoActions class="actions">
     <app-bento-segmented
+      label="Revenue currency"
+      [options]="currencyOptions()"
+      [value]="producerCurrency()"
+      (selected)="onCurrencySelected($event)"
+    />
+    <app-bento-segmented
       label="Date range"
       [options]="periodOptions"
       [value]="periodValue()"
@@ -19,6 +25,7 @@
   }
 
   <app-bento-insights
+    variant="analytics"
     [data]="data()"
     [state]="insightState()"
     [currency]="producerCurrency()"

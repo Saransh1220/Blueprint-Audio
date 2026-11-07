@@ -1,126 +1,376 @@
-<!-- Row 1: activity stream + license gauge -->
-<app-bento-card
-  heading="Activity"
-  [hint]="periodLabel()"
-  palette="blue"
-  [span]="8"
-  [spanMd]="12"
-  [height]="376"
-  [index]="0"
->
-  @if (state() === 'ready') {
-    <div class="headline">
-      <strong class="big">{{ headline() }}</strong>
-      <span class="unit">plays</span>
-      @if (headlineChip()) {
-        <span class="chip">{{ headlineChip() }}</span>
+@switch (variant()) {
+  @case ('overview') {
+    <!-- Overview: money first. Revenue wave beside a projected side card, KPIs, beats, license mix -->
+    <app-bento-card
+      heading="Revenue"
+      [hint]="periodLabel()"
+      palette="green"
+      [span]="8"
+      [spanMd]="12"
+      [height]="376"
+      [index]="0"
+    >
+      @if (state() === 'ready' && hasRevenue()) {
+        <div class="headline">
+          <strong class="big">{{ revenueTotal() }}</strong>
+          @if (revenueChip()) {
+            <span class="chip">{{ revenueChip() }}</span>
+          }
+        </div>
+        <app-bento-wave
+          class="flow tall"
+          [yFormat]="moneyShort"
+          [values]="series().revenue"
+          [labels]="labels()"
+          [format]="money"
+          [animateKey]="animateKey()"
+          ariaLabel="Revenue per day"
+        />
+      } @else {
+        <p class="empty" role="status">
+          {{
+            state() === 'ready' ? 'No paid sales in this currency for this period.' : emptyText()
+          }}
+        </p>
       }
-    </div>
+    </app-bento-card>
+    <ng-content select="[sideCard]" />
+    @for (t of tiles(); track t.label; let i = $index) {
+      <app-bento-stat-tile
+        [label]="t.label"
+        [icon]="t.icon"
+        [value]="t.value"
+        [state]="state()"
+        [delta]="t.delta"
+        [up]="t.up"
+        [hint]="t.hint"
+        [spark]="t.spark"
+        [accent]="t.accent"
+        [link]="tilesLink()"
+        [index]="2 + i"
+      />
+    }
+    <app-bento-card
+      heading="Top beats"
+      palette="copper"
+      [hint]="rankHint()"
+      [span]="6"
+      [spanMd]="12"
+      [index]="6"
+    >
+      <div class="headline">
+        <strong class="big">{{ beatTotal() }}</strong>
+        <span class="unit">{{ beatUnit() }}</span>
+      </div>
+      <app-bento-share-bar class="shares" [segments]="beatSegments()" />
+      <app-bento-rank-list
+        [rows]="ranked()"
+        [empty]="
+          state() === 'ready' ? 'Upload beats to see your top performers here.' : emptyText()
+        "
+      />
+    </app-bento-card>
+    <app-bento-card
+      heading="Revenue by license"
+      [hint]="gaugeHint()"
+      palette="graphite"
+      [span]="6"
+      [spanMd]="12"
+      [index]="7"
+    >
+      <span cardActions class="pill"
+        >{{ shares().length }} {{ shares().length === 1 ? 'license' : 'licenses' }}</span
+      >
+      <app-bento-gauge
+        [shares]="shares()"
+        caption="Top license"
+        [empty]="state() === 'ready' ? 'No paid sales in this currency yet.' : emptyText()"
+      />
+    </app-bento-card>
+    <ng-content select="[footCard]" />
   }
-  <app-bento-stream-chart
-    [series]="stream()"
-    [labels]="labels()"
-    [format]="count"
-    [animateKey]="animateKey()"
-    [empty]="state() === 'ready' ? 'No plays or downloads in this period yet.' : emptyText()"
-    ariaLabel="Plays and downloads over time"
-  />
-</app-bento-card>
+  @case ('analytics') {
+    <!-- Analytics: audience first. Full-width stream with a series switch, derived insights, breakdowns, table -->
+    <app-bento-card
+      heading="Plays and downloads"
+      [hint]="periodLabel()"
+      palette="blue"
+      [span]="12"
+      [height]="400"
+      [index]="0"
+    >
+      <app-bento-segmented
+        cardActions
+        label="Stream series"
+        [options]="streamModes"
+        [value]="streamMode()"
+        (selected)="onStreamMode($event)"
+      />
+      <app-bento-stream-chart
+        [series]="streamShown()"
+        [labels]="labels()"
+        [format]="count"
+        [animateKey]="animateKey() + ':' + streamMode()"
+        [empty]="state() === 'ready' ? 'No plays or downloads in this period yet.' : emptyText()"
+        ariaLabel="Plays and downloads over time"
+      />
+    </app-bento-card>
+    @for (t of derived(); track t.label; let i = $index) {
+      <app-bento-stat-tile
+        [label]="t.label"
+        [icon]="t.icon"
+        [value]="t.value"
+        [state]="state()"
+        [hint]="t.hint"
+        [accent]="i === 0"
+        [index]="1 + i"
+      />
+    }
+    <app-bento-card
+      heading="Plays by weekday"
+      [hint]="periodLabel()"
+      palette="pink"
+      [span]="4"
+      [spanMd]="6"
+      [spanSm]="12"
+      [height]="330"
+      [index]="5"
+    >
+      @if (state() === 'ready' && weekdayPeakLabel()) {
+        <div class="headline">
+          <strong class="big">{{ weekdayTotal() }}</strong>
+          <span class="chip">{{ weekdayPeakLabel() }}</span>
+        </div>
+      }
+      <app-bento-weekday-bars
+        [values]="weekdays()"
+        [highlight]="weekdayPeak()"
+        [format]="count"
+        unit="plays"
+        [empty]="state() === 'ready' ? 'No plays in this period yet.' : emptyText()"
+      />
+    </app-bento-card>
+    <app-bento-card
+      heading="Revenue by license"
+      [hint]="gaugeHint()"
+      palette="graphite"
+      [span]="4"
+      [spanMd]="6"
+      [spanSm]="12"
+      [height]="330"
+      [index]="6"
+    >
+      <span cardActions class="pill"
+        >{{ shares().length }} {{ shares().length === 1 ? 'license' : 'licenses' }}</span
+      >
+      <app-bento-gauge
+        [shares]="shares()"
+        caption="Top license"
+        [empty]="state() === 'ready' ? 'No paid sales in this currency yet.' : emptyText()"
+      />
+    </app-bento-card>
+    <app-bento-card
+      heading="Revenue"
+      [hint]="periodLabel()"
+      palette="green"
+      [span]="4"
+      [spanMd]="12"
+      [height]="330"
+      [index]="7"
+    >
+      @if (state() === 'ready' && hasRevenue()) {
+        <div class="headline">
+          <strong class="big">{{ revenueTotal() }}</strong>
+        </div>
+        <app-bento-wave
+          class="flow"
+          [yFormat]="moneyShort"
+          [values]="series().revenue"
+          [labels]="labels()"
+          [format]="money"
+          [animateKey]="animateKey()"
+          ariaLabel="Revenue per day"
+        />
+      } @else {
+        <p class="empty" role="status">
+          {{
+            state() === 'ready' ? 'No paid sales in this currency for this period.' : emptyText()
+          }}
+        </p>
+      }
+    </app-bento-card>
+    <app-bento-card heading="Beat performance" [hint]="rankHint()" [span]="12" [index]="8">
+      <span cardActions><ng-content select="[rankActions]" /></span>
+      @if (table().length) {
+        <div class="table" role="table" aria-label="Beat performance">
+          <div class="tr th" role="row">
+            <span role="columnheader">#</span>
+            <span role="columnheader">Beat</span>
+            <span role="columnheader" class="num">Plays</span>
+            <span role="columnheader" class="num hide-sm">Downloads</span>
+            <span role="columnheader" class="num">Revenue</span>
+            <span role="columnheader" class="num hide-sm">Download rate</span>
+          </div>
+          @for (r of table(); track r.id; let i = $index) {
+            <div class="tr" role="row" [class.top]="i === 0">
+              <span class="rk">{{ i + 1 }}</span>
+              <a [routerLink]="['/', r.id]">{{ r.title }}</a>
+              <span class="num">{{ r.plays }}</span>
+              <span class="num hide-sm">{{ r.downloads }}</span>
+              <span class="num">{{ r.revenue }}</span>
+              <span class="num hide-sm">{{ r.rate }}</span>
+            </div>
+          }
+        </div>
+      } @else {
+        <p class="empty" role="status">
+          {{ state() === 'ready' ? 'Your top-performing beats will appear here.' : emptyText() }}
+        </p>
+      }
+    </app-bento-card>
+  }
+  @default {
+    <app-bento-card
+      heading="Activity"
+      [hint]="periodLabel()"
+      palette="blue"
+      [span]="8"
+      [spanMd]="12"
+      [height]="376"
+      [index]="0"
+    >
+      @if (state() === 'ready') {
+        <div class="headline">
+          <strong class="big">{{ headline() }}</strong>
+          <span class="unit">plays</span>
+          @if (headlineChip()) {
+            <span class="chip">{{ headlineChip() }}</span>
+          }
+        </div>
+      }
+      <app-bento-stream-chart
+        [series]="stream()"
+        [labels]="labels()"
+        [format]="count"
+        [animateKey]="animateKey()"
+        [empty]="state() === 'ready' ? 'No plays or downloads in this period yet.' : emptyText()"
+        ariaLabel="Plays and downloads over time"
+      />
+    </app-bento-card>
+    <app-bento-card
+      heading="Revenue by license"
+      [hint]="gaugeHint()"
+      palette="graphite"
+      [span]="4"
+      [spanMd]="6"
+      [spanSm]="12"
+      [height]="376"
+      [index]="1"
+    >
+      <span cardActions class="pill"
+        >{{ shares().length }} {{ shares().length === 1 ? 'license' : 'licenses' }}</span
+      >
+      <app-bento-gauge
+        [shares]="shares()"
+        caption="Top license"
+        [empty]="state() === 'ready' ? 'No paid sales in this currency yet.' : emptyText()"
+      />
+    </app-bento-card>
 
-<app-bento-card
-  heading="Revenue by license"
-  [hint]="gaugeHint()"
-  palette="graphite"
-  [span]="4"
-  [spanMd]="6"
-  [spanSm]="12"
-  [height]="376"
-  [index]="1"
->
-  <app-bento-gauge
-    [shares]="shares()"
-    caption="Top license"
-    [empty]="state() === 'ready' ? 'No paid sales in this currency yet.' : emptyText()"
-  />
-</app-bento-card>
+    <!-- Row 2: KPI tiles -->
+    @for (t of tiles(); track t.label; let i = $index) {
+      <app-bento-stat-tile
+        [label]="t.label"
+        [icon]="t.icon"
+        [value]="t.value"
+        [state]="state()"
+        [delta]="t.delta"
+        [up]="t.up"
+        [hint]="t.hint"
+        [spark]="t.spark"
+        [accent]="t.accent"
+        [link]="tilesLink()"
+        [index]="2 + i"
+      />
+    }
 
-<!-- Row 2: KPI tiles -->
-@for (t of tiles(); track t.label; let i = $index) {
-  <app-bento-stat-tile
-    [label]="t.label"
-    [icon]="t.icon"
-    [value]="t.value"
-    [state]="state()"
-    [delta]="t.delta"
-    [up]="t.up"
-    [hint]="t.hint"
-    [spark]="t.spark"
-    [accent]="t.accent"
-    [link]="tilesLink()"
-    [index]="2 + i"
-  />
+    <!-- Row 3: revenue wave, top beats, weekday capsules -->
+    <app-bento-card
+      heading="Revenue"
+      [hint]="periodLabel()"
+      palette="green"
+      [span]="5"
+      [spanMd]="12"
+      [height]="330"
+      [index]="6"
+    >
+      @if (state() === 'ready' && hasRevenue()) {
+        <div class="headline">
+          <strong class="big">{{ revenueTotal() }}</strong>
+        </div>
+        <app-bento-wave
+          class="flow"
+          [yFormat]="moneyShort"
+          [values]="series().revenue"
+          [labels]="labels()"
+          [format]="money"
+          [animateKey]="animateKey()"
+          ariaLabel="Revenue per day"
+        />
+      } @else {
+        <p class="empty" role="status">
+          {{
+            state() === 'ready' ? 'No paid sales in this currency for this period.' : emptyText()
+          }}
+        </p>
+      }
+    </app-bento-card>
+    <app-bento-card
+      heading="Top beats"
+      palette="copper"
+      [hint]="rankHint()"
+      [span]="4"
+      [spanMd]="6"
+      [spanSm]="12"
+      [height]="330"
+      [index]="7"
+    >
+      <span cardActions><ng-content select="[rankActions]" /></span>
+      <div class="headline">
+        <strong class="big">{{ beatTotal() }}</strong>
+        <span class="unit">{{ beatUnit() }}</span>
+      </div>
+      <app-bento-share-bar class="shares" [segments]="beatSegments()" />
+      <app-bento-rank-list
+        [rows]="ranked()"
+        [empty]="
+          state() === 'ready' ? 'Upload beats to see your top performers here.' : emptyText()
+        "
+      />
+    </app-bento-card>
+    <app-bento-card
+      heading="Plays by weekday"
+      [hint]="periodLabel()"
+      palette="pink"
+      [span]="3"
+      [spanMd]="6"
+      [spanSm]="12"
+      [height]="330"
+      [index]="8"
+    >
+      @if (state() === 'ready' && weekdayPeakLabel()) {
+        <div class="headline">
+          <strong class="big">{{ weekdayTotal() }}</strong>
+          <span class="chip">{{ weekdayPeakLabel() }}</span>
+        </div>
+      }
+      <app-bento-weekday-bars
+        [values]="weekdays()"
+        [highlight]="weekdayPeak()"
+        [format]="count"
+        unit="plays"
+        [empty]="state() === 'ready' ? 'No plays in this period yet.' : emptyText()"
+      />
+    </app-bento-card>
+  }
 }
-
-<!-- Row 3: revenue wave, top beats, weekday capsules -->
-<app-bento-card
-  heading="Revenue"
-  [hint]="periodLabel()"
-  palette="green"
-  [span]="5"
-  [spanMd]="12"
-  [height]="330"
-  [index]="6"
->
-  @if (state() === 'ready' && hasRevenue()) {
-    <div class="headline">
-      <strong class="big">{{ revenueTotal() }}</strong>
-    </div>
-    <app-bento-wave
-      class="flow"
-      [values]="series().revenue"
-      [labels]="labels()"
-      [format]="money"
-      [animateKey]="animateKey()"
-      ariaLabel="Revenue per day"
-    />
-  } @else {
-    <p class="empty" role="status">
-      {{ state() === 'ready' ? 'No paid sales in this currency for this period.' : emptyText() }}
-    </p>
-  }
-</app-bento-card>
-
-<app-bento-card
-  heading="Top beats"
-  [hint]="rankHint()"
-  [span]="4"
-  [spanMd]="6"
-  [spanSm]="12"
-  [height]="330"
-  [index]="7"
->
-  <span cardActions><ng-content select="[rankActions]" /></span>
-  <app-bento-rank-list
-    [rows]="ranked()"
-    [empty]="state() === 'ready' ? 'Upload beats to see your top performers here.' : emptyText()"
-  />
-</app-bento-card>
-
-<app-bento-card
-  heading="Plays by weekday"
-  [hint]="periodLabel()"
-  palette="pink"
-  [span]="3"
-  [spanMd]="6"
-  [spanSm]="12"
-  [height]="330"
-  [index]="8"
->
-  <app-bento-weekday-bars
-    [values]="weekdays()"
-    [highlight]="weekdayPeak()"
-    [format]="count"
-    unit="plays"
-    [empty]="state() === 'ready' ? 'No plays in this period yet.' : emptyText()"
-  />
-</app-bento-card>

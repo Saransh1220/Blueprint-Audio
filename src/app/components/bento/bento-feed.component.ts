@@ -10,6 +10,8 @@ export interface BentoFeedRow {
   /** Small caption under the trailing figure. */
   time?: string;
   tone?: 'ok' | 'warn' | 'bad' | 'info';
+  /** FontAwesome classes shown in the avatar instead of a letter. */
+  icon?: string;
   /** Avatar letter source; falls back to the title. */
   avatar?: string;
   link?: string | null;
@@ -26,7 +28,13 @@ export interface BentoFeedRow {
       <ul [style.--cols]="columns()">
         @for (r of rows(); track r.id) {
           <li [attr.data-tone]="r.tone ?? 'info'">
-            <span class="av" aria-hidden="true">{{ (r.avatar || r.title).charAt(0) }}</span>
+            <span class="av" aria-hidden="true">
+              @if (r.icon) {
+                <i [class]="r.icon"></i>
+              } @else {
+                {{ (r.avatar || r.title).charAt(0) }}
+              }
+            </span>
             <span class="txt">
               @if (r.link && !r.actionLabel) {
                 <a [routerLink]="r.link">{{ r.title }}</a>
@@ -62,7 +70,12 @@ export interface BentoFeedRow {
         }
       </ul>
     } @else {
-      <p class="empty" role="status">{{ empty() }}</p>
+      <div class="empty-wrap">
+        @if (emptyIcon()) {
+          <i [class]="emptyIcon()" aria-hidden="true"></i>
+        }
+        <p class="empty" role="status">{{ empty() }}</p>
+      </div>
     }
   `,
   styles: `
@@ -161,8 +174,24 @@ export interface BentoFeedRow {
         grid-template-columns: minmax(0, 1fr);
       }
     }
+    .empty-wrap {
+      display: grid;
+      flex: 1;
+      place-content: center;
+      justify-items: center;
+      gap: 10px;
+    }
+    .empty-wrap i {
+      display: grid;
+      place-items: center;
+      width: 46px;
+      height: 46px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.12);
+      font-size: 18px;
+    }
     .empty {
-      margin: auto;
+      margin: 0;
       color: rgba(255, 255, 255, 0.7);
       font-size: 14px;
       text-align: center;
@@ -173,6 +202,8 @@ export interface BentoFeedRow {
 export class BentoFeedComponent {
   readonly rows = input<BentoFeedRow[]>([]);
   readonly empty = input('Nothing here yet.');
+  /** FontAwesome classes drawn above the empty message. */
+  readonly emptyIcon = input('');
   /** Columns on wide screens (collapses to one on small screens). */
   readonly columns = input(1);
   readonly act = output<string>();

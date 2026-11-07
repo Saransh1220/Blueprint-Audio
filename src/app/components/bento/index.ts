@@ -5,6 +5,7 @@ export * from './bento-insights.component';
 export * from './bento-page.component';
 export * from './bento-rank-list.component';
 export * from './bento-segmented.component';
+export * from './bento-share-bar.component';
 export * from './bento-stat-tile.component';
 export * from './bento-stream-chart.component';
 export * from './bento-tick-bar.component';

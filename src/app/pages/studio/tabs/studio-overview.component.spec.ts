@@ -341,9 +341,11 @@ describe('StudioOverviewComponent (refreshed overview)', () => {
     expect(el.querySelector('app-bento-rank-list .letter')?.textContent?.trim()).toBe('S');
     expect(el.textContent).toContain('Sam');
     expect(el.textContent).toContain('Premium');
-    expect(el.querySelectorAll('app-bento-stream-chart .axis span').length).toBe(3);
+    expect(el.querySelectorAll('app-bento-wave .axis span').length).toBe(3);
+    expect(el.querySelector('app-bento-stream-chart')).toBeNull();
+    expect(el.textContent).toContain('Jump to');
 
-    const chart = el.querySelector('app-bento-stream-chart .wrap') as HTMLElement;
+    const chart = el.querySelector('app-bento-wave .wrap') as HTMLElement;
     chart.getBoundingClientRect = () => ({ left: 0, width: 600 }) as DOMRect;
     chart.dispatchEvent(new MouseEvent('pointermove', { clientX: 300 }));
     fixture.detectChanges();
@@ -499,5 +501,21 @@ describe('StudioOverviewComponent (refreshed overview)', () => {
     getOverview.mockReturnValue(NEVER);
     const { el } = setup();
     expect(el.textContent).toContain('Loading…');
+  });
+
+  it('requests revenue in the picked currency and drops figures from the old one', () => {
+    const { c } = setup();
+    const other = c.producerCurrency() === 'EUR' ? 'GBP' : 'EUR';
+    getOverview.mockReturnValueOnce(throwError(() => new Error('unconfirmed')));
+    c.onCurrencySelected(other);
+    expect(getOverview).toHaveBeenLastCalledWith(30, 'plays', other);
+    expect(c.producerCurrency()).toBe(other);
+    expect(c.analyticsData()).toBeNull();
+    expect(c.topSpecs()).toEqual([]);
+    expect(c.insightState()).toBe('unavailable');
+    const calls = getOverview.mock.calls.length;
+    c.onCurrencySelected(other);
+    expect(getOverview.mock.calls.length).toBe(calls);
+    expect(Array.isArray(c.currencyOptions())).toBe(true);
   });
 });

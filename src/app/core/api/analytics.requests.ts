@@ -75,6 +75,7 @@ export interface DailyRevenueStat {
 export interface AnalyticsOverviewResponse {
   total_plays: number;
   total_favorites: number;
+  revenue_currency?: string;
   total_revenue: number;
   total_downloads: number;
   plays_by_day: DailyStat[];
@@ -92,8 +93,13 @@ export class GetOverviewRequest implements ApiRequest<AnalyticsOverviewResponse>
   readonly _responseType?: AnalyticsOverviewResponse;
   readonly params: HttpParams;
 
-  constructor(days: number = 30, sortBy: 'plays' | 'revenue' | 'downloads' = 'plays') {
-    this.params = new HttpParams().set('days', days).set('sortBy', sortBy);
+  constructor(
+    days: number = 30,
+    sortBy: 'plays' | 'revenue' | 'downloads' = 'plays',
+    currency?: string,
+  ) {
+    const params = new HttpParams().set('days', days).set('sortBy', sortBy);
+    this.params = currency ? params.set('currency', currency) : params;
   }
 }
 

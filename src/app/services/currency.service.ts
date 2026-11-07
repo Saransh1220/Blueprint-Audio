@@ -12,6 +12,7 @@ import { CurrencyConfigurationService } from './currency-configuration.service';
 @Injectable({ providedIn: 'root' })
 export class CurrencyService {
   private readonly configuration = inject(CurrencyConfigurationService);
+  readonly currencies = this.configuration.currencies;
 
   formatMoney(
     money?: Money | null,

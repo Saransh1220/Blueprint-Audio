@@ -63,4 +63,45 @@ describe('AnalyticsService', () => {
     expect(execute.mock.calls[5][0]).toBeInstanceOf(GetProducerAnalyticsRequest);
     expect(adaptProducerAnalytics).toHaveBeenCalledTimes(1);
   });
+
+  describe('reporting currency', () => {
+    function make(report: unknown) {
+      const execute = vi.fn(() => of(report));
+      TestBed.configureTestingModule({
+        providers: [
+          AnalyticsService,
+          { provide: ApiService, useValue: { execute } },
+          { provide: SpecAdapter, useValue: {} },
+        ],
+      });
+      return { service: TestBed.inject(AnalyticsService), execute };
+    }
+
+    beforeEach(() => TestBed.resetTestingModule());
+
+    it('asks for the currency and accepts a confirmed report', () => {
+      const { service, execute } = make({ revenue_currency: 'USD' });
+      const next = vi.fn();
+      service.getOverview(7, 'plays', 'USD').subscribe(next);
+      expect((execute.mock.calls[0] as unknown[])[0]).toBeInstanceOf(GetOverviewRequest);
+      expect(
+        ((execute.mock.calls[0] as unknown[])[0] as GetOverviewRequest).params.get('currency'),
+      ).toBe('USD');
+      expect(next).toHaveBeenCalled();
+    });
+
+    it('rejects a report the API did not confirm in that currency', () => {
+      const { service } = make({ revenue_currency: 'INR' });
+      const error = vi.fn();
+      service.getOverview(7, 'plays', 'USD').subscribe({ error });
+      expect(error).toHaveBeenCalled();
+    });
+
+    it('does not require confirmation when no currency is requested', () => {
+      const { service } = make({});
+      const next = vi.fn();
+      service.getOverview(7).subscribe(next);
+      expect(next).toHaveBeenCalled();
+    });
+  });
 });

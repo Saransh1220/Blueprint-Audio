@@ -3,6 +3,7 @@ import {
   License,
   LicenseDownloadsResponse,
   Order,
+  OrderStatusDto,
   PaginatedResponse,
   PaymentVerificationRequest,
   PaymentVerificationResponse,
@@ -58,6 +59,17 @@ export class GetOrderRequest implements ApiRequest<Order> {
   }
 
   readonly path: string;
+}
+
+// Get Order Status Request
+export class GetOrderStatusRequest implements ApiRequest<OrderStatusDto> {
+  readonly method: HttpMethod = 'GET';
+  readonly _responseType?: OrderStatusDto;
+  readonly path: string;
+
+  constructor(orderId: string) {
+    this.path = `/orders/${orderId}/status`;
+  }
 }
 
 // Get User Orders Request
