@@ -2,6 +2,8 @@ import { TestBed } from '@angular/core/testing';
 import { of, throwError } from 'rxjs';
 import { AdminService } from '../../services/admin.service';
 import { ToastService } from '../../services/toast.service';
+import { AuthzService } from '../../services/authz.service';
+import { PaymentService } from '../../services/payment.service';
 import { entry, license, order, pageOf, spec, user } from './admin.fixtures';
 import { AdminComponent } from './admin.component';
 import { findAdminSection } from './admin-sections';
@@ -23,7 +25,9 @@ describe('AdminComponent', () => {
     TestBed.configureTestingModule({
       providers: [
         { provide: AdminService, useValue: admin },
-        { provide: ToastService, useValue: { error: vi.fn() } },
+        { provide: ToastService, useValue: { error: vi.fn(), show: vi.fn() } },
+        { provide: AuthzService, useValue: { isSuperAdmin: vi.fn(() => false) } },
+        { provide: PaymentService, useValue: { refundOrder: vi.fn(), getOrderRefunds: vi.fn() } },
       ],
     });
     const fixture = TestBed.createComponent(AdminComponent);

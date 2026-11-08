@@ -6,6 +6,8 @@ import { environment } from '../../environments/environment';
 import {
   CreateOrderBody,
   CreateOrderRequest,
+  CreateRefundRequest,
+  GetOrderRefundsRequest,
   GetLicenseDownloadsRequest,
   GetOrderStatusRequest,
   GetProducerOrdersRequest,
@@ -19,6 +21,8 @@ import {
   License,
   LicenseDownloadsResponse,
   Order,
+  OrderRefund,
+  OrderRefundResponse,
   OrderStatusDto,
   PaginationMetadata,
   PaymentVerificationRequest,
@@ -41,8 +45,10 @@ export class PaymentService {
   // Track active licenses - moved down to keep together with pagination
   // userLicenses = signal<License[]>([]);
 
+  readonly isInitiatingPayment = signal<boolean>(false);
+
   /**
-   * Create an order and open checkout with explicit evidence
+   * Create an order and open checkout with explicit evidence and idempotency protection
    */
   initiatePayment(
     specId: string,
@@ -54,6 +60,26 @@ export class PaymentService {
       priceMoney?: Money;
     },
   ): Observable<Order> {
+    if (this.isInitiatingPayment()) {
+      return EMPTY;
+    }
+    this.isInitiatingPayment.set(true);
+
+    const user = this.auth.currentUser();
+    const intentStorageKey = `waveyard_checkout_intent_${user?.id || 'guest'}_${specId}_${licenseOptionId}`;
+    let idempotencyKey: string;
+    try {
+      const stored = sessionStorage.getItem(intentStorageKey);
+      if (stored) {
+        idempotencyKey = stored;
+      } else {
+        idempotencyKey = crypto.randomUUID();
+        sessionStorage.setItem(intentStorageKey, idempotencyKey);
+      }
+    } catch {
+      idempotencyKey = crypto.randomUUID();
+    }
+
     const body: CreateOrderBody = {
       spec_id: specId,
       license_option_id: licenseOptionId,
@@ -71,17 +97,35 @@ export class PaymentService {
       body.expected_currency = evidence.displayPriceMoney.currency;
     }
 
-    // Step 1: Create order on backend
-    return this.api.execute(new CreateOrderRequest(body)).pipe(
+    // Step 1: Create order on backend with Idempotency-Key
+    return this.api.execute(new CreateOrderRequest(body, idempotencyKey)).pipe(
       tap((order) => {
-        if (order.provider === 'dodo' && order.checkout_url) {
+        this.isInitiatingPayment.set(false);
+        try {
+          sessionStorage.removeItem(intentStorageKey);
+        } catch {}
+        if (order.checkout_url) {
           window.location.assign(order.checkout_url);
           return;
         }
-        this.openRazorpayCheckout(order, specTitle);
+        if (order.razorpay_order_id) {
+          this.openRazorpayCheckout(order, specTitle);
+        }
       }),
       catchError((error) => {
-        if (error?.status === 409 || error?.error?.code === 'PRICE_CHANGED') {
+        this.isInitiatingPayment.set(false);
+        const code = error?.error?.code;
+        if (error?.status === 202 || code === 'CHECKOUT_IN_FLIGHT') {
+          this.toast.show('Checkout is currently in progress. Please wait a moment...', 'info');
+        } else if (error?.status === 409 && code === 'IDEMPOTENCY_CONFLICT') {
+          try {
+            sessionStorage.removeItem(intentStorageKey);
+          } catch {}
+          this.toast.show('A checkout with different details was already initiated. Please refresh and try again.', 'error');
+        } else if (error?.status === 409 || code === 'PRICE_CHANGED' || code === 'PRICE_UNAVAILABLE') {
+          try {
+            sessionStorage.removeItem(intentStorageKey);
+          } catch {}
           this.toast.show('Price changed. Please review the updated offer.', 'info');
         } else {
           this.toast.show('Failed to create order. Please try again.', 'error');
@@ -245,5 +289,22 @@ export class PaymentService {
    */
   getProducerOrders(page: number = 1, limit: number = 10): Observable<ProducerOrderResponse> {
     return this.api.execute(new GetProducerOrdersRequest(page, limit));
+  }
+
+  /**
+   * Admin: Initiate full refund for an order
+   */
+  refundOrder(orderId: string, reason: string, notes?: string): Observable<OrderRefundResponse> {
+    const idempotencyKey = crypto.randomUUID();
+    return this.api.execute(new CreateRefundRequest(orderId, { reason, notes }, idempotencyKey));
+  }
+
+  /**
+   * Admin: Get refund records for an order
+   */
+  getOrderRefunds(orderId: string): Observable<OrderRefund[]> {
+    return this.api.execute(new GetOrderRefundsRequest(orderId)).pipe(
+      map((res) => res?.data || []),
+    );
   }
 }

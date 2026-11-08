@@ -39,6 +39,7 @@ export interface AdminOrder {
   /** Minor units (paise or cents). */
   amount: number;
   currency: string;
+  provider?: string;
   status: string;
   created_at: string;
 }

@@ -2,6 +2,9 @@ import { Type } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { of, Subject } from 'rxjs';
 import { AdminService } from '../../../services/admin.service';
+import { AuthzService } from '../../../services/authz.service';
+import { PaymentService } from '../../../services/payment.service';
+import { ToastService } from '../../../services/toast.service';
 import { entry, license, order, pageOf } from '../admin.fixtures';
 import { AdminAuditSectionComponent } from './audit-section.component';
 import { AdminLicensesSectionComponent } from './licenses-section.component';
@@ -10,9 +13,19 @@ import { AdminOrdersSectionComponent } from './orders-section.component';
 // The read-only sections share one shape: load on show, list rows, cancel on destroy.
 describe('read-only admin sections', () => {
   const admin = { getOrders: vi.fn(), getLicenses: vi.fn(), getAuditLog: vi.fn() };
+  const authz = { isSuperAdmin: vi.fn(() => true) };
+  const payment = { refundOrder: vi.fn(), getOrderRefunds: vi.fn() };
+  const toast = { show: vi.fn(), success: vi.fn(), error: vi.fn() };
 
   function render<T>(component: Type<T>) {
-    TestBed.configureTestingModule({ providers: [{ provide: AdminService, useValue: admin }] });
+    TestBed.configureTestingModule({
+      providers: [
+        { provide: AdminService, useValue: admin },
+        { provide: AuthzService, useValue: authz },
+        { provide: PaymentService, useValue: payment },
+        { provide: ToastService, useValue: toast },
+      ],
+    });
     const fixture = TestBed.createComponent(component);
     fixture.detectChanges();
     return fixture;
@@ -53,6 +66,31 @@ describe('read-only admin sections', () => {
 
       expect(fixture.componentInstance.list.items()).toEqual([]);
     });
+
+    it('shows refund button for paid orders when authorized and submits refund', () => {
+      admin.getOrders.mockReturnValue(of(pageOf([order({ id: 'ord-1', status: 'paid' })])));
+      payment.refundOrder.mockReturnValue(of({ id: 'rf-1', status: 'succeeded' }));
+
+      const fixture = render(AdminOrdersSectionComponent);
+      const root = fixture.nativeElement as HTMLElement;
+      const refundBtn = root.querySelector('tbody .row-btn.danger') as HTMLButtonElement;
+      expect(refundBtn).toBeTruthy();
+
+      refundBtn.click();
+      fixture.detectChanges();
+
+      const modal = root.querySelector('.modal-dialog');
+      expect(modal).toBeTruthy();
+
+      const confirmBtn = root.querySelector('.btn-confirm-danger') as HTMLButtonElement;
+      expect(confirmBtn).toBeTruthy();
+
+      confirmBtn.click();
+      fixture.detectChanges();
+
+      expect(payment.refundOrder).toHaveBeenCalledWith('ord-1', 'customer_request', '');
+      expect(toast.show).toHaveBeenCalledWith('Refund completed successfully', 'success');
+    });
   });
 
   describe('licenses', () => {
@@ -80,6 +118,31 @@ describe('read-only admin sections', () => {
       pending.next(pageOf([license()]));
 
       expect(fixture.componentInstance.list.items()).toEqual([]);
+    });
+
+    it('shows refund button for paid orders when authorized and submits refund', () => {
+      admin.getOrders.mockReturnValue(of(pageOf([order({ id: 'ord-1', status: 'paid' })])));
+      payment.refundOrder.mockReturnValue(of({ id: 'rf-1', status: 'succeeded' }));
+
+      const fixture = render(AdminOrdersSectionComponent);
+      const root = fixture.nativeElement as HTMLElement;
+      const refundBtn = root.querySelector('tbody .row-btn.danger') as HTMLButtonElement;
+      expect(refundBtn).toBeTruthy();
+
+      refundBtn.click();
+      fixture.detectChanges();
+
+      const modal = root.querySelector('.modal-dialog');
+      expect(modal).toBeTruthy();
+
+      const confirmBtn = root.querySelector('.btn-confirm-danger') as HTMLButtonElement;
+      expect(confirmBtn).toBeTruthy();
+
+      confirmBtn.click();
+      fixture.detectChanges();
+
+      expect(payment.refundOrder).toHaveBeenCalledWith('ord-1', 'customer_request', '');
+      expect(toast.show).toHaveBeenCalledWith('Refund completed successfully', 'success');
     });
   });
 
@@ -120,6 +183,31 @@ describe('read-only admin sections', () => {
       pending.next(pageOf([entry()]));
 
       expect(fixture.componentInstance.list.items()).toEqual([]);
+    });
+
+    it('shows refund button for paid orders when authorized and submits refund', () => {
+      admin.getOrders.mockReturnValue(of(pageOf([order({ id: 'ord-1', status: 'paid' })])));
+      payment.refundOrder.mockReturnValue(of({ id: 'rf-1', status: 'succeeded' }));
+
+      const fixture = render(AdminOrdersSectionComponent);
+      const root = fixture.nativeElement as HTMLElement;
+      const refundBtn = root.querySelector('tbody .row-btn.danger') as HTMLButtonElement;
+      expect(refundBtn).toBeTruthy();
+
+      refundBtn.click();
+      fixture.detectChanges();
+
+      const modal = root.querySelector('.modal-dialog');
+      expect(modal).toBeTruthy();
+
+      const confirmBtn = root.querySelector('.btn-confirm-danger') as HTMLButtonElement;
+      expect(confirmBtn).toBeTruthy();
+
+      confirmBtn.click();
+      fixture.detectChanges();
+
+      expect(payment.refundOrder).toHaveBeenCalledWith('ord-1', 'customer_request', '');
+      expect(toast.show).toHaveBeenCalledWith('Refund completed successfully', 'success');
     });
   });
 });
