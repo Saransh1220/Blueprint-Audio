@@ -1,6 +1,6 @@
 import { ChangeDetectorRef, Injectable, inject, WritableSignal } from '@angular/core';
 import { Router } from '@angular/router';
-import { Subscription } from 'rxjs';
+import { Subscription, finalize } from 'rxjs';
 import { Spec } from '../models';
 import { AnalyticsService } from './analytics.service';
 import { AuthService } from './auth.service';
@@ -52,39 +52,40 @@ export class SpecActionService {
       if (isFavoriting()) return;
       isFavoriting.set(true);
 
-      this.analyticsService.toggleFavorite(spec.id).subscribe({
-        next: (response) => {
-          if (!spec.analytics) {
-            spec.analytics = {
-              playCount: 0,
-              favoriteCount: 0,
-              totalDownloadCount: 0,
-              isFavorited: false,
-            };
-          }
+      this.analyticsService
+        .toggleFavorite(spec.id)
+        .pipe(finalize(() => isFavoriting.set(false)))
+        .subscribe({
+          next: (response) => {
+            if (!spec.analytics) {
+              spec.analytics = {
+                playCount: 0,
+                favoriteCount: 0,
+                totalDownloadCount: 0,
+                isFavorited: false,
+              };
+            }
 
-          if (spec.analytics) {
-            spec.analytics.isFavorited = response.is_favorited;
-            if (response.total_count !== undefined) {
-              spec.analytics.favoriteCount = response.total_count;
-            } else {
-              if (response.is_favorited) {
-                spec.analytics.favoriteCount++;
+            if (spec.analytics) {
+              spec.analytics.isFavorited = response.is_favorited;
+              if (response.total_count !== undefined) {
+                spec.analytics.favoriteCount = response.total_count;
               } else {
-                spec.analytics.favoriteCount = Math.max(0, spec.analytics.favoriteCount - 1);
+                if (response.is_favorited) {
+                  spec.analytics.favoriteCount++;
+                } else {
+                  spec.analytics.favoriteCount = Math.max(0, spec.analytics.favoriteCount - 1);
+                }
               }
             }
-          }
 
-          isFavoriting.set(false);
-          cdr.markForCheck();
-        },
-        error: (err) => {
-          console.error('Failed to toggle favorite:', err);
-          isFavoriting.set(false);
-          cdr.markForCheck();
-        },
-      });
+            cdr.markForCheck();
+          },
+          error: (err) => {
+            console.error('Failed to toggle favorite:', err);
+            cdr.markForCheck();
+          },
+        });
     });
   }
 

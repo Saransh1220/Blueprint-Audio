@@ -20,7 +20,7 @@ describe('AuthService', () => {
     const signOut = vi.fn().mockResolvedValue(undefined);
     const refreshTokenWithQueue = vi.fn().mockReturnValue(of({ token: 'fresh-token' }));
     const checkSessionSpy = skipInitialSessionCheck
-      ? vi.spyOn(AuthService.prototype, 'checkSession').mockImplementation(() => undefined)
+      ? vi.spyOn(AuthService.prototype, 'checkSession').mockResolvedValue(null)
       : null;
 
     TestBed.configureTestingModule({

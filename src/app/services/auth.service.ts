@@ -1,7 +1,7 @@
 import { SocialAuthService } from '@abacritt/angularx-social-login';
 import { Injectable, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
-import { catchError, map, of, switchMap, tap } from 'rxjs';
+import { catchError, firstValueFrom, map, of, switchMap, tap } from 'rxjs';
 import { AuthRequirementComponent } from '../components/modals/auth-requirement/auth-requirement.component';
 import {
   ForgotPasswordApiRequest,
@@ -25,6 +25,7 @@ import { ApiService } from '../core/services/api.service';
 import { Role, SystemRole, User, UserAdapter } from '../models';
 import type { AppCurrency } from '../models/money';
 import { resolveMediaUrl } from '../utils/media-url';
+import { FavoriteStateService } from './favorite-state.service';
 import { ModalService } from './modal.service';
 import { TokenRefreshService } from './token-refresh.service';
 
@@ -37,6 +38,8 @@ export class AuthService {
   private readonly modalService = inject(ModalService);
   private readonly socialAuthService = inject(SocialAuthService);
   private readonly tokenRefreshService = inject(TokenRefreshService);
+
+  private readonly favorites = inject(FavoriteStateService);
 
   currentUser = signal<User | null>(null);
 
@@ -51,9 +54,7 @@ export class AuthService {
     }
   }
 
-  constructor() {
-    this.checkSession();
-  }
+  readonly sessionReady = this.checkSession();
 
   /**
    * On app startup:
@@ -65,17 +66,17 @@ export class AuthService {
     const token = localStorage.getItem('token');
     if (token) {
       // We have a stored access token, verify it by fetching the user profile
-      this.getMe().subscribe();
-    } else {
-      // No access token; attempt a silent refresh using the HttpOnly refresh cookie
-      this.tokenRefreshService
-        .refreshTokenWithQueue()
-        .pipe(
-          switchMap(() => this.getMe()),
-          catchError(() => of(null)), // Refresh failed – user is not authenticated
-        )
-        .subscribe();
+      return firstValueFrom(this.getMe(), { defaultValue: null });
     }
+
+    // No access token; attempt a silent refresh using the HttpOnly refresh cookie.
+    return firstValueFrom(
+      this.tokenRefreshService.refreshTokenWithQueue().pipe(
+        switchMap(() => this.getMe()),
+        catchError(() => of(null)),
+      ),
+      { defaultValue: null },
+    );
   }
 
   login(credentials: { email: string; password: string }) {
@@ -179,6 +180,7 @@ export class AuthService {
     return this.api.execute(new GetMeRequest()).pipe(
       map((apiResponse) => UserAdapter.toUser(apiResponse)),
       tap((user) => {
+        this.favorites.setViewer(user.id);
         this.currentUser.set(user);
       }),
       catchError((err) => {
@@ -208,6 +210,7 @@ export class AuthService {
 
   /** Clears local session without calling the API (used internally). */
   private clearLocalSession() {
+    this.favorites.setViewer(undefined);
     localStorage.removeItem('token');
     this.currentUser.set(null);
   }

@@ -58,6 +58,7 @@ export class LabService {
 
   private _refreshTrigger = new Subject<void>();
   refresh$ = this._refreshTrigger.asObservable();
+  private specsCacheToken = localStorage.getItem('token');
   private specsCache = new Map<string, Observable<Spec[]>>();
 
   specsPagination = signal<PaginationMetadata | null>(null);
@@ -80,6 +81,12 @@ export class LabService {
     per_page?: number;
     sort?: string;
   }): Observable<Spec[]> {
+    const token = localStorage.getItem('token');
+    if (this.specsCacheToken !== token) {
+      this.specsCache.clear();
+      this.specsCacheToken = token;
+    }
+
     const cacheKey = this.specsCacheKey(filters);
     const cached = this.specsCache.get(cacheKey);
     if (cached) return cached;

@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
-import { Observable, Subject } from 'rxjs';
-import { map, tap } from 'rxjs/operators';
+import { EMPTY, Observable, Subject, defer, finalize } from 'rxjs';
+import { filter, map, tap } from 'rxjs/operators';
 import { SpecAdapter } from '../adapters/spec.adapter';
 import {
   AnalyticsOverviewResponse,
@@ -16,6 +16,7 @@ import {
 } from '../core/api/analytics.requests';
 import { ApiService } from '../core/services/api.service';
 import { ProducerAnalytics } from '../models/spec';
+import { FavoriteStateService } from './favorite-state.service';
 
 export interface FavoriteChangeEvent {
   specId: string;
@@ -27,6 +28,8 @@ export interface FavoriteChangeEvent {
 export class AnalyticsService {
   private api = inject(ApiService);
   private adapter = inject(SpecAdapter);
+  private favorites = inject(FavoriteStateService);
+  private pendingFavorites = new Set<string>();
 
   private favoriteChangeSubject = new Subject<FavoriteChangeEvent>();
   favoriteChanges$ = this.favoriteChangeSubject.asObservable();
@@ -43,15 +46,23 @@ export class AnalyticsService {
    * Returns whether the spec is now favorited and the new total count
    */
   toggleFavorite(specId: string): Observable<ToggleFavoriteResponse> {
-    return this.api.execute(new ToggleFavoriteRequest(specId)).pipe(
-      tap((response) => {
-        this.favoriteChangeSubject.next({
-          specId,
-          isFavorited: response.is_favorited,
-          totalCount: response.total_count,
-        });
-      }),
-    );
+    return defer(() => {
+      if (this.pendingFavorites.has(specId)) return EMPTY;
+      this.pendingFavorites.add(specId);
+      const record = this.favorites.recordChanges();
+
+      return this.api.execute(new ToggleFavoriteRequest(specId)).pipe(
+        filter((response) => record(specId, response.is_favorited)),
+        tap((response) => {
+          this.favoriteChangeSubject.next({
+            specId,
+            isFavorited: response.is_favorited,
+            totalCount: response.total_count,
+          });
+        }),
+        finalize(() => this.pendingFavorites.delete(specId)),
+      );
+    });
   }
 
   /**

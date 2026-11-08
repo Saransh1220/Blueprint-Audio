@@ -1,5 +1,5 @@
 import { TestBed } from '@angular/core/testing';
-import { of } from 'rxjs';
+import { Subject, of } from 'rxjs';
 import { SpecAdapter } from '../adapters/spec.adapter';
 import {
   DownloadFreeMp3Request,
@@ -7,10 +7,13 @@ import {
   GetProducerAnalyticsRequest,
   GetTopSpecsRequest,
   ToggleFavoriteRequest,
+  type ToggleFavoriteResponse,
   TrackPlayRequest,
 } from '../core/api/analytics.requests';
 import { ApiService } from '../core/services/api.service';
+import type { Spec } from '../models';
 import { AnalyticsService } from './analytics.service';
+import { FavoriteStateService } from './favorite-state.service';
 
 describe('AnalyticsService', () => {
   it('sends expected request classes and maps producer analytics dto', () => {
@@ -62,6 +65,34 @@ describe('AnalyticsService', () => {
     expect((execute.mock.calls[4][0] as GetTopSpecsRequest).params.get('sortBy')).toBe('revenue');
     expect(execute.mock.calls[5][0]).toBeInstanceOf(GetProducerAnalyticsRequest);
     expect(adaptProducerAnalytics).toHaveBeenCalledTimes(1);
+  });
+
+  it('shares confirmed favorites across beat copies and ignores overlapping toggles', () => {
+    const response = new Subject<ToggleFavoriteResponse>();
+    const execute = vi.fn(() => response);
+    TestBed.configureTestingModule({
+      providers: [{ provide: ApiService, useValue: { execute } }],
+    });
+    const analytics = TestBed.inject(AnalyticsService);
+    const favorites = TestBed.inject(FavoriteStateService);
+    favorites.setViewer('buyer');
+    const beat = { id: 's1', analytics: { isFavorited: false } } as Spec;
+    const playerTrack = { ...beat, analytics: { ...beat.analytics! } };
+
+    expect(favorites.isFavorited(beat)).toBe(false);
+    analytics.toggleFavorite(beat.id).subscribe();
+    analytics.toggleFavorite(playerTrack.id).subscribe();
+    expect(execute).toHaveBeenCalledTimes(1);
+
+    response.next({ is_favorited: true });
+    response.complete();
+    expect(favorites.isFavorited(beat)).toBe(true);
+    expect(favorites.isFavorited(playerTrack)).toBe(true);
+
+    favorites.setViewer('another-buyer');
+    expect(favorites.isFavorited(beat)).toBe(false);
+    analytics.toggleFavorite(beat.id).subscribe();
+    expect(execute).toHaveBeenCalledTimes(2);
   });
 
   describe('reporting currency', () => {

@@ -10,11 +10,12 @@ import {
   signal,
 } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
-import { Subscription } from 'rxjs';
+import { Subscription, finalize } from 'rxjs';
 import type { Spec } from '../../models';
 import { AnalyticsService } from '../../services/analytics.service';
 import { AuthService } from '../../services/auth.service';
 import { CurrencyService } from '../../services/currency.service';
+import { FavoriteStateService } from '../../services/favorite-state.service';
 import { LabService } from '../../services/lab';
 import { PurchaseDialogService } from '../../services/purchase-dialog.service';
 import { PlayerService } from '../../services/player.service';
@@ -39,6 +40,7 @@ export class PlayerComponent implements OnDestroy {
   router = inject(Router);
   cdr = inject(ChangeDetectorRef);
 
+  readonly favorites = inject(FavoriteStateService);
   isFavoriting = signal(false);
   isMenuOpen = signal(false);
   expandedTrackDetail = signal<Spec | null>(null);
@@ -326,35 +328,36 @@ export class PlayerComponent implements OnDestroy {
       if (this.isFavoriting()) return;
       this.isFavoriting.set(true);
 
-      this.analyticsService.toggleFavorite(track.id).subscribe({
-        next: (response) => {
-          if (!track.analytics) {
-            track.analytics = {
-              playCount: 0,
-              favoriteCount: 0,
-              totalDownloadCount: 0,
-              isFavorited: false,
-            };
-          }
+      this.analyticsService
+        .toggleFavorite(track.id)
+        .pipe(finalize(() => this.isFavoriting.set(false)))
+        .subscribe({
+          next: (response) => {
+            if (!track.analytics) {
+              track.analytics = {
+                playCount: 0,
+                favoriteCount: 0,
+                totalDownloadCount: 0,
+                isFavorited: false,
+              };
+            }
 
-          track.analytics.isFavorited = response.is_favorited;
-          if (response.total_count !== undefined) {
-            track.analytics.favoriteCount = response.total_count;
-          } else if (response.is_favorited) {
-            track.analytics.favoriteCount++;
-          } else {
-            track.analytics.favoriteCount = Math.max(0, track.analytics.favoriteCount - 1);
-          }
+            track.analytics.isFavorited = response.is_favorited;
+            if (response.total_count !== undefined) {
+              track.analytics.favoriteCount = response.total_count;
+            } else if (response.is_favorited) {
+              track.analytics.favoriteCount++;
+            } else {
+              track.analytics.favoriteCount = Math.max(0, track.analytics.favoriteCount - 1);
+            }
 
-          this.isFavoriting.set(false);
-          this.cdr.markForCheck();
-        },
-        error: (err) => {
-          console.error('Player: Failed to toggle favorite:', err);
-          this.isFavoriting.set(false);
-          this.cdr.markForCheck();
-        },
-      });
+            this.cdr.markForCheck();
+          },
+          error: (err) => {
+            console.error('Player: Failed to toggle favorite:', err);
+            this.cdr.markForCheck();
+          },
+        });
     });
   }
 

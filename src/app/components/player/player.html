@@ -63,13 +63,13 @@
 
         <button
           class="mp-save-btn"
-          [class.saved]="track.analytics?.isFavorited"
+          [class.saved]="favorites.isFavorited(track)"
           (click)="toggleFavorite($event, track)"
           [disabled]="isFavoriting()"
           aria-label="Save to wishlist"
         >
           <i
-            [class]="track.analytics?.isFavorited ? 'fa-solid fa-heart' : 'fa-regular fa-heart'"
+            [class]="favorites.isFavorited(track) ? 'fa-solid fa-heart' : 'fa-regular fa-heart'"
           ></i>
         </button>
       </div>
@@ -488,13 +488,13 @@
             </div>
             <button
               class="mobile-heart"
-              [class.saved]="track.analytics?.isFavorited"
+              [class.saved]="favorites.isFavorited(track)"
               (click)="toggleFavorite($event, track)"
               [disabled]="isFavoriting()"
               aria-label="Save to wishlist"
             >
               <i
-                [class]="track.analytics?.isFavorited ? 'fa-solid fa-heart' : 'fa-regular fa-heart'"
+                [class]="favorites.isFavorited(track) ? 'fa-solid fa-heart' : 'fa-regular fa-heart'"
               ></i>
             </button>
           </div>

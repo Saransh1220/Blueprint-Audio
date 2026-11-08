@@ -133,7 +133,9 @@
           <button
             class="ha-btn"
             type="button"
-            [class.liked]="s.analytics?.isFavorited"
+            [class.liked]="favorites.isFavorited(s)"
+            [disabled]="isFavoriting()"
+            [attr.aria-pressed]="favorites.isFavorited(s)"
             (click)="toggleFavorite()"
             aria-label="Wishlist"
           >
@@ -141,7 +143,7 @@
               width="16"
               height="16"
               viewBox="0 0 24 24"
-              [attr.fill]="s.analytics?.isFavorited ? 'currentColor' : 'none'"
+              [attr.fill]="favorites.isFavorited(s) ? 'currentColor' : 'none'"
               stroke="currentColor"
               stroke-width="2"
               aria-hidden="true"

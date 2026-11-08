@@ -23,6 +23,7 @@ import {
   PlayerService,
   ToastService,
 } from '../../services';
+import { FavoriteStateService } from '../../services/favorite-state.service';
 import { MoneyPipe } from '../../shared/pipes/money.pipe';
 import { isExclusiveLicense, licenseTiers, TIER_ICON, TIER_LABEL } from '../../utils/license-tiers';
 
@@ -43,6 +44,7 @@ export class SpecDetailsComponent {
   private toastService = inject(ToastService);
   private analyticsService = inject(AnalyticsService);
 
+  readonly favorites = inject(FavoriteStateService);
   isFavoriting = signal(false);
   stickyBuyVisible = signal(false);
   openFaqIndex = signal<number | null>(null);
@@ -451,29 +453,30 @@ export class SpecDetailsComponent {
     if (!s || this.isFavoriting()) return;
 
     this.isFavoriting.set(true);
-    this.analyticsService.toggleFavorite(s.id).subscribe({
-      next: (response) => {
-        if (s.analytics) {
-          s.analytics.isFavorited = response.is_favorited;
+    this.analyticsService
+      .toggleFavorite(s.id)
+      .pipe(finalize(() => this.isFavoriting.set(false)))
+      .subscribe({
+        next: (response) => {
+          if (s.analytics) {
+            s.analytics.isFavorited = response.is_favorited;
 
-          if (response.total_count !== undefined) {
-            s.analytics.favoriteCount = response.total_count;
-          } else {
-            // Fallback: manually update count if backend doesn't return it
-            if (response.is_favorited) {
-              s.analytics.favoriteCount++;
+            if (response.total_count !== undefined) {
+              s.analytics.favoriteCount = response.total_count;
             } else {
-              s.analytics.favoriteCount = Math.max(0, s.analytics.favoriteCount - 1);
+              // Fallback: manually update count if backend doesn't return it
+              if (response.is_favorited) {
+                s.analytics.favoriteCount++;
+              } else {
+                s.analytics.favoriteCount = Math.max(0, s.analytics.favoriteCount - 1);
+              }
             }
           }
-        }
-        this.isFavoriting.set(false);
-      },
-      error: (err) => {
-        console.error('Failed to toggle favorite:', err);
-        this.isFavoriting.set(false);
-      },
-    });
+        },
+        error: (err) => {
+          console.error('Failed to toggle favorite:', err);
+        },
+      });
   }
 
   downloadFreeMp3() {

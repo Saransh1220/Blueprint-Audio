@@ -19,6 +19,7 @@ import { routes } from './app/app.routes';
 import { authInterceptor } from './app/core/interceptors/auth.interceptor';
 import { loadingInterceptor } from './app/core/interceptors/loading.interceptor';
 import { environment } from './environments/environment';
+import { AuthService } from './app/services/auth.service';
 import { CurrencyConfigurationService } from './app/services/currency-configuration.service';
 
 bootstrapApplication(AppComponent, {
@@ -37,6 +38,7 @@ bootstrapApplication(AppComponent, {
     ),
     provideHttpClient(withInterceptors([authInterceptor, loadingInterceptor])),
     provideAppInitializer(() => inject(CurrencyConfigurationService).load()),
+    provideAppInitializer(() => inject(AuthService).sessionReady),
     provideCharts(withDefaultRegisterables()),
     {
       provide: SOCIAL_AUTH_CONFIG,
