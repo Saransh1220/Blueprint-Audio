@@ -3,8 +3,8 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { LabService } from '../../services/lab';
-import { SpecUploadMonitorService } from '../../services/spec-upload-monitor.service';
 import { SpecUploadService } from '../../services/spec-upload.service';
+import { SpecUploadMonitorService } from '../../services/spec-upload-monitor.service';
 import { ToastService } from '../../services/toast.service';
 import { UploadComponent } from './upload.component';
 

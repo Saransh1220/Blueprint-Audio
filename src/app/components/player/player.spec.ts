@@ -5,8 +5,8 @@ import { of, throwError } from 'rxjs';
 import { AnalyticsService } from '../../services/analytics.service';
 import { AuthService } from '../../services/auth.service';
 import { LabService } from '../../services/lab';
-import { PurchaseDialogService } from '../../services/purchase-dialog.service';
 import { PlayerService } from '../../services/player.service';
+import { PurchaseDialogService } from '../../services/purchase-dialog.service';
 import { ToastService } from '../../services/toast.service';
 import { PlayerComponent } from './player';
 

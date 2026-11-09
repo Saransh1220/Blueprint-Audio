@@ -1,6 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import { Observable, catchError, map, of } from 'rxjs';
-import { ApiService } from '../core/services/api.service';
+import { catchError, map, Observable, of } from 'rxjs';
 import { LegalAdapter } from '../adapters/legal.adapter';
 import {
   GetLegalDocumentRequest,
@@ -9,6 +8,7 @@ import {
   GetLegalRequirementsRequest,
   RecordLegalAcceptanceRequest,
 } from '../core/api/legal.requests';
+import { ApiService } from '../core/services/api.service';
 import {
   LegalAcceptancePayload,
   LegalDocumentView,

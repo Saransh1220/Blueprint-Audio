@@ -1,6 +1,6 @@
 import '../../../test-setup';
 import { type ComponentFixture, TestBed } from '@angular/core/testing';
-import { Router, provideRouter } from '@angular/router';
+import { provideRouter, Router } from '@angular/router';
 
 import { HeroComponent } from './hero';
 

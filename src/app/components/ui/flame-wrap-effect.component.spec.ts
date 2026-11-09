@@ -1,8 +1,8 @@
 import { PLATFORM_ID } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { FlameWrapEffectComponent } from './flame-wrap-effect.component';
 import { createFlameWrap } from './flame-wrap';
+import { FlameWrapEffectComponent } from './flame-wrap-effect.component';
 
 vi.mock('./flame-wrap', () => ({ createFlameWrap: vi.fn() }));
 

@@ -4,10 +4,16 @@
       <div class="status-box confirming">
         <div class="spinner"></div>
         <h2>Confirming Your Payment</h2>
-        <p class="subtitle">Please wait while we verify your transaction with the payment provider.</p>
-        <p class="hint">Do not close or refresh this page. This usually takes just a few seconds.</p>
+        <p class="subtitle">
+          Please wait while we verify your transaction with the payment provider.
+        </p>
+        <p class="hint">
+          Do not close or refresh this page. This usually takes just a few seconds.
+        </p>
         @if (orderId(); as id) {
-          <div class="order-ref">Order Reference: <code>{{ id }}</code></div>
+          <div class="order-ref">
+            Order Reference: <code>{{ id }}</code>
+          </div>
         }
       </div>
     }
@@ -15,12 +21,21 @@
     @if (state() === 'paid') {
       <div class="status-box success">
         <div class="icon-circle success-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2.5"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
             <polyline points="20 6 9 17 4 12"></polyline>
           </svg>
         </div>
         <h2>Payment Successful!</h2>
-        <p class="subtitle">Thank you for your purchase. Your license has been issued and is ready to use.</p>
+        <p class="subtitle">
+          Thank you for your purchase. Your license has been issued and is ready to use.
+        </p>
 
         @if (orderStatus()?.license; as license) {
           <div class="license-box">
@@ -44,7 +59,14 @@
     @if (state() === 'pending_timeout') {
       <div class="status-box warning">
         <div class="icon-circle warning-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2.5"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
             <circle cx="12" cy="12" r="10"></circle>
             <polyline points="12 6 12 12 16 14"></polyline>
           </svg>
@@ -54,10 +76,13 @@
           Your payment is taking longer than usual to confirm with the payment provider.
         </p>
         <p class="explanation">
-          If money was deducted from your account, your order will automatically be activated once confirmed by your bank. A receipt and confirmation email will be sent to your inbox.
+          If money was deducted from your account, your order will automatically be activated once
+          confirmed by your bank. A receipt and confirmation email will be sent to your inbox.
         </p>
         <div class="actions">
-          <button type="button" class="btn-secondary" (click)="retryPolling()">Check Status Again</button>
+          <button type="button" class="btn-secondary" (click)="retryPolling()">
+            Check Status Again
+          </button>
           <a routerLink="/dashboard" class="btn-primary">View My Orders</a>
         </div>
       </div>
@@ -66,17 +91,23 @@
     @if (state() === 'failed') {
       <div class="status-box error">
         <div class="icon-circle error-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2.5"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
             <line x1="18" y1="6" x2="6" y2="18"></line>
             <line x1="6" y1="6" x2="18" y2="18"></line>
           </svg>
         </div>
         <h2>Payment Unsuccessful</h2>
-        <p class="subtitle">
-          We were unable to complete your payment.
-        </p>
+        <p class="subtitle">We were unable to complete your payment.</p>
         <p class="explanation">
-          If any funds were deducted, they will be automatically refunded by your bank. You can try checking out again or contact our support team if the issue persists.
+          If any funds were deducted, they will be automatically refunded by your bank. You can try
+          checking out again or contact our support team if the issue persists.
         </p>
         <div class="actions">
           <a routerLink="/explore" class="btn-primary">Back to Store</a>
@@ -87,7 +118,14 @@
     @if (state() === 'not_found') {
       <div class="status-box not-found">
         <div class="icon-circle not-found-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2.5"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
             <circle cx="12" cy="12" r="10"></circle>
             <line x1="12" y1="8" x2="12" y2="12"></line>
             <line x1="12" y1="16" x2="12.01" y2="16"></line>

@@ -1,6 +1,8 @@
 import { inject } from '@angular/core';
 import type { Routes } from '@angular/router';
 import { Router } from '@angular/router';
+import { CartComponent } from './components/cart/cart.component';
+import { unreleasedFeatureGuard } from './core/config/feature-availability';
 import { adminGuard } from './guards/admin.guard';
 import { authGuard } from './guards/auth.guard';
 import { guestGuard } from './guards/guest.guard';
@@ -11,18 +13,15 @@ import { ResetPasswordComponent } from './pages/auth/reset-password/reset-passwo
 import { VerifyEmailComponent } from './pages/auth/verify-email/verify-email.component';
 import { BattleDetailsComponent } from './pages/battle-details/battle-details.component';
 import { BattlesComponent } from './pages/battles/battles.component';
-import { CartComponent } from './components/cart/cart.component';
 import { DashboardComponent } from './pages/dashboard/dashboard.component';
 import { HomeComponent } from './pages/home/home.component';
+import { LegalComponent } from './pages/legal/legal.component';
 import { SearchPageComponent } from './pages/search/search.component';
 import { SettingsComponent } from './pages/settings/settings.component';
 import { StudioComponent } from './pages/studio/studio.component';
+import { UnavailableComponent } from './pages/unavailable/unavailable.component';
 import { UploadComponent } from './pages/upload/upload.component';
 import { AuthService } from './services';
-
-import { unreleasedFeatureGuard } from './core/config/feature-availability';
-import { UnavailableComponent } from './pages/unavailable/unavailable.component';
-import { LegalComponent } from './pages/legal/legal.component';
 
 export const routes: Routes = [
   { path: 'unavailable', component: UnavailableComponent },

@@ -1,5 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import { EMPTY, Observable, Subject, defer, finalize } from 'rxjs';
+import { defer, EMPTY, finalize, Observable, Subject } from 'rxjs';
 import { filter, map, tap } from 'rxjs/operators';
 import { SpecAdapter } from '../adapters/spec.adapter';
 import {

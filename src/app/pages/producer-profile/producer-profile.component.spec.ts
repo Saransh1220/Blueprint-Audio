@@ -5,8 +5,8 @@ import { SpecAdapter } from '../../adapters/spec.adapter';
 import type { SpecDto } from '../../core/api/spec.requests';
 import type { PublicUserResponse } from '../../core/api/user.requests';
 import { CurrencyService } from '../../services/currency.service';
-import { SpecActionService } from '../../services/spec-action.service';
 import { SpecService } from '../../services/spec.service';
+import { SpecActionService } from '../../services/spec-action.service';
 import { UserService } from '../../services/user.service';
 import { ProducerProfileComponent } from './producer-profile.component';
 

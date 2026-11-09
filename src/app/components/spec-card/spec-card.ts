@@ -1,6 +1,4 @@
-import { BRAND } from '../../core/config/brand';
 import { CommonModule, NgOptimizedImage } from '@angular/common';
-import { RouterLink } from '@angular/router';
 import {
   ChangeDetectionStrategy,
   ChangeDetectorRef,
@@ -12,7 +10,9 @@ import {
   OnInit,
   signal,
 } from '@angular/core';
+import { RouterLink } from '@angular/router';
 import { Subscription } from 'rxjs';
+import { BRAND } from '../../core/config/brand';
 
 import type { Spec } from '../../models';
 import { SpecActionService } from '../../services/spec-action.service';

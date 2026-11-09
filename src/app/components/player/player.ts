@@ -10,15 +10,15 @@ import {
   signal,
 } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
-import { Subscription, finalize } from 'rxjs';
+import { finalize, Subscription } from 'rxjs';
 import type { Spec } from '../../models';
 import { AnalyticsService } from '../../services/analytics.service';
 import { AuthService } from '../../services/auth.service';
 import { CurrencyService } from '../../services/currency.service';
 import { FavoriteStateService } from '../../services/favorite-state.service';
 import { LabService } from '../../services/lab';
-import { PurchaseDialogService } from '../../services/purchase-dialog.service';
 import { PlayerService } from '../../services/player.service';
+import { PurchaseDialogService } from '../../services/purchase-dialog.service';
 import { ToastService } from '../../services/toast.service';
 import { FlameWrapEffectComponent } from '../ui/flame-wrap-effect.component';
 

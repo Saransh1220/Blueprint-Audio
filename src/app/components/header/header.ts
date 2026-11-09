@@ -1,4 +1,3 @@
-import { BRAND } from '../../core/config/brand';
 import { CommonModule } from '@angular/common';
 import {
   Component,
@@ -10,15 +9,15 @@ import {
   ViewChild,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
+import { BRAND } from '../../core/config/brand';
 import { Role } from '../../models';
 import { StudioShellService } from '../../pages/studio/studio-shell.service';
 import { AuthService, AuthzService, CartService, NotificationService } from '../../services';
+import { CurrencySwitcherComponent } from '../currency-switcher/currency-switcher.component';
 import { NavMenuComponent } from '../nav-menu/nav-menu';
 import { BROWSE_ITEMS, menuItemsFor, STUDIO_ITEMS } from '../nav-menu/nav-menu.items';
 import { UserMenuComponent } from '../user-menu/user-menu';
-import { CurrencySwitcherComponent } from '../currency-switcher/currency-switcher.component';
 
 type NotificationKind =
   | 'all'

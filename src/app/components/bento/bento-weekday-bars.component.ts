@@ -10,11 +10,7 @@ import { BentoTooltipComponent } from './bento-tooltip.component';
     @if (hasData()) {
       <div class="bars" role="img" [attr.aria-label]="summary()">
         @for (b of bars(); track b.label) {
-          <div
-            class="col"
-            (pointermove)="onMove(b.i, $event)"
-            (pointerleave)="hover.set(null)"
-          >
+          <div class="col" (pointermove)="onMove(b.i, $event)" (pointerleave)="hover.set(null)">
             <span class="track">
               <span
                 class="fill"

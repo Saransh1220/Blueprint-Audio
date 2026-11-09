@@ -1,5 +1,4 @@
 import { CommonModule, NgOptimizedImage } from '@angular/common';
-import { RouterLink } from '@angular/router';
 import {
   ChangeDetectionStrategy,
   ChangeDetectorRef,
@@ -11,6 +10,7 @@ import {
   OnInit,
   signal,
 } from '@angular/core';
+import { RouterLink } from '@angular/router';
 import { Subscription } from 'rxjs';
 
 import type { Spec } from '../../models';

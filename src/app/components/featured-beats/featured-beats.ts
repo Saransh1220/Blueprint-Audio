@@ -1,9 +1,9 @@
 import { ChangeDetectionStrategy, Component, computed, inject, input, signal } from '@angular/core';
 
 import type { Spec } from '../../models';
+import { CurrencyConfigurationService } from '../../services/currency-configuration.service';
 import { PlayerService } from '../../services/player.service';
 import { SpecActionService } from '../../services/spec-action.service';
-import { CurrencyConfigurationService } from '../../services/currency-configuration.service';
 import { DiscCarouselComponent } from '../disc-carousel/disc-carousel';
 import { specToDisc } from './featured-beats.utils';
 

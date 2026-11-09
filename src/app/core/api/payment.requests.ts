@@ -41,7 +41,10 @@ export class CreateOrderRequest implements ApiRequest<Order> {
   readonly headers?: Record<string, string>;
   readonly _responseType?: Order;
 
-  constructor(public body: CreateOrderBody, idempotencyKey?: string) {
+  constructor(
+    public body: CreateOrderBody,
+    idempotencyKey?: string,
+  ) {
     if (idempotencyKey) {
       this.headers = { 'Idempotency-Key': idempotencyKey };
     }
@@ -159,7 +162,11 @@ export class CreateRefundRequest implements ApiRequest<OrderRefundResponse> {
   readonly path: string;
   readonly headers?: Record<string, string>;
 
-  constructor(orderId: string, public body: CreateRefundPayload, idempotencyKey?: string) {
+  constructor(
+    orderId: string,
+    public body: CreateRefundPayload,
+    idempotencyKey?: string,
+  ) {
     this.path = `/admin/orders/${orderId}/refunds`;
     if (idempotencyKey) {
       this.headers = { 'Idempotency-Key': idempotencyKey };

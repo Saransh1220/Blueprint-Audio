@@ -1,11 +1,11 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ActivatedRoute, provideRouter } from '@angular/router';
 import { BehaviorSubject, of, throwError } from 'rxjs';
-import { describe, expect, it, vi, beforeEach } from 'vitest';
-import { PaymentResultComponent } from './payment-result.component';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { OrderStatusDto } from '../../models/payment';
 import { PaymentService } from '../../services/payment.service';
 import { ToastService } from '../../services/toast.service';
-import { OrderStatusDto } from '../../models/payment';
+import { PaymentResultComponent } from './payment-result.component';
 
 describe('PaymentResultComponent', () => {
   let fixture: ComponentFixture<PaymentResultComponent>;

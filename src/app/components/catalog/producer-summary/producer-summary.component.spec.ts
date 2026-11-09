@@ -1,7 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-
-import { ProducerSummaryComponent } from './producer-summary.component';
 import { MOCK_SAMPLE_PACK_DETAIL } from '../../../content/catalog/catalog.mock-data';
+import { ProducerSummaryComponent } from './producer-summary.component';
 
 describe('ProducerSummaryComponent', () => {
   let component: ProducerSummaryComponent;

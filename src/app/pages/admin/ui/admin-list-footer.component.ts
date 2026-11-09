@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 import { PaginationComponent } from '../../../shared/components/pagination/pagination.component';
-import { AdminList, ADMIN_PAGE_SIZES } from '../admin-list';
+import { ADMIN_PAGE_SIZES, AdminList } from '../admin-list';
 
 /** Pagination for one {@link AdminList}, with the page sizes the admin UI offers. */
 @Component({

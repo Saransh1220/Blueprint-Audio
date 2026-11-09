@@ -8,6 +8,6 @@ export * from './battle-details/battle-details.component';
 export * from './battles/battles.component';
 export * from './dashboard/dashboard.component';
 export * from './home/home.component';
+export * from './payment-result/payment-result.component';
 export * from './settings/settings.component';
 export * from './spec-details/spec-details.component';
-export * from './payment-result/payment-result.component';

@@ -2,16 +2,16 @@ import { signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { FormBuilder } from '@angular/forms';
 import { Router } from '@angular/router';
-import { of, throwError } from 'rxjs';
+import { of, Subject, throwError } from 'rxjs';
 import { describe, expect, it, vi } from 'vitest';
 import { Genre, MusicalKey } from '../../models';
 import { AuthService, LabService, ToastService } from '../../services';
-import { CurrencyConfigurationService } from '../../services/currency-configuration.service';
 import { CurrencyService } from '../../services/currency.service';
+import { CurrencyConfigurationService } from '../../services/currency-configuration.service';
 import { FxService, RateUnavailableError } from '../../services/fx.service';
 import { SpecService } from '../../services/spec.service';
-import { SpecUploadMonitorService } from '../../services/spec-upload-monitor.service';
 import { SpecUploadService } from '../../services/spec-upload.service';
+import { SpecUploadMonitorService } from '../../services/spec-upload-monitor.service';
 import { UploadComponent } from './upload.component';
 
 describe('UploadComponent - RW-1-6 Explicit Prices & FX Auto-Fill', () => {
@@ -45,7 +45,10 @@ describe('UploadComponent - RW-1-6 Explicit Prices & FX Auto-Fill', () => {
     });
   }
 
-  function createComponent(): { component: UploadComponent; fixture: ComponentFixture<UploadComponent> } {
+  function createComponent(): {
+    component: UploadComponent;
+    fixture: ComponentFixture<UploadComponent>;
+  } {
     TestBed.configureTestingModule({
       imports: [UploadComponent],
       providers: [
@@ -132,6 +135,27 @@ describe('UploadComponent - RW-1-6 Explicit Prices & FX Auto-Fill', () => {
   });
 
   describe('FX Auto-Fill (RW-1-6-2)', () => {
+    it('renders the asynchronous suggestion and clears the spinner without another click', async () => {
+      const { component, fixture } = createComponent();
+      const suggestion = new Subject<{ amount_minor: number }>();
+      fxService.suggestPrice.mockReturnValue(suggestion);
+      component.currentStep.set(2);
+      fixture.detectChanges();
+
+      const field: HTMLElement = fixture.nativeElement.querySelector('.secondary-price-wrapper');
+      const button = field.querySelector('button')!;
+      const input = field.querySelector('input')!;
+      button.click();
+      await fixture.whenStable();
+      expect(button.textContent).toContain('Calculating');
+
+      suggestion.next({ amount_minor: 140800 });
+      suggestion.complete();
+      await fixture.whenStable();
+      expect(button.textContent).toContain('Auto-fill FX');
+      expect(input.value).toBe('1408.00');
+    });
+
     it('successfully auto-fills secondary price from server rate suggestion', () => {
       const { component } = createComponent();
       fxService.suggestPrice.mockReturnValue(
@@ -188,10 +212,7 @@ describe('UploadComponent - RW-1-6 Explicit Prices & FX Auto-Fill', () => {
 
       const basic = component.licenses.at(0);
       expect(basic.get('autoFillLoading')?.value).toBe(false);
-      expect(toast.show).toHaveBeenCalledWith(
-        'Exchange rate currently unavailable',
-        'info',
-      );
+      expect(toast.show).toHaveBeenCalledWith('Exchange rate currently unavailable', 'info');
     });
 
     it('blocks auto-fill and surfaces error if native price is invalid', () => {

@@ -2,9 +2,9 @@ import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { Router } from '@angular/router';
 import { of, Subject, throwError } from 'rxjs';
+import { SpecAdapter } from '../../../adapters/spec.adapter';
 import { AuthService, LabService, ToastService } from '../../../services';
 import { SpecService } from '../../../services/spec.service';
-import { SpecAdapter } from '../../../adapters/spec.adapter';
 import { SpecActionService } from '../../../services/spec-action.service';
 import { StudioTracksComponent } from './studio-tracks.component';
 

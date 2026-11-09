@@ -1,7 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-
-import { SamplePackHeroComponent } from './sample-pack-hero.component';
 import { MOCK_SAMPLE_PACK_DETAIL } from '../../../content/catalog/catalog.mock-data';
+import { SamplePackHeroComponent } from './sample-pack-hero.component';
 
 describe('SamplePackHeroComponent', () => {
   let component: SamplePackHeroComponent;

@@ -11,9 +11,9 @@ import {
 import type { Spec } from '../models';
 import {
   normalizeSpecUploadContentType,
+  type SpecFileUploadEvent,
   SpecUploadCompletionError,
   SpecUploadService,
-  type SpecFileUploadEvent,
   type SpecUploadSourceFile,
 } from './spec-upload.service';
 

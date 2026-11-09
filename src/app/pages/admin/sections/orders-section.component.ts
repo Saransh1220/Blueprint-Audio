@@ -1,4 +1,12 @@
-import { ChangeDetectionStrategy, Component, computed, inject, OnDestroy, OnInit, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  inject,
+  OnDestroy,
+  OnInit,
+  signal,
+} from '@angular/core';
 import { AdminOrder } from '../../../models';
 import { AdminService } from '../../../services/admin.service';
 import { AuthzService } from '../../../services/authz.service';
@@ -315,7 +323,9 @@ import { AdminListToolbarComponent } from '../ui/admin-list-toolbar.component';
             <div class="modal-body">
               <div class="detail-row">
                 <span class="detail-label">Order</span>
-                <span class="detail-value">#{{ shortId(targetOrder.id) }} ({{ targetOrder.spec_title }})</span>
+                <span class="detail-value"
+                  >#{{ shortId(targetOrder.id) }} ({{ targetOrder.spec_title }})</span
+                >
               </div>
               <div class="detail-row">
                 <span class="detail-label">Buyer</span>
@@ -323,12 +333,18 @@ import { AdminListToolbarComponent } from '../ui/admin-list-toolbar.component';
               </div>
               <div class="detail-row">
                 <span class="detail-label">Captured Amount</span>
-                <span class="detail-value highlight">{{ formatMoney(targetOrder.amount, targetOrder.currency) }}</span>
+                <span class="detail-value highlight">{{
+                  formatMoney(targetOrder.amount, targetOrder.currency)
+                }}</span>
               </div>
 
               <div class="form-group">
                 <label for="refund-reason">Refund Reason *</label>
-                <select id="refund-reason" [value]="refundReason()" (change)="onReasonChange($event)">
+                <select
+                  id="refund-reason"
+                  [value]="refundReason()"
+                  (change)="onReasonChange($event)"
+                >
                   <option value="customer_request">Customer Request</option>
                   <option value="duplicate">Duplicate Purchase</option>
                   <option value="fraudulent">Fraudulent / Unauthorized</option>
@@ -350,7 +366,11 @@ import { AdminListToolbarComponent } from '../ui/admin-list-toolbar.component';
 
               <div class="modal-notice">
                 <i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>
-                <span>A full refund will be requested from {{ targetOrder.provider || 'payment provider' }}. Associated licenses and download access will be revoked immediately upon confirmation.</span>
+                <span
+                  >A full refund will be requested from
+                  {{ targetOrder.provider || 'payment provider' }}. Associated licenses and download
+                  access will be revoked immediately upon confirmation.</span
+                >
               </div>
             </div>
 

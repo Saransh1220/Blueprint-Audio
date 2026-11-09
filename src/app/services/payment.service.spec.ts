@@ -4,11 +4,11 @@ import { of, throwError } from 'rxjs';
 import {
   CreateOrderRequest,
   CreateRefundRequest,
-  GetOrderRefundsRequest,
   GetLicenseDownloadsRequest,
+  GetOrderRefundsRequest,
+  GetOrderStatusRequest,
   GetProducerOrdersRequest,
   GetUserLicensesRequest,
-  GetOrderStatusRequest,
   VerifyPaymentRequest,
 } from '../core/api/payment.requests';
 import { ApiService } from '../core/services/api.service';
@@ -177,7 +177,9 @@ describe('PaymentService', () => {
   });
 
   it('pollOrderStatus emits statuses and stops on terminal status', () => {
-    const execute = vi.fn().mockReturnValue(of({ order_id: 'o1', status: 'paid', retry_after_seconds: 0 }));
+    const execute = vi
+      .fn()
+      .mockReturnValue(of({ order_id: 'o1', status: 'paid', retry_after_seconds: 0 }));
     const { service } = setup(execute);
 
     const emitted: any[] = [];
@@ -301,7 +303,9 @@ describe('PaymentService', () => {
   it('initiatePayment sends idempotency key and prevents double initiation while in flight', () => {
     const execute = vi.fn().mockReturnValue(of({ id: 'o-1', razorpay_order_id: 'rzp-1' }));
     const { service } = setup(execute);
-    const openSpy = vi.spyOn(service as any, 'openRazorpayCheckout').mockImplementation(() => undefined);
+    const openSpy = vi
+      .spyOn(service as any, 'openRazorpayCheckout')
+      .mockImplementation(() => undefined);
 
     service.initiatePayment('spec-1', 'lo-1', 'Track').subscribe();
     expect(execute).toHaveBeenCalledTimes(1);
@@ -313,19 +317,31 @@ describe('PaymentService', () => {
   });
 
   it('initiatePayment handles 202 CHECKOUT_IN_FLIGHT with info toast', () => {
-    const execute = vi.fn().mockReturnValue(throwError(() => ({ status: 202, error: { code: 'CHECKOUT_IN_FLIGHT' } })));
+    const execute = vi
+      .fn()
+      .mockReturnValue(throwError(() => ({ status: 202, error: { code: 'CHECKOUT_IN_FLIGHT' } })));
     const { service, show } = setup(execute);
 
     service.initiatePayment('spec-1', 'lo-1', 'Track').subscribe({ error: () => undefined });
-    expect(show).toHaveBeenCalledWith(expect.stringContaining('Checkout is currently in progress'), 'info');
+    expect(show).toHaveBeenCalledWith(
+      expect.stringContaining('Checkout is currently in progress'),
+      'info',
+    );
   });
 
   it('initiatePayment handles 409 IDEMPOTENCY_CONFLICT with error toast', () => {
-    const execute = vi.fn().mockReturnValue(throwError(() => ({ status: 409, error: { code: 'IDEMPOTENCY_CONFLICT' } })));
+    const execute = vi
+      .fn()
+      .mockReturnValue(
+        throwError(() => ({ status: 409, error: { code: 'IDEMPOTENCY_CONFLICT' } })),
+      );
     const { service, show } = setup(execute);
 
     service.initiatePayment('spec-1', 'lo-1', 'Track').subscribe({ error: () => undefined });
-    expect(show).toHaveBeenCalledWith(expect.stringContaining('different details was already initiated'), 'error');
+    expect(show).toHaveBeenCalledWith(
+      expect.stringContaining('different details was already initiated'),
+      'error',
+    );
   });
 
   it('refundOrder executes CreateRefundRequest and returns response', () => {

@@ -1,4 +1,3 @@
-import { BRAND } from '../../core/config/brand';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -8,6 +7,7 @@ import {
   signal,
   untracked,
 } from '@angular/core';
+import { BRAND } from '../../core/config/brand';
 
 import type { LicenseOption, Spec } from '../../models';
 import { CartService } from '../../services/cart.service';

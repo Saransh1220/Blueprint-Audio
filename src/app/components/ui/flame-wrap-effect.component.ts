@@ -5,15 +5,15 @@ import {
   Component,
   ElementRef,
   Input,
+  inject,
   NgZone,
   OnChanges,
   OnDestroy,
   PLATFORM_ID,
   SimpleChanges,
   ViewChild,
-  inject,
 } from '@angular/core';
-import { type FlameWrapInstance, type FlameWrapOptions, createFlameWrap } from './flame-wrap';
+import { createFlameWrap, type FlameWrapInstance, type FlameWrapOptions } from './flame-wrap';
 
 @Component({
   selector: 'app-flame-wrap-effect',

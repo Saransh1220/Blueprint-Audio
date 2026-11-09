@@ -4,6 +4,7 @@ import { SpecAdapter } from '../adapters/spec.adapter';
 import { GetSpecRequest, GetSpecsRequest } from '../core/api/spec.requests';
 import { ApiService } from '../core/services/api.service';
 import { Spec } from '../models';
+import { BuyerCurrencyService } from './buyer-currency.service';
 import { LabService } from './lab';
 
 const mockSpec = (overrides?: Partial<Spec>): Spec =>
@@ -25,6 +26,20 @@ const mockSpec = (overrides?: Partial<Spec>): Spec =>
   }) as Spec;
 
 describe('LabService', () => {
+  it('invalidates cached search results when buyer currency changes', () => {
+    const execute = vi.fn().mockReturnValue(of([]));
+    const { service } = setup(execute);
+    const currency = TestBed.inject(BuyerCurrencyService).effective;
+
+    service.getSpecs({ search: 'beat' }).subscribe();
+    currency.set('INR');
+    service.getSpecs({ search: 'beat' }).subscribe();
+    currency.set('USD');
+    service.getSpecs({ search: 'beat' }).subscribe();
+
+    expect(execute).toHaveBeenCalledTimes(3);
+  });
+
   it('getSpecs maps data and stores pagination metadata', () => {
     const execute = vi.fn().mockReturnValue(
       of({

@@ -1,7 +1,7 @@
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { ActivatedRoute, convertToParamMap } from '@angular/router';
-import { BehaviorSubject, NEVER, of, throwError, Subject } from 'rxjs';
+import { BehaviorSubject, NEVER, of, Subject, throwError } from 'rxjs';
 import {
   AnalyticsService,
   CartService,

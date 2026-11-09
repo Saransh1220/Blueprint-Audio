@@ -1,5 +1,5 @@
-import type { SpecDto } from './spec.requests';
 import { ApiRequest, HttpMethod } from './api-request';
+import type { SpecDto } from './spec.requests';
 
 export type SpecUploadFileKind = 'image' | 'preview' | 'wav' | 'stems';
 

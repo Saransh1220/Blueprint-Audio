@@ -1,20 +1,32 @@
-import { BRAND } from '../core/config/brand';
 import { Injectable, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
-import { catchError, defer, EMPTY, expand, map, Observable, of, switchMap, tap, throwError, timer } from 'rxjs';
+import {
+  catchError,
+  defer,
+  EMPTY,
+  expand,
+  map,
+  Observable,
+  of,
+  switchMap,
+  tap,
+  throwError,
+  timer,
+} from 'rxjs';
 import { environment } from '../../environments/environment';
 import {
   CreateOrderBody,
   CreateOrderRequest,
   CreateRefundRequest,
-  GetOrderRefundsRequest,
   GetLicenseDownloadsRequest,
+  GetOrderRefundsRequest,
   GetOrderStatusRequest,
   GetProducerOrdersRequest,
   GetUserLicensesRequest,
   ProducerOrderResponse,
   VerifyPaymentRequest,
 } from '../core/api/payment.requests';
+import { BRAND } from '../core/config/brand';
 import { ApiService } from '../core/services/api.service';
 import type { Money, SelectedPriceOffer } from '../models/money';
 import {
@@ -121,8 +133,15 @@ export class PaymentService {
           try {
             sessionStorage.removeItem(intentStorageKey);
           } catch {}
-          this.toast.show('A checkout with different details was already initiated. Please refresh and try again.', 'error');
-        } else if (error?.status === 409 || code === 'PRICE_CHANGED' || code === 'PRICE_UNAVAILABLE') {
+          this.toast.show(
+            'A checkout with different details was already initiated. Please refresh and try again.',
+            'error',
+          );
+        } else if (
+          error?.status === 409 ||
+          code === 'PRICE_CHANGED' ||
+          code === 'PRICE_UNAVAILABLE'
+        ) {
           try {
             sessionStorage.removeItem(intentStorageKey);
           } catch {}
@@ -140,7 +159,10 @@ export class PaymentService {
    */
   private openRazorpayCheckout(order: Order, specTitle: string): void {
     if (typeof window === 'undefined' || typeof (window as any).Razorpay === 'undefined') {
-      this.toast.show('Razorpay SDK failed to load. Please check your connection and try again.', 'error');
+      this.toast.show(
+        'Razorpay SDK failed to load. Please check your connection and try again.',
+        'error',
+      );
       return;
     }
 
@@ -303,8 +325,8 @@ export class PaymentService {
    * Admin: Get refund records for an order
    */
   getOrderRefunds(orderId: string): Observable<OrderRefund[]> {
-    return this.api.execute(new GetOrderRefundsRequest(orderId)).pipe(
-      map((res) => res?.data || []),
-    );
+    return this.api
+      .execute(new GetOrderRefundsRequest(orderId))
+      .pipe(map((res) => res?.data || []));
   }
 }

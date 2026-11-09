@@ -1,7 +1,7 @@
-import { BRAND } from '../../core/config/brand';
 import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
 import { AppearanceSettingsComponent } from '../../components/settings/appearance-settings/appearance-settings.component';
+import { BRAND } from '../../core/config/brand';
 import { ThemeService } from '../../services/theme.service';
 
 @Component({

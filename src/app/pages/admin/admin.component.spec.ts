@@ -1,11 +1,11 @@
 import { TestBed } from '@angular/core/testing';
 import { of, throwError } from 'rxjs';
 import { AdminService } from '../../services/admin.service';
-import { ToastService } from '../../services/toast.service';
 import { AuthzService } from '../../services/authz.service';
 import { PaymentService } from '../../services/payment.service';
-import { entry, license, order, pageOf, spec, user } from './admin.fixtures';
+import { ToastService } from '../../services/toast.service';
 import { AdminComponent } from './admin.component';
+import { entry, license, order, pageOf, spec, user } from './admin.fixtures';
 import { findAdminSection } from './admin-sections';
 
 describe('AdminComponent', () => {

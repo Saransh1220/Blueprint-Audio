@@ -6,8 +6,8 @@ import { AnalyticsService } from '../../services/analytics.service';
 import { AuthService } from '../../services/auth.service';
 import { CurrencyService } from '../../services/currency.service';
 import { LabService } from '../../services/lab';
-import { PurchaseDialogService } from '../../services/purchase-dialog.service';
 import { PlayerService } from '../../services/player.service';
+import { PurchaseDialogService } from '../../services/purchase-dialog.service';
 import { ToastService } from '../../services/toast.service';
 import { PlayerComponent } from './player';
 

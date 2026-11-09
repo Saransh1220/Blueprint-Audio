@@ -1,12 +1,12 @@
-import { signal } from '@angular/core';
+import { ChangeDetectorRef, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { FormBuilder } from '@angular/forms';
 import { Router } from '@angular/router';
 import { of, throwError } from 'rxjs';
 import { Genre, MusicalKey } from '../../../models';
 import { AuthService, LabService, ToastService } from '../../../services';
-import { SpecUploadMonitorService } from '../../../services/spec-upload-monitor.service';
 import { SpecUploadService } from '../../../services/spec-upload.service';
+import { SpecUploadMonitorService } from '../../../services/spec-upload-monitor.service';
 import { StudioUploadComponent } from './studio-upload.component';
 
 describe('StudioUploadComponent', () => {
@@ -34,6 +34,7 @@ describe('StudioUploadComponent', () => {
   function create() {
     TestBed.configureTestingModule({
       providers: [
+        { provide: ChangeDetectorRef, useValue: { markForCheck: vi.fn() } },
         FormBuilder,
         { provide: AuthService, useValue: { currentUser: signal(null) } },
         { provide: LabService, useValue: labService },

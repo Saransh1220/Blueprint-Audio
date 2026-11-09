@@ -20,7 +20,9 @@
   font-size: 0.8125rem;
   font-weight: 500;
   line-height: 1;
-  transition: border-color 0.15s ease, background-color 0.15s ease;
+  transition:
+    border-color 0.15s ease,
+    background-color 0.15s ease;
 
   &:hover {
     border-color: var(--brand-color, #ef4444);

@@ -65,9 +65,7 @@ export function populateLicensePriceGroupFromDto(
   secondaryCurrency: string,
 ): void {
   const prices = license.prices || [];
-  const nativeEntry = prices.find(
-    (p) => p.currency.toUpperCase() === nativeCurrency.toUpperCase(),
-  );
+  const nativeEntry = prices.find((p) => p.currency.toUpperCase() === nativeCurrency.toUpperCase());
   const secondaryEntry = prices.find(
     (p) => p.currency.toUpperCase() === secondaryCurrency.toUpperCase(),
   );
@@ -81,16 +79,18 @@ export function populateLicensePriceGroupFromDto(
     nativeRev = 1;
   }
 
-  let secondaryMinor = secondaryEntry?.amount_minor;
+  const secondaryMinor = secondaryEntry?.amount_minor;
   const secondaryRev = secondaryEntry?.revision ?? 1;
   const sellNativeOnly = secondaryEntry ? !secondaryEntry.is_active : false;
 
-  const nativeStr = nativeMinor !== undefined && !Number.isNaN(nativeMinor)
-    ? minorToMajorString(nativeMinor, 100)
-    : '';
-  const secondaryStr = secondaryMinor !== undefined && !Number.isNaN(secondaryMinor)
-    ? minorToMajorString(secondaryMinor, 100)
-    : '';
+  const nativeStr =
+    nativeMinor !== undefined && !Number.isNaN(nativeMinor)
+      ? minorToMajorString(nativeMinor, 100)
+      : '';
+  const secondaryStr =
+    secondaryMinor !== undefined && !Number.isNaN(secondaryMinor)
+      ? minorToMajorString(secondaryMinor, 100)
+      : '';
 
   group.patchValue({
     nativePrice: nativeStr,
@@ -99,7 +99,8 @@ export function populateLicensePriceGroupFromDto(
     nativeRevision: nativeRev,
     secondaryRevision: secondaryRev,
     originalNativeMinor: Number.isNaN(nativeMinor) ? null : nativeMinor,
-    originalSecondaryMinor: secondaryMinor !== undefined && !Number.isNaN(secondaryMinor) ? secondaryMinor : null,
+    originalSecondaryMinor:
+      secondaryMinor !== undefined && !Number.isNaN(secondaryMinor) ? secondaryMinor : null,
     originalSellNativeOnly: sellNativeOnly,
     nativeError: null,
     secondaryError: null,
@@ -162,9 +163,7 @@ export function extractLicensePricePayload(
   const secondaryActiveChanged = secondaryActive !== origSecondaryActive;
 
   if (secondaryPriceChanged || secondaryActiveChanged) {
-    const amountMinor = !Number.isNaN(secondaryMinor)
-      ? secondaryMinor
-      : (origSecondaryMinor ?? 0);
+    const amountMinor = !Number.isNaN(secondaryMinor) ? secondaryMinor : (origSecondaryMinor ?? 0);
     patches.push({
       currency: secondaryCurrency,
       amount_minor: amountMinor,

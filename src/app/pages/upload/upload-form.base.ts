@@ -1,32 +1,40 @@
-import { computed, Directive, inject, OnDestroy, OnInit, signal } from '@angular/core';
+import {
+  ChangeDetectorRef,
+  computed,
+  Directive,
+  inject,
+  OnDestroy,
+  OnInit,
+  signal,
+} from '@angular/core';
 import { FormArray, FormBuilder, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { firstValueFrom, Subscription } from 'rxjs';
+import { GetSpecRequest, SpecDto } from '../../core/api/spec.requests';
+import { ApiService } from '../../core/services/api.service';
 import { Genre, MusicalKey } from '../../models';
+import { minorToMajorString, parseMajorToMinor } from '../../models/money';
 import { AuthService, LabService, ToastService } from '../../services';
 import { CurrencyService } from '../../services/currency.service';
-import { ApiService } from '../../core/services/api.service';
-import { GetSpecRequest, SpecDto } from '../../core/api/spec.requests';
+import { CurrencyConfigurationService } from '../../services/currency-configuration.service';
+import { FxService, RateUnavailableError } from '../../services/fx.service';
 import { SpecService } from '../../services/spec.service';
 import {
   normalizeSpecUploadContentType,
-  SpecUploadCompletionError,
   type SpecFileUploadEvent,
+  SpecUploadCompletionError,
   type SpecUploadEvent,
-  type SpecUploadSourceFile,
   SpecUploadService,
+  type SpecUploadSourceFile,
 } from '../../services/spec-upload.service';
 import { SpecUploadMonitorService } from '../../services/spec-upload-monitor.service';
-import { FxService, RateUnavailableError } from '../../services/fx.service';
-import { CurrencyConfigurationService } from '../../services/currency-configuration.service';
-import { LICENSE_TIER_DEFAULTS, getDefaultPrice } from '../../utils/license-price-defaults';
+import { getDefaultPrice, LICENSE_TIER_DEFAULTS } from '../../utils/license-price-defaults';
 import {
   buildLicensePriceFormGroup,
   extractLicensePricePayload,
   populateLicensePriceGroupFromDto,
   validatePriceInput,
 } from '../../utils/license-price-fields';
-import { parseMajorToMinor, minorToMajorString } from '../../models/money';
 
 type UploadFileType = 'cover' | 'preview' | 'wav' | 'stems';
 type FileUploadPhase = 'idle' | 'preparing' | 'uploading' | 'verifying' | 'uploaded' | 'error';
@@ -51,6 +59,7 @@ const INITIAL_FILE_UPLOAD_STATE: FileUploadState = {
 
 @Directive()
 export abstract class UploadFormBase implements OnInit, OnDestroy {
+  private readonly changeDetector = inject(ChangeDetectorRef);
   protected labService = inject(LabService);
   protected specUploadService = inject(SpecUploadService);
   protected specUploadMonitor = inject(SpecUploadMonitorService);
@@ -81,7 +90,8 @@ export abstract class UploadFormBase implements OnInit, OnDestroy {
   });
   readonly secondaryCurrencySymbol = computed(() => {
     return (
-      this.currencyConfig?.currencies()?.find((c) => c.code === this.secondaryCurrency())?.symbol ?? ''
+      this.currencyConfig?.currencies()?.find((c) => c.code === this.secondaryCurrency())?.symbol ??
+      ''
     );
   });
 
@@ -566,7 +576,10 @@ export abstract class UploadFormBase implements OnInit, OnDestroy {
     const err = validatePriceInput(nativeVal);
     if (err) {
       licenseGroup.patchValue({ nativeError: err });
-      this.toastService.show(`Please enter a valid native price before auto-filling: ${err}`, 'error');
+      this.toastService.show(
+        `Please enter a valid native price before auto-filling: ${err}`,
+        'error',
+      );
       return;
     }
 
@@ -597,10 +610,12 @@ export abstract class UploadFormBase implements OnInit, OnDestroy {
           rateInfo: rateInfo || null,
           secondaryError: null,
         });
+        this.changeDetector.markForCheck();
         this.toastService.show(`Auto-filled ${toCurr} price from exchange rate`, 'success');
       },
       error: (error) => {
         licenseGroup.patchValue({ autoFillLoading: false });
+        this.changeDetector.markForCheck();
         if (error instanceof RateUnavailableError) {
           this.toastService.show(error.message, 'info');
         } else {
@@ -1220,7 +1235,7 @@ export abstract class UploadFormBase implements OnInit, OnDestroy {
     }
 
     switch (type) {
-      case 'cover':
+      case 'cover': {
         if (!['image/jpeg', 'image/png'].includes(file.type)) {
           this.toastService.show('Cover art must be a JPG or PNG image.', 'error');
           return;
@@ -1240,6 +1255,7 @@ export abstract class UploadFormBase implements OnInit, OnDestroy {
           }`,
         });
         break;
+      }
       case 'preview':
         if (file.type !== 'audio/mpeg' && !file.name.toLowerCase().endsWith('.mp3')) {
           this.toastService.show('Preview audio must be an MP3 file.', 'error');

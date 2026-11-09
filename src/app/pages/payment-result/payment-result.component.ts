@@ -1,10 +1,17 @@
-import { ChangeDetectionStrategy, Component, DestroyRef, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  DestroyRef,
+  inject,
+  OnInit,
+  signal,
+} from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { OrderStatusDto } from '../../models/payment';
 import { PaymentService } from '../../services/payment.service';
 import { ToastService } from '../../services/toast.service';
-import { OrderStatusDto } from '../../models/payment';
 
 export type PaymentResultState =
   | 'loading'

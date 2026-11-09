@@ -1,12 +1,5 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { AnalyticsOverviewResponse, TopSpecStat } from '../../../core/api/analytics.requests';
-import { ProducerOrderDto } from '../../../core/api/payment.requests';
-import { AppCurrency } from '../../../models';
-import { AuthService, LabService } from '../../../services';
-import { AnalyticsService } from '../../../services/analytics.service';
-import { CurrencyService } from '../../../services/currency.service';
-import { PaymentService } from '../../../services/payment.service';
 import {
   BentoCardComponent,
   BentoFeedComponent,
@@ -15,6 +8,13 @@ import {
   BentoPageComponent,
   BentoSegmentedComponent,
 } from '../../../components/bento';
+import { AnalyticsOverviewResponse, TopSpecStat } from '../../../core/api/analytics.requests';
+import { ProducerOrderDto } from '../../../core/api/payment.requests';
+import { AppCurrency } from '../../../models';
+import { AuthService, LabService } from '../../../services';
+import { AnalyticsService } from '../../../services/analytics.service';
+import { CurrencyService } from '../../../services/currency.service';
+import { PaymentService } from '../../../services/payment.service';
 import type { SuAccent } from '../ui';
 
 interface StatTile {
@@ -83,10 +83,34 @@ export class StudioOverviewComponent {
   });
 
   readonly quickLinks: BentoFeedRow[] = [
-    { id: 'upload', icon: 'fa-solid fa-arrow-up-from-bracket', title: 'Upload a beat', text: 'Publish new work', link: '/studio/upload' },
-    { id: 'tracks', icon: 'fa-solid fa-music', title: 'My tracks', text: 'Manage your catalog', link: '/studio/tracks' },
-    { id: 'orders', icon: 'fa-solid fa-receipt', title: 'Orders', text: 'Buyers and licenses', link: '/studio/orders' },
-    { id: 'analytics', icon: 'fa-solid fa-chart-line', title: 'Analytics', text: 'Plays and audience', link: '/studio/analytics' },
+    {
+      id: 'upload',
+      icon: 'fa-solid fa-arrow-up-from-bracket',
+      title: 'Upload a beat',
+      text: 'Publish new work',
+      link: '/studio/upload',
+    },
+    {
+      id: 'tracks',
+      icon: 'fa-solid fa-music',
+      title: 'My tracks',
+      text: 'Manage your catalog',
+      link: '/studio/tracks',
+    },
+    {
+      id: 'orders',
+      icon: 'fa-solid fa-receipt',
+      title: 'Orders',
+      text: 'Buyers and licenses',
+      link: '/studio/orders',
+    },
+    {
+      id: 'analytics',
+      icon: 'fa-solid fa-chart-line',
+      title: 'Analytics',
+      text: 'Plays and audience',
+      link: '/studio/analytics',
+    },
   ];
 
   readonly insightState = computed<'loading' | 'ready' | 'unavailable'>(() =>
@@ -385,18 +409,20 @@ export class StudioOverviewComponent {
       this.analyticsData.set(null);
       this.topSpecs.set([]);
     }
-    this.analyticsService.getOverview(30, 'plays', ...(currency ? ([currency] as [string]) : [])).subscribe({
-      next: (res) => {
-        if (this.reportCurrencyOverride() !== currency) return;
-        this.analyticsData.set(res);
-        this.topSpecs.set(res.top_specs?.slice(0, 5) || []);
-        this.isLoadingAnalytics.set(false);
-      },
-      error: () => {
-        if (this.reportCurrencyOverride() !== currency) return;
-        this.isLoadingAnalytics.set(false);
-      },
-    });
+    this.analyticsService
+      .getOverview(30, 'plays', ...(currency ? ([currency] as [string]) : []))
+      .subscribe({
+        next: (res) => {
+          if (this.reportCurrencyOverride() !== currency) return;
+          this.analyticsData.set(res);
+          this.topSpecs.set(res.top_specs?.slice(0, 5) || []);
+          this.isLoadingAnalytics.set(false);
+        },
+        error: () => {
+          if (this.reportCurrencyOverride() !== currency) return;
+          this.isLoadingAnalytics.set(false);
+        },
+      });
   }
 
   private loadRecentOrders() {

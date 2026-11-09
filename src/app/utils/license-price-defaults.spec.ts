@@ -1,8 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import {
-  LICENSE_TIER_DEFAULTS,
-  getDefaultPrice,
-} from './license-price-defaults';
+import { getDefaultPrice, LICENSE_TIER_DEFAULTS } from './license-price-defaults';
 
 describe('license-price-defaults', () => {
   it('defines 4 default tiers with metadata', () => {

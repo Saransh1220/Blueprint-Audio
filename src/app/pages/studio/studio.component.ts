@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
 import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
-import { STUDIO_ITEMS, menuItemsFor } from '../../components/nav-menu/nav-menu.items';
+import { menuItemsFor, STUDIO_ITEMS } from '../../components/nav-menu/nav-menu.items';
 import { Role } from '../../models';
 import { AuthService } from '../../services';
 import { StudioShellService } from './studio-shell.service';

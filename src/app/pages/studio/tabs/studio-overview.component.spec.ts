@@ -241,23 +241,27 @@ describe('StudioOverviewComponent (refreshed overview)', () => {
     getSpecs.mockReturnValue(of([{ id: 's1', title: 'First', imageUrl: 'cover.png' }]));
   });
 
-  it('computes the weekly revenue delta (up, down, and not enough data)', { timeout: 15000 }, () => {
-    expect(setup().c.revenueDelta()).toEqual({ text: '+100.0%', up: true });
+  it(
+    'computes the weekly revenue delta (up, down, and not enough data)',
+    { timeout: 15000 },
+    () => {
+      expect(setup().c.revenueDelta()).toEqual({ text: '+100.0%', up: true });
 
-    TestBed.resetTestingModule();
-    getOverview.mockReturnValue(of(dataOverview(20, 10)));
-    expect(setup().c.revenueDelta()).toEqual({ text: '−50.0%', up: false });
+      TestBed.resetTestingModule();
+      getOverview.mockReturnValue(of(dataOverview(20, 10)));
+      expect(setup().c.revenueDelta()).toEqual({ text: '−50.0%', up: false });
 
-    TestBed.resetTestingModule();
-    getOverview.mockReturnValue(of(dataOverview(0, 10)));
-    expect(setup().c.revenueDelta()).toBeNull();
+      TestBed.resetTestingModule();
+      getOverview.mockReturnValue(of(dataOverview(0, 10)));
+      expect(setup().c.revenueDelta()).toBeNull();
 
-    TestBed.resetTestingModule();
-    getOverview.mockReturnValue(
-      of({ ...dataOverview(), revenue_by_day: days(5, () => 1, 'revenue') }),
-    );
-    expect(setup().c.revenueDelta()).toBeNull();
-  });
+      TestBed.resetTestingModule();
+      getOverview.mockReturnValue(
+        of({ ...dataOverview(), revenue_by_day: days(5, () => 1, 'revenue') }),
+      );
+      expect(setup().c.revenueDelta()).toBeNull();
+    },
+  );
 
   it('builds stat tiles with deltas and sparklines when there is data', () => {
     const { c } = setup();

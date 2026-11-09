@@ -1,8 +1,8 @@
-import { TestBed } from '@angular/core/testing';
 import { signal } from '@angular/core';
+import { TestBed } from '@angular/core/testing';
 import { formatMoneyValue, minorToMajor, normalizeCurrencyCode } from '../models/money';
-import { CurrencyConfigurationService } from './currency-configuration.service';
 import { CurrencyService } from './currency.service';
+import { CurrencyConfigurationService } from './currency-configuration.service';
 
 describe('shared money formatting', () => {
   it('uses integer minor units, including zero, negatives and three-decimal currencies', () => {

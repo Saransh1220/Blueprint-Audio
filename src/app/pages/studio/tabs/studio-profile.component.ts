@@ -1,10 +1,10 @@
-import { BRAND } from '../../../core/config/brand';
 import { CommonModule } from '@angular/common';
 import { Component, computed, effect, inject, OnInit, signal, ViewChild } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { map, of, switchMap } from 'rxjs';
 import { ConfirmDialogComponent } from '../../../components/confirm-dialog/confirm-dialog.component';
 import { PublicUserResponse } from '../../../core/api/user.requests';
+import { BRAND } from '../../../core/config/brand';
 import { Role } from '../../../models';
 import { AuthService } from '../../../services/auth.service';
 import { ToastService } from '../../../services/toast.service';

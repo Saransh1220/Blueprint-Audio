@@ -1,6 +1,6 @@
-import { BRAND } from '../../../core/config/brand';
 import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { BRAND } from '../../../core/config/brand';
 import type { AppCurrency } from '../../../models/money';
 import { AuthService, ToastService } from '../../../services';
 import { CurrencyConfigurationService } from '../../../services/currency-configuration.service';

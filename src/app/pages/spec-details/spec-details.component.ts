@@ -1,11 +1,10 @@
-import { BRAND } from '../../core/config/brand';
 import { CommonModule, DOCUMENT } from '@angular/common';
 import {
   Component,
-  DestroyRef,
-  HostListener,
   computed,
+  DestroyRef,
   effect,
+  HostListener,
   inject,
   signal,
 } from '@angular/core';
@@ -14,6 +13,7 @@ import { ActivatedRoute, RouterLink } from '@angular/router';
 import { combineLatest, of } from 'rxjs';
 import { catchError, finalize, startWith, switchMap } from 'rxjs/operators';
 import { SpecCardComponent } from '../../components/spec-card/spec-card';
+import { BRAND } from '../../core/config/brand';
 import { type LicenseOption, type Spec } from '../../models';
 import type { Money } from '../../models/money';
 import {

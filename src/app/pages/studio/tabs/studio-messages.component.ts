@@ -1,5 +1,5 @@
-import { BRAND } from '../../../core/config/brand';
 import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { BRAND } from '../../../core/config/brand';
 
 @Component({
   selector: 'app-studio-messages',

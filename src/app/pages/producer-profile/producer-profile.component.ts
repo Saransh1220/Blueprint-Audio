@@ -7,18 +7,18 @@ import {
   type OnDestroy,
   signal,
 } from '@angular/core';
-import { ActivatedRoute, RouterLink } from '@angular/router';
-import { EMPTY, catchError, map, switchMap, tap } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { ActivatedRoute, RouterLink } from '@angular/router';
+import { catchError, EMPTY, map, switchMap, tap } from 'rxjs';
 import { SpecAdapter } from '../../adapters/spec.adapter';
 import { SpecCardComponent } from '../../components/spec-card/spec-card';
-import type { Spec } from '../../models';
-import { CurrencyService } from '../../services/currency.service';
-import { BuyerCurrencyService } from '../../services/buyer-currency.service';
-import { SpecActionService } from '../../services/spec-action.service';
-import { SpecService } from '../../services/spec.service';
-import { UserService } from '../../services/user.service';
 import type { PublicUserResponse } from '../../core/api/user.requests';
+import type { Spec } from '../../models';
+import { BuyerCurrencyService } from '../../services/buyer-currency.service';
+import { CurrencyService } from '../../services/currency.service';
+import { SpecService } from '../../services/spec.service';
+import { SpecActionService } from '../../services/spec-action.service';
+import { UserService } from '../../services/user.service';
 
 @Component({
   selector: 'app-producer-profile',

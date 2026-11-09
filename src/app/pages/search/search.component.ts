@@ -3,12 +3,14 @@ import {
   ChangeDetectionStrategy,
   Component,
   computed,
+  effect,
   HostListener,
   inject,
   NgZone,
   type OnDestroy,
   type OnInit,
   signal,
+  untracked,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
@@ -21,8 +23,8 @@ import { LoadingSpinnerComponent } from '../../components/ui/loading-spinner/loa
 import { Genre, MusicalKey, type Spec } from '../../models';
 import type { AppCurrency } from '../../models/money';
 import { AuthService } from '../../services/auth.service';
-import { CurrencyService } from '../../services/currency.service';
 import { BuyerCurrencyService } from '../../services/buyer-currency.service';
+import { CurrencyService } from '../../services/currency.service';
 import { LabService } from '../../services/lab';
 import { ToastService } from '../../services/toast.service';
 
@@ -154,7 +156,17 @@ export class SearchPageComponent implements OnInit, OnDestroy {
   private searchSubject = new Subject<string>();
   private searchSubscription?: Subscription;
   private routeSubscription?: Subscription;
-  private fetchRequestId = 0;
+  private fetchSubscription?: Subscription;
+  private fetchedCurrency?: string;
+  private readonly refreshOnCurrencyChange = effect(() => {
+    const currency = this.buyerCurrency.effective();
+    if (this.fetchedCurrency !== undefined && this.fetchedCurrency !== currency) {
+      untracked(() => {
+        this.currentPage.set(1);
+        this.fetchSpecs();
+      });
+    }
+  });
   private scrollToTopOnNextFetch = false;
   private scrollFrame: number | null = null;
   private readonly passiveScrollListener = () => {
@@ -212,8 +224,9 @@ export class SearchPageComponent implements OnInit, OnDestroy {
   }
 
   fetchSpecs(options: { append?: boolean } = {}) {
+    this.fetchedCurrency = this.buyerCurrency.effective();
+    this.fetchSubscription?.unsubscribe();
     const append = options.append === true;
-    const requestId = ++this.fetchRequestId;
 
     if (append) {
       this.isLoadingMore.set(true);
@@ -227,7 +240,7 @@ export class SearchPageComponent implements OnInit, OnDestroy {
     // Sending it would hide native-fallback offers without an exact currency row.
     const hasPriceFilter = minPrice !== 0 || maxPrice !== 50000;
 
-    this.labService
+    this.fetchSubscription = this.labService
       .getSpecs({
         search: this.searchTerm(),
         genres: this.genre(),
@@ -242,8 +255,6 @@ export class SearchPageComponent implements OnInit, OnDestroy {
       })
       .subscribe({
         next: (specs) => {
-          if (requestId !== this.fetchRequestId) return;
-
           if (append) {
             const seen = new Set(this.specs().map((spec) => spec.id));
             const nextSpecs = specs.filter((spec) => !seen.has(spec.id));
@@ -260,8 +271,6 @@ export class SearchPageComponent implements OnInit, OnDestroy {
           }
         },
         error: (err) => {
-          if (requestId !== this.fetchRequestId) return;
-
           console.error('Error fetching specs:', err);
           this.isLoading.set(false);
           this.isLoadingMore.set(false);
@@ -490,6 +499,7 @@ export class SearchPageComponent implements OnInit, OnDestroy {
     }
     this.searchSubscription?.unsubscribe();
     this.routeSubscription?.unsubscribe();
+    this.fetchSubscription?.unsubscribe();
   }
 
   private syncKeyModeFromKey() {

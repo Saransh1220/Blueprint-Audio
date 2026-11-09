@@ -1,5 +1,9 @@
 import type { AdminLicense, AdminSpec, AdminUser } from '../../models';
-import { type CurrencyDefinition, DEFAULT_LEGACY_CURRENCY, formatMoneyValue } from '../../models/money';
+import {
+  type CurrencyDefinition,
+  DEFAULT_LEGACY_CURRENCY,
+  formatMoneyValue,
+} from '../../models/money';
 
 /** How loudly a status badge speaks. */
 export type Tone = 'ok' | 'warn' | 'bad' | 'muted';

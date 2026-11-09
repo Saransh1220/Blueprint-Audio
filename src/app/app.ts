@@ -1,4 +1,3 @@
-import { BRAND } from './core/config/brand';
 import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { Title } from '@angular/platform-browser';
@@ -11,10 +10,11 @@ import { ModalComponent } from './components/modal/modal.component';
 import { PlayerComponent } from './components/player/player';
 import { PurchaseWarpComponent } from './components/purchase-warp/purchase-warp';
 import { ToastComponent } from './components/toast/toast.component';
+import { BRAND } from './core/config/brand';
+import { BuyerCurrencyService } from './services/buyer-currency.service';
 import { PlayerService } from './services/player.service';
 import { SpecUploadMonitorService } from './services/spec-upload-monitor.service';
 import { ThemeService } from './services/theme.service';
-import { BuyerCurrencyService } from './services/buyer-currency.service';
 
 @Component({
   selector: 'app-root',

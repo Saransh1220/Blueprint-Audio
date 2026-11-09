@@ -2,24 +2,27 @@ import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { ActivatedRoute, Router } from '@angular/router';
 import { of, Subject, throwError } from 'rxjs';
+import { GetSpecsRequest } from '../../core/api/spec.requests';
 import { AuthService } from '../../services/auth.service';
+import { BuyerCurrencyService } from '../../services/buyer-currency.service';
 import { LabService } from '../../services/lab';
 import { ToastService } from '../../services/toast.service';
-import { GetSpecsRequest } from '../../core/api/spec.requests';
 import { SearchPageComponent } from './search.component';
 
 describe('SearchPageComponent', () => {
-  const queryParams$ = new Subject<Record<string, string>>();
+  let queryParams$: Subject<Record<string, string>>;
   const navigate = vi.fn();
   const getSpecs = vi.fn();
   const show = vi.fn();
   let paginationSignal = signal<any>(null);
+  const buyerCurrency = signal('USD');
 
   function spec(id: string) {
     return { id, title: id } as any;
   }
 
   function create(user: unknown = null) {
+    queryParams$ = new Subject<Record<string, string>>();
     paginationSignal = signal<any>(null);
 
     TestBed.configureTestingModule({
@@ -35,6 +38,7 @@ describe('SearchPageComponent', () => {
         { provide: ActivatedRoute, useValue: { queryParams: queryParams$ } },
         { provide: ToastService, useValue: { show } },
         { provide: AuthService, useValue: { currentUser: signal(user) } },
+        { provide: BuyerCurrencyService, useValue: { effective: buyerCurrency } },
       ],
     });
 
@@ -44,6 +48,7 @@ describe('SearchPageComponent', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
+    buyerCurrency.set('USD');
     getSpecs.mockReturnValue(of([]));
     vi.spyOn(window, 'scrollTo').mockImplementation(() => undefined);
   });
@@ -84,6 +89,26 @@ describe('SearchPageComponent', () => {
     const request = new GetSpecsRequest(getSpecs.mock.lastCall![0]);
     expect(request.params.has('min_price')).toBe(false);
     expect(request.params.has('max_price')).toBe(false);
+  });
+
+  it('reloads the first page on a currency switch and ignores the old response', () => {
+    const oldResults = new Subject<any[]>();
+    const component = create();
+    getSpecs.mockReturnValueOnce(oldResults).mockReturnValueOnce(of([spec('inr')]));
+    component.ngOnInit();
+    queryParams$.next({ search: 'drill', page: '3' });
+    TestBed.tick();
+
+    buyerCurrency.set('INR');
+    TestBed.tick();
+    oldResults.next([spec('usd')]);
+
+    expect(getSpecs).toHaveBeenCalledTimes(2);
+    expect(getSpecs).toHaveBeenLastCalledWith(
+      expect.objectContaining({ search: 'drill', page: 1 }),
+    );
+    expect(component.specs()).toEqual([spec('inr')]);
+    component.ngOnDestroy();
   });
 
   it('keeps explicit price ranges and removes them again after reset', () => {

@@ -1,16 +1,16 @@
-import { signal } from '@angular/core';
+import { ChangeDetectorRef, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { FormBuilder } from '@angular/forms';
 import { Router } from '@angular/router';
 import { of, Subject, throwError } from 'rxjs';
+import { ApiService } from '../../core/services/api.service';
 import { Genre } from '../../models';
 import { AuthService } from '../../services/auth.service';
 import { LabService } from '../../services/lab';
-import { SpecUploadMonitorService } from '../../services/spec-upload-monitor.service';
-import { SpecUploadCompletionError, SpecUploadService } from '../../services/spec-upload.service';
-import { ToastService } from '../../services/toast.service';
-import { ApiService } from '../../core/services/api.service';
 import { SpecService } from '../../services/spec.service';
+import { SpecUploadCompletionError, SpecUploadService } from '../../services/spec-upload.service';
+import { SpecUploadMonitorService } from '../../services/spec-upload-monitor.service';
+import { ToastService } from '../../services/toast.service';
 import { UploadComponent } from './upload.component';
 
 describe('UploadFormBase (more)', () => {
@@ -42,6 +42,7 @@ describe('UploadFormBase (more)', () => {
   function create() {
     TestBed.configureTestingModule({
       providers: [
+        { provide: ChangeDetectorRef, useValue: { markForCheck: vi.fn() } },
         FormBuilder,
         { provide: AuthService, useValue: { currentUser: user } },
         { provide: LabService, useValue: labService },

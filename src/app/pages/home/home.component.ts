@@ -16,7 +16,7 @@ import {
   TickerComponent,
 } from '../../components';
 import type { Spec } from '../../models';
-import { LabService, type HomepageData } from '../../services';
+import { type HomepageData, LabService } from '../../services';
 
 @Component({
   selector: 'app-home',

@@ -240,10 +240,7 @@ export class LabSectionComponent implements OnInit {
   }
 
   startingPrice(spec: Spec) {
-    const fallbackCurrency =
-      spec.displayPriceMoney?.currency ||
-      spec.priceMoney?.currency ||
-      'USD';
+    const fallbackCurrency = spec.displayPriceMoney?.currency || spec.priceMoney?.currency || 'USD';
     return this.currencyService.formatMoney(
       spec.displayPriceMoney ?? spec.priceMoney,
       spec.price ?? 0,

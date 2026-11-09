@@ -1,4 +1,9 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import {
+  BentoInsightsComponent,
+  BentoPageComponent,
+  BentoSegmentedComponent,
+} from '../../../components/bento';
 import { AnalyticsOverviewResponse, TopSpecStat } from '../../../core/api/analytics.requests';
 import { CsvExportService } from '../../../core/services/csv-export.service';
 import { AppCurrency } from '../../../models';
@@ -6,11 +11,6 @@ import { LabService } from '../../../services';
 import { AnalyticsService } from '../../../services/analytics.service';
 import { CurrencyService } from '../../../services/currency.service';
 import { PaymentService } from '../../../services/payment.service';
-import {
-  BentoInsightsComponent,
-  BentoPageComponent,
-  BentoSegmentedComponent,
-} from '../../../components/bento';
 import type { SuAccent } from '../ui';
 
 interface MetricTile {
@@ -54,7 +54,6 @@ export class StudioAnalyticsComponent {
     this.reportCurrencyOverride.set(code);
     this.loadData();
   }
-
 
   readonly periodOptions = [
     { value: 7, label: '7D' },
@@ -361,22 +360,24 @@ export class StudioAnalyticsComponent {
     this.isLoading.set(true);
     this.error.set(null);
     if (this.reportCurrencyOverride()) this.data.set(null);
-    this.analyticsService.getOverview(
+    this.analyticsService
+      .getOverview(
         this.currentDays(),
         this.sortBy(),
         ...(this.reportCurrencyOverride() ? ([this.reportCurrencyOverride()] as [string]) : []),
-      ).subscribe({
-      next: (res) => {
-        this.data.set(res);
-        this.setChartCompatibilityData(res);
-        this.error.set(null);
-        this.isLoading.set(false);
-      },
-      error: () => {
-        this.error.set('Failed to load analytics data');
-        this.isLoading.set(false);
-      },
-    });
+      )
+      .subscribe({
+        next: (res) => {
+          this.data.set(res);
+          this.setChartCompatibilityData(res);
+          this.error.set(null);
+          this.isLoading.set(false);
+        },
+        error: () => {
+          this.error.set('Failed to load analytics data');
+          this.isLoading.set(false);
+        },
+      });
     this.loadTopSpecs();
   }
 

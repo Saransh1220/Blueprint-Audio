@@ -828,7 +828,7 @@ export class VisualizerService {
     this.demoPeaksCache ??= Array.from({ length: 3000 }, (_, i) => {
       const t = i / 50;
       const envelope = 0.5 + 0.35 * Math.sin(t * 0.55) * Math.sin(t * 0.13 + 1);
-      const hit = Math.pow(Math.abs(Math.sin(t * Math.PI * 2 * 1.9)), 3) * 0.45;
+      const hit = Math.abs(Math.sin(t * Math.PI * 2 * 1.9)) ** 3 * 0.45;
       const jitter = ((i * 2654435761) % 1000) / 1000;
       return Math.max(0.06, Math.min(1, envelope * 0.55 + hit + jitter * 0.16));
     });
@@ -873,7 +873,7 @@ export class VisualizerService {
       );
       let max = 0;
       for (let i = from; i < to; i++) max = Math.max(max, peaks[i]);
-      return Math.pow(max, 0.8);
+      return max ** 0.8;
     };
     const xOf = (index: number) => playheadX + ((index + 0.5) * interval - time) * pxPerSecond;
     const first = Math.floor((time - playheadX / pxPerSecond) / interval) - 1;

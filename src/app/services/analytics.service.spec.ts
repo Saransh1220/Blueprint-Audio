@@ -1,5 +1,5 @@
 import { TestBed } from '@angular/core/testing';
-import { Subject, of } from 'rxjs';
+import { of, Subject } from 'rxjs';
 import { SpecAdapter } from '../adapters/spec.adapter';
 import {
   DownloadFreeMp3Request,

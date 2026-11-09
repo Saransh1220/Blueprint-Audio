@@ -1,33 +1,33 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  computed,
   DestroyRef,
   ElementRef,
-  NgZone,
-  computed,
   effect,
   inject,
   input,
+  NgZone,
   signal,
   untracked,
   viewChild,
 } from '@angular/core';
 
 import {
+  driftPos,
   FRAG,
   FRAG_FIELD,
+  hexToRgb,
+  layoutSparkles,
   MAX_RIPPLES,
   MAX_SPARKS,
   NEBULA_DEFAULTS,
   NEBULA_PRESETS,
   type NebulaParams,
-  UNIFORMS,
-  VERT,
-  driftPos,
-  hexToRgb,
-  layoutSparkles,
   pushSparkle,
+  UNIFORMS,
   uName,
+  VERT,
 } from './halftone-nebula.shader';
 
 export * from './halftone-nebula.shader';
