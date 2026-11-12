@@ -20,15 +20,7 @@ import { BROWSE_ITEMS, menuItemsFor, STUDIO_ITEMS } from '../nav-menu/nav-menu.i
 import { UserMenuComponent } from '../user-menu/user-menu';
 
 type NotificationKind =
-  | 'all'
-  | 'unread'
-  | 'sale'
-  | 'message'
-  | 'cart'
-  | 'follow'
-  | 'milestone'
-  | 'wishlist'
-  | 'system';
+  'all' | 'unread' | 'sale' | 'message' | 'cart' | 'follow' | 'milestone' | 'wishlist' | 'system';
 
 interface HeaderNotificationItem {
   id: string;

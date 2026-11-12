@@ -16,12 +16,7 @@ import { CheckoutTillComponent } from './checkout-till.component';
 import { CurrencyService } from '../../services/currency.service';
 
 export type PaymentResultState =
-  | 'loading'
-  | 'confirming'
-  | 'paid'
-  | 'pending_timeout'
-  | 'failed'
-  | 'not_found';
+  'loading' | 'confirming' | 'paid' | 'pending_timeout' | 'failed' | 'not_found';
 
 const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
