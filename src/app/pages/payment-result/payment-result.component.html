@@ -1,144 +1,102 @@
-<div class="result-container">
-  <div class="result-card">
-    @if (state() === 'loading' || state() === 'confirming') {
-      <div class="status-box confirming">
-        <div class="spinner"></div>
-        <h2>Confirming Your Payment</h2>
-        <p class="subtitle">
-          Please wait while we verify your transaction with the payment provider.
-        </p>
-        <p class="hint">
-          Do not close or refresh this page. This usually takes just a few seconds.
-        </p>
-        @if (orderId(); as id) {
-          <div class="order-ref">
-            Order Reference: <code>{{ id }}</code>
-          </div>
-        }
-      </div>
-    }
-
-    @if (state() === 'paid') {
-      <div class="status-box success">
-        <div class="icon-circle success-icon">
-          <svg
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2.5"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          >
-            <polyline points="20 6 9 17 4 12"></polyline>
-          </svg>
-        </div>
-        <h2>Payment Successful!</h2>
-        <p class="subtitle">
-          Thank you for your purchase. Your license has been issued and is ready to use.
-        </p>
-
-        @if (orderStatus()?.license; as license) {
-          <div class="license-box">
-            <span class="license-label">License Key</span>
-            <div class="license-row">
-              <code class="license-key">{{ license.license_key }}</code>
-              <button type="button" class="btn-copy" (click)="copyLicenseKey(license.license_key)">
-                {{ copied() ? 'Copied!' : 'Copy' }}
-              </button>
+<main class="receipt" aria-labelledby="receipt-title">
+  <div class="receipt-inner" [class.receipt-paid]="state() === 'paid'">
+    <header class="receipt-hero">
+      <div class="status" aria-live="polite">
+        @switch (state()) {
+          @case ('paid') {
+            <div class="status-indicator confirmed">
+              <i class="fa-solid fa-check" aria-hidden="true"></i> Payment confirmed
             </div>
+            <h1 id="receipt-title">Purchase complete.</h1>
+            @if (!orderStatus()?.license) {
+              <p>Your payment is confirmed. Check again to retrieve your license.</p>
+            }
+          }
+          @case ('pending_timeout') {
+            <div class="status-indicator">
+              <i class="fa-regular fa-clock" aria-hidden="true"></i> Pending confirmation
+            </div>
+            <h1 id="receipt-title">Still confirming.</h1>
+            <p>We haven’t received a final payment status. You can check this order again.</p>
+          }
+          @case ('failed') {
+            @switch (orderStatus()?.status) {
+              @case ('refunded') {
+                <div class="status-indicator">Refunded</div>
+                <h1 id="receipt-title">Payment refunded.</h1>
+                <p>This order has been refunded. Its files are no longer available here.</p>
+              }
+              @case ('cancelled') {
+                <div class="status-indicator">Cancelled</div>
+                <h1 id="receipt-title">Order cancelled.</h1>
+                <p>This checkout was cancelled. You can return to browse beats.</p>
+              }
+              @default {
+                <div class="status-indicator">Payment failed</div>
+                <h1 id="receipt-title">Payment unsuccessful.</h1>
+                <p>
+                  We couldn’t confirm this payment. If you were charged, contact support with the
+                  order reference below.
+                </p>
+              }
+            }
+          }
+          @case ('not_found') {
+            <div class="status-indicator">Order unavailable</div>
+            <h1 id="receipt-title">Order not found.</h1>
+            <p>Check the link and make sure you’re signed in with the account used for checkout.</p>
+          }
+          @default {
+            <div class="status-indicator">
+              <span class="spinner" aria-hidden="true"></span> In progress
+            </div>
+            <h1 id="receipt-title">Confirming payment.</h1>
+            <p>We’re checking the latest status of your order.</p>
+          }
+        }
+      </div>
+      @if (state() === 'paid' && paidTotal(); as total) {
+        <app-checkout-till [total]="total" [reference]="orderId()!.slice(-6)" />
+      }
+    </header>
+
+    <div class="receipt-layout">
+      @if (state() === 'paid' && orderStatus()?.license; as license) {
+        <app-purchased-files [licenseId]="license.id" />
+      }
+      <section class="receipt-main" aria-label="Order details">
+        @if (state() === 'paid' && orderStatus()?.license?.license_key; as key) {
+          <div class="license">
+            <div class="license-details">
+              <span class="receipt-label">License key</span>
+              <code>{{ key }}</code>
+            </div>
+            <button class="copy-action" type="button" (click)="copyLicenseKey(key)">
+              <i
+                class="fa-regular"
+                [class.fa-copy]="!copied()"
+                [class.fa-circle-check]="copied()"
+                aria-hidden="true"
+              ></i>
+              {{ copied() ? 'Copied' : 'Copy key' }}
+            </button>
           </div>
         }
 
-        <div class="actions">
-          <a routerLink="/dashboard" class="btn-primary">Go to Library</a>
-          <a routerLink="/explore" class="btn-secondary">Browse More</a>
-        </div>
-      </div>
-    }
+        @if (state() === 'pending_timeout' || (state() === 'paid' && !orderStatus()?.license)) {
+          <button class="status-action" type="button" (click)="retryPolling()">Check status</button>
+        }
 
-    @if (state() === 'pending_timeout') {
-      <div class="status-box warning">
-        <div class="icon-circle warning-icon">
-          <svg
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2.5"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          >
-            <circle cx="12" cy="12" r="10"></circle>
-            <polyline points="12 6 12 12 16 14"></polyline>
-          </svg>
-        </div>
-        <h2>Payment Processing Pending</h2>
-        <p class="subtitle">
-          Your payment is taking longer than usual to confirm with the payment provider.
-        </p>
-        <p class="explanation">
-          If money was deducted from your account, your order will automatically be activated once
-          confirmed by your bank. A receipt and confirmation email will be sent to your inbox.
-        </p>
-        <div class="actions">
-          <button type="button" class="btn-secondary" (click)="retryPolling()">
-            Check Status Again
-          </button>
-          <a routerLink="/dashboard" class="btn-primary">View My Orders</a>
-        </div>
-      </div>
-    }
-
-    @if (state() === 'failed') {
-      <div class="status-box error">
-        <div class="icon-circle error-icon">
-          <svg
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2.5"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          >
-            <line x1="18" y1="6" x2="6" y2="18"></line>
-            <line x1="6" y1="6" x2="18" y2="18"></line>
-          </svg>
-        </div>
-        <h2>Payment Unsuccessful</h2>
-        <p class="subtitle">We were unable to complete your payment.</p>
-        <p class="explanation">
-          If any funds were deducted, they will be automatically refunded by your bank. You can try
-          checking out again or contact our support team if the issue persists.
-        </p>
-        <div class="actions">
-          <a routerLink="/explore" class="btn-primary">Back to Store</a>
-        </div>
-      </div>
-    }
-
-    @if (state() === 'not_found') {
-      <div class="status-box not-found">
-        <div class="icon-circle not-found-icon">
-          <svg
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2.5"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          >
-            <circle cx="12" cy="12" r="10"></circle>
-            <line x1="12" y1="8" x2="12" y2="12"></line>
-            <line x1="12" y1="16" x2="12.01" y2="16"></line>
-          </svg>
-        </div>
-        <h2>Order Not Found</h2>
-        <p class="subtitle">
-          The requested order could not be located or you may not have permission to view it.
-        </p>
-        <div class="actions">
-          <a routerLink="/" class="btn-primary">Return Home</a>
-        </div>
-      </div>
-    }
+        @if (orderId(); as id) {
+          <div class="order-reference">
+            <span class="receipt-label">Order reference</span>
+            <code>{{ id }}</code>
+          </div>
+        }
+      </section>
+      <a routerLink="/explore" class="back-link"
+        ><i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Back to browse</a
+      >
+    </div>
   </div>
-</div>
+</main>

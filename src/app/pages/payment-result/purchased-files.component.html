@@ -1,0 +1,43 @@
+<section aria-labelledby="purchased-files-title" class="files">
+  <header>
+    <h2 id="purchased-files-title">{{ files()?.spec_title || 'Your files' }}</h2>
+    @if (files()?.license_type; as type) {
+      <p>{{ type }} license</p>
+    }
+  </header>
+
+  @if (files(); as result) {
+    <ul class="file-list">
+      @for (format of formats; track format.key) {
+        @if (result[format.key]; as url) {
+          <li>
+            <a [href]="url" download [attr.aria-label]="'Download ' + format.name">
+              <span
+                ><strong>{{ format.name }}</strong
+                ><small>{{ format.detail }}</small></span
+              >
+              <i class="fa-solid fa-arrow-down" aria-hidden="true"></i>
+            </a>
+          </li>
+        }
+      }
+    </ul>
+    @if (!result.wav_url && !result.mp3_url && !result.stems_url) {
+      <p role="status">There are no files available for this license yet.</p>
+    }
+  }
+
+  @if (error()) {
+    <p role="alert">Couldn’t load the files. Try again.</p>
+  }
+
+  <button class="download-action" type="button" [disabled]="loading()" (click)="loadFiles()">
+    <i
+      class="fa-solid"
+      [class.fa-arrow-down]="!files()"
+      [class.fa-rotate-right]="files()"
+      aria-hidden="true"
+    ></i>
+    {{ loading() ? 'Getting your files…' : files() ? 'Refresh download links' : 'Download files' }}
+  </button>
+</section>

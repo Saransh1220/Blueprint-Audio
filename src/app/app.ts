@@ -18,6 +18,7 @@ import { ThemeService } from './services/theme.service';
 
 @Component({
   selector: 'app-root',
+  host: { '[class.payment-return-page]': 'isPaymentReturnRoute()' },
   standalone: true,
   imports: [
     CommonModule,
@@ -69,6 +70,10 @@ export class AppComponent {
 
   isExploreRoute(): boolean {
     return this.router.url === '/explore' || this.router.url.startsWith('/explore?');
+  }
+
+  isPaymentReturnRoute(): boolean {
+    return this.router.url.split(/[?#]/, 1)[0] === '/payment/return';
   }
 
   isCatalogRoute(): boolean {

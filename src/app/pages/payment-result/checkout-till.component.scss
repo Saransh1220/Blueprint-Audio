@@ -1,0 +1,21 @@
+@use 'react-isokit/styles.css';
+@use './checkout-till.css';
+
+app-checkout-till {
+  display: block;
+  max-inline-size: 28rem;
+  block-size: var(--receipt-till-height, 260px);
+  margin: 0.5rem auto 0;
+  text-align: start;
+
+  .ik-plate {
+    display: block;
+    padding: 0;
+    border: 0;
+    background: transparent;
+  }
+
+  .ik-grid {
+    display: none;
+  }
+}

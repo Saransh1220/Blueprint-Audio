@@ -21,6 +21,7 @@ import {
   CreateRefundRequest,
   GetLicenseDownloadsRequest,
   GetOrderRefundsRequest,
+  GetOrderRequest,
   GetOrderStatusRequest,
   GetProducerOrdersRequest,
   GetUserLicensesRequest,
@@ -249,6 +250,10 @@ export class PaymentService {
   /**
    * Get single order status snapshot
    */
+  getOrder(orderId: string): Observable<Order> {
+    return this.api.execute(new GetOrderRequest(orderId));
+  }
+
   getOrderStatus(orderId: string): Observable<OrderStatusDto> {
     return this.api.execute(new GetOrderStatusRequest(orderId));
   }

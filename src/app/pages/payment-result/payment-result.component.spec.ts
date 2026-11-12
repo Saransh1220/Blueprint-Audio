@@ -12,7 +12,9 @@ describe('PaymentResultComponent', () => {
   let component: PaymentResultComponent;
   let mockPaymentService: {
     pollOrderStatus: ReturnType<typeof vi.fn>;
+    getOrder: ReturnType<typeof vi.fn>;
     fetchUserLicenses: ReturnType<typeof vi.fn>;
+    getLicenseDownloads: ReturnType<typeof vi.fn>;
   };
   let mockToast: {
     show: ReturnType<typeof vi.fn>;
@@ -23,7 +25,15 @@ describe('PaymentResultComponent', () => {
   const setupComponent = (queryParams: Record<string, string>) => {
     mockPaymentService = {
       pollOrderStatus: vi.fn(),
+      getOrder: vi.fn().mockReturnValue(of({ status: 'paid', amount: 469550, currency: 'INR' })),
       fetchUserLicenses: vi.fn().mockReturnValue(of([])),
+      getLicenseDownloads: vi.fn().mockReturnValue(
+        of({
+          spec_title: 'Night Session',
+          license_type: 'Premium',
+          wav_url: 'https://example.test/purchased.wav',
+        }),
+      ),
     };
     mockToast = {
       show: vi.fn(),
@@ -87,9 +97,10 @@ describe('PaymentResultComponent', () => {
   });
 
   it('transitions to paid state when order becomes paid', () => {
-    setupComponent({ order_id: validOrderId });
+    const uuidV7OrderId = '019ab2d4-1234-7abc-8abc-123456789abc';
+    setupComponent({ order_id: uuidV7OrderId });
     const statusSubject = new BehaviorSubject<OrderStatusDto>({
-      order_id: validOrderId,
+      order_id: uuidV7OrderId,
       status: 'pending',
       provider: 'razorpay',
       expires_at: '2026-11-07T20:00:00Z',
@@ -99,10 +110,11 @@ describe('PaymentResultComponent', () => {
 
     fixture.detectChanges();
     expect(component.state()).toBe('confirming');
+    expect(mockPaymentService.pollOrderStatus).toHaveBeenCalledWith(uuidV7OrderId);
 
     // Simulate poll emission for paid status
     statusSubject.next({
-      order_id: validOrderId,
+      order_id: uuidV7OrderId,
       status: 'paid',
       provider: 'razorpay',
       expires_at: '2026-11-07T20:00:00Z',
@@ -114,8 +126,23 @@ describe('PaymentResultComponent', () => {
     });
 
     expect(component.state()).toBe('paid');
-    expect(mockToast.show).toHaveBeenCalledWith('Payment confirmed successfully!', 'success');
+    expect(mockPaymentService.getOrder).toHaveBeenCalledWith(uuidV7OrderId);
+    expect(component.paidTotal()).toBe('₹4,695.50');
     expect(mockPaymentService.fetchUserLicenses).toHaveBeenCalled();
+    fixture.detectChanges();
+
+    const page: HTMLElement = fixture.nativeElement;
+    expect(page.querySelector('h1')?.textContent).toContain('Purchase complete');
+    expect(page.querySelector('.copy-action')?.textContent).toContain('Copy key');
+    expect(mockPaymentService.getLicenseDownloads).not.toHaveBeenCalled();
+    page.querySelector<HTMLButtonElement>('.download-action')!.click();
+    fixture.detectChanges();
+    expect(mockPaymentService.getLicenseDownloads).toHaveBeenCalledWith('lic-123');
+    expect(page.querySelector('.file-list a')?.getAttribute('href')).toBe(
+      'https://example.test/purchased.wav',
+    );
+    expect(page.querySelector('.file-list a')?.hasAttribute('download')).toBe(true);
+    expect(page.querySelector('.file-list a')?.hasAttribute('target')).toBe(false);
   });
 
   it('transitions to failed state when status is failed or cancelled or refunded', () => {
