@@ -11,10 +11,10 @@ import { NotificationService } from '../../services/notification.service';
 import { PaymentService } from '../../services/payment.service';
 import { DashboardComponent } from './dashboard.component';
 
-function dayRows(count: number, valueOf: (index: number) => number) {
+function dayRows(count: number, valueAt: (index: number) => number) {
   return Array.from({ length: count }, (_, i) => ({
     date: `2026-09-${String(i + 1).padStart(2, '0')}`,
-    count: valueOf(i),
+    count: valueAt(i),
   }));
 }
 

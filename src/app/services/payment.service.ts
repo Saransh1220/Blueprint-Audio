@@ -116,7 +116,11 @@ export class PaymentService {
       return this.api.execute(new CreateOrderRequest(body, idempotencyKey)).pipe(
         switchMap((order) => {
           if ('code' in order) {
-            this.toast.show('Checkout is currently in progress. Please wait a moment...', 'info');
+            const message =
+              order.code === 'CHECKOUT_RECONCILING'
+                ? 'We’re verifying your checkout with the payment provider. Try again in a moment.'
+                : 'Checkout is currently in progress. Please wait a moment...';
+            this.toast.show(message, 'info');
             return EMPTY;
           }
           if (

@@ -415,7 +415,9 @@ export class LegalComponent implements OnInit, OnDestroy {
 
     setTimeout(() => {
       const sections = document.querySelectorAll('.doc-section');
-      sections.forEach((sec) => this.observer?.observe(sec));
+      sections.forEach((sec) => {
+        this.observer?.observe(sec);
+      });
     }, 100);
   }
 }

@@ -208,10 +208,10 @@ describe('StudioAnalyticsComponent (refreshed analytics)', () => {
   const getSpecs = vi.fn();
   const getProducerOrders = vi.fn();
 
-  const days = (n: number, valueOf: (i: number) => number, key = 'count') =>
+  const days = (n: number, valueAt: (i: number) => number, key = 'count') =>
     Array.from({ length: n }, (_, i) => ({
       date: `2026-02-${String(i + 1).padStart(2, '0')}`,
-      [key]: valueOf(i),
+      [key]: valueAt(i),
     }));
   const halves = (n: number, prev: number, cur: number) => (i: number) => (i < n / 2 ? prev : cur);
 

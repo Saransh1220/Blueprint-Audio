@@ -1165,7 +1165,9 @@
     display: block;
     isolation: isolate;
     height: 100vh;
-    height: 100dvh;
+    @supports (height: 100dvh) {
+      height: 100dvh;
+    }
     overflow: hidden;
     background: var(--mobile-deep, var(--player-bg));
     color: var(--player-fg);

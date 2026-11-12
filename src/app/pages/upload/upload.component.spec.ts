@@ -437,7 +437,9 @@ describe('UploadComponent', () => {
     component.coverSummary.set({ name: 'cover.png', size: '1B' });
     component.removeFile('cover');
     expect(component.coverFile()).toBeNull();
-    component.licenses.controls.forEach((control) => control.get('enabled')?.setValue(false));
+    component.licenses.controls.forEach((control) => {
+      control.get('enabled')?.setValue(false);
+    });
     expect(component.selectedLicenses()).toHaveLength(0);
     expect(component.minimumEnabledPrice()).toBe(0);
     component.stemsFile.set(new File(['a'], 'stems.zip'));

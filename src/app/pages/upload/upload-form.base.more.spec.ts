@@ -198,7 +198,9 @@ describe('UploadFormBase (more)', () => {
     fillForm(c, { category: 'sample' });
     c.nextStep();
     expect(c.currentStep()).toBe(3);
-    c.licenses.controls.forEach((l) => l.get('enabled')!.setValue(false));
+    c.licenses.controls.forEach((l) => {
+      l.get('enabled')!.setValue(false);
+    });
     c.nextStep();
     expect(c.currentStep()).toBe(3);
     expect(toast.show).toHaveBeenCalledWith('Please enable at least one license option.', 'error');

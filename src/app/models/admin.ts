@@ -38,6 +38,7 @@ export interface AdminOrder {
   license_type: string;
   /** Minor units (paise or cents). */
   amount: number;
+  captured_amount?: number | null;
   currency: string;
   provider?: string;
   status: string;

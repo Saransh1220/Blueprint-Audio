@@ -102,7 +102,9 @@ describe('PlayerComponent (extended)', () => {
     for (let i = 0; i < 5; i++) {
       const cbs = rafCallbacks.splice(0);
       if (!cbs.length) break;
-      cbs.forEach((cb) => cb());
+      cbs.forEach((cb) => {
+        cb();
+      });
     }
   }
 
@@ -231,7 +233,9 @@ describe('PlayerComponent (extended)', () => {
     expect(rafCallbacks.length).toBeGreaterThan(0);
     ps.getWaveformData.mockClear();
     const batch = rafCallbacks.splice(0);
-    batch.forEach((cb) => cb());
+    batch.forEach((cb) => {
+      cb();
+    });
     expect(ps.getWaveformData).toHaveBeenCalled();
     expect(component.waveformBars()).toHaveLength(60);
     expect(Math.max(...component.waveformBars())).toBe(100);

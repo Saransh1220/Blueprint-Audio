@@ -105,7 +105,9 @@ export class SearchPageComponent implements OnInit, OnDestroy {
       chips.push({ id: 'search', label: this.searchTerm().trim() });
     }
 
-    this.genre().forEach((g) => chips.push({ id: `genre:${g}`, label: g }));
+    this.genre().forEach((g) => {
+      chips.push({ id: `genre:${g}`, label: g });
+    });
 
     if (this.bpmRange()[0] !== 60 || this.bpmRange()[1] !== 200) {
       chips.push({ id: 'bpm', label: `${this.bpmRange()[0]}-${this.bpmRange()[1]} BPM` });

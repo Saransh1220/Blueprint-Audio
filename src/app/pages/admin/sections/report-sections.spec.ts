@@ -14,7 +14,7 @@ import { AdminOrdersSectionComponent } from './orders-section.component';
 describe('read-only admin sections', () => {
   const admin = { getOrders: vi.fn(), getLicenses: vi.fn(), getAuditLog: vi.fn() };
   const authz = { isSuperAdmin: vi.fn(() => true) };
-  const payment = { refundOrder: vi.fn(), getOrderRefunds: vi.fn() };
+  const payment = { refundOrder: vi.fn(), getOrderRefunds: vi.fn().mockReturnValue(of([])) };
   const toast = { show: vi.fn(), success: vi.fn(), error: vi.fn() };
 
   function render<T>(component: Type<T>) {
@@ -65,6 +65,25 @@ describe('read-only admin sections', () => {
       pending.next(pageOf([order()]));
 
       expect(fixture.componentInstance.list.items()).toEqual([]);
+    });
+
+    it('shows pending refund progress and refreshes the order when the provider confirms it', () => {
+      const refundUpdates = new Subject<Array<{ id: string; status: string }>>();
+      payment.getOrderRefunds.mockReturnValueOnce(refundUpdates);
+      admin.getOrders.mockReturnValue(of(pageOf([order({ id: 'ord-1', status: 'paid' })])));
+      const fixture = render(AdminOrdersSectionComponent);
+      const root = fixture.nativeElement as HTMLElement;
+
+      (root.querySelector('tbody .row-btn.danger') as HTMLButtonElement).click();
+      refundUpdates.next([{ id: 'rf-1', status: 'pending' }]);
+      fixture.detectChanges();
+      expect(text(fixture)).toContain('Waiting for the payment provider');
+      expect((root.querySelector('.btn-confirm-danger') as HTMLButtonElement).disabled).toBe(true);
+
+      refundUpdates.next([{ id: 'rf-1', status: 'succeeded' }]);
+      fixture.detectChanges();
+      expect(text(fixture)).toContain('Download access has been revoked');
+      expect(admin.getOrders).toHaveBeenCalledTimes(2);
     });
 
     it('shows refund button for paid orders when authorized and submits refund', () => {

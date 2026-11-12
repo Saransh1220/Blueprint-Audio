@@ -181,10 +181,10 @@ describe('StudioOverviewComponent (refreshed overview)', () => {
   const getSpecs = vi.fn();
   const currentUser = signal<any>({ id: 'u1', display_name: 'Blaze Runner' });
 
-  const days = (n: number, valueOf: (i: number) => number, key = 'count') =>
+  const days = (n: number, valueAt: (i: number) => number, key = 'count') =>
     Array.from({ length: n }, (_, i) => ({
       date: `2026-02-${String(i + 1).padStart(2, '0')}`,
-      [key]: valueOf(i),
+      [key]: valueAt(i),
     }));
 
   const twoWeeks = (prev: number, cur: number) => (i: number) => (i < 7 ? prev : cur);

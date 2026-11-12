@@ -245,7 +245,9 @@ describe('StudioUploadComponent', () => {
     component.wavFile.set(new File(['a'], 'master.wav', { type: 'audio/wav' }));
     component.stemsFile.set(new File(['a'], 'stems.zip', { type: 'application/zip' }));
     markRequiredFilesUploaded(component);
-    component.licenses.controls.forEach((control) => control.patchValue({ enabled: false }));
+    component.licenses.controls.forEach((control) => {
+      control.patchValue({ enabled: false });
+    });
     component.submitUpload();
     expect(toast.show).toHaveBeenCalledWith('Please enable at least one license option.', 'error');
 

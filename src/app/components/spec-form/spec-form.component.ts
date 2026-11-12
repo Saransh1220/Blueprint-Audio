@@ -136,7 +136,9 @@ export class SpecFormComponent implements OnInit {
     // Load tags
     if (data.tags) {
       this.tags.clear();
-      data.tags.forEach((tag) => this.tags.push(this.fb.control(tag)));
+      data.tags.forEach((tag) => {
+        this.tags.push(this.fb.control(tag));
+      });
     }
 
     // Load licenses

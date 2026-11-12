@@ -36,7 +36,8 @@ export interface CreateOrderBody {
 }
 
 export interface CheckoutInFlight {
-  code: 'CHECKOUT_IN_FLIGHT';
+  code: 'CHECKOUT_IN_FLIGHT' | 'CHECKOUT_RECONCILING';
+  order_id?: string;
   retry_after: number;
 }
 

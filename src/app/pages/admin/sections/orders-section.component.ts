@@ -7,6 +7,7 @@ import {
   OnInit,
   signal,
 } from '@angular/core';
+import { catchError, EMPTY, exhaustMap, interval, startWith, Subscription } from 'rxjs';
 import { AdminOrder } from '../../../models';
 import { AdminService } from '../../../services/admin.service';
 import { AuthzService } from '../../../services/authz.service';
@@ -272,16 +273,18 @@ import { AdminListToolbarComponent } from '../ui/admin-list-toolbar.component';
                   <td class="muted">{{ formatDate(order.created_at) }}</td>
                   <td class="end">
                     <div class="actions">
-                      @if (canRefund() && order.status === 'paid') {
+                      @if (
+                        canRefund() && (order.status === 'paid' || order.status === 'refunded')
+                      ) {
                         <button
                           type="button"
                           class="row-btn danger"
                           [disabled]="isPending(order.id)"
                           (click)="openRefundDialog(order)"
-                          title="Issue full refund"
+                          title="View or issue a refund"
                         >
                           <i class="fa-solid fa-rotate-left" aria-hidden="true"></i>
-                          Refund
+                          {{ order.status === 'refunded' ? 'Refund details' : 'Refund' }}
                         </button>
                       }
                     </div>
@@ -334,44 +337,58 @@ import { AdminListToolbarComponent } from '../ui/admin-list-toolbar.component';
               <div class="detail-row">
                 <span class="detail-label">Captured Amount</span>
                 <span class="detail-value highlight">{{
-                  formatMoney(targetOrder.amount, targetOrder.currency)
+                  formatMoney(
+                    targetOrder.captured_amount ?? targetOrder.amount,
+                    targetOrder.currency
+                  )
                 }}</span>
               </div>
 
-              <div class="form-group">
-                <label for="refund-reason">Refund Reason *</label>
-                <select
-                  id="refund-reason"
-                  [value]="refundReason()"
-                  (change)="onReasonChange($event)"
-                >
-                  <option value="customer_request">Customer Request</option>
-                  <option value="duplicate">Duplicate Purchase</option>
-                  <option value="fraudulent">Fraudulent / Unauthorized</option>
-                  <option value="accidental_purchase">Accidental Purchase</option>
-                  <option value="other">Other</option>
-                </select>
-              </div>
+              @if (refundLoading()) {
+                <p role="status">Loading refund status…</p>
+              } @else if (refundLoadFailed()) {
+                <p role="status">Refund status is temporarily unavailable. Retrying…</p>
+              } @else if (refundStatus(); as currentStatus) {
+                <p role="status" aria-live="polite">{{ refundStatusMessage(currentStatus) }}</p>
+              } @else if (targetOrder.status === 'refunded') {
+                <p role="status">The payment provider confirmed this refund.</p>
+              }
+              @if (maySubmitRefund(targetOrder)) {
+                <div class="form-group">
+                  <label for="refund-reason">Refund Reason *</label>
+                  <select
+                    id="refund-reason"
+                    [value]="refundReason()"
+                    (change)="onReasonChange($event)"
+                  >
+                    <option value="customer_request">Customer Request</option>
+                    <option value="duplicate">Duplicate Purchase</option>
+                    <option value="fraudulent">Fraudulent / Unauthorized</option>
+                    <option value="accidental_purchase">Accidental Purchase</option>
+                    <option value="other">Other</option>
+                  </select>
+                </div>
 
-              <div class="form-group">
-                <label for="refund-notes">Notes (optional)</label>
-                <textarea
-                  id="refund-notes"
-                  rows="3"
-                  placeholder="Reason details or support ticket reference"
-                  [value]="refundNotes()"
-                  (input)="onNotesChange($event)"
-                ></textarea>
-              </div>
+                <div class="form-group">
+                  <label for="refund-notes">Notes (optional)</label>
+                  <textarea
+                    id="refund-notes"
+                    rows="3"
+                    placeholder="Reason details or support ticket reference"
+                    [value]="refundNotes()"
+                    (input)="onNotesChange($event)"
+                  ></textarea>
+                </div>
 
-              <div class="modal-notice">
-                <i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>
-                <span
-                  >A full refund will be requested from
-                  {{ targetOrder.provider || 'payment provider' }}. Associated licenses and download
-                  access will be revoked immediately upon confirmation.</span
-                >
-              </div>
+                <div class="modal-notice">
+                  <i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>
+                  <span
+                    >A full refund will be requested from
+                    {{ targetOrder.provider || 'payment provider' }}. Associated licenses and
+                    download access will be revoked immediately upon confirmation.</span
+                  >
+                </div>
+              }
             </div>
 
             <div class="modal-foot">
@@ -387,7 +404,7 @@ import { AdminListToolbarComponent } from '../ui/admin-list-toolbar.component';
                 type="button"
                 class="btn-confirm-danger"
                 (click)="submitRefund(targetOrder)"
-                [disabled]="isRefunding()"
+                [disabled]="!maySubmitRefund(targetOrder) || isRefunding()"
               >
                 @if (isRefunding()) {
                   <i class="fa-solid fa-spinner fa-spin" aria-hidden="true"></i> Processing...
@@ -414,7 +431,12 @@ export class AdminOrdersSectionComponent implements OnInit, OnDestroy {
   readonly activeRefundOrder = signal<AdminOrder | null>(null);
   readonly refundReason = signal<string>('customer_request');
   readonly refundNotes = signal<string>('');
-  readonly isRefunding = signal<boolean>(false);
+  readonly isRefunding = signal(false);
+  readonly refundLoading = signal(false);
+  readonly refundLoadFailed = signal(false);
+  readonly refundStatus = signal<string | null>(null);
+  private refundUpdates?: Subscription;
+  private refundSubmission?: Subscription;
 
   protected readonly formatDate = formatDate;
   protected readonly formatMoney = formatMoney;
@@ -427,6 +449,8 @@ export class AdminOrdersSectionComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy() {
+    this.refundUpdates?.unsubscribe();
+    this.refundSubmission?.unsubscribe();
     this.list.destroy();
   }
 
@@ -438,10 +462,14 @@ export class AdminOrdersSectionComponent implements OnInit, OnDestroy {
     this.activeRefundOrder.set(order);
     this.refundReason.set('customer_request');
     this.refundNotes.set('');
+    this.refundStatus.set(null);
+    this.refundLoadFailed.set(false);
+    this.watchRefund(order.id);
   }
 
   closeRefundDialog(): void {
     if (this.isRefunding()) return;
+    this.refundUpdates?.unsubscribe();
     this.activeRefundOrder.set(null);
   }
 
@@ -455,23 +483,84 @@ export class AdminOrdersSectionComponent implements OnInit, OnDestroy {
     this.refundNotes.set(target.value);
   }
 
-  submitRefund(order: AdminOrder): void {
-    if (this.isRefunding()) return;
-    this.isRefunding.set(true);
+  maySubmitRefund(order: AdminOrder): boolean {
+    return (
+      this.canRefund() &&
+      order.status === 'paid' &&
+      !this.refundLoading() &&
+      !this.refundLoadFailed() &&
+      [null, 'failed'].includes(this.refundStatus())
+    );
+  }
 
-    this.payment.refundOrder(order.id, this.refundReason(), this.refundNotes()).subscribe({
-      next: (res) => {
-        this.isRefunding.set(false);
-        this.activeRefundOrder.set(null);
-        const statusMsg = res.status === 'succeeded' ? 'completed successfully' : res.status;
-        this.toast.show(`Refund ${statusMsg}`, 'success');
-        this.list.load();
-      },
-      error: (err) => {
-        this.isRefunding.set(false);
-        const msg = err?.error?.message || 'Failed to issue refund';
-        this.toast.show(msg, 'error');
-      },
-    });
+  refundStatusMessage(status: string): string {
+    switch (status) {
+      case 'succeeded':
+        return 'Refund completed. Download access has been revoked.';
+      case 'failed':
+        return 'The provider declined the refund.';
+      case 'needs_review':
+        return 'The provider outcome needs review. A new refund is unavailable.';
+      default:
+        return 'Waiting for the payment provider to confirm the refund.';
+    }
+  }
+
+  private watchRefund(orderId: string): void {
+    this.refundUpdates?.unsubscribe();
+    this.refundLoading.set(true);
+    this.refundUpdates = interval(5000)
+      .pipe(
+        startWith(0),
+        exhaustMap(() =>
+          this.payment.getOrderRefunds(orderId).pipe(
+            catchError(() => {
+              this.refundLoading.set(false);
+              this.refundLoadFailed.set(true);
+              return EMPTY;
+            }),
+          ),
+        ),
+      )
+      .subscribe((records) => {
+        const current = records.find((record) => record.status !== 'failed') ?? records[0];
+        const previous = this.refundStatus();
+        if (current || previous === null) {
+          this.refundStatus.set(current?.status ?? null);
+        }
+        this.refundLoading.set(false);
+        this.refundLoadFailed.set(false);
+        if (current?.status === 'succeeded' && previous !== 'succeeded') {
+          this.list.load();
+        }
+      });
+  }
+
+  submitRefund(order: AdminOrder): void {
+    if (!this.maySubmitRefund(order) || this.isRefunding()) return;
+    this.isRefunding.set(true);
+    this.refundSubmission = this.payment
+      .refundOrder(order.id, this.refundReason(), this.refundNotes())
+      .subscribe({
+        next: (res) => {
+          this.isRefunding.set(false);
+          this.refundStatus.set(res.status);
+          if (res.status === 'succeeded') {
+            this.toast.show('Refund completed successfully', 'success');
+            this.list.load();
+          } else {
+            this.toast.show(
+              this.refundStatusMessage(res.status),
+              res.status === 'failed' ? 'error' : 'info',
+            );
+          }
+        },
+        error: (err) => {
+          this.isRefunding.set(false);
+          this.refundStatus.set('needs_review');
+          this.toast.show(err?.error?.message || 'Failed to issue refund', 'error');
+          this.watchRefund(order.id);
+        },
+      });
   }
 }
