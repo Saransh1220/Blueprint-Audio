@@ -316,17 +316,28 @@ describe('PaymentService', () => {
     expect(openSpy).toHaveBeenCalled();
   });
 
-  it('initiatePayment handles 202 CHECKOUT_IN_FLIGHT with info toast', () => {
+  it('retains the checkout key across an accepted in-flight response and a resumed checkout', () => {
     const execute = vi
       .fn()
-      .mockReturnValue(throwError(() => ({ status: 202, error: { code: 'CHECKOUT_IN_FLIGHT' } })));
+      .mockReturnValueOnce(of({ code: 'CHECKOUT_IN_FLIGHT', retry_after: 2 }))
+      .mockReturnValueOnce(of({ id: 'o-1', status: 'pending', razorpay_order_id: 'rzp-1' }));
     const { service, show } = setup(execute);
+    const open = vi
+      .spyOn(service as any, 'openRazorpayCheckout')
+      .mockImplementation(() => undefined);
+    const next = vi.fn();
 
-    service.initiatePayment('spec-1', 'lo-1', 'Track').subscribe({ error: () => undefined });
+    service.initiatePayment('resume-spec', 'lo-1', 'Track').subscribe(next);
+    expect(next).not.toHaveBeenCalled();
+    expect(open).not.toHaveBeenCalled();
     expect(show).toHaveBeenCalledWith(
       expect.stringContaining('Checkout is currently in progress'),
       'info',
     );
+
+    service.initiatePayment('resume-spec', 'lo-1', 'Track').subscribe(next);
+    expect(execute.mock.calls[1][0].headers).toEqual(execute.mock.calls[0][0].headers);
+    expect(open).toHaveBeenCalledTimes(1);
   });
 
   it('initiatePayment handles 409 IDEMPOTENCY_CONFLICT with error toast', () => {

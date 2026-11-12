@@ -5,6 +5,7 @@ import {
   defer,
   EMPTY,
   expand,
+  finalize,
   map,
   Observable,
   of,
@@ -57,6 +58,7 @@ export class PaymentService {
   // Track active licenses - moved down to keep together with pagination
   // userLicenses = signal<License[]>([]);
 
+  private razorpayCheckoutOpen = false;
   readonly isInitiatingPayment = signal<boolean>(false);
 
   /**
@@ -72,86 +74,95 @@ export class PaymentService {
       priceMoney?: Money;
     },
   ): Observable<Order> {
-    if (this.isInitiatingPayment()) {
-      return EMPTY;
-    }
-    this.isInitiatingPayment.set(true);
-
-    const user = this.auth.currentUser();
-    const intentStorageKey = `waveyard_checkout_intent_${user?.id || 'guest'}_${specId}_${licenseOptionId}`;
-    let idempotencyKey: string;
-    try {
-      const stored = sessionStorage.getItem(intentStorageKey);
-      if (stored) {
-        idempotencyKey = stored;
-      } else {
-        idempotencyKey = crypto.randomUUID();
-        sessionStorage.setItem(intentStorageKey, idempotencyKey);
+    return defer(() => {
+      if (this.isInitiatingPayment() || this.razorpayCheckoutOpen) {
+        return EMPTY;
       }
-    } catch {
-      idempotencyKey = crypto.randomUUID();
-    }
+      this.isInitiatingPayment.set(true);
 
-    const body: CreateOrderBody = {
-      spec_id: specId,
-      license_option_id: licenseOptionId,
-    };
-
-    if (evidence?.selectedPrice) {
-      body.currency = evidence.selectedPrice.currency;
-      body.expected_price_id = evidence.selectedPrice.price_id;
-      body.expected_revision = evidence.selectedPrice.revision;
-      body.expected_amount_minor = evidence.selectedPrice.amount_minor;
-      body.expected_currency = evidence.selectedPrice.currency;
-    } else if (evidence?.displayPriceMoney) {
-      body.currency = evidence.displayPriceMoney.currency;
-      body.expected_amount_minor = evidence.displayPriceMoney.amount_minor;
-      body.expected_currency = evidence.displayPriceMoney.currency;
-    }
-
-    // Step 1: Create order on backend with Idempotency-Key
-    return this.api.execute(new CreateOrderRequest(body, idempotencyKey)).pipe(
-      tap((order) => {
-        this.isInitiatingPayment.set(false);
-        try {
-          sessionStorage.removeItem(intentStorageKey);
-        } catch {}
-        if (order.checkout_url) {
-          window.location.assign(order.checkout_url);
-          return;
-        }
-        if (order.razorpay_order_id) {
-          this.openRazorpayCheckout(order, specTitle);
-        }
-      }),
-      catchError((error) => {
-        this.isInitiatingPayment.set(false);
-        const code = error?.error?.code;
-        if (error?.status === 202 || code === 'CHECKOUT_IN_FLIGHT') {
-          this.toast.show('Checkout is currently in progress. Please wait a moment...', 'info');
-        } else if (error?.status === 409 && code === 'IDEMPOTENCY_CONFLICT') {
-          try {
-            sessionStorage.removeItem(intentStorageKey);
-          } catch {}
-          this.toast.show(
-            'A checkout with different details was already initiated. Please refresh and try again.',
-            'error',
-          );
-        } else if (
-          error?.status === 409 ||
-          code === 'PRICE_CHANGED' ||
-          code === 'PRICE_UNAVAILABLE'
-        ) {
-          try {
-            sessionStorage.removeItem(intentStorageKey);
-          } catch {}
-          this.toast.show('Price changed. Please review the updated offer.', 'info');
+      const user = this.auth.currentUser();
+      const intentStorageKey = `waveyard_checkout_intent_${user?.id || 'guest'}_${specId}_${licenseOptionId}`;
+      let idempotencyKey: string;
+      try {
+        const stored = sessionStorage.getItem(intentStorageKey);
+        if (stored) {
+          idempotencyKey = stored;
         } else {
-          this.toast.show('Failed to create order. Please try again.', 'error');
+          idempotencyKey = crypto.randomUUID();
+          sessionStorage.setItem(intentStorageKey, idempotencyKey);
         }
-        return throwError(() => error);
-      }),
-    );
+      } catch {
+        idempotencyKey = crypto.randomUUID();
+      }
+
+      const body: CreateOrderBody = {
+        spec_id: specId,
+        license_option_id: licenseOptionId,
+      };
+
+      if (evidence?.selectedPrice) {
+        body.currency = evidence.selectedPrice.currency;
+        body.expected_price_id = evidence.selectedPrice.price_id;
+        body.expected_revision = evidence.selectedPrice.revision;
+        body.expected_amount_minor = evidence.selectedPrice.amount_minor;
+        body.expected_currency = evidence.selectedPrice.currency;
+      } else if (evidence?.displayPriceMoney) {
+        body.currency = evidence.displayPriceMoney.currency;
+        body.expected_amount_minor = evidence.displayPriceMoney.amount_minor;
+        body.expected_currency = evidence.displayPriceMoney.currency;
+      }
+
+      // Step 1: Create order on backend with Idempotency-Key
+      return this.api.execute(new CreateOrderRequest(body, idempotencyKey)).pipe(
+        switchMap((order) => {
+          if ('code' in order) {
+            this.toast.show('Checkout is currently in progress. Please wait a moment...', 'info');
+            return EMPTY;
+          }
+          if (
+            order.status === 'paid' ||
+            order.status === 'refunded' ||
+            order.status === 'failed' ||
+            order.status === 'cancelled'
+          ) {
+            try {
+              sessionStorage.removeItem(intentStorageKey);
+            } catch {}
+            void this.router.navigate(['/payment/return'], { queryParams: { order_id: order.id } });
+            return of(order);
+          }
+          if (order.checkout_url) {
+            window.location.assign(order.checkout_url);
+          } else if (order.razorpay_order_id) {
+            this.openRazorpayCheckout(order, specTitle);
+          }
+          return of(order);
+        }),
+        catchError((error) => {
+          const code = error?.error?.code;
+          if (error?.status === 202 || code === 'CHECKOUT_IN_FLIGHT') {
+            this.toast.show('Checkout is currently in progress. Please wait a moment...', 'info');
+          } else if (error?.status === 409 && code === 'IDEMPOTENCY_CONFLICT') {
+            try {
+              sessionStorage.removeItem(intentStorageKey);
+            } catch {}
+            this.toast.show(
+              'A checkout with different details was already initiated. Please refresh and try again.',
+              'error',
+            );
+          } else if (code === 'PRICE_CHANGED' || code === 'PRICE_UNAVAILABLE') {
+            try {
+              sessionStorage.removeItem(intentStorageKey);
+            } catch {}
+            this.toast.show('Price changed. Please review the updated offer.', 'info');
+          } else {
+            this.toast.show('Failed to create order. Please try again.', 'error');
+          }
+          return throwError(() => error);
+        }),
+        finalize(() => this.isInitiatingPayment.set(false)),
+      );
+    });
   }
 
   /**
@@ -183,17 +194,25 @@ export class PaymentService {
         color: '#6366f1',
       },
       handler: (response: RazorpayResponse) => {
+        this.razorpayCheckoutOpen = false;
         this.handlePaymentSuccess(order.id, response);
       },
       modal: {
         ondismiss: () => {
+          this.razorpayCheckoutOpen = false;
           this.toast.show('Payment cancelled', 'info');
         },
       },
     };
 
     const razorpay = new window.Razorpay(options);
-    razorpay.open();
+    this.razorpayCheckoutOpen = true;
+    try {
+      razorpay.open();
+    } catch (error) {
+      this.razorpayCheckoutOpen = false;
+      throw error;
+    }
   }
 
   /**

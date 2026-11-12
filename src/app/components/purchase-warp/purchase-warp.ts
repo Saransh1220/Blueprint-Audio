@@ -112,6 +112,7 @@ export class PurchaseWarpComponent {
       ? this.payment.initiatePayment(spec.id, license.id, spec.title, license)
       : this.payment.initiatePayment(spec.id, license.id, spec.title);
     call.subscribe({
+      complete: () => this.isSubmitting.set(false),
       next: () => {
         this.isSubmitting.set(false);
         this.close();
@@ -119,7 +120,7 @@ export class PurchaseWarpComponent {
       error: (err) => {
         this.isSubmitting.set(false);
         console.error('Payment initiation failed:', err);
-        if (err?.status === 409 || err?.error?.code === 'PRICE_CHANGED') {
+        if (err?.error?.code === 'PRICE_CHANGED' || err?.error?.code === 'PRICE_UNAVAILABLE') {
           const fresh = err?.error?.current_offer;
           if (fresh) {
             license.selectedPrice = fresh;

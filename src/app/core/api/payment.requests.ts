@@ -35,11 +35,16 @@ export interface CreateOrderBody {
   expected_currency?: string;
 }
 
-export class CreateOrderRequest implements ApiRequest<Order> {
+export interface CheckoutInFlight {
+  code: 'CHECKOUT_IN_FLIGHT';
+  retry_after: number;
+}
+
+export class CreateOrderRequest implements ApiRequest<Order | CheckoutInFlight> {
   readonly path = '/orders';
   readonly method: HttpMethod = 'POST';
   readonly headers?: Record<string, string>;
-  readonly _responseType?: Order;
+  readonly _responseType?: Order | CheckoutInFlight;
 
   constructor(
     public body: CreateOrderBody,

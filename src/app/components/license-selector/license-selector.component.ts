@@ -87,6 +87,7 @@ export class LicenseSelectorComponent {
       ? this.paymentService.initiatePayment(this.spec.id, license.id, this.spec.title, license)
       : this.paymentService.initiatePayment(this.spec.id, license.id, this.spec.title);
     call.subscribe({
+      complete: () => this.isProcessing.set(false),
       next: () => {
         this.isProcessing.set(false);
         this.modalService.close();
