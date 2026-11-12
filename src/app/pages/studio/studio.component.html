@@ -3,82 +3,60 @@
   <div class="sidebar-backdrop" [class.show]="isMobileNavOpen()" (click)="closeMobileNav()"></div>
 
   <!-- ═══════════════ SIDEBAR ═══════════════ -->
-  <aside class="sidebar" [class.open]="isMobileNavOpen()">
-    <!-- Profile card -->
-    <div class="prof-card">
-      <div class="prof-top">
-        <div class="prof-avatar">
-          @if (avatarUrl()) {
-            <img [src]="avatarUrl()" [alt]="displayName()" />
-          } @else {
-            {{ displayName().slice(0, 1).toLowerCase() }}
-          }
-        </div>
-        <div class="prof-name-block">
-          <div class="prof-name">
-            {{ firstName() }}<em> {{ lastName() }}</em>
-          </div>
-          <div class="prof-handle">@{{ handle() }}</div>
-        </div>
-      </div>
-      @if (currentUser()?.role === Role.PRODUCER) {}
-    </div>
+  <aside class="sidebar" [class.open]="isMobileNavOpen()" aria-label="Studio navigation">
+    <!-- Identity -->
+    <a
+      class="who"
+      [routerLink]="profileLink()"
+      (click)="closeMobileNav()"
+      title="View public profile"
+    >
+      <span class="who-avatar">
+        @if (avatarUrl()) {
+          <img [src]="avatarUrl()" [alt]="displayName()" />
+        } @else {
+          {{ displayName().slice(0, 1) }}
+        }
+      </span>
+      <span class="who-text">
+        <span class="who-name">{{ displayName() }}</span>
+        <span class="who-handle">&#64;{{ handle() }}</span>
+      </span>
+      <i class="fas fa-arrow-up-right-from-square who-go" aria-hidden="true"></i>
+    </a>
+
+    @if (currentUser()?.role === Role.PRODUCER) {
+      <a class="upload-cta" routerLink="upload" (click)="closeMobileNav()">
+        <i class="fas fa-plus" aria-hidden="true"></i>
+        Upload beat
+      </a>
+    }
 
     <!-- Main nav -->
-    <div class="side-section-head">Studio</div>
-    <div class="side-nav">
+    <nav class="side-nav">
+      <div class="side-label">Studio</div>
       @for (item of availableNavItems(); track item.route) {
         <a
           class="side-nav-item"
           [routerLink]="item.route"
           routerLinkActive="active"
           (click)="closeMobileNav()"
-          ><span class="sn-ico"><i [class]="'fas ' + item.icon"></i></span
-          ><span class="sn-label">{{ item.label }}</span></a
         >
+          <span class="sn-ico" [attr.data-tint]="item.tint">
+            <i [class]="'fas ' + item.icon" aria-hidden="true"></i>
+          </span>
+          <span class="sn-label">{{ item.label }}</span>
+        </a>
       }
-    </div>
-
-    @if (currentUser()?.role === Role.PRODUCER) {
-      <div class="side-divider"></div>
-
-      <!-- Tools -->
-      <div class="side-section-head">Tools</div>
-      <a class="upload-cta" routerLink="upload" (click)="closeMobileNav()">
-        <span class="upload-cta-inner">
-          <svg
-            width="13"
-            height="13"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2.5"
-          >
-            <line x1="12" y1="5" x2="12" y2="19" />
-            <line x1="5" y1="12" x2="19" y2="12" />
-          </svg>
-          Upload beat
-        </span>
-        <svg
-          width="13"
-          height="13"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2.5"
-        >
-          <line x1="5" y1="12" x2="19" y2="12" />
-          <polyline points="12 5 19 12 12 19" />
-        </svg>
-      </a>
-    }
+    </nav>
 
     <div class="side-bottom">
-      <div class="signed-as">signed in · @{{ handle() }}</div>
-      <div>
-        <button type="button" class="side-bottom-btn" (click)="logout()">sign out</button> ·
-        <a routerLink="/">help</a>
-      </div>
+      <a class="side-bottom-link" routerLink="/" (click)="closeMobileNav()">
+        <i class="fas fa-house" aria-hidden="true"></i> Back to site
+      </a>
+      <button type="button" class="side-bottom-link" (click)="logout()">
+        <i class="fas fa-arrow-right-from-bracket" aria-hidden="true"></i> Sign out
+      </button>
     </div>
   </aside>
 

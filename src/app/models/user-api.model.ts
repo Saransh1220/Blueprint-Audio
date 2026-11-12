@@ -5,6 +5,7 @@ export interface UserApiResponse {
   id: string;
   email: string;
   name: string;
+  handle?: string;
   display_name?: string;
   role: Role;
   system_role?: SystemRole;

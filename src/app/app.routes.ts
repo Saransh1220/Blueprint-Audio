@@ -22,6 +22,7 @@ import { StudioComponent } from './pages/studio/studio.component';
 import { UnavailableComponent } from './pages/unavailable/unavailable.component';
 import { UploadComponent } from './pages/upload/upload.component';
 import { AuthService } from './services';
+import { profileUrlMatcher } from './utils/producer-link';
 
 export const routes: Routes = [
   { path: 'unavailable', component: UnavailableComponent },
@@ -34,12 +35,14 @@ export const routes: Routes = [
   { path: 'cart', component: CartComponent },
   { path: 'explore', component: SearchPageComponent },
   {
-    path: '@/:handle',
+    matcher: profileUrlMatcher,
     loadComponent: () =>
       import('./pages/producer-profile/producer-profile.component').then(
         (m) => m.ProducerProfileComponent,
       ),
   },
+  // Legacy profile URLs (/@/name) now live at /@name.
+  { path: '@/:handle', redirectTo: ({ params }) => `/@${params['handle']}` },
   { path: 'search', redirectTo: 'explore', pathMatch: 'full' },
   {
     path: 'battles',

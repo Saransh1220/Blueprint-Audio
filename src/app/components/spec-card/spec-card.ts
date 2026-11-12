@@ -17,6 +17,7 @@ import { BRAND } from '../../core/config/brand';
 import type { Spec } from '../../models';
 import { SpecActionService } from '../../services/spec-action.service';
 import { MoneyPipe } from '../../shared/pipes/money.pipe';
+import { producerLink } from '../../utils/producer-link';
 
 @Component({
   selector: 'app-spec-card',
@@ -71,6 +72,10 @@ export class SpecCardComponent implements OnInit, OnDestroy {
 
   formatDuration(seconds: number): string {
     return this.actionService.formatDuration(seconds);
+  }
+
+  producerRoute() {
+    return producerLink(this.producerHandle());
   }
 
   producerHandle() {

@@ -149,7 +149,7 @@ describe('SpecDetailsComponent (extended)', () => {
     ).toContain('Track Not Found');
   });
 
-  it('shows pause on the hero play controls while this beat plays', async () => {
+  it('shows pause on the waveform play button while this beat plays', async () => {
     const { fixture, component } = await setup();
     const el = fixture.nativeElement as HTMLElement;
     expect(component.isSpecPlaying()).toBe(false);
@@ -160,7 +160,8 @@ describe('SpecDetailsComponent (extended)', () => {
     fixture.detectChanges();
     expect(component.isSpecPlaying()).toBe(true);
     expect(el.querySelector('.hp-play .fa-pause')).toBeTruthy();
-    expect(el.querySelector('.bc-art')?.getAttribute('aria-label')).toContain('Pause');
+    expect(el.querySelector('.hp-play')?.getAttribute('aria-label')).toContain('Pause');
+    expect(el.querySelector('.bc-head button')).toBeNull();
 
     player.currentTrack.set({ id: 'other' });
     fixture.detectChanges();
@@ -320,34 +321,16 @@ describe('SpecDetailsComponent (extended)', () => {
     );
   });
 
-  it('updates sticky buy state on window scroll', async () => {
+  it('scrolls to the FAQ when present and handles a missing section', async () => {
     const { component } = await setup();
-    Object.defineProperty(window, 'scrollY', { configurable: true, value: 700 });
-    component.onWindowScroll();
-    expect(component.stickyBuyVisible()).toBe(true);
-    Object.defineProperty(window, 'scrollY', { configurable: true, value: 0 });
-    component.onWindowScroll();
-    expect(component.stickyBuyVisible()).toBe(false);
-  });
-
-  it('scrolls to sections when present and ignores missing ones', async () => {
-    const { component } = await setup();
-    const scrollIntoView = vi.fn();
-    const lic = document.createElement('div');
     const faq = document.createElement('div');
-    lic.scrollIntoView = scrollIntoView;
-    faq.scrollIntoView = scrollIntoView;
-    const byId = vi
-      .spyOn(document, 'getElementById')
-      .mockImplementation((id) => (id === 'licenses' ? lic : id === 'faq' ? faq : null));
+    faq.scrollIntoView = vi.fn();
+    const byId = vi.spyOn(document, 'getElementById').mockReturnValue(faq);
 
-    component.scrollToLicenses();
     component.scrollToFaq();
-    expect(scrollIntoView).toHaveBeenCalledTimes(2);
-    expect(scrollIntoView).toHaveBeenCalledWith({ behavior: 'smooth', block: 'start' });
+    expect(faq.scrollIntoView).toHaveBeenCalledWith({ behavior: 'smooth', block: 'start' });
 
     byId.mockReturnValue(null);
-    expect(() => component.scrollToLicenses()).not.toThrow();
     expect(() => component.scrollToFaq()).not.toThrow();
   });
 
@@ -533,11 +516,6 @@ describe('SpecDetailsComponent (extended)', () => {
     expect(component.formatCompactCount(999)).toBe('999');
     expect(component.formatCompactCount(1500)).toBe('1.5k');
     expect(component.formatCompactCount(25000)).toBe('25k');
-    expect(component.getStyledBeatTitle('  Night Drive Remix ')).toEqual({
-      lead: 'Night',
-      accent: 'Drive Remix',
-    });
-    expect(component.getStyledBeatTitle('   ')).toEqual({ lead: '', accent: '' });
   });
 
   it('builds waveform from valid peaks only, capped at 64, else deterministic fallback', async () => {

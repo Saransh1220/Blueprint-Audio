@@ -1,4 +1,11 @@
-<div class="spec-card" [class.playing]="isCurrentlyPlaying()" (click)="openDetails()">
+<div
+  class="spec-card"
+  [class.market]="appearance === 'market'"
+  [class.playing]="isCurrentlyPlaying()"
+  [attr.tabindex]="appearance === 'market' ? 0 : null"
+  (click)="openDetails()"
+  (keydown.enter)="appearance === 'market' && openDetails()"
+>
   <div class="beat-artwork">
     <img
       [ngSrc]="imageUrl"
@@ -38,14 +45,21 @@
 
   <div class="beat-body">
     <div class="beat-title">{{ spec.title }}</div>
-    <a
-      class="beat-producer"
-      [routerLink]="['/@', producerHandle()]"
-      (click)="$event.stopPropagation()"
-      >{{ spec.producerName || brand.name + ' producer' }}</a
-    >
+    <a class="beat-producer" [routerLink]="producerRoute()" (click)="$event.stopPropagation()">{{
+      spec.producerName || brand.name + ' producer'
+    }}</a>
 
-    <div class="card-meta">{{ spec.bpm }} BPM / {{ spec.key }}</div>
+    @if (appearance === 'market') {
+      <div class="card-meta market-meta">
+        @if (spec.genres && spec.genres.length > 0) {
+          <span class="cm-genre">{{ spec.genres[0].name }}</span>
+        }
+        <span>{{ spec.bpm }} BPM</span>
+        <span>{{ spec.key }}</span>
+      </div>
+    } @else {
+      <div class="card-meta">{{ spec.bpm }} BPM / {{ spec.key }}</div>
+    }
 
     <div class="custom-actions-row">
       <button class="purchase-pill" (click)="addToCart($event)" title="Add to cart">

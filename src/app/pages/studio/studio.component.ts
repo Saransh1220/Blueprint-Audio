@@ -46,8 +46,11 @@ export class StudioComponent {
 
   handle = computed(() => {
     const user = this.currentUser();
-    return user?.name?.toLowerCase().replace(/\s+/g, '.') || 'producer';
+    return user?.handle || user?.name?.toLowerCase().replace(/\s+/g, '.') || 'producer';
   });
+
+  /** Where this person's public page lives. */
+  profileLink = computed(() => `/@${this.handle()}`);
 
   avatarUrl = computed(() => this.currentUser()?.avatar_url || null);
 

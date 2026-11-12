@@ -78,9 +78,9 @@ describe('StudioProfileComponent (more)', () => {
     expect(component.handle()).toBe('producer');
     expect(component.avatarLetter()).toBe('p');
 
-    currentUser.set({ ...baseUser(), display_name: '', name: 'Dj  Cool!!' });
+    currentUser.set({ ...baseUser(), display_name: '', name: 'Dj  Cool!!', handle: 'dj-cool' });
     expect(component.displayName()).toBe('Dj  Cool!!');
-    expect(component.handle()).toBe('dj.cool');
+    expect(component.handle()).toBe('dj-cool');
   });
 
   it('falls back to producer handle for non-alphanumeric names', () => {

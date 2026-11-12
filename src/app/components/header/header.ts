@@ -85,6 +85,7 @@ export class HeaderComponent {
   // Notifications
   isNotificationsOpen = false;
   isStudioMenuDismissed = false;
+  @ViewChild('mobileMenuToggle') private mobileMenuToggle?: ElementRef<HTMLButtonElement>;
   @ViewChild('notificationWrap') notificationWrap?: ElementRef<HTMLElement>;
   notifications = this.notificationService.notifications;
   unreadCount = this.notificationService.unreadCount;
@@ -132,11 +133,15 @@ export class HeaderComponent {
   }
 
   readonly isScrolled = signal(false);
+  private lastScrollY = 0;
 
   @HostListener('window:scroll')
   onWindowScroll() {
-    const scrolled = window.scrollY > 24;
-    if (scrolled !== this.isScrolled()) this.isScrolled.set(scrolled);
+    const scrollY = Math.max(0, window.scrollY);
+    if (scrollY === this.lastScrollY) return;
+
+    this.isScrolled.set(scrollY > 24 && scrollY > this.lastScrollY);
+    this.lastScrollY = scrollY;
   }
 
   isBrowseRoute() {
@@ -171,6 +176,21 @@ export class HeaderComponent {
     const target = event.target as Node;
     if (this.isNotificationsOpen && !this.notificationWrap?.nativeElement.contains(target)) {
       this.closeNotifications();
+    }
+    if (
+      this.isMobileMenuOpen &&
+      target instanceof Element &&
+      !target.closest('#header-mobile-menu, .hamburger-btn')
+    ) {
+      this.closeMobileMenu();
+    }
+  }
+
+  @HostListener('document:keydown.escape')
+  dismissMobileMenu() {
+    if (this.isMobileMenuOpen) {
+      this.closeMobileMenu();
+      this.mobileMenuToggle?.nativeElement.focus();
     }
   }
 

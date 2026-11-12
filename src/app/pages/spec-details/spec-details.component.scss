@@ -116,112 +116,34 @@ em {
   opacity: 0.65;
 }
 
-.sticky-buy {
-  position: fixed;
-  top: 74px;
-  right: 0;
-  left: 0;
-  z-index: 150;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 20px;
-  padding: 12px 32px;
-  border-bottom: 1.5px solid var(--cream-3);
-  background: var(--cream-2);
-  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
-  color: var(--ink);
-  transform: translateY(-100%);
-  visibility: hidden;
-  pointer-events: none;
-  transition: transform 0.25s cubic-bezier(0.65, 0, 0.35, 1);
-}
-
-.sticky-buy.show {
-  transform: translateY(0);
-  visibility: visible;
-  pointer-events: auto;
-}
-
-.sb-left,
-.sb-right {
-  display: flex;
-  align-items: center;
-}
-
-.sb-left {
-  min-width: 0;
-  gap: 12px;
-}
-
-.sb-copy {
-  min-width: 0;
-}
-
-.sb-art {
-  width: 34px;
-  height: 34px;
-  flex-shrink: 0;
-  border: 1.5px solid var(--ink);
-  border-radius: 8px;
-  object-fit: cover;
-}
-
-.sb-title {
-  overflow: hidden;
-  font-size: 14px;
-  font-weight: 700;
-  letter-spacing: -0.02em;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.sb-sub {
-  color: var(--ink-mute);
-  font-family: var(--mono);
-  font-size: 10px;
-  letter-spacing: 0.06em;
-}
-
-.sb-right {
-  flex-shrink: 0;
-  gap: 10px;
-}
-
-.sb-from {
-  color: var(--ink-mute);
-  font-family: var(--mono);
-  font-size: 10px;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
-
-.sb-price {
-  font-size: 18px;
-  font-weight: 700;
-  letter-spacing: -0.02em;
-}
-
-.sb-buy {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 9px 18px;
-  border: 0;
-  border-radius: 100px;
-  background: var(--hot);
-  color: #fff;
-  font-size: 13px;
-  font-weight: 600;
-}
-
-.sb-buy:hover {
-  background: var(--tangerine);
-}
-
 // Give the beat a left-hand presence while keeping the licensing area open.
 .beat-main {
   padding: 28px 32px 48px;
+}
+
+.beat-navigation {
+  max-width: 1440px;
+  margin: 0 auto 12px;
+}
+
+.beat-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 0 12px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--ink-2);
+  font-size: 14px;
+  font-weight: 700;
+
+  &:hover,
+  &:focus-visible {
+    background: color-mix(in srgb, var(--ink) 8%, transparent);
+    color: var(--ink);
+  }
 }
 
 .bm-inner {
@@ -234,7 +156,7 @@ em {
 }
 
 // The beat stays in view while the licenses scroll past on tall screens. Its offset matches the
-// section padding, so it only moves once you scroll, and clears the sticky buy bar.
+// section padding, so it only moves once you scroll.
 .bs-card {
   position: sticky;
   top: 28px;
@@ -268,13 +190,10 @@ em {
 }
 
 .bc-art {
-  position: relative;
   flex-shrink: 0;
   width: 104px;
   height: 104px;
   overflow: hidden;
-  padding: 0;
-  border: 0;
   border-radius: 14px;
   background: var(--cream-3);
 }
@@ -284,35 +203,6 @@ em {
   width: 100%;
   height: 100%;
   object-fit: cover;
-}
-
-.bc-art-play {
-  position: absolute;
-  right: 6px;
-  bottom: 6px;
-  display: grid;
-  place-items: center;
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  background: #ffc2cf;
-  color: #4a0d1d;
-  font-size: 11px;
-  transition: transform 0.18s ease;
-
-  .fa-play {
-    margin-left: 2px;
-  }
-}
-
-.bc-art:hover .bc-art-play,
-.bc-art:focus-visible .bc-art-play {
-  transform: scale(1.12);
-}
-
-.bc-art:focus-visible {
-  outline: 2px solid var(--ink);
-  outline-offset: 3px;
 }
 
 .bc-id {
@@ -1610,7 +1500,12 @@ em {
   }
 
   .bs-card {
-    padding: 24px;
+    position: static;
+    padding: 0;
+  }
+
+  .bs-card::before {
+    content: none;
   }
 
   .bs-licenses {
@@ -1618,10 +1513,6 @@ em {
     padding-left: 0;
     border-top: 1px solid color-mix(in srgb, var(--ink) 14%, transparent);
     border-left: 0;
-  }
-
-  .bs-card {
-    position: relative;
   }
 
   .related-beat-grid {
@@ -1639,24 +1530,17 @@ em {
   }
 }
 
-@media (max-width: 760px) {
-  .sticky-buy {
-    top: 94px;
-  }
-}
-
 @media (max-width: 640px) {
   .logo {
     font-size: 18px;
   }
 
   .beat-main {
-    padding: 24px 18px 40px;
+    padding: 12px 18px 40px;
   }
 
-  .bs-card {
-    gap: 22px;
-    padding: 20px;
+  .beat-back {
+    padding-inline: 0 12px;
   }
 
   .bc-art {
@@ -1733,20 +1617,6 @@ em {
   .related-empty {
     align-items: flex-start;
     flex-direction: column;
-  }
-
-  .sticky-buy {
-    padding: 10px 16px;
-  }
-
-  .sb-from,
-  .sb-sub,
-  .sb-price {
-    display: none;
-  }
-
-  .sb-buy {
-    padding: 9px 14px;
   }
 
   .bundle-row {

@@ -71,8 +71,25 @@
                 <label class="form-label">Artist handle <em>this is your @</em></label>
                 <div class="input-with-prefix">
                   <span class="prefix">@</span>
-                  <input class="form-input" type="text" [value]="handle()" readonly />
+                  <input
+                    class="form-input"
+                    type="text"
+                    formControlName="handle"
+                    maxlength="30"
+                    autocomplete="off"
+                    spellcheck="false"
+                    (input)="normalizeHandle($event)"
+                  />
                 </div>
+                @if (profileForm.get('handle')?.invalid) {
+                  <div class="form-help">
+                    3–30 characters: lowercase letters, numbers, hyphens or underscores.
+                  </div>
+                } @else {
+                  <div class="form-help">
+                    waveyard.com/&#64;{{ profileForm.get('handle')?.value }}
+                  </div>
+                }
               </div>
             </div>
           </div>
@@ -197,7 +214,7 @@
           <div class="preview-name">
             <span>{{ displayName() }}</span>
           </div>
-          <div class="preview-handle">@{{ handle() }}</div>
+          <div class="preview-handle">@{{ profileForm.get('handle')?.value || handle() }}</div>
 
           <div class="preview-bio">
             {{ profileForm.get('bio')?.value || 'Tell listeners about yourself.' }}

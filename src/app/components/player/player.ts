@@ -20,6 +20,7 @@ import { LabService } from '../../services/lab';
 import { PlayerService } from '../../services/player.service';
 import { PurchaseDialogService } from '../../services/purchase-dialog.service';
 import { ToastService } from '../../services/toast.service';
+import { producerLink } from '../../utils/producer-link';
 import { FlameWrapEffectComponent } from '../ui/flame-wrap-effect.component';
 
 @Component({
@@ -390,18 +391,8 @@ export class PlayerComponent implements OnDestroy {
     event?.stopPropagation();
     const track = this.playerService.currentTrack();
     if (!track?.producerId) return;
-    void this.router.navigate(['/@', this.toProducerHandle(track.producerName)], {
-      queryParams: { id: track.producerId },
-    });
+    void this.router.navigate(producerLink(track.producerHandle || track.producerId));
     this.isMenuOpen.set(false);
-  }
-
-  private toProducerHandle(name: string) {
-    return (name || 'producer')
-      .toLowerCase()
-      .trim()
-      .replace(/[^a-z0-9]+/g, '-')
-      .replace(/^-|-$/g, '');
   }
 
   async copyBeatLink(event?: Event) {

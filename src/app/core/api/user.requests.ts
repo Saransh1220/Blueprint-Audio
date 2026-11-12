@@ -2,6 +2,7 @@ import type { AppCurrency } from '../../models/money';
 import { ApiRequest, HttpMethod } from './api-request';
 
 export interface UpdateProfileDto {
+  handle?: string;
   bio?: string;
   display_name?: string;
   avatar_url?: string;
@@ -16,6 +17,7 @@ export interface UpdateProfileDto {
 export interface PublicUserResponse {
   id: string;
   name: string;
+  handle?: string;
   display_name?: string;
   role: string;
   email_verified?: boolean;

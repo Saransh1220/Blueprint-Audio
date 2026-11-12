@@ -392,3 +392,324 @@
     width: 36px;
   }
 }
+
+/* ═══ Market appearance (Explore grid, producer pages) ═══
+   Artwork leads; everything else is quiet text with one hairline buy control.
+   Hover: the artwork lifts and a soft accent glow blooms beneath it.
+   Focus: a keyboard ring hugs the artwork. */
+
+.spec-card.market {
+  --lift: cubic-bezier(0.2, 0.8, 0.2, 1);
+  gap: 14px;
+  outline: none;
+
+  &:hover {
+    transform: none;
+  }
+
+  .beat-artwork {
+    border: 0;
+    border-radius: 12px;
+    background: var(--cream-3);
+    box-shadow:
+      inset 0 0 0 1px color-mix(in srgb, var(--ink) 10%, transparent),
+      0 0 0 0 transparent;
+    transition:
+      transform 0.35s var(--lift),
+      box-shadow 0.35s var(--lift);
+
+    // Veil that only appears on hover so the play control reads clearly.
+    &::after {
+      background: linear-gradient(180deg, transparent 50%, rgba(8, 7, 6, 0.55) 100%);
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+  }
+
+  .beat-art {
+    filter: none;
+    transition: transform 0.6s var(--lift);
+  }
+
+  &:hover .beat-artwork {
+    transform: translateY(-4px);
+    box-shadow:
+      inset 0 0 0 1px color-mix(in srgb, var(--ink) 22%, transparent),
+      0 18px 32px -14px color-mix(in srgb, var(--hot) 45%, transparent),
+      0 10px 20px -10px rgba(0, 0, 0, 0.7);
+
+    &::after {
+      opacity: 1;
+    }
+  }
+
+  &:hover .beat-art,
+  &.playing .beat-art {
+    filter: none;
+    transform: scale(1.06);
+  }
+
+  &:active .beat-artwork {
+    transform: translateY(-1px) scale(0.99);
+    transition-duration: 0.1s;
+  }
+
+  // Keyboard focus: ring around the art, offset so it never clips.
+  &:focus-visible .beat-artwork {
+    transform: translateY(-4px);
+    box-shadow:
+      0 0 0 2px var(--cream),
+      0 0 0 4px var(--hot);
+
+    &::after {
+      opacity: 1;
+    }
+  }
+
+  &:focus-visible .beat-play {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+
+  &.playing .beat-artwork {
+    box-shadow:
+      0 0 0 2px var(--cream),
+      0 0 0 4px var(--hot);
+
+    &::after {
+      opacity: 1;
+    }
+  }
+
+  .beat-overlay {
+    display: none;
+  }
+
+  .beat-play {
+    top: auto;
+    left: auto;
+    right: 12px;
+    bottom: 12px;
+    width: 44px;
+    height: 44px;
+    border: 0;
+    background: var(--ink);
+    color: var(--cream);
+    font-size: 14px;
+    opacity: 0;
+    transform: translateY(10px) scale(0.85);
+    transition:
+      opacity 0.25s ease,
+      transform 0.35s var(--lift),
+      background 0.15s ease,
+      color 0.15s ease;
+
+    &:hover {
+      background: var(--hot);
+      color: #fff;
+      transform: translateY(0) scale(1.08);
+    }
+
+    &:active {
+      transform: translateY(0) scale(0.95);
+    }
+  }
+
+  &:hover .beat-play,
+  &.playing .beat-play,
+  .beat-play:focus-visible {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+
+  &.playing .beat-play {
+    background: var(--hot);
+    color: #fff;
+  }
+
+  .beat-body {
+    padding: 0 2px;
+  }
+
+  .beat-title {
+    margin-bottom: 3px;
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: -0.015em;
+    line-height: 1.25;
+    -webkit-line-clamp: 1;
+    line-clamp: 1;
+    transition: color 0.2s ease;
+  }
+
+  &:hover .beat-title,
+  &:focus-visible .beat-title,
+  &.playing .beat-title {
+    color: var(--hot);
+  }
+
+  .beat-producer {
+    min-height: 0;
+    margin-bottom: 10px;
+    font-size: 13px;
+    color: var(--ink-mute);
+    transition: color 0.15s ease;
+
+    &:hover {
+      color: var(--ink);
+    }
+  }
+
+  .market-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2px 0;
+    margin-bottom: 14px;
+    font-size: 10px;
+    font-weight: 400;
+    letter-spacing: 0.08em;
+    color: var(--ink-mute);
+
+    > span + span::before {
+      content: '·';
+      margin: 0 7px;
+      opacity: 0.6;
+    }
+
+    .cm-genre {
+      color: var(--ink-2);
+    }
+  }
+
+  .custom-actions-row {
+    gap: 6px;
+  }
+
+  .purchase-pill {
+    flex-direction: row-reverse;
+    justify-content: space-between;
+    min-height: 38px;
+    padding: 0 12px;
+    border: 1px solid color-mix(in srgb, var(--ink) 16%, transparent);
+    border-radius: 8px;
+    background: transparent;
+    color: var(--ink);
+
+    .beat-price {
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+
+    .purchase-icon {
+      font-size: 12px;
+      color: var(--ink-mute);
+      transition:
+        color 0.15s ease,
+        transform 0.3s var(--lift);
+    }
+
+    &:hover,
+    &:focus-visible {
+      transform: none;
+      border-color: var(--hot);
+      background: var(--hot);
+      color: #fff;
+      outline: none;
+
+      .purchase-icon {
+        color: #fff;
+        transform: translateX(-2px) scale(1.15);
+      }
+    }
+
+    &:active {
+      transform: scale(0.97);
+    }
+  }
+
+  &:hover .purchase-pill:not(:hover) {
+    border-color: color-mix(in srgb, var(--ink) 30%, transparent);
+  }
+
+  .icon-btn {
+    flex: 0 0 38px;
+    width: 38px;
+    height: 38px;
+    min-height: 38px;
+    border-radius: 8px;
+    border-color: color-mix(in srgb, var(--ink) 16%, transparent);
+    color: var(--lime);
+    font-size: 12px;
+
+    &:hover,
+    &:focus-visible {
+      transform: none;
+      border-color: var(--lime);
+      background: var(--lime);
+      color: #141310;
+      outline: none;
+    }
+  }
+}
+
+@media (hover: none) {
+  .spec-card.market .beat-play {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .spec-card.market,
+  .spec-card.market * {
+    transition-duration: 0.01ms !important;
+  }
+
+  .spec-card.market:hover .beat-artwork,
+  .spec-card.market:focus-visible .beat-artwork {
+    transform: none;
+  }
+}
+
+@media (max-width: 900px) {
+  .spec-card.market {
+    gap: 10px;
+
+    .beat-play {
+      right: 8px;
+      bottom: 8px;
+      width: 34px;
+      height: 34px;
+      font-size: 12px;
+      opacity: 1;
+      transform: none;
+    }
+
+    .beat-title {
+      font-size: 14px;
+    }
+
+    .beat-producer {
+      margin-bottom: 6px;
+      font-size: 12px;
+    }
+
+    .market-meta {
+      margin-bottom: 10px;
+      font-size: 9px;
+      letter-spacing: 0.06em;
+    }
+
+    .purchase-pill,
+    .icon-btn {
+      min-height: 36px;
+    }
+
+    .icon-btn {
+      flex-basis: 36px;
+      width: 36px;
+      height: 36px;
+    }
+  }
+}

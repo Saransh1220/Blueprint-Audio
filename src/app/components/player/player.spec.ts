@@ -297,9 +297,7 @@ describe('PlayerComponent', () => {
 
     component.isMenuOpen.set(true);
     component.openProducerProfile({ stopPropagation } as any);
-    expect(navigateSpy).toHaveBeenCalledWith(['/@', 'blaze'], {
-      queryParams: { id: 'p1' },
-    });
+    expect(navigateSpy).toHaveBeenCalledWith(['/@p1']);
     expect(component.isMenuOpen()).toBe(false);
 
     const clipboardDescriptor = Object.getOwnPropertyDescriptor(navigator, 'clipboard');

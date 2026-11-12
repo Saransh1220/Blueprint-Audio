@@ -105,7 +105,13 @@ describe('UserMenuComponent', () => {
 
   it('gives a producer the studio and upload links', () => {
     open();
-    expect(labels()).toEqual(['Studio overview', 'Upload a beat', 'My purchases', 'Settings']);
+    expect(labels()).toEqual([
+      'Studio overview',
+      'Upload a beat',
+      'Public profile',
+      'My purchases',
+      'Settings',
+    ]);
   });
 
   it('gives a listener just their own pages', () => {

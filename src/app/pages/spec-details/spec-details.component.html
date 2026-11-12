@@ -1,57 +1,17 @@
 <div class="beat-page" *ngIf="spec() as s; else pendingOrNotFound">
-  <div class="sticky-buy" [class.show]="stickyBuyVisible()">
-    <div class="sb-left">
-      <img class="sb-art" [src]="s.imageUrl" [alt]="s.title" />
-      <div class="sb-copy">
-        <div class="sb-title">
-          <em>{{ getStyledBeatTitle(s.title).lead }}</em> {{ getStyledBeatTitle(s.title).accent }}
-        </div>
-        <div class="sb-sub">prod. {{ s.producerName }}</div>
-      </div>
-    </div>
-    <div class="sb-right">
-      <span class="sb-from">from</span>
-      <span class="sb-price">{{
-        displayPriceMoney() | money: displayPrice() : spec()?.selectedPrice
-      }}</span>
-      <button class="sb-buy" type="button" (click)="scrollToLicenses()">
-        Choose license
-        <svg
-          width="11"
-          height="11"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2.5"
-          aria-hidden="true"
-        >
-          <line x1="5" y1="12" x2="19" y2="12" />
-          <polyline points="12 5 19 12 12 19" />
-        </svg>
+  <section class="beat-main">
+    <div class="beat-navigation">
+      <button class="beat-back" type="button" (click)="goBack()">
+        <i class="fas fa-arrow-left" aria-hidden="true"></i>
+        Back
       </button>
     </div>
-  </div>
-
-  <section class="beat-main">
     <div class="bm-inner">
       <aside class="bs-card" aria-label="Beat details">
         <div class="bc-head">
-          <button
-            class="bc-art"
-            type="button"
-            (click)="playSpec()"
-            [attr.aria-label]="(isSpecPlaying() ? 'Pause ' : 'Play ') + s.title"
-          >
+          <div class="bc-art">
             <img [src]="s.imageUrl" [alt]="s.title" />
-            <span class="bc-art-play">
-              <i
-                class="fas"
-                [class.fa-pause]="isSpecPlaying()"
-                [class.fa-play]="!isSpecPlaying()"
-                aria-hidden="true"
-              ></i>
-            </span>
-          </button>
+          </div>
           <div class="bc-id">
             <div class="hero-eyebrow">
               <span class="dot"></span>{{ primaryGenre()
@@ -63,7 +23,7 @@
             <div class="hero-by">
               <span class="by-avatar">{{ s.producerName.charAt(0).toLowerCase() }}</span>
               prod.
-              <a [routerLink]="['/@', s.producerHandle || s.producerId]">{{ s.producerName }}</a>
+              <a [routerLink]="producerRoute(s)">{{ s.producerName }}</a>
             </div>
           </div>
         </div>
@@ -373,7 +333,7 @@
           </div>
           <div>
             <div class="prod-name">
-              <a [routerLink]="['/@', s.producerHandle || s.producerId]">{{ s.producerName }}</a>
+              <a [routerLink]="producerRoute(s)">{{ s.producerName }}</a>
             </div>
             <div class="prod-stats">
               {{ producerStats().beatCount }} beats ·

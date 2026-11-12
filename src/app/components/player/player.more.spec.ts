@@ -428,15 +428,16 @@ describe('PlayerComponent (extended)', () => {
     expect(modal.open).toHaveBeenLastCalledWith(ps.currentTrack());
   });
 
-  it('opens producer profile with a sanitized handle and guards on missing producer', async () => {
-    const { component } = await setup(makeTrack({ producerName: '  Dj  Éclair!! ' }));
+  it('opens the producer profile by handle and guards on missing producer', async () => {
+    const { component } = await setup(makeTrack({ producerHandle: 'dj-eclair' }));
     const nav = vi.spyOn(component.router, 'navigate').mockResolvedValue(true);
     component.openProducerProfile();
-    expect(nav).toHaveBeenCalledWith(['/@', 'dj-clair'], { queryParams: { id: 'p1' } });
+    expect(nav).toHaveBeenCalledWith(['/@dj-eclair']);
 
-    ps.currentTrack.set(makeTrack({ producerName: '' }));
+    // Without a handle the producer id keeps the link working.
+    ps.currentTrack.set(makeTrack({ producerHandle: undefined }));
     component.openProducerProfile();
-    expect(nav).toHaveBeenLastCalledWith(['/@', 'producer'], { queryParams: { id: 'p1' } });
+    expect(nav).toHaveBeenLastCalledWith(['/@p1']);
 
     nav.mockClear();
     ps.currentTrack.set(makeTrack({ producerId: '' }));

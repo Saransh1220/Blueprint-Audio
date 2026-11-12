@@ -26,7 +26,7 @@
         </span>
         <span class="who-text">
           <strong class="name">{{ displayName() }}</strong>
-          <span class="handle">&#64;{{ user()?.name }}</span>
+          <span class="handle">&#64;{{ handle() }}</span>
         </span>
         <span class="role" [class.producer]="isProducer()">
           {{ isProducer() ? 'Producer' : 'Listener' }}
@@ -36,16 +36,19 @@
       <nav class="links">
         @for (link of links(); track link.route) {
           <a class="row" role="menuitem" [routerLink]="link.route" (click)="close()">
-            <i class="fas" [class]="link.icon" aria-hidden="true"></i>
+            <span class="ico" [attr.data-tint]="link.tint">
+              <i class="fas" [class]="link.icon" aria-hidden="true"></i>
+            </span>
             {{ link.label }}
+            <i class="fas fa-arrow-right go" aria-hidden="true"></i>
           </a>
         }
       </nav>
 
       <footer class="foot">
         <button type="button" class="logout" role="menuitem" (click)="logout()">
-          Log out
           <i class="fas fa-arrow-right-from-bracket" aria-hidden="true"></i>
+          Log out
         </button>
       </footer>
     </div>

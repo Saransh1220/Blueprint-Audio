@@ -1,15 +1,7 @@
-import { CommonModule, DOCUMENT } from '@angular/common';
-import {
-  Component,
-  computed,
-  DestroyRef,
-  effect,
-  HostListener,
-  inject,
-  signal,
-} from '@angular/core';
+import { CommonModule, DOCUMENT, Location } from '@angular/common';
+import { Component, computed, DestroyRef, effect, inject, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { ActivatedRoute, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { combineLatest, of } from 'rxjs';
 import { catchError, finalize, startWith, switchMap } from 'rxjs/operators';
 import { SpecCardComponent } from '../../components/spec-card/spec-card';
@@ -26,6 +18,7 @@ import {
 import { FavoriteStateService } from '../../services/favorite-state.service';
 import { MoneyPipe } from '../../shared/pipes/money.pipe';
 import { isExclusiveLicense, licenseTiers, TIER_ICON, TIER_LABEL } from '../../utils/license-tiers';
+import { producerLink } from '../../utils/producer-link';
 
 @Component({
   selector: 'app-spec-details',
@@ -37,6 +30,8 @@ import { isExclusiveLicense, licenseTiers, TIER_ICON, TIER_LABEL } from '../../u
 export class SpecDetailsComponent {
   readonly brand = BRAND;
   private route = inject(ActivatedRoute);
+  private router = inject(Router);
+  private location = inject(Location);
   private document = inject(DOCUMENT);
   private labService = inject(LabService);
   private playerService = inject(PlayerService);
@@ -46,7 +41,6 @@ export class SpecDetailsComponent {
 
   readonly favorites = inject(FavoriteStateService);
   isFavoriting = signal(false);
-  stickyBuyVisible = signal(false);
   openFaqIndex = signal<number | null>(null);
   commentSort = signal<'top' | 'newest'>('top');
   commentDraft = signal('');
@@ -282,6 +276,10 @@ export class SpecDetailsComponent {
     return isExclusiveLicense(license) ? 'Buy exclusive' : 'Add to cart';
   }
 
+  producerRoute(spec: { producerHandle?: string; producerId: string }) {
+    return producerLink(spec.producerHandle || spec.producerId);
+  }
+
   constructor() {
     // A calm work surface: no film grain over the beat page.
     this.document.body.classList.add('beat-page-active');
@@ -313,18 +311,6 @@ export class SpecDetailsComponent {
     effect(() => {
       this.updateMobileArtPalette(this.spec());
     });
-  }
-
-  @HostListener('window:scroll')
-  onWindowScroll() {
-    if (typeof window === 'undefined') return;
-    const y = window.scrollY || 0;
-    this.stickyBuyVisible.set(y > 560);
-  }
-
-  scrollToLicenses() {
-    if (typeof document === 'undefined') return;
-    document.getElementById('licenses')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 
   scrollToFaq() {
@@ -387,6 +373,21 @@ export class SpecDetailsComponent {
 
   showReferenceNotice(message: string) {
     this.toastService.info(message);
+  }
+
+  goBack(): void {
+    const navigation = this.router.lastSuccessfulNavigation();
+    if (
+      navigation?.previousNavigation &&
+      navigation.trigger === 'imperative' &&
+      !navigation.extras.replaceUrl &&
+      !navigation.extras.skipLocationChange
+    ) {
+      this.location.back();
+      return;
+    }
+
+    void this.router.navigateByUrl('/explore');
   }
 
   playSpec() {
@@ -523,14 +524,6 @@ export class SpecDetailsComponent {
       return `${(value / 1000).toFixed(value >= 10000 ? 0 : 1)}k`;
     }
     return `${value}`;
-  }
-
-  getStyledBeatTitle(title: string) {
-    const parts = title.trim().split(/\s+/).filter(Boolean);
-    return {
-      lead: parts[0] ?? '',
-      accent: parts.slice(1).join(' '),
-    };
   }
 
   private loadWaveformForSpec(spec: Spec | undefined) {

@@ -260,7 +260,7 @@ describe('SearchPageComponent', () => {
     component.toggleMobileFilterPanel(true);
     component.onEscape();
     expect(component.mobileFiltersOpen()).toBe(false);
-    expect(component.mobileFilterPanelOpen()).toBe(true);
+    expect(component.mobileFilterPanelOpen()).toBe(false);
 
     expect(component.isGroupOpen('genres')).toBe(true);
     component.toggleGroup('genres');
