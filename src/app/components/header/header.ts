@@ -20,7 +20,15 @@ import { BROWSE_ITEMS, menuItemsFor, STUDIO_ITEMS } from '../nav-menu/nav-menu.i
 import { UserMenuComponent } from '../user-menu/user-menu';
 
 type NotificationKind =
-  'all' | 'unread' | 'sale' | 'message' | 'cart' | 'follow' | 'milestone' | 'wishlist' | 'system';
+  | 'all'
+  | 'unread'
+  | 'sale'
+  | 'message'
+  | 'cart'
+  | 'follow'
+  | 'milestone'
+  | 'wishlist'
+  | 'system';
 
 interface HeaderNotificationItem {
   id: string;
@@ -77,6 +85,7 @@ export class HeaderComponent {
   // Notifications
   isNotificationsOpen = false;
   isStudioMenuDismissed = false;
+  isBrowseMenuDismissed = false;
   @ViewChild('mobileMenuToggle') private mobileMenuToggle?: ElementRef<HTMLButtonElement>;
   @ViewChild('notificationWrap') notificationWrap?: ElementRef<HTMLElement>;
   notifications = this.notificationService.notifications;
@@ -184,6 +193,14 @@ export class HeaderComponent {
       this.closeMobileMenu();
       this.mobileMenuToggle?.nativeElement.focus();
     }
+  }
+
+  resetBrowseMenuDismissal() {
+    this.isBrowseMenuDismissed = false;
+  }
+
+  closeBrowseMenu() {
+    this.isBrowseMenuDismissed = true;
   }
 
   resetStudioMenuDismissal() {

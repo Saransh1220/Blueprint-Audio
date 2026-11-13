@@ -411,7 +411,7 @@
           @if (viewMode() === 'grid') {
             <div class="beat-grid">
               @for (spec of specs(); track spec.id) {
-                <app-spec-card [spec]="spec" appearance="market"></app-spec-card>
+                <app-spec-card [spec]="spec"></app-spec-card>
               }
             </div>
           } @else {

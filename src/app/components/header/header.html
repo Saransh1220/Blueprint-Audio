@@ -50,12 +50,17 @@
       <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }"
         >Home</a
       >
-      <div class="nav-link-wrap browse-nav-wrap">
+      <div
+        class="nav-link-wrap browse-nav-wrap"
+        [class.browse-menu-dismissed]="isBrowseMenuDismissed"
+        (mouseenter)="resetBrowseMenuDismissal()"
+      >
         <a
           routerLink="/explore"
           class="browse-nav-link"
           [class.active]="isBrowseRoute()"
           aria-haspopup="true"
+          (click)="closeBrowseMenu()"
         >
           Browse
           <svg
@@ -74,6 +79,7 @@
           accent="sound"
           label="Browse"
           [items]="browseItems()"
+          (selected)="closeBrowseMenu()"
         />
       </div>
       <a class="compact-nav-link" routerLink="/explore" routerLinkActive="active">Explore</a>

@@ -84,7 +84,8 @@
 
         <div class="hero-tags" *ngIf="displayTags().length">
           <ng-container *ngFor="let tag of displayTags(); let last = last">
-            <span class="t">{{ tag }}</span><span class="sep" *ngIf="!last">·</span>
+            <span class="t">{{ tag }}</span
+            ><span class="sep" *ngIf="!last">·</span>
           </ng-container>
         </div>
 
@@ -363,11 +364,7 @@
         class="related-beat-grid"
         *ngIf="relatedDisplaySpecs().length; else fallbackRecommendations"
       >
-        <app-spec-card
-          *ngFor="let item of relatedDisplaySpecs()"
-          [spec]="item"
-          appearance="market"
-        ></app-spec-card>
+        <app-spec-card *ngFor="let item of relatedDisplaySpecs()" [spec]="item"></app-spec-card>
       </div>
       <ng-template #fallbackRecommendations>
         <div class="related-empty">

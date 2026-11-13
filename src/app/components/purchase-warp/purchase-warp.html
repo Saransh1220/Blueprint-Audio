@@ -81,7 +81,7 @@
                 license.displayPriceMoney | money: license.price : license.selectedPrice
               }}</span>
               @if (license.selectedPrice?.selection === 'native_fallback') {
-                <span class="pw-fallback-note">{{ license.selectedPrice.fallback_reason }}</span>
+                <span class="pw-fallback-note">{{ license.selectedPrice?.fallback_reason }}</span>
               }
               <span class="pw-lic-sub">{{ subtitle(license, i) }}</span>
               <ul class="pw-feats">

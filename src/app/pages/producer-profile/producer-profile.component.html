@@ -106,7 +106,7 @@
       @if (filteredSpecs().length) {
         <div class="tracks-grid">
           @for (spec of filteredSpecs(); track spec.id; let i = $index) {
-            <app-spec-card [spec]="spec" [priority]="i < 4" appearance="market"></app-spec-card>
+            <app-spec-card [spec]="spec" [priority]="i < 4"></app-spec-card>
           }
         </div>
         @if (specs().length < totalSpecs()) {

@@ -1,10 +1,9 @@
 <div
   class="spec-card"
-  [class.market]="appearance === 'market'"
   [class.playing]="isCurrentlyPlaying()"
-  [attr.tabindex]="appearance === 'market' ? 0 : null"
+  tabindex="0"
   (click)="openDetails()"
-  (keydown.enter)="appearance === 'market' && openDetails()"
+  (keydown.enter)="openDetails()"
 >
   <div class="beat-artwork">
     <img
@@ -14,12 +13,6 @@
       class="beat-art"
       alt="{{ spec.title }} Cover"
     />
-
-    <div class="beat-overlay">
-      @if (spec.genres && spec.genres.length > 0) {
-        <span class="beat-tag">{{ spec.genres[0].name }}</span>
-      }
-    </div>
 
     <button class="beat-play" (click)="playSong($event)" aria-label="Play {{ spec.title }}">
       <i [class]="isCurrentlyPlaying() ? 'fa-solid fa-pause' : 'fa-solid fa-play'"></i>
@@ -49,17 +42,13 @@
       spec.producerName || brand.name + ' producer'
     }}</a>
 
-    @if (appearance === 'market') {
-      <div class="card-meta market-meta">
-        @if (spec.genres && spec.genres.length > 0) {
-          <span class="cm-genre">{{ spec.genres[0].name }}</span>
-        }
-        <span>{{ spec.bpm }} BPM</span>
-        <span>{{ spec.key }}</span>
-      </div>
-    } @else {
-      <div class="card-meta">{{ spec.bpm }} BPM / {{ spec.key }}</div>
-    }
+    <div class="card-meta">
+      @if (spec.genres && spec.genres.length > 0) {
+        <span class="cm-genre">{{ spec.genres[0].name }}</span>
+      }
+      <span>{{ spec.bpm }} BPM</span>
+      <span>{{ spec.key }}</span>
+    </div>
 
     <div class="custom-actions-row">
       <button class="purchase-pill" (click)="addToCart($event)" title="Add to cart">

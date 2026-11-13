@@ -30,7 +30,6 @@ export class SpecCardComponent implements OnInit, OnDestroy {
   readonly brand = BRAND;
   @Input() spec!: Spec;
   @Input() priority = false;
-  @Input() appearance: 'default' | 'explore' | 'market' = 'default';
 
   actionService = inject(SpecActionService);
   cdr = inject(ChangeDetectorRef);

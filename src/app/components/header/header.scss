@@ -23,10 +23,13 @@ nav.fixed-navbar {
     background-color 0.35s ease,
     border-color 0.35s ease;
 
-  // On the home hero the bar floats until you scroll.
+  // On the home hero the bar floats over the image until you scroll. It keeps a dark, slightly
+  // see-through backing so the Browse / Studio sheets never open against bare artwork.
   &.home-route:not(.scrolled) {
-    background: transparent;
-    border-bottom-color: transparent;
+    background: rgba(10, 10, 9, 0.62);
+    border-bottom-color: var(--nb-line);
+    -webkit-backdrop-filter: blur(14px);
+    backdrop-filter: blur(14px);
   }
 
   @media (prefers-reduced-motion: reduce) {
@@ -179,32 +182,46 @@ nav.fixed-navbar {
     gap: 6px;
     padding: 8px 12px;
     border-radius: 8px;
-    color: var(--ink-2);
+    color: var(--ink-mute);
     font-family: $font-head;
     font-size: 14px;
     font-weight: 600;
     text-decoration: none;
-    transition:
-      background 0.15s ease,
-      color 0.15s ease;
+    transition: color 0.18s ease;
 
-    &:hover {
-      background: var(--nb-wash);
+    // One underline does both jobs: it slides out from the centre on hover (neutral) and stays
+    // full-width in the accent colour on the current page.
+    &::after {
+      content: '';
+      position: absolute;
+      left: 12px;
+      right: 12px;
+      bottom: 1px;
+      height: 2px;
+      border-radius: 2px;
+      background: color-mix(in srgb, var(--ink) 45%, transparent);
+      transform: scaleX(0);
+      transition:
+        transform 0.25s var(--nb-ease),
+        background-color 0.18s ease;
+    }
+
+    &:hover,
+    &:focus-visible {
       color: var(--ink);
+      outline: none;
+
+      &::after {
+        transform: scaleX(1);
+      }
     }
 
     &.active {
-      color: var(--ink);
+      color: var(--hot);
 
       &::after {
-        content: '';
-        position: absolute;
-        left: 12px;
-        right: 12px;
-        bottom: 1px;
-        height: 2px;
-        border-radius: 2px;
         background: var(--hot);
+        transform: scaleX(1);
       }
     }
   }
@@ -239,8 +256,10 @@ nav.fixed-navbar {
     opacity 0.2s ease;
 }
 
+// Open on hover, or on keyboard focus only. Plain :focus-within would also match the link a mouse
+// click just focused, which kept the sheet open after navigating until you clicked elsewhere.
 .nav-link-wrap:hover .caret,
-.nav-link-wrap:focus-within .caret {
+.nav-link-wrap:has(:focus-visible) .caret {
   opacity: 1;
   transform: rotate(180deg);
 }
@@ -960,7 +979,7 @@ nav.fixed-navbar {
 }
 
 .nav-link-wrap:hover app-nav-menu,
-.nav-link-wrap:focus-within app-nav-menu {
+.nav-link-wrap:has(:focus-visible) app-nav-menu {
   opacity: 1;
   pointer-events: auto;
   transform: none;
@@ -968,7 +987,8 @@ nav.fixed-navbar {
   transition-delay: 0s;
 }
 
-.studio-nav-wrap.studio-menu-dismissed app-nav-menu {
+.studio-nav-wrap.studio-menu-dismissed app-nav-menu,
+.browse-nav-wrap.browse-menu-dismissed app-nav-menu {
   opacity: 0 !important;
   pointer-events: none !important;
   transform: translateY(-8px) !important;
