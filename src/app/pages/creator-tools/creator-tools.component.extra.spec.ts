@@ -1,5 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { ToastService, VisualizerService } from '../../services';
+import { ToastService } from '../../services';
+import { VisualizerService } from '../../services/visualizer.service';
 import { CreatorToolsComponent } from './creator-tools.component';
 
 type Internals = {
@@ -205,7 +206,9 @@ describe('CreatorToolsComponent (extra coverage)', () => {
       expect(component.currentTime()).toBeCloseTo(10);
       el()
         .querySelectorAll<HTMLElement>('.track-waveform *')
-        .forEach((child) => child.dispatchEvent(evt('pointerdown', 20)));
+        .forEach((child) => {
+          child.dispatchEvent(evt('pointerdown', 20));
+        });
 
       const picks = Array.from(el().querySelectorAll<HTMLButtonElement>('button')).filter((b) =>
         /Fluid|Vinyl/.test(b.textContent ?? ''),

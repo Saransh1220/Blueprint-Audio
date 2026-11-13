@@ -364,7 +364,7 @@ describe('HeaderComponent (more)', () => {
     (el().querySelector('.hamburger-btn') as HTMLElement).click();
     render();
     expect(el().querySelector('.mobile-menu')!.classList.contains('open')).toBe(true);
-    (el().querySelector('.mobile-logo-large a') as HTMLElement).click();
+    (el().querySelector('.mobile-links a[href="/"]') as HTMLElement).click();
     expect(component.isMobileMenuOpen).toBe(false);
   });
 });

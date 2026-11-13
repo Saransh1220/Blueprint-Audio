@@ -1,7 +1,3 @@
-import { ConfirmDialogComponent } from '../../../components/confirm-dialog/confirm-dialog.component';
-import { SpecActionService } from '../../../services/spec-action.service';
-import { SpecService } from '../../../services/spec.service';
-import { SpecAdapter } from '../../../adapters/spec.adapter';
 import { CommonModule } from '@angular/common';
 import {
   ChangeDetectionStrategy,
@@ -13,8 +9,12 @@ import {
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Router, RouterLink } from '@angular/router';
+import { SpecAdapter } from '../../../adapters/spec.adapter';
+import { ConfirmDialogComponent } from '../../../components/confirm-dialog/confirm-dialog.component';
 import { Spec } from '../../../models';
 import { AuthService, LabService, ToastService } from '../../../services';
+import { SpecService } from '../../../services/spec.service';
+import { SpecActionService } from '../../../services/spec-action.service';
 
 @Component({
   selector: 'app-studio-tracks',

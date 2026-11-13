@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import {
-  MAX_AMOUNT_MINOR,
   currencyScale,
   formatMoneyValue,
+  MAX_AMOUNT_MINOR,
   minorToMajor,
   minorToMajorString,
   normalizeCurrencyCode,

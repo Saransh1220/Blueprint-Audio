@@ -1,8 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { of, throwError } from 'rxjs';
-import { ApiService } from '../core/services/api.service';
 import { LegalAdapter } from '../adapters/legal.adapter';
-import { LegalService } from './legal.service';
 import {
   GetLegalDocumentRequest,
   GetLegalDocumentVersionRequest,
@@ -10,6 +8,7 @@ import {
   GetLegalRequirementsRequest,
   RecordLegalAcceptanceRequest,
 } from '../core/api/legal.requests';
+import { ApiService } from '../core/services/api.service';
 import type {
   LegalAcceptancePayload,
   LegalDocumentDto,
@@ -17,6 +16,7 @@ import type {
   LegalRequirementDto,
   LegalVersionDto,
 } from '../models/legal.model';
+import { LegalService } from './legal.service';
 
 describe('LegalService', () => {
   let service: LegalService;

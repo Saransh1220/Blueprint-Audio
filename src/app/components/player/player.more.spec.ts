@@ -6,8 +6,8 @@ import { AnalyticsService } from '../../services/analytics.service';
 import { AuthService } from '../../services/auth.service';
 import { CurrencyService } from '../../services/currency.service';
 import { LabService } from '../../services/lab';
-import { PurchaseDialogService } from '../../services/purchase-dialog.service';
 import { PlayerService } from '../../services/player.service';
+import { PurchaseDialogService } from '../../services/purchase-dialog.service';
 import { ToastService } from '../../services/toast.service';
 import { PlayerComponent } from './player';
 
@@ -102,7 +102,9 @@ describe('PlayerComponent (extended)', () => {
     for (let i = 0; i < 5; i++) {
       const cbs = rafCallbacks.splice(0);
       if (!cbs.length) break;
-      cbs.forEach((cb) => cb());
+      cbs.forEach((cb) => {
+        cb();
+      });
     }
   }
 
@@ -231,7 +233,9 @@ describe('PlayerComponent (extended)', () => {
     expect(rafCallbacks.length).toBeGreaterThan(0);
     ps.getWaveformData.mockClear();
     const batch = rafCallbacks.splice(0);
-    batch.forEach((cb) => cb());
+    batch.forEach((cb) => {
+      cb();
+    });
     expect(ps.getWaveformData).toHaveBeenCalled();
     expect(component.waveformBars()).toHaveLength(60);
     expect(Math.max(...component.waveformBars())).toBe(100);
@@ -424,15 +428,16 @@ describe('PlayerComponent (extended)', () => {
     expect(modal.open).toHaveBeenLastCalledWith(ps.currentTrack());
   });
 
-  it('opens producer profile with a sanitized handle and guards on missing producer', async () => {
-    const { component } = await setup(makeTrack({ producerName: '  Dj  Éclair!! ' }));
+  it('opens the producer profile by handle and guards on missing producer', async () => {
+    const { component } = await setup(makeTrack({ producerHandle: 'dj-eclair' }));
     const nav = vi.spyOn(component.router, 'navigate').mockResolvedValue(true);
     component.openProducerProfile();
-    expect(nav).toHaveBeenCalledWith(['/@', 'dj-clair'], { queryParams: { id: 'p1' } });
+    expect(nav).toHaveBeenCalledWith(['/@dj-eclair']);
 
-    ps.currentTrack.set(makeTrack({ producerName: '' }));
+    // Without a handle the producer id keeps the link working.
+    ps.currentTrack.set(makeTrack({ producerHandle: undefined }));
     component.openProducerProfile();
-    expect(nav).toHaveBeenLastCalledWith(['/@', 'producer'], { queryParams: { id: 'p1' } });
+    expect(nav).toHaveBeenLastCalledWith(['/@p1']);
 
     nav.mockClear();
     ps.currentTrack.set(makeTrack({ producerId: '' }));

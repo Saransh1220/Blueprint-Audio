@@ -1,12 +1,12 @@
 import { TestBed } from '@angular/core/testing';
 import { of, throwError } from 'rxjs';
-import { describe, expect, it, beforeEach, vi } from 'vitest';
-import { ApiService } from '../core/services/api.service';
-import { BuyerCurrencyService } from './buyer-currency.service';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   GetCurrencyPreferenceRequest,
   SetCurrencyPreferenceRequest,
 } from '../core/api/preference.requests';
+import { ApiService } from '../core/services/api.service';
+import { BuyerCurrencyService } from './buyer-currency.service';
 
 describe('BuyerCurrencyService', () => {
   let service: BuyerCurrencyService;
@@ -18,10 +18,7 @@ describe('BuyerCurrencyService', () => {
     };
 
     TestBed.configureTestingModule({
-      providers: [
-        BuyerCurrencyService,
-        { provide: ApiService, useValue: apiServiceMock },
-      ],
+      providers: [BuyerCurrencyService, { provide: ApiService, useValue: apiServiceMock }],
     });
 
     service = TestBed.inject(BuyerCurrencyService);
@@ -50,9 +47,7 @@ describe('BuyerCurrencyService', () => {
       expect(result.source).toBe('profile');
     });
 
-    expect(apiServiceMock.execute).toHaveBeenCalledWith(
-      expect.any(GetCurrencyPreferenceRequest),
-    );
+    expect(apiServiceMock.execute).toHaveBeenCalledWith(expect.any(GetCurrencyPreferenceRequest));
     expect(service.preference()).toBe('INR');
     expect(service.effective()).toBe('INR');
     expect(service.source()).toBe('profile');
@@ -61,9 +56,7 @@ describe('BuyerCurrencyService', () => {
   });
 
   it('handles load failure gracefully without throwing', () => {
-    apiServiceMock.execute.mockReturnValue(
-      throwError(() => new Error('network failure')),
-    );
+    apiServiceMock.execute.mockReturnValue(throwError(() => new Error('network failure')));
 
     service.load().subscribe((result) => {
       expect(result.preference).toBeNull();
@@ -87,9 +80,7 @@ describe('BuyerCurrencyService', () => {
       expect(result.effective).toBe('USD');
     });
 
-    expect(apiServiceMock.execute).toHaveBeenCalledWith(
-      expect.any(SetCurrencyPreferenceRequest),
-    );
+    expect(apiServiceMock.execute).toHaveBeenCalledWith(expect.any(SetCurrencyPreferenceRequest));
     expect(service.preference()).toBe('USD');
     expect(service.effective()).toBe('USD');
     expect(service.source()).toBe('cookie');
@@ -118,9 +109,7 @@ describe('BuyerCurrencyService', () => {
   });
 
   it('re-throws on set failure and resets loading state', () => {
-    apiServiceMock.execute.mockReturnValue(
-      throwError(() => new Error('bad request')),
-    );
+    apiServiceMock.execute.mockReturnValue(throwError(() => new Error('bad request')));
 
     let errorThrown = false;
     service.set('INVALID').subscribe({

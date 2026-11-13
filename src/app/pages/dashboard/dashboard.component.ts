@@ -244,21 +244,23 @@ export class DashboardComponent {
     this.overview.set(null);
     this.producerLoading.set(true);
     // Ask for two windows so we can compare against the previous period
-    this.analyticsService.getOverview(DAYS[range] * 2, 'revenue', ...(currency ? ([currency] as [string]) : [])).subscribe({
-      next: (data) => {
-        this.overviewCache.set(key, data);
-        if (this.range() === range && this.reportCurrencyOverride() === currency) {
-          this.overview.set(data);
-          this.producerLoading.set(false);
-        }
-      },
-      error: () => {
-        if (this.range() === range && this.reportCurrencyOverride() === currency) {
-          this.overview.set(null);
-          this.producerLoading.set(false);
-        }
-      },
-    });
+    this.analyticsService
+      .getOverview(DAYS[range] * 2, 'revenue', ...(currency ? ([currency] as [string]) : []))
+      .subscribe({
+        next: (data) => {
+          this.overviewCache.set(key, data);
+          if (this.range() === range && this.reportCurrencyOverride() === currency) {
+            this.overview.set(data);
+            this.producerLoading.set(false);
+          }
+        },
+        error: () => {
+          if (this.range() === range && this.reportCurrencyOverride() === currency) {
+            this.overview.set(null);
+            this.producerLoading.set(false);
+          }
+        },
+      });
   }
 
   private loadOrders() {

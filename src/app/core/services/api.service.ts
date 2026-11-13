@@ -15,6 +15,7 @@ export class ApiService {
     const url = `${this.baseUrl}${request.path}`;
     const options = {
       params: request.params,
+      headers: request.headers,
       withCredentials: true,
     };
 

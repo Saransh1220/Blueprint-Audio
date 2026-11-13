@@ -1,11 +1,11 @@
-import { Injectable, inject, signal, computed } from '@angular/core';
+import { computed, Injectable, inject, signal } from '@angular/core';
 import { catchError, map, of, tap } from 'rxjs';
-import { ApiService } from '../core/services/api.service';
 import {
+  type CurrencyPreferenceDto,
   GetCurrencyPreferenceRequest,
   SetCurrencyPreferenceRequest,
-  type CurrencyPreferenceDto,
 } from '../core/api/preference.requests';
+import { ApiService } from '../core/services/api.service';
 import type { CurrencyPreference, CurrencyPreferenceSource } from '../models/preference';
 
 @Injectable({ providedIn: 'root' })

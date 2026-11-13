@@ -9,6 +9,7 @@ export class UserAdapter {
       id: apiResponse.id,
       email: apiResponse.email,
       name: apiResponse.name,
+      handle: apiResponse.handle,
       display_name: apiResponse.display_name || null,
       role: apiResponse.role,
       system_role: apiResponse.system_role || SystemRole.USER,

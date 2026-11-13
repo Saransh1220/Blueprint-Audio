@@ -1,10 +1,10 @@
 import { Injectable, inject } from '@angular/core';
 import {
   type AppCurrency,
-  type Money,
-  type MoneyFormatOptions,
   DEFAULT_LEGACY_CURRENCY,
   formatMoneyValue,
+  type Money,
+  type MoneyFormatOptions,
   normalizeCurrencyCode,
 } from '../models/money';
 import { CurrencyConfigurationService } from './currency-configuration.service';

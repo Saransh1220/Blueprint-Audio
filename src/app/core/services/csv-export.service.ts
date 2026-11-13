@@ -5,7 +5,11 @@ import { AnalyticsOverviewResponse } from '../api/analytics.requests';
   providedIn: 'root',
 })
 export class CsvExportService {
-  downloadAnalyticsCsv(data: AnalyticsOverviewResponse, days: number, currency: string = 'INR'): void {
+  downloadAnalyticsCsv(
+    data: AnalyticsOverviewResponse,
+    days: number,
+    currency: string = 'INR',
+  ): void {
     const sections: string[] = [];
 
     // 1. Report Header
@@ -44,8 +48,13 @@ export class CsvExportService {
     ].join('\n');
   }
 
-  private generateRevenueBreakdown(revenue: { [key: string]: number }, currency: string = 'INR'): string {
-    const rows = Object.entries(revenue).map(([license, amount]) => `${license},${amount},${currency}`);
+  private generateRevenueBreakdown(
+    revenue: { [key: string]: number },
+    currency: string = 'INR',
+  ): string {
+    const rows = Object.entries(revenue).map(
+      ([license, amount]) => `${license},${amount},${currency}`,
+    );
     return ['Revenue by License', 'License Type,Amount,Currency', ...rows].join('\n');
   }
 

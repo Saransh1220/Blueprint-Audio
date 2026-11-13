@@ -8,8 +8,8 @@ import {
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { debounceTime, Subject } from 'rxjs';
-import { AdminList } from '../admin-list';
 import { formatNumber } from '../admin-format';
+import { AdminList } from '../admin-list';
 
 const SEARCH_DEBOUNCE_MS = 300;
 

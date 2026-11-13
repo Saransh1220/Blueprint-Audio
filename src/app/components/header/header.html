@@ -50,12 +50,17 @@
       <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }"
         >Home</a
       >
-      <div class="nav-link-wrap browse-nav-wrap">
+      <div
+        class="nav-link-wrap browse-nav-wrap"
+        [class.browse-menu-dismissed]="isBrowseMenuDismissed"
+        (mouseenter)="resetBrowseMenuDismissal()"
+      >
         <a
           routerLink="/explore"
           class="browse-nav-link"
           [class.active]="isBrowseRoute()"
           aria-haspopup="true"
+          (click)="closeBrowseMenu()"
         >
           Browse
           <svg
@@ -74,6 +79,7 @@
           accent="sound"
           label="Browse"
           [items]="browseItems()"
+          (selected)="closeBrowseMenu()"
         />
       </div>
       <a class="compact-nav-link" routerLink="/explore" routerLinkActive="active">Explore</a>
@@ -310,7 +316,12 @@
 
       @if (!isStudioRoute()) {
         <button
+          #mobileMenuToggle
           class="hamburger-btn"
+          type="button"
+          [attr.aria-label]="isMobileMenuOpen ? 'Close navigation' : 'Open navigation'"
+          aria-controls="header-mobile-menu"
+          [attr.aria-expanded]="isMobileMenuOpen"
           (click)="toggleMobileMenu()"
           [class.active]="isMobileMenuOpen"
         >
@@ -321,55 +332,116 @@
       }
     </div>
   </div>
+  <div
+    id="header-mobile-menu"
+    class="mobile-menu"
+    [class.open]="isMobileMenuOpen"
+    [attr.inert]="isMobileMenuOpen ? null : ''"
+  >
+    <div class="mobile-links">
+      <p class="mobile-menu-label">Browse</p>
+      <a
+        routerLink="/"
+        routerLinkActive="active"
+        [routerLinkActiveOptions]="{ exact: true }"
+        ariaCurrentWhenActive="page"
+        (click)="closeMobileMenu()"
+      >
+        <i class="fas fa-house" aria-hidden="true"></i> Home
+      </a>
+      <a
+        routerLink="/explore"
+        routerLinkActive="active"
+        ariaCurrentWhenActive="page"
+        (click)="closeMobileMenu()"
+      >
+        <i class="fas fa-compass" aria-hidden="true"></i> Explore
+      </a>
+      <a
+        routerLink="/loops"
+        routerLinkActive="active"
+        ariaCurrentWhenActive="page"
+        (click)="closeMobileMenu()"
+      >
+        <i class="fas fa-repeat" aria-hidden="true"></i> Loops
+      </a>
+      <a
+        routerLink="/sample-packs"
+        routerLinkActive="active"
+        ariaCurrentWhenActive="page"
+        (click)="closeMobileMenu()"
+      >
+        <i class="fas fa-layer-group" aria-hidden="true"></i> Sample Packs
+      </a>
+      <a
+        routerLink="/battles"
+        routerLinkActive="active"
+        ariaCurrentWhenActive="page"
+        (click)="closeMobileMenu()"
+      >
+        <i class="fas fa-bolt" aria-hidden="true"></i> Battles
+      </a>
+    </div>
+
+    <div class="mobile-links mobile-account-links">
+      <p class="mobile-menu-label">Account</p>
+      @if (authService.currentUser(); as user) {
+        <a
+          routerLink="/dashboard"
+          routerLinkActive="active"
+          ariaCurrentWhenActive="page"
+          (click)="closeMobileMenu()"
+        >
+          <i class="fas fa-chart-simple" aria-hidden="true"></i> Dashboard
+        </a>
+        @if (user.role === Role.PRODUCER) {
+          <a
+            routerLink="/studio"
+            routerLinkActive="active"
+            ariaCurrentWhenActive="page"
+            (click)="closeMobileMenu()"
+          >
+            <i class="fas fa-sliders" aria-hidden="true"></i> Studio
+          </a>
+          <a
+            routerLink="/creator-tools"
+            routerLinkActive="active"
+            ariaCurrentWhenActive="page"
+            (click)="closeMobileMenu()"
+          >
+            <i class="fas fa-wand-magic-sparkles" aria-hidden="true"></i> Creator Tools
+          </a>
+        }
+        <a
+          routerLink="/settings"
+          routerLinkActive="active"
+          ariaCurrentWhenActive="page"
+          (click)="closeMobileMenu()"
+        >
+          <i class="fas fa-gear" aria-hidden="true"></i> Settings
+        </a>
+        @if (authzService.isSuperAdmin()) {
+          <a
+            routerLink="/admin"
+            routerLinkActive="active"
+            ariaCurrentWhenActive="page"
+            (click)="closeMobileMenu()"
+          >
+            <i class="fas fa-shield" aria-hidden="true"></i> Admin
+          </a>
+        }
+        <button
+          type="button"
+          class="mobile-logout-btn"
+          (click)="authService.logout(); closeMobileMenu()"
+        >
+          <i class="fas fa-arrow-right-from-bracket" aria-hidden="true"></i> Log out
+        </button>
+      } @else {
+        <a routerLink="/login" (click)="closeMobileMenu()">
+          <i class="fas fa-arrow-right-to-bracket" aria-hidden="true"></i> Log in
+        </a>
+      }
+    </div>
+  </div>
 </nav>
-
-<!-- Mobile Menu Overlay -->
-<div class="mobile-menu" [class.open]="isMobileMenuOpen">
-  <div class="mobile-logo-large">
-    <a class="logo on-dark" routerLink="/" (click)="closeMobileMenu()">
-      <img class="logo-mark logo-light" src="/Logo-cropped.webp" alt="" aria-hidden="true" />
-      <img class="logo-mark logo-dark" src="/logo-dark-cropped.webp" alt="" aria-hidden="true" />
-      <span class="logo-word">{{ brand.name }}</span>
-    </a>
-  </div>
-  <div class="mobile-links">
-    <a
-      routerLink="/"
-      routerLinkActive="active"
-      [routerLinkActiveOptions]="{ exact: true }"
-      (click)="closeMobileMenu()"
-      >Home</a
-    >
-    <a routerLink="/explore" routerLinkActive="active" (click)="closeMobileMenu()">Explore</a>
-    <a routerLink="/loops" routerLinkActive="active" (click)="closeMobileMenu()">Loops</a>
-    <a routerLink="/sample-packs" routerLinkActive="active" (click)="closeMobileMenu()"
-      >Sample Packs</a
-    >
-    <a routerLink="/battles" routerLinkActive="active" (click)="closeMobileMenu()">Battles</a>
-    @if (authService.currentUser()?.role === Role.PRODUCER) {
-      <a routerLink="/creator-tools" routerLinkActive="active" (click)="closeMobileMenu()"
-        >Creator Tools</a
-      >
-    }
-
-    @if (authService.currentUser()) {
-      <a routerLink="/dashboard" routerLinkActive="active" (click)="closeMobileMenu()">Dashboard</a>
-      @if (authService.currentUser()?.role === Role.PRODUCER) {
-        <a routerLink="/studio" routerLinkActive="active" (click)="closeMobileMenu()">Studio</a>
-      }
-      <a routerLink="/settings" routerLinkActive="active" (click)="closeMobileMenu()">Settings</a>
-      @if (authzService.isSuperAdmin()) {
-        <a routerLink="/admin" routerLinkActive="active" (click)="closeMobileMenu()">Admin</a>
-      }
-      <button
-        type="button"
-        class="mobile-logout-btn"
-        (click)="authService.logout(); closeMobileMenu()"
-      >
-        Logout
-      </button>
-    } @else {
-      <a routerLink="/login" (click)="closeMobileMenu()">Log in</a>
-    }
-  </div>
-</div>

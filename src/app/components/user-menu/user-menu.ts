@@ -18,6 +18,7 @@ export interface UserMenuLink {
   label: string;
   icon: string;
   route: string;
+  tint: 'hot' | 'cobalt' | 'lime' | 'sun' | 'lavender' | 'cream';
 }
 
 /**
@@ -54,17 +55,47 @@ export class UserMenuComponent {
     return url ? `url(${url})` : null;
   });
 
+  /** The public handle: what the profile URL is built from. */
+  readonly handle = computed(() => this.user()?.handle || this.user()?.name || '');
+
   readonly links = computed<UserMenuLink[]>(() => [
     ...(this.isProducer()
       ? [
-          { label: 'Studio overview', icon: 'fa-table-cells-large', route: '/studio/overview' },
-          { label: 'Upload a beat', icon: 'fa-upload', route: '/upload' },
+          {
+            label: 'Studio overview',
+            icon: 'fa-table-cells-large',
+            route: '/studio/overview',
+            tint: 'hot' as const,
+          },
+          { label: 'Upload a beat', icon: 'fa-upload', route: '/upload', tint: 'lime' as const },
+          ...(this.handle()
+            ? [
+                {
+                  label: 'Public profile',
+                  icon: 'fa-user',
+                  route: `/@${this.handle()}`,
+                  tint: 'cobalt' as const,
+                },
+              ]
+            : []),
         ]
       : []),
-    { label: 'My purchases', icon: 'fa-bag-shopping', route: '/studio/purchases' },
-    { label: 'Settings', icon: 'fa-sliders', route: '/settings' },
+    {
+      label: 'My purchases',
+      icon: 'fa-bag-shopping',
+      route: '/studio/purchases',
+      tint: 'sun' as const,
+    },
+    { label: 'Settings', icon: 'fa-sliders', route: '/settings', tint: 'cream' as const },
     ...(this.authz.isSuperAdmin()
-      ? [{ label: 'Admin console', icon: 'fa-shield-halved', route: '/admin' }]
+      ? [
+          {
+            label: 'Admin console',
+            icon: 'fa-shield-halved',
+            route: '/admin',
+            tint: 'lavender' as const,
+          },
+        ]
       : []),
   ]);
 

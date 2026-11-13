@@ -1,7 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-
-import { SamplePackCardComponent } from './sample-pack-card.component';
 import { MOCK_SAMPLE_PACKS } from '../../../content/catalog/catalog.mock-data';
+import { SamplePackCardComponent } from './sample-pack-card.component';
 
 describe('SamplePackCardComponent', () => {
   let component: SamplePackCardComponent;

@@ -3,6 +3,7 @@ import { Router } from '@angular/router';
 import { routes } from './app.routes';
 import { Role } from './models';
 import { AuthService } from './services';
+import { profileUrlMatcher } from './utils/producer-link';
 
 describe('application route callbacks', () => {
   const authServiceMock = { currentUser: vi.fn() };
@@ -23,7 +24,7 @@ describe('application route callbacks', () => {
     const studio = routes.find((route) => route.path === 'studio');
     const children = studio?.children ?? [];
     const lazyRoutes = [
-      routes.find((route) => route.path === '@/:handle'),
+      routes.find((route) => route.matcher === profileUrlMatcher),
       routes.find((route) => route.path === 'loops'),
       routes.find((route) => route.path === 'sample-packs'),
       routes.find((route) => route.path === 'sample-packs/:slug'),
@@ -39,6 +40,17 @@ describe('application route callbacks', () => {
     expect(components).toHaveLength(10);
     for (const component of components) expect(component).toBeTruthy();
   }, 10_000);
+
+  it('serves profiles at /@handle ahead of the :shortCode catch-all and redirects legacy URLs', () => {
+    const profileIndex = routes.findIndex((route) => route.matcher === profileUrlMatcher);
+    const shortCodeIndex = routes.findIndex((route) => route.path === ':shortCode');
+    expect(profileIndex).toBeGreaterThan(-1);
+    expect(profileIndex).toBeLessThan(shortCodeIndex);
+
+    const legacy = routes.find((route) => route.path === '@/:handle');
+    const redirect = legacy?.redirectTo as (data: { params: Record<string, string> }) => string;
+    expect(redirect({ params: { handle: 'saransh' } })).toBe('/@saransh');
+  });
 
   it('redirects the studio landing page according to role', () => {
     const landing = routes

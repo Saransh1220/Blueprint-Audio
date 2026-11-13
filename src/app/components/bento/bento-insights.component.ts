@@ -4,16 +4,16 @@ import type { AnalyticsOverviewResponse, TopSpecStat } from '../../core/api/anal
 import type { AppCurrency } from '../../models/money';
 import { CurrencyService } from '../../services/currency.service';
 import {
-  WEEKDAYS,
   bucketSum,
   formatPercent,
   peakIndex,
+  WEEKDAYS,
   weekdayTotals,
 } from '../../utils/bento-chart';
 import { buildInsightSeries, shortDateLabel } from '../../utils/bento-insights';
 import { BentoCardComponent } from './bento-card.component';
 import { BentoGaugeComponent, type BentoShare } from './bento-gauge.component';
-import { type BentoRankRow, BentoRankListComponent } from './bento-rank-list.component';
+import { BentoRankListComponent, type BentoRankRow } from './bento-rank-list.component';
 import { BentoSegmentedComponent } from './bento-segmented.component';
 import { BentoShareBarComponent, type BentoShareSegment } from './bento-share-bar.component';
 import { BentoStatTileComponent } from './bento-stat-tile.component';

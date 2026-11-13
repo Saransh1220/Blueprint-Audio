@@ -1,8 +1,11 @@
 import { HttpParams } from '@angular/common/http';
 import {
+  CreateRefundPayload,
   License,
   LicenseDownloadsResponse,
   Order,
+  OrderRefund,
+  OrderRefundResponse,
   OrderStatusDto,
   PaginatedResponse,
   PaymentVerificationRequest,
@@ -32,12 +35,26 @@ export interface CreateOrderBody {
   expected_currency?: string;
 }
 
-export class CreateOrderRequest implements ApiRequest<Order> {
+export interface CheckoutInFlight {
+  code: 'CHECKOUT_IN_FLIGHT' | 'CHECKOUT_RECONCILING';
+  order_id?: string;
+  retry_after: number;
+}
+
+export class CreateOrderRequest implements ApiRequest<Order | CheckoutInFlight> {
   readonly path = '/orders';
   readonly method: HttpMethod = 'POST';
-  readonly _responseType?: Order;
+  readonly headers?: Record<string, string>;
+  readonly _responseType?: Order | CheckoutInFlight;
 
-  constructor(public body: CreateOrderBody) {}
+  constructor(
+    public body: CreateOrderBody,
+    idempotencyKey?: string,
+  ) {
+    if (idempotencyKey) {
+      this.headers = { 'Idempotency-Key': idempotencyKey };
+    }
+  }
 }
 
 // Verify Payment Request
@@ -141,5 +158,34 @@ export class GetProducerOrdersRequest implements ApiRequest<ProducerOrderRespons
     let params = new HttpParams().set('page', page);
     params = params.set('limit', limit);
     this.params = params;
+  }
+}
+
+// Admin Refund Requests
+export class CreateRefundRequest implements ApiRequest<OrderRefundResponse> {
+  readonly method: HttpMethod = 'POST';
+  readonly _responseType?: OrderRefundResponse;
+  readonly path: string;
+  readonly headers?: Record<string, string>;
+
+  constructor(
+    orderId: string,
+    public body: CreateRefundPayload,
+    idempotencyKey?: string,
+  ) {
+    this.path = `/admin/orders/${orderId}/refunds`;
+    if (idempotencyKey) {
+      this.headers = { 'Idempotency-Key': idempotencyKey };
+    }
+  }
+}
+
+export class GetOrderRefundsRequest implements ApiRequest<{ data: OrderRefund[] }> {
+  readonly method: HttpMethod = 'GET';
+  readonly _responseType?: { data: OrderRefund[] };
+  readonly path: string;
+
+  constructor(orderId: string) {
+    this.path = `/admin/orders/${orderId}/refunds`;
   }
 }

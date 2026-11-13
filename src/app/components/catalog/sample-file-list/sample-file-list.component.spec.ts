@@ -1,7 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-
-import { SampleFileListComponent } from './sample-file-list.component';
 import { MOCK_SAMPLE_PACK_DETAIL } from '../../../content/catalog/catalog.mock-data';
+import { SampleFileListComponent } from './sample-file-list.component';
 
 describe('SampleFileListComponent', () => {
   let component: SampleFileListComponent;

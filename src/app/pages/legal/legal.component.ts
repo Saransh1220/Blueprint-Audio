@@ -1,17 +1,17 @@
+import { CommonModule, DatePipe } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
-  OnDestroy,
-  OnInit,
   computed,
   inject,
+  OnDestroy,
+  OnInit,
   signal,
 } from '@angular/core';
-import { CommonModule, DatePipe } from '@angular/common';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { BRAND } from '../../core/config/brand';
-import { LegalService } from '../../services/legal.service';
 import { LegalVersion } from '../../models/legal.model';
+import { LegalService } from '../../services/legal.service';
 
 // Fallback baseline in case network or backend service is unreachable
 const BASELINE_FALLBACKS: Record<string, LegalVersion> = {
@@ -415,7 +415,9 @@ export class LegalComponent implements OnInit, OnDestroy {
 
     setTimeout(() => {
       const sections = document.querySelectorAll('.doc-section');
-      sections.forEach((sec) => this.observer?.observe(sec));
+      sections.forEach((sec) => {
+        this.observer?.observe(sec);
+      });
     }, 100);
   }
 }

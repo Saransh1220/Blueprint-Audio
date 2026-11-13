@@ -1,8 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import {
-  GetCurrencyPreferenceRequest,
-  SetCurrencyPreferenceRequest,
-} from './preference.requests';
+import { GetCurrencyPreferenceRequest, SetCurrencyPreferenceRequest } from './preference.requests';
 
 describe('Preference Requests', () => {
   it('creates GetCurrencyPreferenceRequest with GET and path', () => {

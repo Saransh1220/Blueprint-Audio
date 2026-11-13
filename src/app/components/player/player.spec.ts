@@ -5,8 +5,8 @@ import { of, throwError } from 'rxjs';
 import { AnalyticsService } from '../../services/analytics.service';
 import { AuthService } from '../../services/auth.service';
 import { LabService } from '../../services/lab';
-import { PurchaseDialogService } from '../../services/purchase-dialog.service';
 import { PlayerService } from '../../services/player.service';
+import { PurchaseDialogService } from '../../services/purchase-dialog.service';
 import { ToastService } from '../../services/toast.service';
 import { PlayerComponent } from './player';
 
@@ -297,9 +297,7 @@ describe('PlayerComponent', () => {
 
     component.isMenuOpen.set(true);
     component.openProducerProfile({ stopPropagation } as any);
-    expect(navigateSpy).toHaveBeenCalledWith(['/@', 'blaze'], {
-      queryParams: { id: 'p1' },
-    });
+    expect(navigateSpy).toHaveBeenCalledWith(['/@p1']);
     expect(component.isMenuOpen()).toBe(false);
 
     const clipboardDescriptor = Object.getOwnPropertyDescriptor(navigator, 'clipboard');

@@ -43,6 +43,7 @@ describe('AppComponent', () => {
           { path: 'studio', component: DummyRouteComponent },
           { path: 'studio/:tab', component: DummyRouteComponent },
           { path: 'dashboard', component: DummyRouteComponent },
+          { path: 'payment/return', component: DummyRouteComponent },
         ]),
         provideHttpClient(),
         provideNoopAnimations(),
@@ -91,6 +92,13 @@ describe('AppComponent', () => {
     fixture.detectChanges();
     expect((fixture.nativeElement as HTMLElement).querySelector('app-footer')).toBeNull();
     expect((fixture.nativeElement as HTMLElement).querySelector('app-header')).toBeTruthy();
+  });
+
+  it('omits the global footer on the payment return page', async () => {
+    await TestBed.inject(Router).navigateByUrl('/payment/return?order_id=example');
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('app-footer')).toBeNull();
+    expect(fixture.nativeElement.classList.contains('payment-return-page')).toBe(true);
   });
 
   it('detects studio routes from the current url', async () => {

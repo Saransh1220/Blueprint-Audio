@@ -5,8 +5,8 @@ import { SpecAdapter } from '../../adapters/spec.adapter';
 import type { SpecDto } from '../../core/api/spec.requests';
 import type { PublicUserResponse } from '../../core/api/user.requests';
 import { CurrencyService } from '../../services/currency.service';
-import { SpecActionService } from '../../services/spec-action.service';
 import { SpecService } from '../../services/spec.service';
+import { SpecActionService } from '../../services/spec-action.service';
 import { UserService } from '../../services/user.service';
 import { ProducerProfileComponent } from './producer-profile.component';
 
@@ -14,6 +14,7 @@ describe('ProducerProfileComponent', () => {
   const profile: PublicUserResponse = {
     id: 'producer-1',
     name: 'Night Maker',
+    handle: 'midnight-audio',
     display_name: 'Midnight Audio',
     role: 'producer',
     bio: 'Dark records for late nights.',
@@ -130,7 +131,8 @@ describe('ProducerProfileComponent', () => {
     expect(component.error()).toBe(false);
     expect(component.displayName()).toBe('Midnight Audio');
     expect(component.initials()).toBe('M');
-    expect(component.handle()).toBe('Night Maker');
+    expect(component.handle()).toBe('midnight-audio');
+    expect(component.joined()).toBe('Jan 2022');
     expect(component.totalSpecs()).toBe(12);
     expect(component.totalPlays()).toBe(1_500);
     expect(component.totalFavorites()).toBe(50);
@@ -154,11 +156,6 @@ describe('ProducerProfileComponent', () => {
     expect(component.filteredSpecs()).toEqual([]);
     component.activeGenre.set('All');
     expect(component.filteredSpecs()).toHaveLength(2);
-
-    component.toggleFollow();
-    expect(component.following()).toBe(true);
-    component.toggleFollow();
-    expect(component.following()).toBe(false);
 
     component.play(event, trapSpec);
     component.addToCart(event, trapSpec);
@@ -185,6 +182,12 @@ describe('ProducerProfileComponent', () => {
     expect(component.displayName()).toBe('Producer');
     expect(component.initials()).toBe('P');
     expect(component.handle()).toBe('producer');
+  });
+
+  it('falls back to the login name when the backend has no handle yet', () => {
+    const component = TestBed.createComponent(ProducerProfileComponent).componentInstance;
+    component.profile.set({ ...profile, handle: undefined });
+    expect(component.handle()).toBe('Night Maker');
   });
 
   it('shows the error state when either request fails', () => {

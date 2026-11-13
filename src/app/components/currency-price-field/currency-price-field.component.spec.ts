@@ -135,7 +135,9 @@ describe('CurrencyPriceFieldComponent', () => {
 
     const errorEl = element.querySelector('.field-error-message')!;
     expect(errorEl.textContent).toContain('Invalid price amount');
-    expect(element.querySelector('.field-input-box')?.classList.contains('field-input-error')).toBe(true);
+    expect(element.querySelector('.field-input-box')?.classList.contains('field-input-error')).toBe(
+      true,
+    );
   });
 
   it('displays rate info and stale badge when rate is stale', () => {

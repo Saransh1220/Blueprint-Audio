@@ -27,7 +27,9 @@ class FakeAudio {
   }
 
   emit(event: string) {
-    (this.listeners[event] || []).forEach((cb) => cb());
+    (this.listeners[event] || []).forEach((cb) => {
+      cb();
+    });
   }
 }
 

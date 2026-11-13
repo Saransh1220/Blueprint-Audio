@@ -1,4 +1,3 @@
-import { BRAND } from '../../core/config/brand';
 import { CommonModule } from '@angular/common';
 import {
   Component,
@@ -10,15 +9,15 @@ import {
   ViewChild,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
+import { BRAND } from '../../core/config/brand';
 import { Role } from '../../models';
 import { StudioShellService } from '../../pages/studio/studio-shell.service';
 import { AuthService, AuthzService, CartService, NotificationService } from '../../services';
+import { CurrencySwitcherComponent } from '../currency-switcher/currency-switcher.component';
 import { NavMenuComponent } from '../nav-menu/nav-menu';
 import { BROWSE_ITEMS, menuItemsFor, STUDIO_ITEMS } from '../nav-menu/nav-menu.items';
 import { UserMenuComponent } from '../user-menu/user-menu';
-import { CurrencySwitcherComponent } from '../currency-switcher/currency-switcher.component';
 
 type NotificationKind =
   | 'all'
@@ -86,6 +85,8 @@ export class HeaderComponent {
   // Notifications
   isNotificationsOpen = false;
   isStudioMenuDismissed = false;
+  isBrowseMenuDismissed = false;
+  @ViewChild('mobileMenuToggle') private mobileMenuToggle?: ElementRef<HTMLButtonElement>;
   @ViewChild('notificationWrap') notificationWrap?: ElementRef<HTMLElement>;
   notifications = this.notificationService.notifications;
   unreadCount = this.notificationService.unreadCount;
@@ -133,11 +134,15 @@ export class HeaderComponent {
   }
 
   readonly isScrolled = signal(false);
+  private lastScrollY = 0;
 
   @HostListener('window:scroll')
   onWindowScroll() {
-    const scrolled = window.scrollY > 24;
-    if (scrolled !== this.isScrolled()) this.isScrolled.set(scrolled);
+    const scrollY = Math.max(0, window.scrollY);
+    if (scrollY === this.lastScrollY) return;
+
+    this.isScrolled.set(scrollY > 24 && scrollY > this.lastScrollY);
+    this.lastScrollY = scrollY;
   }
 
   isBrowseRoute() {
@@ -173,6 +178,29 @@ export class HeaderComponent {
     if (this.isNotificationsOpen && !this.notificationWrap?.nativeElement.contains(target)) {
       this.closeNotifications();
     }
+    if (
+      this.isMobileMenuOpen &&
+      target instanceof Element &&
+      !target.closest('#header-mobile-menu, .hamburger-btn')
+    ) {
+      this.closeMobileMenu();
+    }
+  }
+
+  @HostListener('document:keydown.escape')
+  dismissMobileMenu() {
+    if (this.isMobileMenuOpen) {
+      this.closeMobileMenu();
+      this.mobileMenuToggle?.nativeElement.focus();
+    }
+  }
+
+  resetBrowseMenuDismissal() {
+    this.isBrowseMenuDismissed = false;
+  }
+
+  closeBrowseMenu() {
+    this.isBrowseMenuDismissed = true;
   }
 
   resetStudioMenuDismissal() {

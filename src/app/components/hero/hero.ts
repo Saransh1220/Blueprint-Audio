@@ -1,13 +1,13 @@
-import { isFeatureAvailable } from '../../core/config/feature-availability';
 import {
   ChangeDetectionStrategy,
   Component,
-  ElementRef,
   computed,
+  ElementRef,
   inject,
   signal,
 } from '@angular/core';
 import { Router } from '@angular/router';
+import { isFeatureAvailable } from '../../core/config/feature-availability';
 
 import { HalftoneNebulaComponent, type NebulaParams } from '../halftone-nebula/halftone-nebula';
 

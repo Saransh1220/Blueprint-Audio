@@ -1,9 +1,9 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ActivatedRoute, provideRouter } from '@angular/router';
 import { BehaviorSubject, of, throwError } from 'rxjs';
-import { LegalComponent } from './legal.component';
-import { LegalService } from '../../services/legal.service';
 import type { LegalDocumentView, LegalVersion } from '../../models/legal.model';
+import { LegalService } from '../../services/legal.service';
+import { LegalComponent } from './legal.component';
 
 describe('LegalComponent', () => {
   let fixture: ComponentFixture<LegalComponent>;

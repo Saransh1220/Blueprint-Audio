@@ -1,10 +1,10 @@
-import { BRAND } from '../../../core/config/brand';
 import { CommonModule } from '@angular/common';
 import { Component, computed, effect, inject, OnInit, signal, ViewChild } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { map, of, switchMap } from 'rxjs';
 import { ConfirmDialogComponent } from '../../../components/confirm-dialog/confirm-dialog.component';
 import { PublicUserResponse } from '../../../core/api/user.requests';
+import { BRAND } from '../../../core/config/brand';
 import { Role } from '../../../models';
 import { AuthService } from '../../../services/auth.service';
 import { ToastService } from '../../../services/toast.service';
@@ -45,13 +45,8 @@ export class StudioProfileComponent implements OnInit {
     return fromForm || user?.display_name || user?.name || 'Producer';
   });
 
-  handle = computed(
-    () =>
-      this.displayName()
-        .toLowerCase()
-        .replace(/[^a-z0-9]+/g, '.')
-        .replace(/^\.+|\.+$/g, '') || 'producer',
-  );
+  /** The handle being edited (falls back to the saved one). */
+  handle = computed(() => this.currentUser()?.handle || 'producer');
 
   avatarLetter = computed(() => this.displayName().slice(0, 1).toLowerCase() || 'p');
   profileBannerUrl = computed(() =>
@@ -65,6 +60,7 @@ export class StudioProfileComponent implements OnInit {
         this.profileForm.patchValue({
           bio: user.bio || '',
           display_name: user.display_name || '',
+          handle: user.handle || '',
           instagram_url: user.instagram_url || '',
           twitter_url: user.twitter_url || '',
           youtube_url: user.youtube_url || '',
@@ -86,11 +82,21 @@ export class StudioProfileComponent implements OnInit {
     this.profileForm = this.fb.group({
       bio: [user?.bio || '', [Validators.maxLength(500)]],
       display_name: [user?.display_name || '', [Validators.maxLength(50)]],
+      handle: [user?.handle || '', [Validators.pattern(/^[a-z0-9][a-z0-9_-]{1,28}[a-z0-9]$/)]],
       instagram_url: [user?.instagram_url || '', [Validators.pattern(/^https?:\/\/.*/)]],
       twitter_url: [user?.twitter_url || '', [Validators.pattern(/^https?:\/\/.*/)]],
       youtube_url: [user?.youtube_url || '', [Validators.pattern(/^https?:\/\/.*/)]],
       spotify_url: [user?.spotify_url || '', [Validators.pattern(/^https?:\/\/.*/)]],
     });
+  }
+
+  normalizeHandle(event: Event) {
+    const input = event.target as HTMLInputElement;
+    const cleaned = input.value.toLowerCase().replace(/[^a-z0-9_-]/g, '');
+    if (cleaned !== input.value) {
+      input.value = cleaned;
+      this.profileForm.get('handle')?.setValue(cleaned);
+    }
   }
 
   hasUnsavedChanges() {
@@ -107,7 +113,13 @@ export class StudioProfileComponent implements OnInit {
     }
     this.isSaving.set(true);
     const avatarFile = this.selectedAvatarFile();
-    const profileData = this.profileForm.value;
+    const { handle: handleValue, ...rest } = this.profileForm.value;
+    const handle = (handleValue || '').trim();
+    // Only send the handle when it actually changed, so unrelated saves never touch it.
+    const profileData = {
+      ...rest,
+      ...(handle && handle !== this.currentUser()?.handle ? { handle } : {}),
+    };
     const bannerFile = this.selectedBannerFile();
     let mediaUpload$ = of<PublicUserResponse | null>(null);
     if (avatarFile)
@@ -134,6 +146,7 @@ export class StudioProfileComponent implements OnInit {
             ...this.currentUser()!,
             bio: profile.bio ?? profileData.bio,
             display_name: profile.display_name ?? profileData.display_name,
+            handle: profile.handle ?? profileData.handle,
             instagram_url: profile.instagram_url ?? profileData.instagram_url,
             twitter_url: profile.twitter_url ?? profileData.twitter_url,
             youtube_url: profile.youtube_url ?? profileData.youtube_url,
@@ -150,8 +163,11 @@ export class StudioProfileComponent implements OnInit {
         this.profileForm.markAsPristine();
         this.isSaving.set(false);
       },
-      error: () => {
-        this.toastService.show('Failed to update profile', 'error');
+      error: (err) => {
+        this.toastService.show(
+          err?.status === 409 ? 'That handle is already taken' : 'Failed to update profile',
+          'error',
+        );
         this.isSaving.set(false);
       },
     });
@@ -163,6 +179,7 @@ export class StudioProfileComponent implements OnInit {
       this.profileForm.patchValue({
         bio: user.bio || '',
         display_name: user.display_name || '',
+        handle: user.handle || '',
         instagram_url: user.instagram_url || '',
         twitter_url: user.twitter_url || '',
         youtube_url: user.youtube_url || '',

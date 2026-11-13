@@ -6,8 +6,8 @@ import { MusicalKey } from '../models/enums';
 import type { Spec } from '../models/spec';
 import { AnalyticsService, FavoriteChangeEvent } from './analytics.service';
 import { AuthService } from './auth.service';
-import { PurchaseDialogService } from './purchase-dialog.service';
 import { PlayerService } from './player.service';
+import { PurchaseDialogService } from './purchase-dialog.service';
 import { SpecActionService } from './spec-action.service';
 
 describe('SpecActionService', () => {

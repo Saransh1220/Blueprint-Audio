@@ -1,8 +1,8 @@
-import { BRAND } from '../../../core/config/brand';
 import { Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { LoadingSpinnerComponent } from '../../../components';
+import { BRAND } from '../../../core/config/brand';
 import { AuthService } from '../../../services/auth.service';
 import { ToastService } from '../../../services/toast.service';
 

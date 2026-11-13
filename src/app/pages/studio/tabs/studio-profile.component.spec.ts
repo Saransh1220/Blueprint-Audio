@@ -64,7 +64,9 @@ describe('StudioProfileComponent', () => {
     component.profileForm.patchValue({ display_name: 'New Blaze', bio: 'New bio' });
     component.saveProfile();
 
-    expect(updateProfile).toHaveBeenCalledWith(component.profileForm.value);
+    // An unchanged (or empty) handle is never sent, so unrelated saves can't touch it.
+    const { handle: _handle, ...expectedPayload } = component.profileForm.value;
+    expect(updateProfile).toHaveBeenCalledWith(expectedPayload);
     expect(currentUser().display_name).toBe('New Blaze');
     expect(currentUser().bio).toBe('New bio');
     expect(show).toHaveBeenCalledWith('Profile updated successfully', 'success');
@@ -105,7 +107,9 @@ describe('StudioProfileComponent', () => {
     component.saveProfile();
 
     expect(uploadAvatar).toHaveBeenCalledWith(avatarFile);
-    expect(updateProfile).toHaveBeenCalledWith(component.profileForm.value);
+    // An unchanged (or empty) handle is never sent, so unrelated saves can't touch it.
+    const { handle: _handle, ...expectedPayload } = component.profileForm.value;
+    expect(updateProfile).toHaveBeenCalledWith(expectedPayload);
     expect(currentUser().avatar_url).toBe('http://localhost:8080/new-avatar.png');
     expect(component.selectedAvatarFile()).toBeNull();
     expect(component.avatarPreview()).toBeNull();

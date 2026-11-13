@@ -42,6 +42,11 @@ import { ChangeDetectionStrategy, Component, input } from '@angular/core';
       color: var(--bento-text);
       font-family: var(--bento-font);
     }
+    /* Inside the Studio shell the page blends into the shell surface instead of painting a canvas. */
+    :host-context(app-studio) {
+      --bento-bg: transparent;
+      padding: 0;
+    }
     .head {
       display: flex;
       flex-wrap: wrap;

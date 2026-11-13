@@ -2,11 +2,11 @@ import '../../../test-setup';
 import { TestBed } from '@angular/core/testing';
 
 import {
-  HalftoneNebulaComponent,
-  MAX_SPARKS,
   driftPos,
+  HalftoneNebulaComponent,
   hexToRgb,
   layoutSparkles,
+  MAX_SPARKS,
   mulberry32,
   pushSparkle,
 } from './halftone-nebula';

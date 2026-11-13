@@ -1,104 +1,123 @@
 <main class="producer-page">
   @if (loading()) {
-    <div class="state">Loading producer profileâ€¦</div>
+    <div class="skeleton" aria-busy="true" aria-label="Loading producer profile">
+      <div class="sk-banner"></div>
+      <div class="sk-wrap">
+        <div class="sk-avatar"></div>
+        <div class="sk-lines">
+          <span></span>
+          <span></span>
+        </div>
+      </div>
+    </div>
   } @else if (error()) {
     <div class="state">
-      <h1>Producer not found.</h1>
-      <a routerLink="/explore">Explore the catalog</a>
+      <i class="fa-solid fa-user-slash" aria-hidden="true"></i>
+      <h1>Producer not found</h1>
+      <p>That profile doesn't exist, or the link has changed.</p>
+      <a routerLink="/explore">Explore the catalog <i class="fa-solid fa-arrow-right"></i></a>
     </div>
   } @else {
-    <section
-      class="p-banner"
-      [style.background-image]="profile()?.banner_url ? 'url(' + profile()!.banner_url + ')' : null"
-    ></section>
+    <header class="hero">
+      <div
+        class="hero-banner"
+        [style.background-image]="
+          profile()?.banner_url ? 'url(' + profile()!.banner_url + ')' : null
+        "
+      ></div>
 
-    <section class="p-hero">
-      <div class="p-avatar">
-        @if (profile()?.avatar_url) {
-          <img [src]="profile()!.avatar_url" [alt]="displayName()" />
-        } @else {
-          {{ initials() }}
-        }
-      </div>
-      <div class="p-identity">
-        <h1>{{ displayName() }} <i>âœ“</i></h1>
-        <div class="handle-row">
-          <span>@{{ handle() }}</span
-          ><b>{{ profile()?.role === 'producer' ? 'PRODUCER' : 'ARTIST' }}</b>
-        </div>
-      </div>
-    </section>
-
-    <p class="p-bio">
-      {{ profile()?.bio || 'No bio added yet.' }}
-    </p>
-    <div class="socials">
-      @if (profile()?.instagram_url) {
-        <a [href]="profile()!.instagram_url" target="_blank" rel="noreferrer"
-          ><i class="fa-brands fa-instagram"></i
-        ></a>
-      }
-      @if (profile()?.twitter_url) {
-        <a [href]="profile()!.twitter_url" target="_blank" rel="noreferrer"
-          ><i class="fa-brands fa-x-twitter"></i
-        ></a>
-      }
-      @if (profile()?.youtube_url) {
-        <a [href]="profile()!.youtube_url" target="_blank" rel="noreferrer"
-          ><i class="fa-brands fa-youtube"></i
-        ></a>
-      }
-      @if (profile()?.spotify_url) {
-        <a [href]="profile()!.spotify_url" target="_blank" rel="noreferrer"
-          ><i class="fa-brands fa-spotify"></i
-        ></a>
-      }
-    </div>
-
-    <section class="stats-grid">
-      <div class="c1">
-        <small>Beats live</small><b>{{ totalSpecs() }}</b>
-      </div>
-
-      <div class="c4">
-        <small>Member since</small><b>{{ profile()?.created_at?.slice(0, 4) }}</b>
-      </div>
-    </section>
-
-    <section class="content-section catalog">
-      <header class="section-head">
-        <div>
-          <small><i></i>01 Â· Catalog</small>
-          <h2>the <em>beats</em>.</h2>
-        </div>
-        <p>{{ totalSpecs() }} tracks Â· updated regularly</p>
-      </header>
-      <div class="filter-bar">
-        <div class="chips">
-          @for (genre of genres(); track genre) {
-            <button [class.on]="activeGenre() === genre" (click)="activeGenre.set(genre)">
-              {{ genre }}
-            </button>
+      <div class="hero-inner">
+        <div class="avatar">
+          @if (profile()?.avatar_url) {
+            <img [src]="profile()!.avatar_url" [alt]="displayName()" />
+          } @else {
+            <span>{{ initials() }}</span>
           }
         </div>
-        <span>All prices in {{ buyerCurrency.effective() }}</span>
+
+        <div class="ident">
+          <h1>{{ displayName() }}</h1>
+          <p class="meta">
+            <span>&#64;{{ handle() }}</span>
+            <span>{{ isProducer() ? 'Producer' : 'Artist' }}</span>
+            @if (joined()) {
+              <span>Joined {{ joined() }}</span>
+            }
+          </p>
+        </div>
+
+        <div class="hero-actions">
+          @if (profile()?.instagram_url) {
+            <a
+              [href]="profile()!.instagram_url"
+              target="_blank"
+              rel="noreferrer"
+              aria-label="Instagram"
+              ><i class="fa-brands fa-instagram"></i
+            ></a>
+          }
+          @if (profile()?.twitter_url) {
+            <a [href]="profile()!.twitter_url" target="_blank" rel="noreferrer" aria-label="X"
+              ><i class="fa-brands fa-x-twitter"></i
+            ></a>
+          }
+          @if (profile()?.youtube_url) {
+            <a [href]="profile()!.youtube_url" target="_blank" rel="noreferrer" aria-label="YouTube"
+              ><i class="fa-brands fa-youtube"></i
+            ></a>
+          }
+          @if (profile()?.spotify_url) {
+            <a [href]="profile()!.spotify_url" target="_blank" rel="noreferrer" aria-label="Spotify"
+              ><i class="fa-brands fa-spotify"></i
+            ></a>
+          }
+          <button type="button" class="btn-share" (click)="shareProfile()">
+            <i class="fa-solid fa-link" aria-hidden="true"></i> Share
+          </button>
+        </div>
       </div>
+
+      @if (profile()?.bio) {
+        <p class="bio">{{ profile()!.bio }}</p>
+      }
+    </header>
+
+    <section class="catalog">
+      <header class="catalog-head">
+        <h2>
+          Beats <small>{{ totalSpecs() }}</small>
+        </h2>
+        @if (genres().length > 2) {
+          <nav class="tabs" aria-label="Filter by genre">
+            @for (genre of genres(); track genre) {
+              <button
+                type="button"
+                [class.on]="activeGenre() === genre"
+                [attr.aria-pressed]="activeGenre() === genre"
+                (click)="activeGenre.set(genre)"
+              >
+                {{ genre }}
+              </button>
+            }
+          </nav>
+        }
+      </header>
+
       @if (filteredSpecs().length) {
         <div class="tracks-grid">
           @for (spec of filteredSpecs(); track spec.id; let i = $index) {
-            <app-spec-card [spec]="spec" [priority]="i < 5" appearance="market"></app-spec-card>
+            <app-spec-card [spec]="spec" [priority]="i < 4"></app-spec-card>
           }
         </div>
         @if (specs().length < totalSpecs()) {
-          <div class="view-all">
+          <div class="more">
             <button type="button" [disabled]="loadingMore()" (click)="loadMore()">
-              {{ loadingMore() ? 'Loading…' : 'Load more beats' }}
-              <i class="fa-solid fa-arrow-right"></i>
+              {{ loadingMore() ? 'Loading…' : 'Load more' }}
             </button>
           </div>
         }
       } @else {
-        <div class="empty">No releases in this category yet.</div>
+        <div class="empty">No beats in this category yet.</div>
       }
     </section>
   }

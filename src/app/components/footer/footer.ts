@@ -1,6 +1,6 @@
-import { BRAND } from '../../core/config/brand';
 import { Component } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { BRAND } from '../../core/config/brand';
 
 @Component({
   selector: 'app-footer',

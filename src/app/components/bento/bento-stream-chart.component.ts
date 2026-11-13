@@ -205,7 +205,9 @@ export class BentoStreamChartComponent {
     computation: (_, previous) => ((previous?.value ?? 0) + 1) % 2,
   });
 
-  protected readonly hover = signal<{ index: number; x: number; y: number; w: number } | null>(null);
+  protected readonly hover = signal<{ index: number; x: number; y: number; w: number } | null>(
+    null,
+  );
 
   protected readonly hasData = computed(() =>
     this.series().some((s) => s.values.some((v) => v > 0)),

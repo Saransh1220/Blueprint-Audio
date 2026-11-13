@@ -30,7 +30,9 @@ describe('Currency Formatting Regression Guard (RW-1-4)', () => {
     const allowedSymbolFiles = new Set([
       path.normalize(path.join(appRoot, 'models', 'money.ts')),
       // Studio settings seller store currency choices are explicitly assigned to RW-1-6
-      path.normalize(path.join(appRoot, 'pages', 'studio', 'tabs', 'studio-settings.component.html')),
+      path.normalize(
+        path.join(appRoot, 'pages', 'studio', 'tabs', 'studio-settings.component.html'),
+      ),
       // Mock data catalog items per plan section D
       path.normalize(path.join(appRoot, 'content', 'catalog', 'catalog.mock-data.ts')),
     ]);
@@ -62,7 +64,8 @@ describe('Currency Formatting Regression Guard (RW-1-4)', () => {
         // 2. Direct Intl.NumberFormat style: 'currency' outside formatMoneyValue
         if (
           line.includes("style: 'currency'") &&
-          !normalizedPath.endsWith(path.normalize('models/money.ts')) && !normalizedPath.endsWith(path.normalize('services/currency-configuration.service.ts'))
+          !normalizedPath.endsWith(path.normalize('models/money.ts')) &&
+          !normalizedPath.endsWith(path.normalize('services/currency-configuration.service.ts'))
         ) {
           violations.push({
             file: path.relative(appRoot, filePath),
@@ -88,10 +91,7 @@ describe('Currency Formatting Regression Guard (RW-1-4)', () => {
         }
 
         // 4. Literal dollar price patterns in HTML/code like >$10 or "$100" (excluding template interpolations like `${`)
-        if (
-          />\s*\$\d+/i.test(line) &&
-          !allowedSymbolFiles.has(normalizedPath)
-        ) {
+        if (/>\s*\$\d+/i.test(line) && !allowedSymbolFiles.has(normalizedPath)) {
           violations.push({
             file: path.relative(appRoot, filePath),
             line: lineNum,

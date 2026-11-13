@@ -3,12 +3,16 @@ import {
   ChangeDetectionStrategy,
   Component,
   computed,
+  type ElementRef,
+  effect,
   HostListener,
   inject,
   NgZone,
   type OnDestroy,
   type OnInit,
   signal,
+  untracked,
+  viewChild,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
@@ -21,14 +25,14 @@ import { LoadingSpinnerComponent } from '../../components/ui/loading-spinner/loa
 import { Genre, MusicalKey, type Spec } from '../../models';
 import type { AppCurrency } from '../../models/money';
 import { AuthService } from '../../services/auth.service';
-import { CurrencyService } from '../../services/currency.service';
 import { BuyerCurrencyService } from '../../services/buyer-currency.service';
+import { CurrencyService } from '../../services/currency.service';
 import { LabService } from '../../services/lab';
 import { ToastService } from '../../services/toast.service';
 
 type GroupKey = 'genres' | 'bpm' | 'price' | 'key' | 'licenses' | 'moods' | 'extras';
 type KeyMode = 'any' | 'major' | 'minor';
-type ExploreDropdown = 'genre' | 'mood' | 'instr' | 'bpm' | 'price' | 'extras';
+type ExploreDropdown = 'genre' | 'bpm' | 'key' | 'price' | 'sort';
 
 @Component({
   selector: 'app-search-page',
@@ -87,6 +91,14 @@ export class SearchPageComponent implements OnInit, OnDestroy {
   });
 
   genres = Object.values(Genre);
+  readonly keyModes: KeyMode[] = ['any', 'major', 'minor'];
+  readonly bpmPresets: ReadonlyArray<{ label: string; range: [number, number] }> = [
+    { label: 'Slow', range: [60, 90] },
+    { label: 'Mid', range: [90, 120] },
+    { label: 'Up', range: [120, 150] },
+    { label: 'Fast', range: [150, 200] },
+  ];
+  private readonly searchInput = viewChild<ElementRef<HTMLInputElement>>('searchInput');
   keys = ['All', ...Object.values(MusicalKey)];
 
   sortOptions = [
@@ -103,7 +115,9 @@ export class SearchPageComponent implements OnInit, OnDestroy {
       chips.push({ id: 'search', label: this.searchTerm().trim() });
     }
 
-    this.genre().forEach((g) => chips.push({ id: `genre:${g}`, label: g }));
+    for (const g of this.genre()) {
+      chips.push({ id: `genre:${g}`, label: g });
+    }
 
     if (this.bpmRange()[0] !== 60 || this.bpmRange()[1] !== 200) {
       chips.push({ id: 'bpm', label: `${this.bpmRange()[0]}-${this.bpmRange()[1]} BPM` });
@@ -154,7 +168,17 @@ export class SearchPageComponent implements OnInit, OnDestroy {
   private searchSubject = new Subject<string>();
   private searchSubscription?: Subscription;
   private routeSubscription?: Subscription;
-  private fetchRequestId = 0;
+  private fetchSubscription?: Subscription;
+  private fetchedCurrency?: string;
+  private readonly refreshOnCurrencyChange = effect(() => {
+    const currency = this.buyerCurrency.effective();
+    if (this.fetchedCurrency !== undefined && this.fetchedCurrency !== currency) {
+      untracked(() => {
+        this.currentPage.set(1);
+        this.fetchSpecs();
+      });
+    }
+  });
   private scrollToTopOnNextFetch = false;
   private scrollFrame: number | null = null;
   private readonly passiveScrollListener = () => {
@@ -212,8 +236,9 @@ export class SearchPageComponent implements OnInit, OnDestroy {
   }
 
   fetchSpecs(options: { append?: boolean } = {}) {
+    this.fetchedCurrency = this.buyerCurrency.effective();
+    this.fetchSubscription?.unsubscribe();
     const append = options.append === true;
-    const requestId = ++this.fetchRequestId;
 
     if (append) {
       this.isLoadingMore.set(true);
@@ -227,7 +252,7 @@ export class SearchPageComponent implements OnInit, OnDestroy {
     // Sending it would hide native-fallback offers without an exact currency row.
     const hasPriceFilter = minPrice !== 0 || maxPrice !== 50000;
 
-    this.labService
+    this.fetchSubscription = this.labService
       .getSpecs({
         search: this.searchTerm(),
         genres: this.genre(),
@@ -242,8 +267,6 @@ export class SearchPageComponent implements OnInit, OnDestroy {
       })
       .subscribe({
         next: (specs) => {
-          if (requestId !== this.fetchRequestId) return;
-
           if (append) {
             const seen = new Set(this.specs().map((spec) => spec.id));
             const nextSpecs = specs.filter((spec) => !seen.has(spec.id));
@@ -260,8 +283,6 @@ export class SearchPageComponent implements OnInit, OnDestroy {
           }
         },
         error: (err) => {
-          if (requestId !== this.fetchRequestId) return;
-
           console.error('Error fetching specs:', err);
           this.isLoading.set(false);
           this.isLoadingMore.set(false);
@@ -350,12 +371,27 @@ export class SearchPageComponent implements OnInit, OnDestroy {
 
   setKeyMode(mode: KeyMode) {
     this.keyMode.set(mode);
-    if (mode === 'major' && this.key() !== 'All' && this.key().includes('MINOR')) {
+    const mismatched =
+      (mode === 'major' && this.key().includes('MINOR')) ||
+      (mode === 'minor' && this.key().includes('MAJOR'));
+    if (mismatched) {
       this.key.set('All');
+      this.applyFilters();
     }
-    if (mode === 'minor' && this.key() !== 'All' && this.key().includes('MAJOR')) {
-      this.key.set('All');
-    }
+  }
+
+  setBpmPreset(range: [number, number]) {
+    const same = this.bpmRange()[0] === range[0] && this.bpmRange()[1] === range[1];
+    this.bpmRange.set(same ? [60, 200] : range);
+    this.applyFilters();
+  }
+
+  isBpmPreset(range: [number, number]) {
+    return this.bpmRange()[0] === range[0] && this.bpmRange()[1] === range[1];
+  }
+
+  getKeySummary() {
+    return this.key() === 'All' ? 'Any' : this.key();
   }
 
   onSearchInput(term: string) {
@@ -439,10 +475,20 @@ export class SearchPageComponent implements OnInit, OnDestroy {
     }
   }
 
+  @HostListener('document:keydown', ['$event'])
+  onSlashFocus(event: KeyboardEvent) {
+    if (event.key !== '/' || event.metaKey || event.ctrlKey || event.altKey) return;
+    const target = event.target as HTMLElement | null;
+    if (target?.closest('input, textarea, select, [contenteditable="true"]')) return;
+    event.preventDefault();
+    this.searchInput()?.nativeElement.focus();
+  }
+
   @HostListener('document:keydown.escape')
   onEscape() {
     this.closeDropdown();
     this.toggleMobileFilters(false);
+    this.toggleMobileFilterPanel(false);
   }
 
   onWindowScroll() {
@@ -490,6 +536,7 @@ export class SearchPageComponent implements OnInit, OnDestroy {
     }
     this.searchSubscription?.unsubscribe();
     this.routeSubscription?.unsubscribe();
+    this.fetchSubscription?.unsubscribe();
   }
 
   private syncKeyModeFromKey() {

@@ -2,14 +2,14 @@ import { CommonModule } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
-  ElementRef,
   computed,
+  ElementRef,
   inject,
   signal,
 } from '@angular/core';
+import type { CurrencyDefinition } from '../../models/money';
 import { BuyerCurrencyService } from '../../services/buyer-currency.service';
 import { CurrencyConfigurationService } from '../../services/currency-configuration.service';
-import type { CurrencyDefinition } from '../../models/money';
 
 @Component({
   selector: 'app-currency-switcher',

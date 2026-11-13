@@ -1,403 +1,482 @@
 <section class="search-page">
   <header class="page-head">
-    <div class="breadcrumb">
+    <nav class="breadcrumb" aria-label="Breadcrumb">
       <a routerLink="/">Home</a>
       <span class="sep">/</span>
       <span class="here">Explore</span>
-    </div>
+    </nav>
 
-    <div class="page-title-row">
-      <div>
-        <h1 class="page-title">Explore <em>beats</em>.</h1>
-      </div>
-    </div>
+    <h1 class="page-title">Explore <em>beats</em></h1>
+    <p class="page-description">Find your next track by sound, tempo, or producer.</p>
 
-    <div class="search-row">
-      <div class="search-input-wrap">
-        <svg
-          width="18"
-          height="18"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2.3"
+    <form class="search" role="search" aria-label="Beat catalog" (ngSubmit)="onSearch()">
+      <i class="fas fa-magnifying-glass search-icon" aria-hidden="true"></i>
+      <input
+        #searchInput
+        class="search-input"
+        type="text"
+        autocomplete="off"
+        aria-label="Search beats"
+        placeholder="Search beats, moods, or producers"
+        [ngModel]="searchTerm()"
+        [ngModelOptions]="{ standalone: true }"
+        (ngModelChange)="onSearchInput($event)"
+      />
+      @if (searchTerm()) {
+        <button
+          class="search-clear"
+          type="button"
+          aria-label="Clear search"
+          (click)="onSearchInput('')"
         >
-          <circle cx="11" cy="11" r="8"></circle>
-          <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-        </svg>
-        <input
-          class="search-input"
-          type="text"
-          placeholder="Search titles, moods, producers..."
-          [ngModel]="searchTerm()"
-          (ngModelChange)="onSearchInput($event)"
-          (keydown.enter)="onSearch()"
-        />
-        <span class="search-hint">Ctrl K</span>
-      </div>
-
-      <button class="search-go" type="button" (click)="onSearch()">
-        Search
-        <i class="fas fa-arrow-right"></i>
-      </button>
-    </div>
+          <i class="fas fa-xmark" aria-hidden="true"></i>
+        </button>
+      } @else {
+        <kbd class="search-hint" aria-hidden="true">/</kbd>
+      }
+    </form>
   </header>
 
-  <div class="filter-bar">
-    <span class="fb-label">Filters</span>
-    <div class="filter-dd">
+  <div class="toolbar-wrap">
+    <div class="toolbar">
       <button
-        class="fd-trigger"
-        [class.active]="isDropdownOpen('genre')"
+        class="mob-filter-btn"
         type="button"
-        (click)="toggleDropdown('genre')"
+        [attr.aria-expanded]="mobileFilterPanelOpen()"
+        aria-controls="explore-mobile-filters"
+        (click)="toggleMobileFilterPanel()"
       >
-        <span class="fd-mono">Genre</span>
-        <span class="fd-val">{{ getGenreSummary() }}</span>
-        @if (genre().length) {
-          <span class="fd-count">{{ genre().length }}</span>
+        <i class="fas fa-sliders" aria-hidden="true"></i>
+        Filters
+        @if (activeFilterChips().length) {
+          <span class="mfb-badge">{{ activeFilterChips().length }}</span>
         }
-        <i class="fas fa-chevron-down fd-caret"></i>
       </button>
-      <div class="fd-panel" [class.show]="isDropdownOpen('genre')">
-        <div class="fp-head">
-          <h5>Pick genres</h5>
-          <button class="fp-clear" type="button" (click)="genre.set([]); onFilterChange()">
-            Clear
-          </button>
-        </div>
-        <div class="fp-options">
-          @for (g of genres; track g) {
-            <button
-              type="button"
-              class="fp-opt"
-              [class.on]="genre().includes(g)"
-              (click)="toggleGenre(g)"
-            >
-              <span class="fp-check"><i class="fas fa-check"></i></span>
-              <span class="fp-opt-name">{{ g }}</span>
-            </button>
-          }
-        </div>
-      </div>
-    </div>
 
-    <div class="filter-dd">
-      <button
-        class="fd-trigger"
-        [class.active]="isDropdownOpen('bpm')"
-        type="button"
-        (click)="toggleDropdown('bpm')"
-      >
-        <span class="fd-mono">BPM</span>
-        <span class="fd-val">{{ bpmRange()[0] }} <em>to</em> {{ bpmRange()[1] }}</span>
-        <i class="fas fa-chevron-down fd-caret"></i>
-      </button>
-      <div class="fd-panel wide" [class.show]="isDropdownOpen('bpm')">
-        <div class="fp-head">
-          <h5>Tempo range</h5>
+      <div class="filters" role="group" aria-label="Filters">
+        <span class="fb-label"><i class="fas fa-sliders" aria-hidden="true"></i>Filter</span>
+
+        <!-- Genre -->
+        <div class="filter-dd">
           <button
-            class="fp-clear"
+            class="fd-trigger"
             type="button"
-            (click)="bpmRange.set([60, 200]); onFilterChange()"
+            [class.active]="isDropdownOpen('genre')"
+            [class.applied]="genre().length > 0"
+            [attr.aria-expanded]="isDropdownOpen('genre')"
+            (click)="toggleDropdown('genre')"
           >
-            Reset
+            <i class="fas fa-music fd-ico" aria-hidden="true"></i>
+            <span class="fd-label">Genre</span>
+            <span class="fd-val">{{ getGenreSummary() }}</span>
+            <i class="fas fa-chevron-down fd-caret" aria-hidden="true"></i>
           </button>
-        </div>
-        <div class="range-wrap">
-          <div class="range-display">
-            <div class="range-val">{{ bpmRange()[0] }} <em>to</em> {{ bpmRange()[1] }}</div>
-            <div class="range-unit">bpm</div>
-          </div>
-          <div class="slider-track-wrap">
-            <div class="slider-bg"></div>
-            <div
-              class="slider-fill"
-              [style.left.%]="bpmFillLeft()"
-              [style.width.%]="bpmFillWidth()"
-            ></div>
-            <input
-              class="range-slider"
-              type="range"
-              min="60"
-              max="200"
-              [value]="bpmRange()[0]"
-              (input)="updateBpm($event, 0)"
-              (change)="onFilterChange()"
-            />
-            <input
-              class="range-slider"
-              type="range"
-              min="60"
-              max="200"
-              [value]="bpmRange()[1]"
-              (input)="updateBpm($event, 1)"
-              (change)="onFilterChange()"
-            />
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="filter-dd">
-      <button
-        class="fd-trigger"
-        [class.active]="isDropdownOpen('price')"
-        type="button"
-        (click)="toggleDropdown('price')"
-      >
-        <span class="fd-mono">Price</span>
-        <span class="fd-val">{{ getPriceSummary() }}</span>
-        <i class="fas fa-chevron-down fd-caret"></i>
-      </button>
-      <div class="fd-panel wide" [class.show]="isDropdownOpen('price')">
-        <div class="fp-head">
-          <h5>Price range</h5>
-          <button
-            class="fp-clear"
-            type="button"
-            (click)="priceRange.set([0, 50000]); onFilterChange()"
-          >
-            Reset
-          </button>
-        </div>
-        <div class="range-wrap">
-          <div class="range-display">
-            <div class="range-val">
-              {{ formatFilterPrice(priceRange()[0]) }} <em>to</em>
-              {{ formatFilterPrice(priceRange()[1]) }}
-            </div>
-            <div class="range-unit">{{ getCurrencyCode() }}</div>
-          </div>
-          <div class="slider-track-wrap">
-            <div class="slider-bg"></div>
-            <div
-              class="slider-fill hot-fill"
-              [style.left.%]="priceFillLeft()"
-              [style.width.%]="priceFillWidth()"
-            ></div>
-            <input
-              class="range-slider"
-              type="range"
-              min="0"
-              max="50000"
-              [value]="priceRange()[0]"
-              (input)="updatePrice($event, 0)"
-              (change)="onFilterChange()"
-            />
-            <input
-              class="range-slider"
-              type="range"
-              min="0"
-              max="50000"
-              [value]="priceRange()[1]"
-              (input)="updatePrice($event, 1)"
-              (change)="onFilterChange()"
-            />
-          </div>
-        </div>
-      </div>
-    </div>
-
-    @if (activeFilterChips().length) {
-      <button class="clear-all-btn show" type="button" (click)="clearFilters()">Clear all</button>
-    }
-
-    <div class="view-switch filter-view-switch">
-      <button [class.on]="viewMode() === 'grid'" (click)="setViewMode('grid')">
-        <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor">
-          <rect x="3" y="3" width="8" height="8" rx="1"></rect>
-          <rect x="13" y="3" width="8" height="8" rx="1"></rect>
-          <rect x="3" y="13" width="8" height="8" rx="1"></rect>
-          <rect x="13" y="13" width="8" height="8" rx="1"></rect>
-        </svg>
-        Grid
-      </button>
-      <button [class.on]="viewMode() === 'list'" (click)="setViewMode('list')">
-        <svg
-          width="11"
-          height="11"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2.5"
-        >
-          <line x1="3" y1="6" x2="21" y2="6"></line>
-          <line x1="3" y1="12" x2="21" y2="12"></line>
-          <line x1="3" y1="18" x2="21" y2="18"></line>
-        </svg>
-        List
-      </button>
-    </div>
-  </div>
-
-  @if (activeFilterChips().length) {
-    <div class="active-strip">
-      <span class="ac-label">Active</span>
-      @for (chip of activeFilterChips(); track chip.id) {
-        <button class="ac-chip" type="button" (click)="removeActiveChip(chip.id)">
-          {{ chip.label }}
-          <span class="ac-chip-x">x</span>
-        </button>
-      }
-    </div>
-  }
-
-  <div class="explore">
-    <div
-      class="filter-backdrop"
-      [class.on]="mobileFiltersOpen()"
-      (click)="toggleMobileFilters(false)"
-    ></div>
-
-    <main class="catalog">
-      <div class="catalog-inner">
-        <div class="catalog-toolbar">
-          <div class="mobile-toolbar-heading">
-            <h2 class="mobile-list-title">All Beats</h2>
-            <div class="view-switch mobile-view-switch" role="group" aria-label="Beat view">
-              <button
-                type="button"
-                [class.on]="viewMode() === 'grid'"
-                [attr.aria-pressed]="viewMode() === 'grid'"
-                (click)="setViewMode('grid')"
-              >
-                <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor">
-                  <rect x="3" y="3" width="8" height="8" rx="1"></rect>
-                  <rect x="13" y="3" width="8" height="8" rx="1"></rect>
-                  <rect x="3" y="13" width="8" height="8" rx="1"></rect>
-                  <rect x="13" y="13" width="8" height="8" rx="1"></rect>
-                </svg>
-                Grid
-              </button>
-              <button
-                type="button"
-                [class.on]="viewMode() === 'list'"
-                [attr.aria-pressed]="viewMode() === 'list'"
-                (click)="setViewMode('list')"
-              >
-                <svg
-                  width="11"
-                  height="11"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2.5"
-                >
-                  <line x1="3" y1="6" x2="21" y2="6"></line>
-                  <line x1="3" y1="12" x2="21" y2="12"></line>
-                  <line x1="3" y1="18" x2="21" y2="18"></line>
-                </svg>
-                List
-              </button>
-            </div>
-          </div>
-          @if (activeFilterChips().length) {
-            <div class="mobile-active-strip">
-              <span class="ac-label">Active</span>
-              @for (chip of activeFilterChips(); track chip.id) {
-                <button class="ac-chip" type="button" (click)="removeActiveChip(chip.id)">
-                  {{ chip.label }}
-                  <span class="ac-chip-x">x</span>
+          <div class="fd-panel genre-panel" [class.show]="isDropdownOpen('genre')">
+            <div class="fp-head">
+              <h5>Genre</h5>
+              @if (genre().length) {
+                <button class="fp-clear" type="button" (click)="genre.set([]); onFilterChange()">
+                  Clear
                 </button>
               }
             </div>
-          }
-          <!-- Mobile-only filter trigger -->
-          <button class="mob-filter-btn" type="button" (click)="toggleMobileFilterPanel()">
-            <i class="fas fa-sliders"></i>
-            Filters
-            @if (activeFilterChips().length) {
-              <span class="mfb-badge">{{ activeFilterChips().length }}</span>
-            }
-          </button>
+            <div class="fp-grid">
+              @for (g of genres; track g) {
+                <button
+                  type="button"
+                  class="fp-opt"
+                  [class.on]="genre().includes(g)"
+                  [attr.aria-pressed]="genre().includes(g)"
+                  (click)="toggleGenre(g)"
+                >
+                  <span class="fp-opt-name">{{ g }}</span>
+                  <i class="fas fa-check fp-check" aria-hidden="true"></i>
+                </button>
+              }
+            </div>
+          </div>
         </div>
 
-        @if (isLoading()) {
-          <div class="loading-wrapper">
-            <app-loading-spinner size="60px"></app-loading-spinner>
+        <!-- Tempo -->
+        <div class="filter-dd">
+          <button
+            class="fd-trigger"
+            type="button"
+            [class.active]="isDropdownOpen('bpm')"
+            [class.applied]="bpmRange()[0] !== 60 || bpmRange()[1] !== 200"
+            [attr.aria-expanded]="isDropdownOpen('bpm')"
+            (click)="toggleDropdown('bpm')"
+          >
+            <i class="fas fa-gauge-high fd-ico" aria-hidden="true"></i>
+            <span class="fd-label">Tempo</span>
+            <span class="fd-val">{{ bpmRange()[0] }}–{{ bpmRange()[1] }}</span>
+            <i class="fas fa-chevron-down fd-caret" aria-hidden="true"></i>
+          </button>
+          <div class="fd-panel range-panel" [class.show]="isDropdownOpen('bpm')">
+            <div class="fp-head">
+              <h5>Tempo</h5>
+              @if (bpmRange()[0] !== 60 || bpmRange()[1] !== 200) {
+                <button
+                  class="fp-clear"
+                  type="button"
+                  (click)="bpmRange.set([60, 200]); onFilterChange()"
+                >
+                  Reset
+                </button>
+              }
+            </div>
+            <div class="range-display">
+              <div class="range-val">{{ bpmRange()[0] }} <em>to</em> {{ bpmRange()[1] }}</div>
+              <div class="range-unit">bpm</div>
+            </div>
+            <div class="slider-track-wrap">
+              <div class="slider-bg"></div>
+              <div
+                class="slider-fill"
+                [style.left.%]="bpmFillLeft()"
+                [style.width.%]="bpmFillWidth()"
+              ></div>
+              <input
+                class="range-slider"
+                aria-label="Minimum BPM"
+                type="range"
+                min="60"
+                max="200"
+                [value]="bpmRange()[0]"
+                (input)="updateBpm($event, 0)"
+                (change)="onFilterChange()"
+              />
+              <input
+                class="range-slider"
+                aria-label="Maximum BPM"
+                type="range"
+                min="60"
+                max="200"
+                [value]="bpmRange()[1]"
+                (input)="updateBpm($event, 1)"
+                (change)="onFilterChange()"
+              />
+            </div>
+            <div class="presets">
+              @for (p of bpmPresets; track p.label) {
+                <button
+                  type="button"
+                  class="preset"
+                  [class.on]="isBpmPreset(p.range)"
+                  (click)="setBpmPreset(p.range)"
+                >
+                  <span>{{ p.label }}</span>
+                  <small>{{ p.range[0] }}–{{ p.range[1] }}</small>
+                </button>
+              }
+            </div>
           </div>
-        } @else {
-          @if (specs().length === 0) {
-            <div class="no-results">
-              <div class="no-results-inner">
-                <i class="fas fa-search"></i>
-                <p>No beats found. Try adjusting your filters.</p>
-              </div>
-            </div>
-          } @else {
-            <div
-              class="catalog-view"
-              [class.v-grid]="viewMode() === 'grid'"
-              [class.v-list]="viewMode() === 'list'"
-            >
-              @if (viewMode() === 'grid') {
-                <div class="beat-grid">
-                  @for (spec of specs(); track spec.id) {
-                    <app-spec-card [spec]="spec" appearance="market"></app-spec-card>
-                  }
-                </div>
-              }
+        </div>
 
-              @if (viewMode() === 'list') {
-                <div class="beat-list">
-                  <div class="beat-list-head" aria-hidden="true">
-                    <span class="head-play"></span>
-                    <span class="head-art"></span>
-                    <span>Beat</span>
-                    <span class="head-tags">Tags</span>
-                    <span class="head-genre">Genre</span>
-                    <span class="head-bpm">BPM</span>
-                    <span class="head-key">Key</span>
-                    <span class="head-actions">Price / actions</span>
-                  </div>
-                  @for (spec of specs(); track spec.id) {
-                    <app-spec-list-item [spec]="spec" appearance="market"></app-spec-list-item>
-                  }
-                </div>
+        <!-- Key -->
+        <div class="filter-dd">
+          <button
+            class="fd-trigger"
+            type="button"
+            [class.active]="isDropdownOpen('key')"
+            [class.applied]="key() !== 'All'"
+            [attr.aria-expanded]="isDropdownOpen('key')"
+            (click)="toggleDropdown('key')"
+          >
+            <i class="fas fa-key fd-ico" aria-hidden="true"></i>
+            <span class="fd-label">Key</span>
+            <span class="fd-val">{{ getKeySummary() }}</span>
+            <i class="fas fa-chevron-down fd-caret" aria-hidden="true"></i>
+          </button>
+          <div class="fd-panel key-panel" [class.show]="isDropdownOpen('key')">
+            <div class="fp-head">
+              <h5>Key</h5>
+              @if (key() !== 'All') {
+                <button class="fp-clear" type="button" (click)="setKey('All')">Reset</button>
               }
             </div>
+            <div class="seg" role="group" aria-label="Scale">
+              @for (m of keyModes; track m) {
+                <button
+                  type="button"
+                  [class.on]="keyMode() === m"
+                  [attr.aria-pressed]="keyMode() === m"
+                  (click)="setKeyMode(m)"
+                >
+                  {{ m }}
+                </button>
+              }
+            </div>
+            <div class="fp-grid cols-3">
+              @for (k of visibleKeys(); track k) {
+                @if (k !== 'All') {
+                  <button
+                    type="button"
+                    class="fp-opt mono"
+                    [class.on]="key() === k"
+                    [attr.aria-pressed]="key() === k"
+                    (click)="setKey(key() === k ? 'All' : k)"
+                  >
+                    {{ k }}
+                  </button>
+                }
+              }
+            </div>
+          </div>
+        </div>
 
-            @if (isLoadingMore()) {
-              <div class="infinite-status">
-                <app-loading-spinner size="34px"></app-loading-spinner>
-                <span>Loading more beats</span>
+        <!-- Price -->
+        <div class="filter-dd">
+          <button
+            class="fd-trigger"
+            type="button"
+            [class.active]="isDropdownOpen('price')"
+            [class.applied]="priceRange()[0] !== 0 || priceRange()[1] !== 50000"
+            [attr.aria-expanded]="isDropdownOpen('price')"
+            (click)="toggleDropdown('price')"
+          >
+            <i class="fas fa-tag fd-ico" aria-hidden="true"></i>
+            <span class="fd-label">Price</span>
+            <span class="fd-val">{{ getPriceSummary() }}</span>
+            <i class="fas fa-chevron-down fd-caret" aria-hidden="true"></i>
+          </button>
+          <div class="fd-panel range-panel" [class.show]="isDropdownOpen('price')">
+            <div class="fp-head">
+              <h5>Price</h5>
+              @if (priceRange()[0] !== 0 || priceRange()[1] !== 50000) {
+                <button
+                  class="fp-clear"
+                  type="button"
+                  (click)="priceRange.set([0, 50000]); onFilterChange()"
+                >
+                  Reset
+                </button>
+              }
+            </div>
+            <div class="range-display">
+              <div class="range-val">
+                {{ formatFilterPrice(priceRange()[0]) }} <em>to</em>
+                {{ formatFilterPrice(priceRange()[1]) }}
               </div>
-            } @else if (!hasMoreResults()) {
-              <div class="infinite-status end">
-                <span>You're caught up</span>
-              </div>
-            }
-          }
-        }
+              <div class="range-unit">{{ getCurrencyCode() }}</div>
+            </div>
+            <div class="slider-track-wrap">
+              <div class="slider-bg"></div>
+              <div
+                class="slider-fill"
+                [style.left.%]="priceFillLeft()"
+                [style.width.%]="priceFillWidth()"
+              ></div>
+              <input
+                class="range-slider"
+                aria-label="Minimum price"
+                type="range"
+                min="0"
+                max="50000"
+                [value]="priceRange()[0]"
+                (input)="updatePrice($event, 0)"
+                (change)="onFilterChange()"
+              />
+              <input
+                class="range-slider"
+                aria-label="Maximum price"
+                type="range"
+                min="0"
+                max="50000"
+                [value]="priceRange()[1]"
+                (input)="updatePrice($event, 1)"
+                (change)="onFilterChange()"
+              />
+            </div>
+          </div>
+        </div>
       </div>
-    </main>
+
+      <div class="toolbar-end">
+        @if (!isLoading()) {
+          <span class="catalog-count" aria-live="polite">
+            <strong>{{ resultCount() }}</strong> {{ resultCount() === 1 ? 'beat' : 'beats' }}
+          </span>
+        }
+
+        <div class="filter-dd sort-dd">
+          <button
+            class="fd-trigger"
+            type="button"
+            [class.active]="isDropdownOpen('sort')"
+            [attr.aria-expanded]="isDropdownOpen('sort')"
+            (click)="toggleDropdown('sort')"
+          >
+            <i class="fas fa-arrow-down-wide-short fd-ico" aria-hidden="true"></i>
+            <span class="fd-label">Sort</span>
+            <span class="fd-val">{{ getSortLabel() }}</span>
+            <i class="fas fa-chevron-down fd-caret" aria-hidden="true"></i>
+          </button>
+          <div class="fd-panel sort-panel align-right" [class.show]="isDropdownOpen('sort')">
+            @for (o of sortOptions; track o.value) {
+              <button
+                type="button"
+                class="fp-opt"
+                [class.on]="sortOption() === o.value"
+                [attr.aria-pressed]="sortOption() === o.value"
+                (click)="setSortOption(o.value); closeDropdown()"
+              >
+                <span class="fp-opt-name">{{ o.label }}</span>
+                <i class="fas fa-check fp-check" aria-hidden="true"></i>
+              </button>
+            }
+          </div>
+        </div>
+
+        <div class="view-switch" role="group" aria-label="Beat view">
+          <button
+            type="button"
+            title="Grid view"
+            aria-label="Grid view"
+            [class.on]="viewMode() === 'grid'"
+            [attr.aria-pressed]="viewMode() === 'grid'"
+            (click)="setViewMode('grid')"
+          >
+            <svg aria-hidden="true" width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
+              <rect x="3" y="3" width="8" height="8" rx="1.5"></rect>
+              <rect x="13" y="3" width="8" height="8" rx="1.5"></rect>
+              <rect x="3" y="13" width="8" height="8" rx="1.5"></rect>
+              <rect x="13" y="13" width="8" height="8" rx="1.5"></rect>
+            </svg>
+          </button>
+          <button
+            type="button"
+            title="List view"
+            aria-label="List view"
+            [class.on]="viewMode() === 'list'"
+            [attr.aria-pressed]="viewMode() === 'list'"
+            (click)="setViewMode('list')"
+          >
+            <svg
+              aria-hidden="true"
+              width="15"
+              height="15"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2.4"
+              stroke-linecap="round"
+            >
+              <line x1="4" y1="6" x2="20" y2="6"></line>
+              <line x1="4" y1="12" x2="20" y2="12"></line>
+              <line x1="4" y1="18" x2="20" y2="18"></line>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
   </div>
 
-  <!-- Mobile full-screen filter panel -->
+  <main class="catalog">
+    @if (activeFilterChips().length) {
+      <div class="active-strip" aria-label="Active filters">
+        @for (chip of activeFilterChips(); track chip.id) {
+          <button
+            class="ac-chip"
+            type="button"
+            [attr.aria-label]="'Remove filter: ' + chip.label"
+            (click)="removeActiveChip(chip.id)"
+          >
+            {{ chip.label }}
+            <i class="fas fa-xmark" aria-hidden="true"></i>
+          </button>
+        }
+        <button class="clear-all-btn" type="button" (click)="clearFilters()">Clear all</button>
+      </div>
+    }
+
+    @if (isLoading()) {
+      <div class="loading-wrapper">
+        <app-loading-spinner size="48px"></app-loading-spinner>
+      </div>
+    } @else {
+      @if (specs().length === 0) {
+        <div class="no-results">
+          <i class="fas fa-compact-disc" aria-hidden="true"></i>
+          <h3>No beats match</h3>
+          <p>Try a different search or loosen a filter.</p>
+          @if (activeFilterChips().length) {
+            <button class="no-results-btn" type="button" (click)="clearFilters()">
+              Clear all filters
+            </button>
+          }
+        </div>
+      } @else {
+        <div class="catalog-view">
+          @if (viewMode() === 'grid') {
+            <div class="beat-grid">
+              @for (spec of specs(); track spec.id) {
+                <app-spec-card [spec]="spec"></app-spec-card>
+              }
+            </div>
+          } @else {
+            <div class="beat-list">
+              <div class="beat-list-head" aria-hidden="true">
+                <span></span>
+                <span>Beat</span>
+                <span class="head-tags">Tags</span>
+                <span class="head-genre">Genre</span>
+                <span class="head-bpm">BPM</span>
+                <span class="head-key">Key</span>
+                <span class="head-actions">Price</span>
+              </div>
+              @for (spec of specs(); track spec.id) {
+                <app-spec-list-item [spec]="spec" appearance="market"></app-spec-list-item>
+              }
+            </div>
+          }
+        </div>
+
+        @if (isLoadingMore()) {
+          <div class="infinite-status">
+            <app-loading-spinner size="28px"></app-loading-spinner>
+            <span>Loading more beats</span>
+          </div>
+        } @else if (!hasMoreResults()) {
+          <div class="infinite-status end"><span>You're all caught up</span></div>
+        }
+      }
+    }
+  </main>
+
+  <!-- Mobile filter sheet -->
   <div
     class="mob-filter-backdrop"
     [class.on]="mobileFilterPanelOpen()"
     (click)="toggleMobileFilterPanel(false)"
   ></div>
-  <div class="mob-fp" [class.open]="mobileFilterPanelOpen()">
+  <div
+    id="explore-mobile-filters"
+    class="mob-fp"
+    [class.open]="mobileFilterPanelOpen()"
+    [attr.inert]="mobileFilterPanelOpen() ? null : ''"
+  >
     <div class="mfp-head">
       <span class="mfp-title">Filters</span>
       @if (activeFilterChips().length) {
         <span class="mfp-active-count">{{ activeFilterChips().length }} active</span>
       }
-      <button class="mfp-close" type="button" (click)="toggleMobileFilterPanel(false)">
-        <i class="fas fa-times"></i>
+      <button
+        class="mfp-close"
+        type="button"
+        aria-label="Close filters"
+        (click)="toggleMobileFilterPanel(false)"
+      >
+        <i class="fas fa-xmark"></i>
       </button>
     </div>
 
     <div class="mfp-body">
-      <!-- Genre -->
       <div class="mfp-section">
         <button class="mfp-sec-hd" type="button" (click)="toggleGroup('genres')">
           <span>Genre</span>
           @if (genre().length) {
-            <span class="mfp-sec-count">{{ genre().length }}</span>
+            <span class="mfp-sec-val">{{ getGenreSummary() }}</span>
           }
           <i class="fas fa-chevron-down" [class.flip]="isGroupOpen('genres')"></i>
         </button>
@@ -408,22 +487,20 @@
                 type="button"
                 class="mfp-opt"
                 [class.on]="genre().includes(g)"
+                [attr.aria-pressed]="genre().includes(g)"
                 (click)="toggleGenre(g)"
               >
-                <span class="mfp-check"><i class="fas fa-check"></i></span>
                 {{ g }}
+                <i class="fas fa-check" aria-hidden="true"></i>
               </button>
             }
           </div>
         }
       </div>
 
-      <!-- Mood -->
-
-      <!-- BPM -->
       <div class="mfp-section">
         <button class="mfp-sec-hd" type="button" (click)="toggleGroup('bpm')">
-          <span>BPM</span>
+          <span>Tempo</span>
           <span class="mfp-sec-val">{{ bpmRange()[0] }}–{{ bpmRange()[1] }}</span>
           <i class="fas fa-chevron-down" [class.flip]="isGroupOpen('bpm')"></i>
         </button>
@@ -442,6 +519,7 @@
               ></div>
               <input
                 class="range-slider"
+                aria-label="Minimum BPM"
                 type="range"
                 min="60"
                 max="200"
@@ -451,6 +529,7 @@
               />
               <input
                 class="range-slider"
+                aria-label="Maximum BPM"
                 type="range"
                 min="60"
                 max="200"
@@ -459,18 +538,62 @@
                 (change)="onFilterChange()"
               />
             </div>
-            <button
-              class="mfp-reset"
-              type="button"
-              (click)="bpmRange.set([60, 200]); onFilterChange()"
-            >
-              Reset
-            </button>
+            <div class="presets">
+              @for (p of bpmPresets; track p.label) {
+                <button
+                  type="button"
+                  class="preset"
+                  [class.on]="isBpmPreset(p.range)"
+                  (click)="setBpmPreset(p.range)"
+                >
+                  <span>{{ p.label }}</span>
+                  <small>{{ p.range[0] }}–{{ p.range[1] }}</small>
+                </button>
+              }
+            </div>
           </div>
         }
       </div>
 
-      <!-- Price -->
+      <div class="mfp-section">
+        <button class="mfp-sec-hd" type="button" (click)="toggleGroup('key')">
+          <span>Key</span>
+          <span class="mfp-sec-val">{{ getKeySummary() }}</span>
+          <i class="fas fa-chevron-down" [class.flip]="isGroupOpen('key')"></i>
+        </button>
+        @if (isGroupOpen('key')) {
+          <div class="mfp-range">
+            <div class="seg" role="group" aria-label="Scale">
+              @for (m of keyModes; track m) {
+                <button
+                  type="button"
+                  [class.on]="keyMode() === m"
+                  [attr.aria-pressed]="keyMode() === m"
+                  (click)="setKeyMode(m)"
+                >
+                  {{ m }}
+                </button>
+              }
+            </div>
+            <div class="fp-grid cols-3">
+              @for (k of visibleKeys(); track k) {
+                @if (k !== 'All') {
+                  <button
+                    type="button"
+                    class="fp-opt mono"
+                    [class.on]="key() === k"
+                    [attr.aria-pressed]="key() === k"
+                    (click)="setKey(key() === k ? 'All' : k)"
+                  >
+                    {{ k }}
+                  </button>
+                }
+              }
+            </div>
+          </div>
+        }
+      </div>
+
       <div class="mfp-section">
         <button class="mfp-sec-hd" type="button" (click)="toggleGroup('price')">
           <span>Price</span>
@@ -489,12 +612,13 @@
             <div class="slider-track-wrap">
               <div class="slider-bg"></div>
               <div
-                class="slider-fill hot-fill"
+                class="slider-fill"
                 [style.left.%]="priceFillLeft()"
                 [style.width.%]="priceFillWidth()"
               ></div>
               <input
                 class="range-slider"
+                aria-label="Minimum price"
                 type="range"
                 min="0"
                 max="50000"
@@ -504,6 +628,7 @@
               />
               <input
                 class="range-slider"
+                aria-label="Maximum price"
                 type="range"
                 min="0"
                 max="50000"
@@ -512,18 +637,27 @@
                 (change)="onFilterChange()"
               />
             </div>
-            <button
-              class="mfp-reset"
-              type="button"
-              (click)="priceRange.set([0, 50000]); onFilterChange()"
-            >
-              Reset
-            </button>
           </div>
         }
       </div>
 
-      <!-- License & Extras -->
+      <div class="mfp-section">
+        <div class="mfp-sec-hd static"><span>Sort by</span></div>
+        <div class="mfp-options">
+          @for (o of sortOptions; track o.value) {
+            <button
+              type="button"
+              class="mfp-opt"
+              [class.on]="sortOption() === o.value"
+              [attr.aria-pressed]="sortOption() === o.value"
+              (click)="setSortOption(o.value)"
+            >
+              {{ o.label }}
+              <i class="fas fa-check" aria-hidden="true"></i>
+            </button>
+          }
+        </div>
+      </div>
     </div>
 
     <div class="mfp-footer">

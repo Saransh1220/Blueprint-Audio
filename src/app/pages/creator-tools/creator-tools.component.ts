@@ -27,8 +27,9 @@ import type {
   VisualizerSettings,
   VisualizerStyle,
   WaveformVisualizerSettings,
-} from '../../services';
-import { ToastService, VisualizerService } from '../../services';
+} from '../../services/visualizer.service';
+import { ToastService } from '../../services';
+import { VisualizerService } from '../../services/visualizer.service';
 import {
   findVisualizerFont,
   loadVisualizerFont,
@@ -998,13 +999,17 @@ export class CreatorToolsComponent implements AfterViewInit, OnDestroy {
     const stream = canvas.captureStream(30);
     const exportAudio = this.createExportAudioGraph();
     if (!exportAudio) {
-      stream.getTracks().forEach((track) => track.stop());
+      stream.getTracks().forEach((track) => {
+        track.stop();
+      });
       this.visualizerService.disposeCanvas(canvas);
       this.isExporting.set(false);
       this.toastService.error('Could not prepare background audio export.');
       return;
     }
-    exportAudio.destination.stream.getAudioTracks().forEach((track) => stream.addTrack(track));
+    exportAudio.destination.stream.getAudioTracks().forEach((track) => {
+      stream.addTrack(track);
+    });
     const chunks: BlobPart[] = [];
     const recorder = new MediaRecorder(stream, { mimeType: this.pickWebmMimeType() });
     let exportFrameId: number | null = null;
@@ -1055,7 +1060,9 @@ export class CreatorToolsComponent implements AfterViewInit, OnDestroy {
     recorder.onstop = () => {
       if (exportFrameId !== null) cancelAnimationFrame(exportFrameId);
       if (stopTimer !== null) window.clearTimeout(stopTimer);
-      stream.getTracks().forEach((track) => track.stop());
+      stream.getTracks().forEach((track) => {
+        track.stop();
+      });
       exportAudio.source.disconnect();
       exportAudio.analyser.disconnect();
       exportAudio.destination.disconnect();

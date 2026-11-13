@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
 import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
-import { STUDIO_ITEMS, menuItemsFor } from '../../components/nav-menu/nav-menu.items';
+import { menuItemsFor, STUDIO_ITEMS } from '../../components/nav-menu/nav-menu.items';
 import { Role } from '../../models';
 import { AuthService } from '../../services';
 import { StudioShellService } from './studio-shell.service';
@@ -46,8 +46,11 @@ export class StudioComponent {
 
   handle = computed(() => {
     const user = this.currentUser();
-    return user?.name?.toLowerCase().replace(/\s+/g, '.') || 'producer';
+    return user?.handle || user?.name?.toLowerCase().replace(/\s+/g, '.') || 'producer';
   });
+
+  /** Where this person's public page lives. */
+  profileLink = computed(() => `/@${this.handle()}`);
 
   avatarUrl = computed(() => this.currentUser()?.avatar_url || null);
 

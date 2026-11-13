@@ -1,6 +1,6 @@
 import '../../../test-setup';
-import { type ComponentFixture, TestBed } from '@angular/core/testing';
 import { signal } from '@angular/core';
+import { type ComponentFixture, TestBed } from '@angular/core/testing';
 import { of, throwError } from 'rxjs';
 
 import type { LicenseOption, Spec } from '../../models';

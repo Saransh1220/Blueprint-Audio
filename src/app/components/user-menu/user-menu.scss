@@ -1,5 +1,10 @@
-// The account menu: a flat panel with a hard outline and one small offset shadow, solid colours.
+// The account menu: the same raised-card language as the navbar's other popups.
 :host {
+  --um-bg: #131312;
+  --um-line: rgba(255, 255, 255, 0.08);
+  --um-wash: rgba(255, 255, 255, 0.05);
+  --um-ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+
   display: inline-block;
 }
 
@@ -9,24 +14,28 @@
 
 .trigger {
   display: inline-flex;
-  width: 38px;
-  height: 38px;
   align-items: center;
   justify-content: center;
+  width: 38px;
+  height: 38px;
   padding: 0;
-  border: 1.5px solid var(--text-color);
+  border: 0;
   border-radius: 50%;
   background: transparent;
-  color: var(--text-color);
   cursor: pointer;
-  transition:
-    background 0.15s ease,
-    color 0.15s ease;
+  transition: box-shadow 0.2s ease;
 
   &:hover,
   &.active {
-    background: var(--text-color);
-    color: var(--bg-color);
+    box-shadow:
+      0 0 0 2px var(--cream),
+      0 0 0 3.5px var(--ink-mute);
+  }
+
+  &.active {
+    box-shadow:
+      0 0 0 2px var(--cream),
+      0 0 0 3.5px var(--hot);
   }
 
   &:focus-visible {
@@ -37,22 +46,25 @@
 
 .avatar {
   display: inline-flex;
-  width: 28px;
-  height: 28px;
   align-items: center;
   justify-content: center;
+  width: 34px;
+  height: 34px;
   border-radius: 50%;
+  background-color: var(--cream-3);
   background-position: center;
   background-size: cover;
+  color: var(--ink);
   font-family: 'Bricolage Grotesque', sans-serif;
   font-size: 14px;
   font-weight: 700;
   text-transform: uppercase;
 
   &.large {
-    width: 44px;
-    height: 44px;
     flex: none;
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
     background-color: var(--hot);
     color: #fff;
     font-size: 18px;
@@ -64,19 +76,21 @@
   top: calc(100% + 12px);
   right: 0;
   z-index: 1004;
-  width: min(300px, calc(100vw - 24px));
-  border: 1.5px solid var(--text-color);
+  width: min(264px, calc(100vw - 24px));
+  padding: 6px;
+  border: 1px solid var(--um-line);
   border-radius: 14px;
-  background: var(--card-bg-color);
-  box-shadow: 4px 4px 0 var(--hot);
-  color: var(--text-color);
-  animation: panel-in 0.14s ease-out;
+  background: var(--um-bg);
+  box-shadow: 0 24px 48px -16px rgba(0, 0, 0, 0.8);
+  color: var(--ink);
+  transform-origin: top right;
+  animation: panel-in 0.2s var(--um-ease);
 }
 
 @keyframes panel-in {
   from {
     opacity: 0;
-    transform: translateY(-4px);
+    transform: translateY(-6px) scale(0.98);
   }
 }
 
@@ -84,8 +98,8 @@
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 16px;
-  border-bottom: 1px solid color-mix(in srgb, var(--text-color) 16%, transparent);
+  padding: 12px 12px 14px;
+  border-bottom: 1px solid var(--um-line);
 }
 
 .who-text {
@@ -99,7 +113,7 @@
 .name {
   overflow: hidden;
   font-family: 'Bricolage Grotesque', sans-serif;
-  font-size: 16px;
+  font-size: 15px;
   font-weight: 700;
   letter-spacing: -0.02em;
   text-overflow: ellipsis;
@@ -114,19 +128,17 @@
   white-space: nowrap;
 }
 
+// A quiet label, not a badge: the role reads as metadata.
 .role {
   flex: none;
-  padding: 3px 8px;
-  border: 1px solid color-mix(in srgb, var(--text-color) 30%, transparent);
-  border-radius: 6px;
+  align-self: flex-start;
   color: var(--ink-mute);
   font-family: 'DM Mono', monospace;
-  font-size: 10px;
-  letter-spacing: 0.08em;
+  font-size: 9.5px;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
 
   &.producer {
-    border-color: var(--hot);
     color: var(--hot);
   }
 }
@@ -134,66 +146,89 @@
 .links {
   display: flex;
   flex-direction: column;
-  padding: 8px;
+  gap: 1px;
+  padding: 6px 0;
 }
 
 .row {
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 10px;
+  padding: 9px 10px;
   border-radius: 8px;
-  color: inherit;
+  color: var(--ink-2);
   font-family: 'Bricolage Grotesque', sans-serif;
   font-size: 14px;
   font-weight: 600;
   text-decoration: none;
   transition: background 0.15s ease;
 
+  &:hover,
+  &:focus-visible {
+    background: var(--um-wash);
+    color: var(--ink);
+    outline: none;
+
+    .ico {
+      color: var(--ink);
+    }
+  }
+
+  &:focus-visible {
+    box-shadow: inset 0 0 0 2px var(--hot);
+  }
+}
+
+// Plain glyph, no tile.
+.ico {
+  display: grid;
+  flex: none;
+  width: 18px;
+  place-items: center;
+  color: var(--ink-mute);
+  font-size: 14px;
+  transition: color 0.15s ease;
+}
+
+// (the old hover arrow is gone: the menu is quiet)
+.go {
+  display: none;
+}
+
+.foot {
+  padding: 6px 0 0;
+  border-top: 1px solid var(--um-line);
+}
+
+.logout {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 9px 10px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--ink-mute);
+  font-family: 'Bricolage Grotesque', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+  transition:
+    background 0.15s ease,
+    color 0.15s ease;
+
   i {
-    width: 16px;
-    color: var(--ink-mute);
-    font-size: 13px;
+    width: 18px;
+    font-size: 14px;
     text-align: center;
   }
 
   &:hover,
   &:focus-visible {
-    background: color-mix(in srgb, var(--text-color) 8%, transparent);
-    outline: none;
-
-    i {
-      color: var(--hot);
-    }
-  }
-}
-
-.foot {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  padding: 12px 16px;
-  border-top: 1px solid color-mix(in srgb, var(--text-color) 16%, transparent);
-}
-
-.logout {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 6px 0;
-  border: 0;
-  border-bottom: 1px solid transparent;
-  background: transparent;
-  color: #ef4444;
-  font-family: 'Bricolage Grotesque', sans-serif;
-  font-size: 13px;
-  font-weight: 600;
-  cursor: pointer;
-
-  &:hover,
-  &:focus-visible {
-    border-color: #ef4444;
+    background: var(--um-wash);
+    color: #ff6b6b;
     outline: none;
   }
 }
@@ -201,5 +236,9 @@
 @media (prefers-reduced-motion: reduce) {
   .panel {
     animation: none;
+  }
+
+  .ico {
+    transition: none;
   }
 }

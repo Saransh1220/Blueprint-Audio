@@ -1,4 +1,4 @@
-import { HttpParams } from '@angular/common/http';
+import { HttpHeaders, HttpParams } from '@angular/common/http';
 
 export type HttpMethod = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
 
@@ -7,6 +7,7 @@ export interface ApiRequest<TResponse> {
   readonly method: HttpMethod;
   readonly body?: any;
   readonly params?: HttpParams;
+  readonly headers?: Record<string, string> | HttpHeaders;
   readonly reportProgress?: boolean;
   readonly observe?: 'body' | 'events' | 'response';
   readonly _responseType?: TResponse; // Phantom property for type inference

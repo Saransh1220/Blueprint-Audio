@@ -1,6 +1,4 @@
-import { BRAND } from '../../core/config/brand';
 import { CommonModule, NgOptimizedImage } from '@angular/common';
-import { RouterLink } from '@angular/router';
 import {
   ChangeDetectionStrategy,
   ChangeDetectorRef,
@@ -12,11 +10,14 @@ import {
   OnInit,
   signal,
 } from '@angular/core';
+import { RouterLink } from '@angular/router';
 import { Subscription } from 'rxjs';
+import { BRAND } from '../../core/config/brand';
 
 import type { Spec } from '../../models';
 import { SpecActionService } from '../../services/spec-action.service';
 import { MoneyPipe } from '../../shared/pipes/money.pipe';
+import { producerLink } from '../../utils/producer-link';
 
 @Component({
   selector: 'app-spec-card',
@@ -29,7 +30,6 @@ export class SpecCardComponent implements OnInit, OnDestroy {
   readonly brand = BRAND;
   @Input() spec!: Spec;
   @Input() priority = false;
-  @Input() appearance: 'default' | 'explore' | 'market' = 'default';
 
   actionService = inject(SpecActionService);
   cdr = inject(ChangeDetectorRef);
@@ -71,6 +71,10 @@ export class SpecCardComponent implements OnInit, OnDestroy {
 
   formatDuration(seconds: number): string {
     return this.actionService.formatDuration(seconds);
+  }
+
+  producerRoute() {
+    return producerLink(this.producerHandle());
   }
 
   producerHandle() {

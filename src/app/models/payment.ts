@@ -131,3 +131,39 @@ export interface PaginatedResponse<T> {
   data: T[];
   metadata: PaginationMetadata;
 }
+
+export interface OrderRefund {
+  id: string;
+  order_id: string;
+  payment_id: string;
+  user_id: string;
+  admin_id: string;
+  idempotency_key: string;
+  amount: number;
+  currency: string;
+  provider: string;
+  provider_refund_id?: string | null;
+  provider_payment_id: string;
+  reason: string;
+  notes?: string | null;
+  status: 'requested' | 'submitting' | 'pending' | 'succeeded' | 'failed' | 'needs_review' | string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface CreateRefundPayload {
+  reason: string;
+  notes?: string;
+}
+
+export interface OrderRefundResponse {
+  id: string;
+  order_id: string;
+  payment_id: string;
+  amount: number;
+  currency: string;
+  status: string;
+  reason: string;
+  provider_refund_id?: string | null;
+  created_at: string;
+}

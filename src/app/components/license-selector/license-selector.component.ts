@@ -1,12 +1,12 @@
-import { BRAND } from '../../core/config/brand';
 import { CommonModule } from '@angular/common';
 import { Component, computed, Input, inject, signal } from '@angular/core';
+import { BRAND } from '../../core/config/brand';
 import type { LicenseOption, Spec } from '../../models';
 import { CartService } from '../../services/cart.service';
+import { CurrencyService } from '../../services/currency.service';
 import { ModalService } from '../../services/modal.service';
 import { PaymentService } from '../../services/payment.service';
 import { ToastService } from '../../services/toast.service';
-import { CurrencyService } from '../../services/currency.service';
 import { MoneyPipe } from '../../shared/pipes/money.pipe';
 
 @Component({
@@ -37,7 +37,11 @@ export class LicenseSelectorComponent {
 
   selectedLicenseId = signal<string | null>(null);
   isProcessing = signal(false);
-  priceChangedAlert = signal<{ previousFormatted: string; currentFormatted: string; currency: string } | null>(null);
+  priceChangedAlert = signal<{
+    previousFormatted: string;
+    currentFormatted: string;
+    currency: string;
+  } | null>(null);
 
   selectedLicense = computed(() => {
     const licenses = this.spec?.licenses ?? [];
@@ -83,13 +87,18 @@ export class LicenseSelectorComponent {
       ? this.paymentService.initiatePayment(this.spec.id, license.id, this.spec.title, license)
       : this.paymentService.initiatePayment(this.spec.id, license.id, this.spec.title);
     call.subscribe({
+      complete: () => this.isProcessing.set(false),
       next: () => {
         this.isProcessing.set(false);
         this.modalService.close();
       },
       error: (err: any) => {
         this.isProcessing.set(false);
-        if (err?.status === 409 && err.error?.code === 'PRICE_CHANGED' && err.error?.current_offer) {
+        if (
+          err?.status === 409 &&
+          err.error?.code === 'PRICE_CHANGED' &&
+          err.error?.current_offer
+        ) {
           const currentOffer = err.error.current_offer;
           const oldMinor =
             license.selectedPrice?.amount_minor ??

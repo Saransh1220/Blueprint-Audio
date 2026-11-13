@@ -1,6 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { StudioEarningsComponent } from './studio-earnings.component';
+
 describe('Studio earnings availability', () => {
   it('does not advertise a balance or accept a payout before ledger integration', () => {
     TestBed.configureTestingModule({

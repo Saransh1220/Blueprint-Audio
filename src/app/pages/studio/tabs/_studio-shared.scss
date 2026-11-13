@@ -2551,3 +2551,288 @@
   background: linear-gradient(90deg, var(--cream-2) 0%, var(--cream-3) 50%, var(--cream-2) 100%);
   background-size: 200% 100%;
 }
+
+// ══════════════════════════════════════════════════════════════════════
+// Flat studio skin — hairlines instead of outlines and offset shadows, so each page blends into
+// the studio shell. Placed last (and scoped like the dark rules above) so it wins the cascade.
+// ══════════════════════════════════════════════════════════════════════
+:host-context(body.dark-theme) {
+  --sx-line: color-mix(in srgb, var(--ink) 10%, transparent);
+  --sx-line-strong: color-mix(in srgb, var(--ink) 18%, transparent);
+  --sx-wash: color-mix(in srgb, var(--ink) 5%, transparent);
+}
+
+// Headings
+:host-context(body.dark-theme) .page-head {
+  margin-bottom: 28px;
+  padding-bottom: 24px;
+  border-bottom: 1px solid var(--sx-line);
+}
+
+:host-context(body.dark-theme) .page-h {
+  font-size: clamp(26px, 3.2vw, 36px);
+  font-weight: 700;
+  letter-spacing: -0.035em;
+
+  em {
+    font-family: inherit;
+    font-style: normal;
+    font-weight: 700;
+    color: var(--hot);
+  }
+}
+
+:host-context(body.dark-theme) .page-num {
+  letter-spacing: 0.16em;
+  margin-bottom: 8px;
+}
+
+:host-context(body.dark-theme) .page-sub {
+  max-width: 480px;
+  font-family: inherit;
+  font-style: normal;
+  font-size: 14px;
+}
+
+// Surfaces
+:host-context(body.dark-theme) .card,
+:host-context(body.dark-theme) .tracks-table,
+:host-context(body.dark-theme) .welcome-strip {
+  border: 1px solid var(--sx-line);
+  border-radius: 14px;
+  background: transparent;
+  box-shadow: none;
+}
+
+:host-context(body.dark-theme) .card.dark {
+  background: var(--cream-2);
+  color: var(--ink);
+}
+
+:host-context(body.dark-theme) .welcome-strip {
+  padding: 24px;
+
+  &::after {
+    content: none;
+  }
+}
+
+:host-context(body.dark-theme) .ws-title {
+  font-size: clamp(24px, 2.8vw, 32px);
+  line-height: 1.1;
+
+  em {
+    font-family: inherit;
+    font-style: normal;
+    font-weight: 700;
+  }
+}
+
+:host-context(body.dark-theme) .earn-hero {
+  border: 1px solid var(--sx-line);
+  border-radius: 14px;
+  background: var(--cream-2);
+  color: var(--ink);
+}
+
+:host-context(body.dark-theme) .card-head h4 {
+  font-size: 14.5px;
+
+  em {
+    font-family: inherit;
+    font-style: normal;
+    font-weight: 700;
+  }
+}
+
+// Stat cells: one quiet style; the icon carries the colour.
+:host-context(body.dark-theme) .stat-cell,
+:host-context(body.dark-theme) .stat-cell.c1,
+:host-context(body.dark-theme) .stat-cell.c2,
+:host-context(body.dark-theme) .stat-cell.c3,
+:host-context(body.dark-theme) .stat-cell.c4 {
+  border: 1px solid var(--sx-line);
+  border-radius: 14px;
+  background: transparent;
+  box-shadow: none;
+  color: var(--ink);
+  transition: border-color 0.2s ease;
+
+  &:hover {
+    border-color: var(--sx-line-strong);
+    box-shadow: none;
+  }
+
+  .stat-val {
+    color: var(--ink);
+  }
+
+  .stat-lbl {
+    color: var(--ink-mute);
+    opacity: 1;
+  }
+
+  .stat-ic {
+    opacity: 1;
+  }
+}
+
+:host-context(body.dark-theme) .stat-cell.c1 .stat-ic {
+  color: var(--hot);
+}
+
+:host-context(body.dark-theme) .stat-cell.c2 .stat-ic {
+  color: var(--cobalt);
+}
+
+:host-context(body.dark-theme) .stat-cell.c3 .stat-ic {
+  color: var(--lime);
+}
+
+:host-context(body.dark-theme) .stat-cell.c4 .stat-ic {
+  color: var(--sun);
+}
+
+:host-context(body.dark-theme) .stat-val {
+  font-weight: 700;
+}
+
+// Buttons: flat, no offset shadows, no jumping.
+:host-context(body.dark-theme) .btn {
+  border: 1px solid var(--sx-line-strong);
+  border-radius: 9px;
+  background: transparent;
+  color: var(--ink);
+  box-shadow: none;
+  transition:
+    background 0.15s ease,
+    border-color 0.15s ease,
+    transform 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+
+  &:hover {
+    transform: none;
+    border-color: var(--ink-mute);
+    box-shadow: none;
+  }
+
+  &:active {
+    transform: scale(0.97);
+    box-shadow: none;
+  }
+
+  &.ghost {
+    border-style: solid;
+  }
+
+  &.primary,
+  &.dark {
+    border-color: var(--hot);
+    background: var(--hot);
+    color: #fff;
+    box-shadow: none;
+
+    &:hover {
+      background: color-mix(in srgb, var(--hot) 86%, #fff);
+      border-color: color-mix(in srgb, var(--hot) 86%, #fff);
+    }
+  }
+
+  &.lime {
+    border-color: var(--lime);
+    background: var(--lime);
+    color: #141310;
+    box-shadow: none;
+  }
+}
+
+:host-context(body.dark-theme) .eh-actions .btn.primary {
+  border-color: var(--hot);
+  background: var(--hot);
+  color: #fff;
+  box-shadow: none;
+}
+
+// Badges: tinted, no outline.
+:host-context(body.dark-theme) .badge {
+  border: 0;
+  border-radius: 6px;
+  padding: 3px 8px;
+
+  &.live,
+  &.paid {
+    background: color-mix(in srgb, var(--lime) 16%, transparent);
+    color: var(--lime);
+  }
+
+  &.review,
+  &.processing {
+    background: color-mix(in srgb, var(--sun) 16%, transparent);
+    color: var(--sun);
+  }
+
+  &.draft {
+    background: var(--sx-wash);
+    color: var(--ink-mute);
+  }
+
+  &.refund {
+    background: color-mix(in srgb, var(--hot) 16%, transparent);
+    color: var(--hot);
+  }
+}
+
+// Tables and rows
+:host-context(body.dark-theme) .track-row {
+  border-bottom: 1px solid var(--sx-line);
+
+  &:hover:not(.head) {
+    background: var(--sx-wash);
+  }
+
+  &.head {
+    background: transparent;
+    border-bottom: 1px solid var(--sx-line-strong);
+    color: var(--ink-mute);
+  }
+}
+
+// Segmented controls and selects
+:host-context(body.dark-theme) .range-pill,
+:host-context(body.dark-theme) .view-toggle,
+:host-context(body.dark-theme) .search-mini {
+  border: 1px solid var(--sx-line-strong);
+  border-radius: 10px;
+  background: transparent;
+  box-shadow: none;
+}
+
+:host-context(body.dark-theme) .range-pill button,
+:host-context(body.dark-theme) .view-toggle button {
+  border-right: 0;
+  transition:
+    background 0.15s ease,
+    color 0.15s ease;
+
+  &.on {
+    background: var(--sx-wash);
+    color: var(--ink);
+  }
+}
+
+:host-context(body.dark-theme) .range-pill button.on,
+:host-context(body.dark-theme) .view-toggle button.on {
+  background: color-mix(in srgb, var(--ink) 10%, transparent);
+  color: var(--ink);
+}
+
+:host-context(body.dark-theme) .page-chip,
+:host-context(body.dark-theme) .page-chip.on {
+  border-radius: 8px;
+  box-shadow: none;
+}
+
+:host-context(body.dark-theme) .bulk-bar {
+  border: 1px solid var(--sx-line-strong);
+  border-radius: 12px;
+  box-shadow: none;
+}

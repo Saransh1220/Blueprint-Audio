@@ -3,10 +3,12 @@ import { Router } from '@angular/router';
 import { of, throwError } from 'rxjs';
 import {
   CreateOrderRequest,
+  CreateRefundRequest,
   GetLicenseDownloadsRequest,
+  GetOrderRefundsRequest,
+  GetOrderStatusRequest,
   GetProducerOrdersRequest,
   GetUserLicensesRequest,
-  GetOrderStatusRequest,
   VerifyPaymentRequest,
 } from '../core/api/payment.requests';
 import { ApiService } from '../core/services/api.service';
@@ -175,7 +177,9 @@ describe('PaymentService', () => {
   });
 
   it('pollOrderStatus emits statuses and stops on terminal status', () => {
-    const execute = vi.fn().mockReturnValue(of({ order_id: 'o1', status: 'paid', retry_after_seconds: 0 }));
+    const execute = vi
+      .fn()
+      .mockReturnValue(of({ order_id: 'o1', status: 'paid', retry_after_seconds: 0 }));
     const { service } = setup(execute);
 
     const emitted: any[] = [];
@@ -294,5 +298,92 @@ describe('PaymentService', () => {
     });
     expect(service.userLicenses()).toEqual([]);
     expect(service.licensePagination()).toBeNull();
+  });
+
+  it('initiatePayment sends idempotency key and prevents double initiation while in flight', () => {
+    const execute = vi.fn().mockReturnValue(of({ id: 'o-1', razorpay_order_id: 'rzp-1' }));
+    const { service } = setup(execute);
+    const openSpy = vi
+      .spyOn(service as any, 'openRazorpayCheckout')
+      .mockImplementation(() => undefined);
+
+    service.initiatePayment('spec-1', 'lo-1', 'Track').subscribe();
+    expect(execute).toHaveBeenCalledTimes(1);
+    const req = execute.mock.calls[0][0] as CreateOrderRequest;
+    expect(req).toBeInstanceOf(CreateOrderRequest);
+    expect(req.headers?.['Idempotency-Key']).toBeTruthy();
+
+    expect(openSpy).toHaveBeenCalled();
+  });
+
+  it('retains the checkout key across an accepted in-flight response and a resumed checkout', () => {
+    const execute = vi
+      .fn()
+      .mockReturnValueOnce(of({ code: 'CHECKOUT_IN_FLIGHT', retry_after: 2 }))
+      .mockReturnValueOnce(of({ id: 'o-1', status: 'pending', razorpay_order_id: 'rzp-1' }));
+    const { service, show } = setup(execute);
+    const open = vi
+      .spyOn(service as any, 'openRazorpayCheckout')
+      .mockImplementation(() => undefined);
+    const next = vi.fn();
+
+    service.initiatePayment('resume-spec', 'lo-1', 'Track').subscribe(next);
+    expect(next).not.toHaveBeenCalled();
+    expect(open).not.toHaveBeenCalled();
+    expect(show).toHaveBeenCalledWith(
+      expect.stringContaining('Checkout is currently in progress'),
+      'info',
+    );
+
+    service.initiatePayment('resume-spec', 'lo-1', 'Track').subscribe(next);
+    expect(execute.mock.calls[1][0].headers).toEqual(execute.mock.calls[0][0].headers);
+    expect(open).toHaveBeenCalledTimes(1);
+  });
+
+  it('initiatePayment handles 409 IDEMPOTENCY_CONFLICT with error toast', () => {
+    const execute = vi
+      .fn()
+      .mockReturnValue(
+        throwError(() => ({ status: 409, error: { code: 'IDEMPOTENCY_CONFLICT' } })),
+      );
+    const { service, show } = setup(execute);
+
+    service.initiatePayment('spec-1', 'lo-1', 'Track').subscribe({ error: () => undefined });
+    expect(show).toHaveBeenCalledWith(
+      expect.stringContaining('different details was already initiated'),
+      'error',
+    );
+  });
+
+  it('refundOrder executes CreateRefundRequest and returns response', () => {
+    const execute = vi.fn().mockReturnValue(of({ id: 'rf-1', status: 'succeeded' }));
+    const { service } = setup(execute);
+
+    service.refundOrder('ord-1', 'customer_request', 'notes').subscribe((res) => {
+      expect(res.id).toBe('rf-1');
+      expect(res.status).toBe('succeeded');
+    });
+
+    expect(execute).toHaveBeenCalledTimes(1);
+    const req = execute.mock.calls[0][0] as CreateRefundRequest;
+    expect(req).toBeInstanceOf(CreateRefundRequest);
+    expect(req.path).toBe('/admin/orders/ord-1/refunds');
+    expect(req.body.reason).toBe('customer_request');
+    expect(req.headers?.['Idempotency-Key']).toBeTruthy();
+  });
+
+  it('getOrderRefunds executes GetOrderRefundsRequest and extracts data', () => {
+    const execute = vi.fn().mockReturnValue(of({ data: [{ id: 'rf-1', amount: 1500 }] }));
+    const { service } = setup(execute);
+
+    service.getOrderRefunds('ord-1').subscribe((refunds) => {
+      expect(refunds).toHaveLength(1);
+      expect(refunds[0].id).toBe('rf-1');
+    });
+
+    expect(execute).toHaveBeenCalledTimes(1);
+    const req = execute.mock.calls[0][0] as GetOrderRefundsRequest;
+    expect(req).toBeInstanceOf(GetOrderRefundsRequest);
+    expect(req.path).toBe('/admin/orders/ord-1/refunds');
   });
 });

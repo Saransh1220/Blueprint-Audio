@@ -1,5 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { ToastService, VisualizerService } from '../../services';
+import { ToastService } from '../../services';
+import { VisualizerService } from '../../services/visualizer.service';
 import { CreatorToolsComponent } from './creator-tools.component';
 
 describe('CreatorToolsComponent timeline wave and text layers', () => {

@@ -92,10 +92,7 @@ export const MAX_AMOUNT_MINOR = 100_000_000;
  * Returns NaN for invalid strings, negative numbers, multiple dots, commas, non-numeric chars,
  * or decimals exceeding scale precision.
  */
-export function parseMajorToMinor(
-  text: string | number | null | undefined,
-  scale = 100,
-): number {
+export function parseMajorToMinor(text: string | number | null | undefined, scale = 100): number {
   if (text === null || text === undefined) return NaN;
   const str = String(text).trim();
   if (!str) return NaN;

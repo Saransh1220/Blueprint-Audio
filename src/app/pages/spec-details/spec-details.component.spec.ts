@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ActivatedRoute, convertToParamMap } from '@angular/router';
-import { of, throwError, Subject } from 'rxjs';
+import { of, Subject, throwError } from 'rxjs';
 import { MusicalKey, type Spec } from '../../models';
 import {
   AnalyticsService,

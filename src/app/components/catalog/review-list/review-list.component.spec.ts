@@ -1,7 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-
-import { ReviewListComponent } from './review-list.component';
 import { MOCK_SAMPLE_PACK_DETAIL } from '../../../content/catalog/catalog.mock-data';
+import { ReviewListComponent } from './review-list.component';
 
 describe('ReviewListComponent', () => {
   let component: ReviewListComponent;

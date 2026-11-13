@@ -13,6 +13,7 @@ import { ApiService } from '../core/services/api.service';
 import { type Spec } from '../models';
 
 import { PaginationMetadata } from '../models/payment';
+import { BuyerCurrencyService } from './buyer-currency.service';
 
 export interface HomepageMetrics {
   plays: number;
@@ -55,10 +56,12 @@ export interface HomepageData {
 export class LabService {
   private api = inject(ApiService);
   private adapter = inject(SpecAdapter);
+  private buyerCurrency = inject(BuyerCurrencyService);
 
   private _refreshTrigger = new Subject<void>();
   refresh$ = this._refreshTrigger.asObservable();
   private specsCacheToken = localStorage.getItem('token');
+  private specsCacheCurrency = this.buyerCurrency.effective();
   private specsCache = new Map<string, Observable<Spec[]>>();
 
   specsPagination = signal<PaginationMetadata | null>(null);
@@ -82,9 +85,11 @@ export class LabService {
     sort?: string;
   }): Observable<Spec[]> {
     const token = localStorage.getItem('token');
-    if (this.specsCacheToken !== token) {
+    const currency = this.buyerCurrency.effective();
+    if (this.specsCacheToken !== token || this.specsCacheCurrency !== currency) {
       this.specsCache.clear();
       this.specsCacheToken = token;
+      this.specsCacheCurrency = currency;
     }
 
     const cacheKey = this.specsCacheKey(filters);

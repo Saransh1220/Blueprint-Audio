@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
-import { MoneyPipe } from './money.pipe';
-import { CurrencyService } from '../../services/currency.service';
 import type { SelectedPriceOffer } from '../../models/money';
+import { CurrencyService } from '../../services/currency.service';
+import { MoneyPipe } from './money.pipe';
 
 describe('MoneyPipe offer presentation', () => {
   const formatMoney = vi.fn(() => '$0');

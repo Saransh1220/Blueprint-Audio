@@ -1,10 +1,10 @@
-import { computed, Injectable, signal, inject } from '@angular/core';
-import type { LicenseOption, Spec } from '../models';
 import { HttpClient } from '@angular/common/http';
-import { finalize, forkJoin, of, catchError } from 'rxjs';
+import { computed, Injectable, inject, signal } from '@angular/core';
+import { catchError, finalize, forkJoin, of } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { SpecAdapter } from '../adapters/spec.adapter';
 import type { SpecDto } from '../core/api/spec.requests';
+import type { LicenseOption, Spec } from '../models';
 import { summarizeCartMoney } from '../utils/cart-money';
 
 export interface CartItem {

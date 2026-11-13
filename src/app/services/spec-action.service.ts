@@ -1,11 +1,11 @@
 import { ChangeDetectorRef, Injectable, inject, WritableSignal } from '@angular/core';
 import { Router } from '@angular/router';
-import { Subscription, finalize } from 'rxjs';
+import { finalize, Subscription } from 'rxjs';
 import { Spec } from '../models';
 import { AnalyticsService } from './analytics.service';
 import { AuthService } from './auth.service';
-import { PurchaseDialogService } from './purchase-dialog.service';
 import { PlayerService } from './player.service';
+import { PurchaseDialogService } from './purchase-dialog.service';
 
 @Injectable({ providedIn: 'root' })
 export class SpecActionService {

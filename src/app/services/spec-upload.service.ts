@@ -1,14 +1,14 @@
 import { HttpEventType } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
-import { Observable, catchError, filter, map, retry, switchMap, take, tap, throwError } from 'rxjs';
+import { catchError, filter, map, Observable, retry, switchMap, take, tap, throwError } from 'rxjs';
 import { SpecAdapter } from '../adapters/spec.adapter';
 import {
-  ConfirmSpecUploadFileRequest,
   CompleteSpecUploadSessionRequest,
+  type ConfirmedSpecUploadFileDto,
+  ConfirmSpecUploadFileRequest,
   CreateSpecUploadSessionRequest,
   PrepareSpecUploadFileRequest,
   SaveSpecUploadMetadataRequest,
-  type ConfirmedSpecUploadFileDto,
   type SpecUploadFileDescriptorDto,
   type SpecUploadFileKind,
   type SpecUploadSessionDto,

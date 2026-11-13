@@ -1,31 +1,33 @@
 <nav class="panel" [attr.aria-label]="label()">
-  <h5 class="heading">
-    {{ heading() }}
-    @if (accent()) {
-      <em>{{ accent() }}</em>
-    }
-  </h5>
+  <div class="inner">
+    <h5 class="heading">
+      {{ heading() }}
+      @if (accent()) {
+        <em>{{ accent() }}</em>
+      }
+    </h5>
 
-  <div class="grid">
-    @for (item of items(); track item.route) {
-      <a
-        class="item"
-        [routerLink]="item.route"
-        routerLinkActive="active"
-        (click)="selected.emit(item)"
-      >
-        <span class="icon" [attr.data-tint]="item.tint">
-          <i class="fas" [class]="item.icon" aria-hidden="true"></i>
-        </span>
-        <span class="text">
-          <span class="name">{{ item.label }}</span>
-          <span class="desc">{{ item.description }}</span>
-        </span>
-      </a>
-    }
-  </div>
+    <div class="grid">
+      @for (item of items(); track item.route) {
+        <a
+          class="item"
+          [routerLink]="item.route"
+          routerLinkActive="active"
+          (click)="selected.emit(item)"
+        >
+          <span class="icon" [attr.data-tint]="item.tint">
+            <i class="fas" [class]="item.icon" aria-hidden="true"></i>
+          </span>
+          <span class="text">
+            <span class="name">{{ item.label }}</span>
+            <span class="desc">{{ item.description }}</span>
+          </span>
+        </a>
+      }
+    </div>
 
-  <div class="foot">
-    <ng-content select="[navMenuFooter]" />
+    <div class="foot">
+      <ng-content select="[navMenuFooter]" />
+    </div>
   </div>
 </nav>

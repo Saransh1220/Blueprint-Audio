@@ -1,6 +1,6 @@
-import { BRAND } from '../../../core/config/brand';
 import { Component, inject } from '@angular/core';
 import { Router } from '@angular/router';
+import { BRAND } from '../../../core/config/brand';
 import { ModalService } from '../../../services/modal.service';
 
 @Component({

@@ -56,7 +56,9 @@ describe('flame-wrap', () => {
   const runFrame = (t = 16) => {
     const q = [...rafQueue.entries()];
     rafQueue.clear();
-    q.forEach(([, cb]) => cb(t));
+    q.forEach(([, cb]) => {
+      cb(t);
+    });
   };
 
   function setup(opts: { html?: boolean; gl?: unknown; reduced?: boolean; dims?: boolean } = {}) {
@@ -279,7 +281,9 @@ describe('flame-wrap', () => {
     const inst = createFlameWrap(env)!;
     const pending = [...rafQueue.values()];
     inst.destroy();
-    pending.forEach((cb) => cb(10));
+    pending.forEach((cb) => {
+      cb(10);
+    });
     expect(env.gl.drawArrays).not.toHaveBeenCalled();
   });
 });

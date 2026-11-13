@@ -5,6 +5,7 @@ export interface User {
   id: string;
   email: string;
   name: string;
+  handle?: string;
   display_name?: string | null;
   role: Role;
   system_role: SystemRole;

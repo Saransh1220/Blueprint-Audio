@@ -1,4 +1,4 @@
-import { signal } from '@angular/core';
+import { ChangeDetectorRef, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { FormBuilder } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -6,8 +6,8 @@ import { of, throwError } from 'rxjs';
 import { Genre, MusicalKey } from '../../models';
 import { AuthService } from '../../services/auth.service';
 import { LabService } from '../../services/lab';
-import { SpecUploadMonitorService } from '../../services/spec-upload-monitor.service';
 import { SpecUploadCompletionError, SpecUploadService } from '../../services/spec-upload.service';
+import { SpecUploadMonitorService } from '../../services/spec-upload-monitor.service';
 import { ToastService } from '../../services/toast.service';
 import { UploadComponent } from './upload.component';
 
@@ -36,6 +36,7 @@ describe('UploadComponent', () => {
   function create() {
     TestBed.configureTestingModule({
       providers: [
+        { provide: ChangeDetectorRef, useValue: { markForCheck: vi.fn() } },
         FormBuilder,
         { provide: AuthService, useValue: { currentUser: signal(null) } },
         { provide: LabService, useValue: labService },
@@ -436,7 +437,9 @@ describe('UploadComponent', () => {
     component.coverSummary.set({ name: 'cover.png', size: '1B' });
     component.removeFile('cover');
     expect(component.coverFile()).toBeNull();
-    component.licenses.controls.forEach((control) => control.get('enabled')?.setValue(false));
+    component.licenses.controls.forEach((control) => {
+      control.get('enabled')?.setValue(false);
+    });
     expect(component.selectedLicenses()).toHaveLength(0);
     expect(component.minimumEnabledPrice()).toBe(0);
     component.stemsFile.set(new File(['a'], 'stems.zip'));

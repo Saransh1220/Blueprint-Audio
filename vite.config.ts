@@ -5,6 +5,8 @@ import { defineConfig } from 'vite';
 
 export default defineConfig({
   plugins: [angular()],
+  // checkout-till.tsx is JSX; let the transformer compile it with the automatic runtime.
+  oxc: { jsx: { runtime: 'automatic' } },
   test: {
     globals: true,
     environment: 'jsdom',

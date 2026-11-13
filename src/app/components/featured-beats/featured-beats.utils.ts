@@ -1,5 +1,5 @@
 import type { Spec } from '../../models';
-import { formatMoneyValue, FALLBACK_CURRENCIES, type CurrencyDefinition } from '../../models/money';
+import { type CurrencyDefinition, FALLBACK_CURRENCIES, formatMoneyValue } from '../../models/money';
 import type { DiscItem } from '../disc-carousel/disc-carousel';
 
 export function formatPlays(spec: Spec): string {
@@ -13,10 +13,7 @@ export function startingPrice(
   spec: Spec,
   currencies: readonly CurrencyDefinition[] = FALLBACK_CURRENCIES,
 ): string {
-  const fallbackCurrency =
-    spec.displayPriceMoney?.currency ||
-    spec.priceMoney?.currency ||
-    'USD';
+  const fallbackCurrency = spec.displayPriceMoney?.currency || spec.priceMoney?.currency || 'USD';
   return formatMoneyValue(
     spec.displayPriceMoney ?? spec.priceMoney,
     spec.price ?? 0,

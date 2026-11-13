@@ -31,13 +31,10 @@ describe('HeaderComponent', () => {
       ],
     }).compileComponents();
 
+    currentUser.set(null);
     fixture = TestBed.createComponent(HeaderComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
-  });
-
-  beforeEach(() => {
-    currentUser.set(null);
   });
 
   it('should create', () => {

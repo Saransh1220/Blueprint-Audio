@@ -1,55 +1,51 @@
-// A flat panel with a light brutalist edge: a hard outline and one small offset shadow. Solid
-// colours only; the navbar places it and reveals it.
+// Browse / Studio: a full-width sheet that drops from the navbar. A short title and the way in on
+// the left, the destinations as plain rows on the right. No tiles, no tints — icons are quiet and
+// only the current page and the hovered row pick up colour. The navbar places and reveals it.
 :host {
-  --nm-tint-hot: #ff4d68;
-  --nm-tint-cobalt: #5b78ff;
-  --nm-tint-lime: #b7d93a;
-  --nm-tint-sun: #ffc93c;
-  --nm-tint-lavender: #b9a6ff;
-  --nm-tint-cream: var(--text-color);
+  --pop-bg: #131312;
+  --pop-line: rgba(255, 255, 255, 0.08);
 
   display: block;
 }
 
 .panel {
-  padding: 14px;
-  border: 1.5px solid var(--text-color);
-  border-radius: 14px;
-  background: var(--card-bg-color);
-  box-shadow: 4px 4px 0 var(--hot);
-  color: var(--text-color);
+  border-bottom: 1px solid var(--pop-line);
+  background: var(--pop-bg);
+  box-shadow: 0 40px 60px -30px rgba(0, 0, 0, 0.8);
+  color: var(--ink);
 }
 
-.heading {
-  margin: 0 0 10px;
-  padding: 2px 6px 10px;
-  border-bottom: 1px solid color-mix(in srgb, var(--text-color) 16%, transparent);
-  font-family: 'Bricolage Grotesque', sans-serif;
-  font-size: 15px;
-  font-weight: 700;
-  letter-spacing: -0.02em;
+.inner {
+  width: min(1240px, calc(100% - 64px));
+  margin-inline: auto;
+  padding: 14px 0 12px;
+}
 
-  em {
-    color: var(--hot);
-    font-family: 'Instrument Serif', serif;
-    font-style: italic;
-    font-weight: 400;
-    font-size: 17px;
-  }
+// The title only labels the region for screen readers; the rows speak for themselves.
+.heading {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
 }
 
 .grid {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 2px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 2px 24px;
 }
 
 .item {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 14px;
   min-width: 0;
-  padding: 10px;
+  padding: 12px 14px;
   border-radius: 10px;
   color: inherit;
   text-decoration: none;
@@ -57,51 +53,42 @@
 
   &:hover,
   &:focus-visible {
-    background: color-mix(in srgb, var(--text-color) 8%, transparent);
+    background: rgba(255, 255, 255, 0.05);
     outline: none;
+
+    .icon {
+      color: var(--ink);
+    }
+
+    .name {
+      transform: translateX(2px);
+    }
+  }
+
+  &:focus-visible {
+    box-shadow: inset 0 0 0 2px var(--hot);
   }
 
   &.active {
-    background: color-mix(in srgb, var(--hot) 14%, transparent);
-
     .name {
+      color: var(--hot);
+    }
+
+    .icon {
       color: var(--hot);
     }
   }
 }
 
+// Plain glyph, no tile.
 .icon {
-  --tint: var(--nm-tint-cream);
-
   display: grid;
   flex: none;
-  width: 36px;
-  height: 36px;
+  width: 22px;
   place-items: center;
-  border-radius: 9px;
-  background: color-mix(in srgb, var(--tint) 16%, transparent);
-  color: var(--tint);
-  font-size: 14px;
-
-  &[data-tint='hot'] {
-    --tint: var(--nm-tint-hot);
-  }
-
-  &[data-tint='cobalt'] {
-    --tint: var(--nm-tint-cobalt);
-  }
-
-  &[data-tint='lime'] {
-    --tint: var(--nm-tint-lime);
-  }
-
-  &[data-tint='sun'] {
-    --tint: var(--nm-tint-sun);
-  }
-
-  &[data-tint='lavender'] {
-    --tint: var(--nm-tint-lavender);
-  }
+  color: var(--ink-mute);
+  font-size: 16px;
+  transition: color 0.15s ease;
 }
 
 .text {
@@ -114,28 +101,45 @@
 .name {
   overflow: hidden;
   font-family: 'Bricolage Grotesque', sans-serif;
-  font-size: 14px;
-  font-weight: 700;
+  font-size: 15px;
+  font-weight: 600;
   letter-spacing: -0.01em;
   text-overflow: ellipsis;
   white-space: nowrap;
+  transition:
+    transform 0.25s cubic-bezier(0.2, 0.8, 0.2, 1),
+    color 0.15s ease;
 }
 
 .desc {
   overflow: hidden;
   color: var(--ink-mute);
-  font-size: 12px;
+  font-size: 13px;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-// The footer a menu may add: one quiet row under the grid. Nothing projected, nothing drawn.
+// What the navbar projects (Studio: who you are, and the way in). Nothing projected, nothing drawn.
 .foot {
   margin-top: 10px;
-  padding: 12px 6px 0;
-  border-top: 1px solid color-mix(in srgb, var(--text-color) 16%, transparent);
+  padding: 14px 14px 4px;
+  border-top: 1px solid var(--pop-line);
 
   &:empty {
     display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .item,
+  .icon,
+  .name {
+    transition: none;
+  }
+}
+
+@media (max-width: 1100px) {
+  .grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }

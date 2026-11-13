@@ -1,10 +1,10 @@
+import { signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { of } from 'rxjs';
-import { describe, expect, it, beforeEach, vi } from 'vitest';
-import { CurrencySwitcherComponent } from './currency-switcher.component';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { BuyerCurrencyService } from '../../services/buyer-currency.service';
 import { CurrencyConfigurationService } from '../../services/currency-configuration.service';
-import { signal } from '@angular/core';
+import { CurrencySwitcherComponent } from './currency-switcher.component';
 
 describe('CurrencySwitcherComponent', () => {
   let component: CurrencySwitcherComponent;

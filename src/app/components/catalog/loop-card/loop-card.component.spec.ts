@@ -1,7 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-
-import { LoopCardComponent } from './loop-card.component';
 import { MOCK_LOOPS } from '../../../content/catalog/catalog.mock-data';
+import { LoopCardComponent } from './loop-card.component';
 
 describe('LoopCardComponent', () => {
   let component: LoopCardComponent;

@@ -283,7 +283,9 @@
                       [label]="'Secondary Price (' + secondaryCurrency() + ')'"
                       [symbol]="secondaryCurrencySymbol()"
                       [isNative]="false"
-                      [disabled]="!license.get('enabled')?.value || license.get('sellNativeOnly')?.value"
+                      [disabled]="
+                        !license.get('enabled')?.value || license.get('sellNativeOnly')?.value
+                      "
                       [error]="license.get('secondaryError')?.value"
                       [showAutoFill]="!license.get('sellNativeOnly')?.value"
                       [autoFillLoading]="license.get('autoFillLoading')?.value"
@@ -301,7 +303,10 @@
                           [disabled]="!license.get('enabled')?.value"
                           (change)="onSellNativeOnlyToggle(i, $event)"
                         />
-                        <span>Sell only in {{ storeCurrency() }} (disable {{ secondaryCurrency() }})</span>
+                        <span
+                          >Sell only in {{ storeCurrency() }} (disable
+                          {{ secondaryCurrency() }})</span
+                        >
                       </label>
                     </div>
                   </div>
@@ -359,7 +364,9 @@
                   <span>{{ getReferenceLicenseName(license.get('type')?.value) }}</span>
                   <b>
                     {{ formatCurrency(license.get('price')?.value) }}
-                    @if (!license.get('sellNativeOnly')?.value && license.get('secondaryPrice')?.value) {
+                    @if (
+                      !license.get('sellNativeOnly')?.value && license.get('secondaryPrice')?.value
+                    ) {
                       / {{ formatSecondaryCurrency(license.get('secondaryPrice')?.value) }}
                     }
                   </b>

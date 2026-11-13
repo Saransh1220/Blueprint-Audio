@@ -1,6 +1,6 @@
-import { describe, it, expect } from 'vitest';
-import { LegalAdapter } from './legal.adapter';
+import { describe, expect, it } from 'vitest';
 import { LegalDocumentViewDto } from '../core/api/legal.requests';
+import { LegalAdapter } from './legal.adapter';
 
 describe('LegalAdapter', () => {
   const adapter = new LegalAdapter();
