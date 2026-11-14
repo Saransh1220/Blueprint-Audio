@@ -1,18 +1,18 @@
 import { UserApiResponse } from '../../models';
 import { ApiRequest, HttpMethod } from './api-request';
 
-interface LoginResponse {
-  token: string;
+export interface LoginResponse {
+  token?: string;
 }
 
 interface AuthMessageResponse {
   message: string;
 }
 
-export class LoginRequest implements ApiRequest<LoginResponse> {
+export class LoginRequest implements ApiRequest<void> {
   readonly path = '/login';
   readonly method: HttpMethod = 'POST';
-  readonly _responseType?: LoginResponse;
+  readonly _responseType?: void;
   constructor(public body: any) {}
 }
 
@@ -37,18 +37,18 @@ export class GetMeRequest implements ApiRequest<UserApiResponse> {
   readonly _responseType?: UserApiResponse;
 }
 
-export class GoogleLoginRequest implements ApiRequest<LoginResponse> {
+export class GoogleLoginRequest implements ApiRequest<void> {
   readonly path = '/auth/google';
   readonly method: HttpMethod = 'POST';
-  readonly _responseType?: LoginResponse;
+  readonly _responseType?: void;
 
   constructor(public body: { token: string }) {}
 }
 
-export class RefreshRequest implements ApiRequest<LoginResponse> {
+export class RefreshRequest implements ApiRequest<void> {
   readonly path = '/auth/refresh';
   readonly method: HttpMethod = 'POST';
-  readonly _responseType?: LoginResponse;
+  readonly _responseType?: void;
 }
 
 export class LogoutApiRequest implements ApiRequest<void> {

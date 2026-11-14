@@ -1,5 +1,5 @@
 import { Injectable, inject, signal } from '@angular/core';
-import { map, type Observable, Subject, shareReplay, tap } from 'rxjs';
+import { filter, map, type Observable, Subject, shareReplay, tap } from 'rxjs';
 import { SpecAdapter } from '../adapters/spec.adapter';
 import {
   GetCatalogHomeRequest,
@@ -14,6 +14,7 @@ import { type Spec } from '../models';
 
 import { PaginationMetadata } from '../models/payment';
 import { BuyerCurrencyService } from './buyer-currency.service';
+import { SessionStateService } from '../core/services/session-state.service';
 
 export interface HomepageMetrics {
   plays: number;
@@ -60,7 +61,9 @@ export class LabService {
 
   private _refreshTrigger = new Subject<void>();
   refresh$ = this._refreshTrigger.asObservable();
-  private specsCacheToken = localStorage.getItem('token');
+  private sessionState = inject(SessionStateService);
+  private specsCacheViewer = this.sessionState.currentUserId();
+  private specsCacheGeneration = this.sessionState.generation();
   private specsCacheCurrency = this.buyerCurrency.effective();
   private specsCache = new Map<string, Observable<Spec[]>>();
 
@@ -84,11 +87,18 @@ export class LabService {
     per_page?: number;
     sort?: string;
   }): Observable<Spec[]> {
-    const token = localStorage.getItem('token');
+    const viewer = this.sessionState.currentUserId();
+    const generation = this.sessionState.generation();
     const currency = this.buyerCurrency.effective();
-    if (this.specsCacheToken !== token || this.specsCacheCurrency !== currency) {
+    if (
+      this.specsCacheViewer !== viewer ||
+      this.specsCacheGeneration !== generation ||
+      this.specsCacheCurrency !== currency
+    ) {
       this.specsCache.clear();
-      this.specsCacheToken = token;
+      this.specsPagination.set(null);
+      this.specsCacheViewer = viewer;
+      this.specsCacheGeneration = generation;
       this.specsCacheCurrency = currency;
     }
 
@@ -106,6 +116,11 @@ export class LabService {
         };
       }),
       shareReplay({ bufferSize: 1, refCount: false }),
+      filter(
+        () =>
+          generation === this.sessionState.generation() &&
+          currency === this.buyerCurrency.effective(),
+      ),
       tap(({ metadata }) => {
         // Pagination belongs to the cached query just replayed. Keep this tap
         // after shareReplay so returning consumers restore the matching

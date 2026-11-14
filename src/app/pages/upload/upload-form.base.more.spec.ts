@@ -306,12 +306,9 @@ describe('UploadFormBase (more)', () => {
     );
     c.onFileSelected({ target: { files: [file('m.wav', 'audio/wav')], value: '' } } as any, 'wav');
     c.onFileSelected({ target: { files: [file('s.ZIP')], value: '' } } as any, 'stems');
-    await tick();
-    await tick();
-    await tick();
+    await vi.waitFor(() => expect(c.allRequiredFilesUploaded()).toBe(true));
     expect(specUploadService.createDraft).toHaveBeenCalledTimes(1);
     expect(c.uploadSessionId()).toBe('up-1');
-    expect(c.allRequiredFilesUploaded()).toBe(true);
     expect(c.coverSummary()?.detail).toBe('100x100');
     expect(c.coverPreviewUrl()).toContain('data:image/png');
     expect(c.previewSummary()?.detail).toBe('1:15');
