@@ -1,14 +1,9 @@
 @use '../../styles/variables' as *;
-
-// Global navbar — flat, hairline-driven, dark-first. Popups (Browse / Studio panel, account menu,
-// notifications) share one surface language: raised card, hairline edge, soft deep shadow.
+@use '../../styles/navbar-popover' as popover;
 
 :host {
-  --nb-line: rgba(255, 255, 255, 0.08);
-  --nb-line-strong: rgba(255, 255, 255, 0.12);
+  --nb-line: color-mix(in srgb, var(--ink) 10%, transparent);
   --nb-wash: color-mix(in srgb, var(--ink) 6%, transparent);
-  --nb-surface: #131312;
-  --nb-shadow: 0 24px 48px -16px rgba(0, 0, 0, 0.8);
   --nb-ease: cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
@@ -23,13 +18,15 @@ nav.fixed-navbar {
     background-color 0.35s ease,
     border-color 0.35s ease;
 
-  // On the home hero the bar floats over the image until you scroll. It keeps a dark, slightly
-  // see-through backing so the Browse / Studio sheets never open against bare artwork.
   &.home-route:not(.scrolled) {
-    background: rgba(10, 10, 9, 0.62);
+    background: color-mix(in srgb, var(--cream) 84%, transparent);
     border-bottom-color: var(--nb-line);
     -webkit-backdrop-filter: blur(14px);
     backdrop-filter: blur(14px);
+  }
+
+  &.home-route.popup-open {
+    background: var(--cream);
   }
 
   @media (prefers-reduced-motion: reduce) {
@@ -93,7 +90,7 @@ nav.fixed-navbar {
   display: flex;
   align-items: center;
   flex: 1 1 320px;
-  min-width: 220px;
+  min-width: 152px;
   max-width: 400px;
   margin-left: clamp(4px, 1vw, 14px);
 
@@ -175,12 +172,12 @@ nav.fixed-navbar {
   gap: 2px;
 
   > a,
-  .nav-link-wrap > a {
+  .nav-menu-trigger {
     position: relative;
     display: inline-flex;
     align-items: center;
     gap: 6px;
-    padding: 8px 12px;
+    padding: 8px clamp(8px, 0.9vw, 12px);
     border-radius: 8px;
     color: var(--ink-mute);
     font-family: $font-head;
@@ -194,8 +191,8 @@ nav.fixed-navbar {
     &::after {
       content: '';
       position: absolute;
-      left: 12px;
-      right: 12px;
+      left: 9px;
+      right: 9px;
       bottom: 1px;
       height: 2px;
       border-radius: 2px;
@@ -209,7 +206,6 @@ nav.fixed-navbar {
     &:hover,
     &:focus-visible {
       color: var(--ink);
-      outline: none;
 
       &::after {
         transform: scaleX(1);
@@ -228,40 +224,46 @@ nav.fixed-navbar {
 }
 
 .nav-link-wrap {
-  position: relative;
   display: inline-flex;
 }
 
-.compact-nav-link {
-  display: none !important;
-}
+.nav-menu-trigger {
+  border: 1px solid transparent;
+  background: transparent;
+  cursor: pointer;
 
-// Hover bridge so the pointer can travel from link to panel.
-.browse-nav-wrap::before,
-.studio-nav-wrap::before {
-  content: '';
-  position: absolute;
-  top: 100%;
-  left: -18px;
-  right: -18px;
-  height: 24px;
+  &[aria-expanded='true'] {
+    background: color-mix(in srgb, var(--hot) 12%, var(--cream));
+    color: var(--ink);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--hot);
+    outline-offset: 2px;
+  }
 }
 
 .caret {
-  width: 9px;
-  height: 9px;
-  opacity: 0.5;
-  transition:
-    transform 0.25s var(--nb-ease),
-    opacity 0.2s ease;
+  font-size: 8px;
+  opacity: 0.65;
+  transition: transform 180ms var(--nb-ease);
+
+  [aria-expanded='true'] & {
+    opacity: 1;
+    transform: rotate(180deg);
+  }
 }
 
-// Open on hover, or on keyboard focus only. Plain :focus-within would also match the link a mouse
-// click just focused, which kept the sheet open after navigating until you clicked elsewhere.
-.nav-link-wrap:hover .caret,
-.nav-link-wrap:has(:focus-visible) .caret {
-  opacity: 1;
-  transform: rotate(180deg);
+.nav-link-wrap app-nav-menu {
+  position: absolute;
+  inset: 100% 0 auto;
+  z-index: 1005;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .caret {
+    transition: none;
+  }
 }
 
 /* ─── Actions ────────────────────────────────────────── */
@@ -371,39 +373,19 @@ nav.fixed-navbar {
 
 /* ─── Notifications popup ────────────────────────────── */
 
-.dropdown-menu {
-  z-index: 1004;
-  border: 1px solid var(--nb-line-strong);
-  border-radius: 16px;
-  background: var(--nb-surface);
-  box-shadow: var(--nb-shadow);
-  color: var(--ink);
-}
-
 .notifications-menu {
-  position: fixed;
-  top: 68px;
-  right: 28px;
+  @include popover.surface;
+  @include popover.entrance;
+
+  position: absolute;
+  top: calc(100% + 3px);
+  right: 0;
+  z-index: 1004;
   display: flex;
   flex-direction: column;
-  width: 400px;
-  max-width: calc(100vw - 24px);
-  max-height: min(600px, calc(100vh - 100px));
+  width: 396px;
+  max-height: min(560px, calc(100dvh - 90px));
   overflow: hidden;
-  transform-origin: top right;
-  animation: pop-in 0.2s var(--nb-ease);
-}
-
-@keyframes pop-in {
-  from {
-    opacity: 0;
-    transform: translateY(-6px) scale(0.98);
-  }
-
-  to {
-    opacity: 1;
-    transform: none;
-  }
 }
 
 .notif-head {
@@ -411,24 +393,21 @@ nav.fixed-navbar {
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  padding: 16px 18px 6px;
+  padding: 16px 16px 12px;
 }
 
 .notif-head-left {
   display: flex;
-  align-items: baseline;
-  gap: 10px;
+  flex-direction: column;
+  gap: 3px;
 }
 
 .notif-title {
-  font-family: $font-head;
-  font-size: 16px;
-  font-weight: 700;
-  letter-spacing: -0.02em;
+  @include popover.title;
 }
 
 .notif-pill {
-  color: var(--hot);
+  color: var(--menu-accent);
   font-size: 12px;
   font-weight: 600;
 
@@ -439,8 +418,9 @@ nav.fixed-navbar {
 }
 
 .notif-mark-read {
-  padding: 4px 0;
-  border: 0;
+  padding: 7px 12px;
+  border: 1px solid var(--menu-line);
+  border-radius: 999px;
   background: transparent;
   color: var(--ink-mute);
   font-family: $font-head;
@@ -461,57 +441,34 @@ nav.fixed-navbar {
 
 .notif-filters {
   display: flex;
-  gap: 18px;
-  padding: 0 18px;
-  border-bottom: 1px solid var(--nb-line);
+  gap: 4px;
+  padding: 0 12px 12px;
+  border-bottom: 1px solid var(--menu-line);
 }
 
 .notif-filter {
-  position: relative;
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 10px 0;
+  gap: 5px;
+  padding: 7px 8px;
   border: 0;
+  border-radius: 999px;
   background: transparent;
   color: var(--ink-mute);
-  font-family: $font-head;
-  font-size: 13px;
-  font-weight: 500;
+  font: 600 13px $font-head;
   cursor: pointer;
-  transition: color 0.15s ease;
 
   .fc-count {
-    color: var(--ink-mute);
-    font-size: 11px;
-    font-variant-numeric: tabular-nums;
-    opacity: 0.8;
-  }
-
-  &::after {
-    content: '';
-    position: absolute;
-    left: 0;
-    right: 0;
-    bottom: -1px;
-    height: 2px;
-    background: var(--hot);
-    transform: scaleX(0);
-    transform-origin: left;
-    transition: transform 0.25s var(--nb-ease);
+    font: 500 10px $font-tech;
   }
 
   &:hover {
-    color: var(--ink);
+    background: var(--menu-hover);
   }
 
   &.active {
-    color: var(--ink);
-    font-weight: 600;
-
-    &::after {
-      transform: scaleX(1);
-    }
+    background: var(--menu-hover);
+    color: var(--menu-accent);
   }
 }
 
@@ -521,6 +478,7 @@ nav.fixed-navbar {
   overflow-y: auto;
   overscroll-behavior: contain;
   scrollbar-width: thin;
+  padding-inline: 6px;
 }
 
 .notif-item {
@@ -533,7 +491,8 @@ nav.fixed-navbar {
   width: 100%;
   padding: 14px 18px 14px 22px;
   border: 0;
-  border-bottom: 1px solid var(--nb-line);
+  border-bottom: 1px solid var(--menu-line);
+  border-radius: var(--menu-row-radius);
   background: transparent;
   color: inherit;
   font: inherit;
@@ -542,7 +501,7 @@ nav.fixed-navbar {
   transition: background 0.15s ease;
 
   &:hover {
-    background: var(--nb-wash);
+    background: var(--menu-hover);
   }
 
   &:last-child {
@@ -589,8 +548,6 @@ nav.fixed-navbar {
   place-items: center;
   width: 36px;
   height: 36px;
-  border-radius: 10px;
-  background: color-mix(in srgb, var(--tint) 16%, transparent);
   color: var(--tint);
   font-family: $font-head;
   font-size: 13px;
@@ -598,27 +555,22 @@ nav.fixed-navbar {
   text-transform: uppercase;
 
   &.c-hot {
-    background: color-mix(in srgb, var(--hot) 16%, transparent);
     color: var(--hot);
   }
 
   &.c-cobalt {
-    background: color-mix(in srgb, var(--cobalt, #5b78ff) 16%, transparent);
     color: var(--cobalt, #5b78ff);
   }
 
   &.c-lime {
-    background: color-mix(in srgb, var(--lime) 16%, transparent);
     color: var(--lime);
   }
 
   &.c-sun {
-    background: color-mix(in srgb, var(--sun) 16%, transparent);
     color: var(--sun);
   }
 
   &.c-lavender {
-    background: color-mix(in srgb, var(--lavender, #d4c5ff) 16%, transparent);
     color: var(--lavender, #d4c5ff);
   }
 
@@ -706,25 +658,11 @@ nav.fixed-navbar {
     place-items: center;
     width: 44px;
     height: 44px;
-    margin-bottom: 14px;
-    border-radius: 12px;
-    background: var(--nb-wash);
-    color: var(--ink-mute);
+    margin-bottom: 12px;
+    border-radius: 50%;
+    background: var(--menu-hover);
+    color: var(--menu-accent);
     font-size: 18px;
-  }
-
-  h5 {
-    margin: 0 0 4px;
-    font-family: $font-head;
-    font-size: 15px;
-    font-weight: 700;
-    letter-spacing: -0.01em;
-
-    em {
-      font-family: inherit;
-      font-style: normal;
-      color: var(--ink);
-    }
   }
 
   p {
@@ -739,7 +677,7 @@ nav.fixed-navbar {
   align-items: center;
   justify-content: space-between;
   padding: 12px 18px;
-  border-top: 1px solid var(--nb-line);
+  border-top: 1px solid var(--menu-line);
 
   a {
     display: inline-flex;
@@ -829,21 +767,24 @@ nav.fixed-navbar {
   }
 }
 
-.mobile-menu {
-  position: absolute;
-  top: calc(100% + 6px);
-  right: 14px;
+.mobile-menu-wrap {
   display: none;
-  width: min(360px, calc(100% - 28px));
+}
+
+.mobile-menu {
+  @include popover.surface;
+
+  position: absolute;
+  top: 100%;
+  right: 0;
+  left: 0;
+  display: none;
+  border-width: 1px 0;
+  border-radius: 0 0 var(--menu-radius) var(--menu-radius);
   max-height: min(560px, calc(100dvh - 120px));
   overflow-y: auto;
   overscroll-behavior: contain;
-  padding: 12px;
-  border: 1px solid var(--nb-line-strong);
-  border-radius: 16px;
-  background: var(--nb-surface);
-  box-shadow: var(--nb-shadow);
-  color: var(--ink);
+  padding: 18px max(14px, calc((100% - 680px) / 2));
   opacity: 0;
   visibility: hidden;
   pointer-events: none;
@@ -870,7 +811,7 @@ nav.fixed-navbar {
 .mobile-links {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 2px;
+  gap: 6px;
 
   a,
   .mobile-logout-btn {
@@ -880,7 +821,7 @@ nav.fixed-navbar {
     min-height: 44px;
     padding: 8px 10px;
     border: 0;
-    border-radius: 9px;
+    border-radius: var(--menu-row-radius);
     background: transparent;
     color: var(--ink-2);
     font: inherit;
@@ -901,7 +842,7 @@ nav.fixed-navbar {
 
     &:hover,
     &:focus-visible {
-      background: var(--nb-wash);
+      background: var(--menu-hover);
       color: var(--ink);
     }
 
@@ -922,134 +863,43 @@ nav.fixed-navbar {
 }
 
 .mobile-menu-label {
+  @include popover.title;
+
   grid-column: 1 / -1;
-  margin: 4px 10px 4px;
-  color: var(--ink-mute);
-  font-family: $font-tech;
-  font-size: 10px;
-  font-weight: 500;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
+  margin: 2px 2px 6px;
+  font-size: 20px;
 }
 
 .mobile-account-links {
-  margin-top: 10px;
-  padding-top: 10px;
-  border-top: 1px solid var(--nb-line);
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid var(--menu-line);
 }
 
-/* ─── Browse and Studio panels: placed and revealed here, drawn by app-nav-menu ── */
+/* ─── Sidebar layout (desktop): sidebar owns brand + navigation ───────── */
 
-.nav-link-wrap app-nav-menu {
-  position: fixed;
-  top: 65px;
-  right: 0;
-  left: 0;
-  z-index: 1005;
-  opacity: 0;
-  pointer-events: none;
-  transform: translateY(-8px);
-  visibility: hidden;
-  transition:
-    opacity 0.18s ease,
-    transform 0.28s var(--nb-ease),
-    visibility 0s linear 0.28s;
+@media (min-width: 1181px) {
+  nav.fixed-navbar.with-sidebar {
+    .nav-brand,
+    .nav-links {
+      display: none;
+    }
 
-  // a bridge, so the pointer can travel from the link down to the sheet
-  &::before {
-    content: '';
-    position: absolute;
-    top: -26px;
-    right: 0;
-    left: 0;
-    height: 28px;
-  }
+    .nav-inner {
+      max-width: none;
+    }
 
-  // the page behind the sheet dims; it ignores the pointer so leaving the sheet still closes it
-  &::after {
-    content: '';
-    position: absolute;
-    top: 100%;
-    right: 0;
-    left: 0;
-    height: 100vh;
-    background: rgba(0, 0, 0, 0.55);
-    pointer-events: none;
-  }
-}
-
-.nav-link-wrap:hover app-nav-menu,
-.nav-link-wrap:has(:focus-visible) app-nav-menu {
-  opacity: 1;
-  pointer-events: auto;
-  transform: none;
-  visibility: visible;
-  transition-delay: 0s;
-}
-
-.studio-nav-wrap.studio-menu-dismissed app-nav-menu,
-.browse-nav-wrap.browse-menu-dismissed app-nav-menu {
-  opacity: 0 !important;
-  pointer-events: none !important;
-  transform: translateY(-8px) !important;
-  visibility: hidden !important;
-}
-
-// The Studio panel's footer: who you are here, and the way in.
-.menu-foot {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-}
-
-.menu-foot-user {
-  overflow: hidden;
-  color: var(--ink-mute);
-  font-size: 13px;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-// (.nav-links a also styles links, so this needs the extra class to win.)
-.nav-links .menu-foot-open {
-  position: static;
-  display: inline-flex;
-  flex: none;
-  align-items: center;
-  gap: 8px;
-  padding: 7px 12px;
-  border-radius: 8px;
-  background: var(--ink);
-  color: var(--cream);
-  font-family: $font-head;
-  font-size: 13px;
-  font-weight: 700;
-  text-decoration: none;
-  transition: background 0.15s ease;
-
-  i {
-    font-size: 10px;
-    transition: transform 0.2s var(--nb-ease);
-  }
-
-  &:hover,
-  &:focus-visible {
-    background: var(--hot);
-    color: #fff;
-    outline: none;
-
-    i {
-      transform: translateX(2px);
+    .nav-search {
+      flex: 1;
+      max-width: 520px;
     }
   }
 }
 
 /* ─── Responsive ─────────────────────────────────────── */
 
-@media (max-width: 980px) {
+@media (max-width: 1180px) {
   .nav-links,
-  .login-btn,
   .upload-btn-cta {
     display: none;
   }
@@ -1058,16 +908,13 @@ nav.fixed-navbar {
     display: inline-flex;
   }
 
+  .mobile-menu-wrap,
   .mobile-menu {
     display: block;
   }
 
   .nav-inner {
     padding: 8px 20px;
-  }
-
-  .fixed-navbar.studio-route .nav-links {
-    display: flex;
   }
 }
 
@@ -1088,9 +935,7 @@ nav.fixed-navbar {
     height: 30px;
   }
 
-  .nav-search,
-  .nav-links,
-  .fixed-navbar.studio-route .nav-links {
+  .nav-search {
     display: none;
   }
 
@@ -1112,18 +957,10 @@ nav.fixed-navbar {
     padding: 0 12px;
     font-size: 12.5px;
   }
+}
 
-  .notifications-menu {
-    top: 60px;
-    right: 10px;
-    width: min(400px, calc(100vw - 20px));
-  }
-
+@media (max-width: 760px) {
   .studio-menu-toggle {
     display: inline-flex;
-  }
-
-  .nav-link-wrap app-nav-menu {
-    display: none;
   }
 }

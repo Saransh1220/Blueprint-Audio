@@ -5,11 +5,13 @@ import {
   ElementRef,
   HostListener,
   inject,
+  input,
   signal,
   ViewChild,
 } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
-import { Router, RouterLink, RouterLinkActive } from '@angular/router';
+import { NavigationStart, Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { BRAND } from '../../core/config/brand';
 import { Role } from '../../models';
 import { StudioShellService } from '../../pages/studio/studio-shell.service';
@@ -19,16 +21,13 @@ import { NavMenuComponent } from '../nav-menu/nav-menu';
 import { BROWSE_ITEMS, menuItemsFor, STUDIO_ITEMS } from '../nav-menu/nav-menu.items';
 import { UserMenuComponent } from '../user-menu/user-menu';
 
+import { HoverPopupDirective, isKeyboardOrTouchActivation } from './hover-popup.directive';
+
+type NavPanel = 'browse' | 'studio';
+type HeaderPopup = NavPanel | 'account' | 'notifications' | 'currency' | 'mobile';
+
 type NotificationKind =
-  | 'all'
-  | 'unread'
-  | 'sale'
-  | 'message'
-  | 'cart'
-  | 'follow'
-  | 'milestone'
-  | 'wishlist'
-  | 'system';
+  'all' | 'unread' | 'sale' | 'message' | 'cart' | 'follow' | 'milestone' | 'wishlist' | 'system';
 
 interface HeaderNotificationItem {
   id: string;
@@ -57,6 +56,7 @@ interface HeaderNotificationItem {
     NavMenuComponent,
     UserMenuComponent,
     CurrencySwitcherComponent,
+    HoverPopupDirective,
   ],
   templateUrl: './header.html',
   styleUrls: ['./header.scss'],
@@ -71,6 +71,8 @@ export class HeaderComponent {
   private router = inject(Router);
   studioShell = inject(StudioShellService);
   globalSearchTerm = '';
+  /** On sidebar routes the logo and Browse/Studio links live in the sidebar. */
+  readonly sidebarLayout = input(false);
 
   // Expose Role enum to template
   readonly Role = Role;
@@ -84,8 +86,11 @@ export class HeaderComponent {
 
   // Notifications
   isNotificationsOpen = false;
-  isStudioMenuDismissed = false;
-  isBrowseMenuDismissed = false;
+  activeNavPanel: NavPanel | null = null;
+  isCurrencyOpen = false;
+  @ViewChild('browseTrigger') private browseTrigger?: ElementRef<HTMLButtonElement>;
+  @ViewChild('studioTrigger') private studioTrigger?: ElementRef<HTMLButtonElement>;
+  @ViewChild('notificationTrigger') private notificationTrigger?: ElementRef<HTMLButtonElement>;
   @ViewChild('mobileMenuToggle') private mobileMenuToggle?: ElementRef<HTMLButtonElement>;
   @ViewChild('notificationWrap') notificationWrap?: ElementRef<HTMLElement>;
   notifications = this.notificationService.notifications;
@@ -124,6 +129,12 @@ export class HeaderComponent {
       message: items.filter((item) => item.kind === 'message').length,
     };
   });
+
+  constructor() {
+    this.router.events.pipe(takeUntilDestroyed()).subscribe((event) => {
+      if (event instanceof NavigationStart) this.closePopups();
+    });
+  }
 
   isStudioRoute() {
     return this.router.url.startsWith('/studio');
@@ -167,63 +178,77 @@ export class HeaderComponent {
     this.router.navigate(['/explore'], {
       queryParams: query ? { search: query } : {},
     });
-    this.closeMobileMenu();
-    this.closeNotifications();
-    this.closeUserMenu();
+    this.closePopups();
   }
 
+  @HostListener('document:pointerdown', ['$event'])
+  @HostListener('document:focusin', ['$event'])
   @HostListener('document:click', ['$event'])
-  onDocumentClick(event: MouseEvent) {
-    const target = event.target as Node;
+  onDocumentClick(event: Event) {
+    const target = event.target;
+    if (!(target instanceof Element)) return;
+
+    if (this.activeNavPanel && !target.closest(`[data-nav-panel="${this.activeNavPanel}"]`)) {
+      this.closeNavPanel();
+    }
     if (this.isNotificationsOpen && !this.notificationWrap?.nativeElement.contains(target)) {
       this.closeNotifications();
     }
-    if (
-      this.isMobileMenuOpen &&
-      target instanceof Element &&
-      !target.closest('#header-mobile-menu, .hamburger-btn')
-    ) {
+    if (this.isMobileMenuOpen && !target.closest('#header-mobile-menu, .hamburger-btn')) {
       this.closeMobileMenu();
     }
   }
 
-  @HostListener('document:keydown.escape')
-  dismissMobileMenu() {
-    if (this.isMobileMenuOpen) {
+  @HostListener('document:keydown.escape', ['$event'])
+  dismissPopup(event: Event) {
+    if (event.defaultPrevented) return;
+    if (this.activeNavPanel) {
+      const trigger = this.activeNavPanel === 'browse' ? this.browseTrigger : this.studioTrigger;
+      this.closeNavPanel();
+      trigger?.nativeElement.focus();
+    } else if (this.isNotificationsOpen) {
+      this.closeNotifications();
+      this.notificationTrigger?.nativeElement.focus();
+    } else if (this.isMobileMenuOpen) {
       this.closeMobileMenu();
       this.mobileMenuToggle?.nativeElement.focus();
+    } else {
+      return;
     }
+    event.preventDefault();
   }
 
-  resetBrowseMenuDismissal() {
-    this.isBrowseMenuDismissed = false;
+  toggleNavPanel(panel: NavPanel, event?: MouseEvent) {
+    if (!isKeyboardOrTouchActivation(event)) return;
+    this.setNavPanelOpen(panel, this.activeNavPanel !== panel);
   }
 
-  closeBrowseMenu() {
-    this.isBrowseMenuDismissed = true;
+  setNavPanelOpen(panel: NavPanel, open: boolean) {
+    if (!open) {
+      if (this.activeNavPanel === panel) this.closeNavPanel();
+      return;
+    }
+    this.closePopups(panel);
+    this.activeNavPanel = panel;
   }
 
-  resetStudioMenuDismissal() {
-    this.isStudioMenuDismissed = false;
-  }
-
-  closeStudioMenu() {
-    this.isStudioMenuDismissed = true;
+  closeNavPanel() {
+    this.activeNavPanel = null;
   }
 
   toggleStudioMobileNav() {
-    this.closeMobileMenu();
-    this.closeNotifications();
-    this.closeUserMenu();
+    this.closePopups();
     this.studioShell.toggleMobileNav();
   }
 
-  toggleNotifications() {
-    this.isNotificationsOpen = !this.isNotificationsOpen;
-    if (this.isNotificationsOpen) {
-      this.closeUserMenu();
-      this.closeMobileMenu();
-    }
+  toggleNotifications(event?: MouseEvent) {
+    if (!isKeyboardOrTouchActivation(event)) return;
+    this.setNotificationsOpen(!this.isNotificationsOpen);
+  }
+
+  setNotificationsOpen(open: boolean) {
+    this.isNotificationsOpen = open;
+    if (open) this.closePopups('notifications');
   }
 
   closeNotifications() {
@@ -255,12 +280,14 @@ export class HeaderComponent {
     return `${Math.floor(hours / 24)}d`;
   }
 
-  toggleMobileMenu() {
-    this.isMobileMenuOpen = !this.isMobileMenuOpen;
-    if (this.isMobileMenuOpen) {
-      this.closeUserMenu();
-      this.closeNotifications();
-    }
+  toggleMobileMenu(event?: MouseEvent) {
+    if (!isKeyboardOrTouchActivation(event)) return;
+    this.setMobileMenuOpen(!this.isMobileMenuOpen);
+  }
+
+  setMobileMenuOpen(open: boolean) {
+    this.isMobileMenuOpen = open;
+    if (open) this.closePopups('mobile');
   }
 
   closeMobileMenu() {
@@ -270,23 +297,28 @@ export class HeaderComponent {
   isUserMenuOpen = false;
 
   toggleUserMenu() {
-    this.isUserMenuOpen = !this.isUserMenuOpen;
-    if (this.isUserMenuOpen) {
-      this.closeNotifications();
-      this.closeMobileMenu();
-    }
+    this.setUserMenuOpen(!this.isUserMenuOpen);
   }
 
   closeUserMenu() {
     this.isUserMenuOpen = false;
   }
 
-  /** The account menu opened or closed itself; opening it puts the other popups away. */
   setUserMenuOpen(open: boolean) {
     this.isUserMenuOpen = open;
-    if (open) {
-      this.closeNotifications();
-      this.closeMobileMenu();
-    }
+    if (open) this.closePopups('account');
+  }
+
+  setCurrencyOpen(open: boolean) {
+    this.isCurrencyOpen = open;
+    if (open) this.closePopups('currency');
+  }
+
+  private closePopups(except?: HeaderPopup) {
+    if (except !== 'browse' && except !== 'studio') this.closeNavPanel();
+    if (except !== 'notifications') this.closeNotifications();
+    if (except !== 'account') this.closeUserMenu();
+    if (except !== 'mobile') this.closeMobileMenu();
+    if (except !== 'currency') this.isCurrencyOpen = false;
   }
 }

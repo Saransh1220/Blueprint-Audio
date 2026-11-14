@@ -1,11 +1,12 @@
-<div class="currency-switcher-wrap" [class.open]="isOpen()">
+<div class="currency-switcher-wrap" appHoverPopup (hoverPopupChange)="isOpen.set($event)">
   <button
+    #trigger
     type="button"
     class="currency-trigger-btn"
     [class.active]="isOpen()"
-    (click)="toggle()"
+    (click)="toggle($event)"
     [attr.aria-expanded]="isOpen()"
-    aria-haspopup="listbox"
+    [attr.aria-controls]="isOpen() ? 'header-currency' : null"
     aria-label="Change currency"
   >
     <i class="fas fa-coins currency-icon" aria-hidden="true"></i>
@@ -17,16 +18,21 @@
   </button>
 
   @if (isOpen()) {
-    <div class="currency-dropdown" role="listbox" aria-label="Available currencies">
-      <div class="dropdown-header">Display Currency</div>
+    <div
+      class="currency-dropdown"
+      id="header-currency"
+      role="group"
+      aria-labelledby="currency-title"
+    >
+      <h2 class="dropdown-header" id="currency-title">Display currency</h2>
 
       <button
         type="button"
         class="currency-option"
+        [disabled]="isLoading()"
         [class.selected]="isAutomatic()"
         (click)="select(null)"
-        role="option"
-        [attr.aria-selected]="isAutomatic()"
+        [attr.aria-pressed]="isAutomatic()"
       >
         <div class="option-main">
           <span class="option-title">Automatic</span>
@@ -43,10 +49,10 @@
         <button
           type="button"
           class="currency-option"
+          [disabled]="isLoading()"
           [class.selected]="!isAutomatic() && effectiveCurrency() === curr.code"
           (click)="select(curr.code)"
-          role="option"
-          [attr.aria-selected]="!isAutomatic() && effectiveCurrency() === curr.code"
+          [attr.aria-pressed]="!isAutomatic() && effectiveCurrency() === curr.code"
         >
           <div class="option-main">
             <span class="option-title">{{ curr.code }}</span>

@@ -289,19 +289,17 @@ describe('HeaderComponent (more)', () => {
     notif.unreadCount.set(2);
     render();
     expect(el().querySelector('.notification-badge')?.textContent).toContain('2');
-    expect(el().textContent).toContain('Creator Tools');
-    expect(el().textContent).toContain('Pro · @bob');
-
-    // studio menu dismiss / reset
-    const link = el().querySelector('.studio-nav-wrap app-nav-menu a.item') as HTMLElement;
-    link.click();
+    const trigger = el().querySelector<HTMLButtonElement>('.studio-nav-link')!;
+    expect(trigger.getAttribute('aria-expanded')).toBe('false');
+    trigger.click();
     render();
-    expect(component.isStudioMenuDismissed).toBe(true);
-    expect(
-      el().querySelector('.studio-nav-wrap')!.classList.contains('studio-menu-dismissed'),
-    ).toBe(true);
-    el().querySelector('.studio-nav-wrap')!.dispatchEvent(new Event('mouseenter'));
-    expect(component.isStudioMenuDismissed).toBe(false);
+    expect(trigger.getAttribute('aria-expanded')).toBe('true');
+    const studio = el().querySelector('#header-studio-panel')!;
+    expect(studio.querySelector('a[href="/studio/overview"]')).toBeTruthy();
+    (studio.querySelector('a.item') as HTMLElement).click();
+    render();
+    expect(trigger.getAttribute('aria-expanded')).toBe('false');
+    expect(el().querySelector('#header-studio-panel')).toBeNull();
 
     // notifications panel
     (el().querySelector('.notification-btn') as HTMLElement).click();
@@ -323,6 +321,63 @@ describe('HeaderComponent (more)', () => {
     (menu.querySelector('.foot .logout') as HTMLElement).click();
     expect(auth.logout).toHaveBeenCalled();
     expect(component.isUserMenuOpen).toBe(false);
+  });
+
+  it('opens desktop panels on pointer entry and leaves the account menu click-driven', () => {
+    currentUser.set({ id: 'u', name: 'bob', role: Role.PRODUCER });
+    render();
+    const hover = (selector: string) => {
+      const event = new Event('pointerenter');
+      Object.defineProperty(event, 'pointerType', { value: 'mouse' });
+      el().querySelector(selector)!.dispatchEvent(event);
+      render();
+    };
+
+    hover('.browse-nav-wrap');
+    expect(el().querySelector('#header-browse-panel')).toBeTruthy();
+    hover('.studio-nav-wrap');
+    expect(el().querySelector('#header-browse-panel')).toBeNull();
+    expect(el().querySelector('#header-studio-panel')).toBeTruthy();
+    hover('.notification-wrap');
+    expect(el().querySelector('#header-studio-panel')).toBeNull();
+    expect(el().querySelector('#header-notifications')).toBeTruthy();
+    hover('.currency-switcher-wrap');
+    expect(el().querySelector('#header-notifications')).toBeNull();
+    expect(el().querySelector('#header-currency')).toBeTruthy();
+    hover('.user-btn');
+    expect(el().querySelector('#header-account')).toBeNull();
+    (el().querySelector('.user-btn') as HTMLButtonElement).click();
+    render();
+    expect(el().querySelector('#header-account')).toBeTruthy();
+    expect(el().querySelector('#header-currency')).toBeNull();
+  });
+
+  it('dismisses the Browse popup on Escape and restores focus to its trigger', () => {
+    const trigger = el().querySelector<HTMLButtonElement>('.browse-nav-link')!;
+    trigger.click();
+    render();
+    const link = el().querySelector<HTMLAnchorElement>('#header-browse-panel a')!;
+    link.focus();
+
+    const escape = new KeyboardEvent('keydown', { key: 'Escape', bubbles: true, cancelable: true });
+    link.dispatchEvent(escape);
+    render();
+
+    expect(escape.defaultPrevented).toBe(true);
+    expect(trigger.getAttribute('aria-expanded')).toBe('false');
+    expect(document.activeElement).toBe(trigger);
+  });
+
+  it('closes a popup when Angular starts navigating', async () => {
+    const trigger = el().querySelector<HTMLButtonElement>('.browse-nav-link')!;
+    trigger.click();
+    render();
+    expect(trigger.getAttribute('aria-expanded')).toBe('true');
+
+    router.resetConfig([{ path: 'explore', component: HeaderComponent }]);
+    await router.navigateByUrl('/explore');
+    render();
+    expect(trigger.getAttribute('aria-expanded')).toBe('false');
   });
 
   it('renders listener UI with fallback avatar and listener badge', () => {
@@ -355,7 +410,7 @@ describe('HeaderComponent (more)', () => {
     expect(toggle).toBeTruthy();
     // The account menu is there in the studio too.
     expect(el().querySelector('app-user-menu .user-btn')).toBeTruthy();
-    expect(el().querySelector('.hamburger-btn')).toBeNull();
+    expect(el().querySelector('.hamburger-btn')).toBeTruthy();
     toggle.click();
     expect(shell.toggleMobileNav).toHaveBeenCalled();
   });

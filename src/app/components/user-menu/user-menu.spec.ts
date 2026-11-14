@@ -88,7 +88,6 @@ describe('UserMenuComponent', () => {
     expect(el.querySelector('.name')?.textContent).toBe('Nova Beats');
     expect(el.querySelector('.handle')?.textContent).toBe('@nova');
     expect(el.querySelector('.role')?.textContent?.trim()).toBe('Producer');
-    expect(el.querySelector('.role')?.classList.contains('producer')).toBe(true);
   });
 
   it('falls back to the account name, then to "User"', () => {
@@ -96,7 +95,6 @@ describe('UserMenuComponent', () => {
     open();
     expect(el.querySelector('.name')?.textContent).toBe('zed');
     expect(el.querySelector('.role')?.textContent?.trim()).toBe('Listener');
-    expect(el.querySelector('.role')?.classList.contains('producer')).toBe(false);
 
     currentUser.set({ id: 'u', role: Role.ARTIST });
     fixture.detectChanges();

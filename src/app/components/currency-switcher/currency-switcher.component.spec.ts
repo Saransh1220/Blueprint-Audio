@@ -1,6 +1,6 @@
 import { signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { of } from 'rxjs';
+import { of, Subject } from 'rxjs';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { BuyerCurrencyService } from '../../services/buyer-currency.service';
 import { CurrencyConfigurationService } from '../../services/currency-configuration.service';
@@ -103,6 +103,22 @@ describe('CurrencySwitcherComponent', () => {
 
     component.select('INR');
     expect(buyerCurrencyMock.set).toHaveBeenCalledWith('INR');
+    expect(component.isOpen()).toBe(false);
+  });
+
+  it('restores focus immediately on selection and handles a failed save', () => {
+    const save = new Subject<void>();
+    buyerCurrencyMock.set.mockReturnValue(save);
+    const trigger: HTMLButtonElement = fixture.nativeElement.querySelector('.currency-trigger-btn');
+    trigger.click();
+    fixture.detectChanges();
+    const option: HTMLButtonElement = fixture.nativeElement.querySelector('.currency-option');
+    option.focus();
+    option.click();
+
+    expect(document.activeElement).toBe(trigger);
+    expect(component.isOpen()).toBe(false);
+    save.error(new Error('Save failed'));
     expect(component.isOpen()).toBe(false);
   });
 

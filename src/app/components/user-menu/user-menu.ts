@@ -6,7 +6,6 @@ import {
   effect,
   inject,
   model,
-  NgZone,
   viewChild,
 } from '@angular/core';
 import { RouterLink } from '@angular/router';
@@ -18,11 +17,10 @@ export interface UserMenuLink {
   label: string;
   icon: string;
   route: string;
-  tint: 'hot' | 'cobalt' | 'lime' | 'sun' | 'lavender' | 'cream';
 }
 
 /**
- * The account button and the menu that opens from it: who you are, where you can go, the theme, and
+ * The account button and the menu that opens from it: who you are, where you can go, and
  * log out. It owns its own closing (Escape, a press outside, choosing a link); the page can read or
  * set `open` to keep it in step with other popups.
  */
@@ -35,7 +33,6 @@ export interface UserMenuLink {
 })
 export class UserMenuComponent {
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
-  private readonly zone = inject(NgZone);
   private readonly auth = inject(AuthService);
   private readonly authz = inject(AuthzService);
 
@@ -65,16 +62,14 @@ export class UserMenuComponent {
             label: 'Studio overview',
             icon: 'fa-table-cells-large',
             route: '/studio/overview',
-            tint: 'hot' as const,
           },
-          { label: 'Upload a beat', icon: 'fa-upload', route: '/upload', tint: 'lime' as const },
+          { label: 'Upload a beat', icon: 'fa-upload', route: '/upload' },
           ...(this.handle()
             ? [
                 {
                   label: 'Public profile',
                   icon: 'fa-user',
                   route: `/@${this.handle()}`,
-                  tint: 'cobalt' as const,
                 },
               ]
             : []),
@@ -84,16 +79,14 @@ export class UserMenuComponent {
       label: 'My purchases',
       icon: 'fa-bag-shopping',
       route: '/studio/purchases',
-      tint: 'sun' as const,
     },
-    { label: 'Settings', icon: 'fa-sliders', route: '/settings', tint: 'cream' as const },
+    { label: 'Settings', icon: 'fa-sliders', route: '/settings' },
     ...(this.authz.isSuperAdmin()
       ? [
           {
             label: 'Admin console',
             icon: 'fa-shield-halved',
             route: '/admin',
-            tint: 'lavender' as const,
           },
         ]
       : []),
@@ -104,20 +97,21 @@ export class UserMenuComponent {
     effect((onCleanup) => {
       if (!this.open()) return;
       const onKey = (event: KeyboardEvent) => {
-        if (event.key !== 'Escape') return;
+        if (event.key !== 'Escape' || event.defaultPrevented) return;
+        event.preventDefault();
         this.open.set(false);
         this.trigger()?.nativeElement.focus();
       };
-      const onDown = (event: PointerEvent) => {
-        if (!this.host.nativeElement.contains(event.target as Node)) this.open.set(false);
+      const onOutside = (event: Event) => {
+        if (!this.host.nativeElement.contains(event.target as Node)) this.close();
       };
-      this.zone.runOutsideAngular(() => {
-        document.addEventListener('keydown', onKey);
-        document.addEventListener('pointerdown', onDown);
-      });
+      document.addEventListener('keydown', onKey);
+      document.addEventListener('pointerdown', onOutside);
+      document.addEventListener('focusin', onOutside);
       onCleanup(() => {
         document.removeEventListener('keydown', onKey);
-        document.removeEventListener('pointerdown', onDown);
+        document.removeEventListener('pointerdown', onOutside);
+        document.removeEventListener('focusin', onOutside);
       });
     });
   }

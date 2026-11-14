@@ -4,9 +4,9 @@
     type="button"
     class="trigger user-btn"
     [class.active]="open()"
-    aria-haspopup="menu"
     aria-label="Account menu"
     [attr.aria-expanded]="open()"
+    [attr.aria-controls]="open() ? 'header-account' : null"
     (click)="toggle()"
   >
     <span class="avatar" [style.background-image]="avatarImage()">
@@ -14,10 +14,11 @@
         {{ initial() }}
       }
     </span>
+    <i class="fas fa-chevron-down caret" aria-hidden="true"></i>
   </button>
 
   @if (open()) {
-    <div class="panel" role="menu" aria-label="Account">
+    <div class="panel" id="header-account">
       <header class="who">
         <span class="avatar large" [style.background-image]="avatarImage()">
           @if (!avatarImage()) {
@@ -26,17 +27,19 @@
         </span>
         <span class="who-text">
           <strong class="name">{{ displayName() }}</strong>
-          <span class="handle">&#64;{{ handle() }}</span>
-        </span>
-        <span class="role" [class.producer]="isProducer()">
-          {{ isProducer() ? 'Producer' : 'Listener' }}
+          @if (handle()) {
+            <span class="handle">&#64;{{ handle() }}</span>
+          }
+          <span class="role">
+            {{ isProducer() ? 'Producer' : 'Listener' }}
+          </span>
         </span>
       </header>
 
-      <nav class="links">
+      <nav class="links" aria-label="Account">
         @for (link of links(); track link.route) {
-          <a class="row" role="menuitem" [routerLink]="link.route" (click)="close()">
-            <span class="ico" [attr.data-tint]="link.tint">
+          <a class="row" [routerLink]="link.route" (click)="close()">
+            <span class="ico">
               <i class="fas" [class]="link.icon" aria-hidden="true"></i>
             </span>
             {{ link.label }}
@@ -46,7 +49,7 @@
       </nav>
 
       <footer class="foot">
-        <button type="button" class="logout" role="menuitem" (click)="logout()">
+        <button type="button" class="logout" (click)="logout()">
           <i class="fas fa-arrow-right-from-bracket" aria-hidden="true"></i>
           Log out
         </button>

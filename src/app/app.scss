@@ -13,6 +13,13 @@
   display: none;
 }
 
+// Browse-side routes sit in a column to the right of the fixed sidebar (desktop only).
+@media (min-width: 1181px) {
+  .main-col.with-sidebar {
+    margin-left: var(--sidebar-w, 232px);
+  }
+}
+
 .app-shell {
   --player-dock-space: 0px;
   min-height: 100vh;

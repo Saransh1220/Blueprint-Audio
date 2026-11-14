@@ -1,0 +1,64 @@
+<aside class="sidebar" aria-label="Primary">
+  <a class="brand" routerLink="/" [attr.aria-label]="brand.name + ' home'">
+    <img class="brand-mark" src="/logo-dark-cropped.webp" alt="" aria-hidden="true" />
+    <span class="brand-word">{{ brand.name }}</span>
+  </a>
+
+  <nav class="groups">
+    @for (group of groups(); track group.title) {
+      <section class="group">
+        <h2 class="group-title">{{ group.title }}</h2>
+        @for (link of group.links; track link.label) {
+          <a
+            class="item"
+            [class.active]="isActive(link)"
+            [routerLink]="link.route"
+            [queryParams]="link.query"
+            [attr.aria-current]="isActive(link) ? 'page' : null"
+          >
+            <i class="fas {{ link.icon }}" aria-hidden="true"></i>
+            <span class="label">{{ link.label }}</span>
+            @if (link.badge) {
+              <span class="count">{{ link.badge }}</span>
+            }
+          </a>
+        }
+        @if (group.title === 'Beats') {
+          <button
+            class="item"
+            type="button"
+            [attr.aria-expanded]="genresOpen()"
+            aria-controls="sidebar-genres"
+            (click)="toggleGenres()"
+          >
+            <i class="fas fa-layer-group" aria-hidden="true"></i>
+            <span class="label">Genres</span>
+            <i class="fas fa-chevron-down caret" [class.open]="genresOpen()" aria-hidden="true"></i>
+          </button>
+          @if (genresOpen()) {
+            <div class="sub" id="sidebar-genres">
+              @for (g of genres; track g) {
+                <a
+                  class="sub-item"
+                  [class.active]="isGenreActive(g)"
+                  routerLink="/explore"
+                  [queryParams]="{ genres: g }"
+                  >{{ g }}</a
+                >
+              }
+            </div>
+          }
+        }
+      </section>
+    }
+  </nav>
+
+  <footer class="foot">
+    @for (link of footerLinks; track link.label) {
+      <a class="item" [routerLink]="link.route">
+        <i class="fas {{ link.icon }}" aria-hidden="true"></i>
+        <span class="label">{{ link.label }}</span>
+      </a>
+    }
+  </footer>
+</aside>

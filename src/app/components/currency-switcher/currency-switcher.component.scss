@@ -1,61 +1,49 @@
-:host {
-  display: inline-block;
-  position: relative;
-}
+@use '../../styles/variables' as *;
+@use '../../styles/navbar-popover' as popover;
 
+:host,
 .currency-switcher-wrap {
+  display: inline-flex;
   position: relative;
 }
 
 .currency-trigger-btn {
-  display: inline-flex;
+  display: flex;
   align-items: center;
   gap: 6px;
+  height: 34px;
+  padding: 0 8px;
+  border: 1px solid color-mix(in srgb, var(--ink) 16%, transparent);
+  border-radius: 9px;
   background: transparent;
-  color: var(--text-color, #e5e7eb);
-  border: 1px solid var(--line-color, #333333);
-  padding: 6px 10px;
-  border-radius: 4px;
+  color: var(--ink);
+  font: 500 12px $font-tech;
   cursor: pointer;
-  font-size: 0.8125rem;
-  font-weight: 500;
-  line-height: 1;
-  transition:
-    border-color 0.15s ease,
-    background-color 0.15s ease;
 
-  &:hover {
-    border-color: var(--brand-color, #ef4444);
-    background: rgba(255, 255, 255, 0.04);
-  }
-
+  &:hover,
   &.active {
-    border-color: var(--brand-color, #ef4444);
-    background: rgba(255, 255, 255, 0.06);
+    border-color: var(--hot);
+    background: color-mix(in srgb, var(--ink) 6%, transparent);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--hot);
+    outline-offset: 2px;
   }
 }
 
-.currency-icon {
-  font-size: 0.75rem;
-  opacity: 0.7;
-}
-
-.currency-code {
-  letter-spacing: 0.02em;
+.currency-icon,
+.caret-icon {
+  font-size: 9px;
 }
 
 .auto-indicator {
-  font-size: 0.6875rem;
-  text-transform: uppercase;
-  color: var(--brand-color, #ef4444);
-  opacity: 0.9;
-  letter-spacing: 0.04em;
+  color: var(--ink-mute);
+  font-size: 10px;
 }
 
 .caret-icon {
-  font-size: 0.625rem;
-  opacity: 0.6;
-  transition: transform 0.15s ease;
+  transition: transform 160ms ease;
 
   &.rotated {
     transform: rotate(180deg);
@@ -63,78 +51,96 @@
 }
 
 .currency-dropdown {
+  @include popover.surface;
+  @include popover.entrance;
+
   position: absolute;
-  top: calc(100% + 6px);
+  top: calc(100% + 3px);
   right: 0;
-  min-width: 180px;
-  background: var(--card-bg-color, #1f1a28);
-  border: 1px solid var(--line-color, #333333);
-  border-radius: 4px;
-  padding: 6px 0;
-  z-index: 1000;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+  z-index: 1004;
+  width: 220px;
+  max-height: calc(100dvh - 80px);
+  overflow: auto;
+  padding: 12px 6px 6px;
 }
 
 .dropdown-header {
-  padding: 6px 12px 4px;
-  font-size: 0.6875rem;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: var(--text-color, #e5e7eb);
-  opacity: 0.5;
+  @include popover.title;
+
+  margin: 0 8px 10px;
+  font-size: 19px;
 }
 
 .dropdown-divider {
-  height: 1px;
-  background: var(--line-color, #333333);
-  margin: 4px 0;
+  margin: 4px 6px;
+  border-top: 1px solid var(--menu-line);
 }
 
 .currency-option {
-  width: 100%;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 8px 12px;
+  width: 100%;
+  min-height: 38px;
+  padding: 6px 12px;
+  border: 0;
+  border-radius: var(--menu-row-radius);
   background: transparent;
-  border: none;
-  color: var(--text-color, #e5e7eb);
-  cursor: pointer;
+  color: inherit;
+  font: 600 14px $font-head;
   text-align: left;
-  font-size: 0.8125rem;
-  transition: background-color 0.15s ease;
+  cursor: pointer;
 
-  &:hover {
-    background: rgba(255, 255, 255, 0.06);
+  &:hover,
+  &:focus-visible,
+  &.selected {
+    background: var(--menu-hover);
   }
 
-  &.selected {
-    color: var(--brand-color, #ef4444);
-    font-weight: 600;
+  &:disabled {
+    opacity: 0.65;
+    cursor: wait;
   }
 }
 
 .option-main {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
+  display: grid;
+  gap: 3px;
 }
 
-.option-title {
-  font-weight: 500;
-}
-
-.option-desc {
-  font-size: 0.6875rem;
-  opacity: 0.6;
+.option-desc,
+.option-symbol {
+  color: var(--ink-mute);
+  font-size: 12px;
+  font-weight: 400;
 }
 
 .option-symbol {
-  font-size: 0.75rem;
-  opacity: 0.7;
+  font-family: $font-tech;
 }
 
 .check-icon {
-  font-size: 0.75rem;
-  color: var(--brand-color, #ef4444);
+  color: var(--menu-accent);
+  font-size: 11px;
+}
+
+@media (max-width: 900px) {
+  .currency-switcher-wrap {
+    position: static;
+  }
+
+  :host {
+    position: static;
+  }
+
+  .currency-dropdown {
+    top: 100%;
+    right: 14px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .caret-icon {
+    transition: none;
+  }
 }

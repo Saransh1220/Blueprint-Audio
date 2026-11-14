@@ -23,14 +23,14 @@ export const BROWSE_ITEMS: readonly NavMenuItem[] = [
   },
   {
     label: 'Loops',
-    description: 'Drag-ready ideas',
+    description: 'Loops for your next track',
     icon: 'fa-repeat',
     route: '/loops',
     tint: 'lime',
   },
   {
     label: 'Sample packs',
-    description: 'Whole curated crates',
+    description: 'Curated sound collections',
     icon: 'fa-layer-group',
     route: '/sample-packs',
     tint: 'sun',
@@ -55,7 +55,7 @@ export const BROWSE_ITEMS: readonly NavMenuItem[] = [
 export const STUDIO_ITEMS: readonly NavMenuItem[] = [
   {
     label: 'Overview',
-    description: 'Your command center',
+    description: 'Studio at a glance',
     icon: 'fa-table-cells-large',
     route: '/studio/overview',
     tint: 'hot',
@@ -94,7 +94,7 @@ export const STUDIO_ITEMS: readonly NavMenuItem[] = [
   },
   {
     label: 'Earnings',
-    description: 'The money',
+    description: 'Payouts and balances',
     icon: 'fa-coins',
     route: '/studio/earnings',
     tint: 'cream',

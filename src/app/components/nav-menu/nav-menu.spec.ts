@@ -31,7 +31,7 @@ describe('NavMenuComponent', () => {
   let el: HTMLElement;
 
   const render = (inputs: Record<string, unknown> = {}) => {
-    fixture.componentRef.setInput('heading', 'Find your next');
+    fixture.componentRef.setInput('label', 'Browse');
     fixture.componentRef.setInput('items', items);
     for (const [key, value] of Object.entries(inputs)) fixture.componentRef.setInput(key, value);
     fixture.detectChanges();
@@ -45,18 +45,11 @@ describe('NavMenuComponent', () => {
     el = fixture.nativeElement;
   });
 
-  it('names the panel and sets the last word of the heading apart', () => {
-    render({ accent: 'sound', label: 'Browse' });
+  it('labels the panel and highlights the configured destination', () => {
+    render({ featuredRoute: '/explore' });
     expect(el.querySelector('nav')?.getAttribute('aria-label')).toBe('Browse');
-    expect(el.querySelector('.heading')?.textContent?.replace(/\s+/g, ' ').trim()).toBe(
-      'Find your next sound',
-    );
-    expect(el.querySelector('.heading em')?.textContent).toBe('sound');
-  });
-
-  it('draws a plain heading when there is no accent', () => {
-    render();
-    expect(el.querySelector('.heading em')).toBeNull();
+    expect(el.querySelector('.heading')?.textContent).toBe('Browse');
+    expect(el.querySelector('a.featured')?.getAttribute('href')).toBe('/explore');
   });
 
   it('lists each destination as a link with its icon, name and line', () => {
@@ -66,7 +59,6 @@ describe('NavMenuComponent', () => {
     expect(links[0].querySelector('.name')?.textContent).toBe('Explore');
     expect(links[0].querySelector('.desc')?.textContent).toBe('Beats and producers');
     expect(links[0].querySelector('.icon i')?.classList.contains('fa-compass')).toBe(true);
-    expect(links[1].querySelector('.icon')?.getAttribute('data-tint')).toBe('lime');
   });
 
   it('marks the page you are on', async () => {
@@ -84,32 +76,5 @@ describe('NavMenuComponent', () => {
     render();
     (el.querySelectorAll('a.item')[1] as HTMLAnchorElement).click();
     expect(chosen).toEqual([items[1]]);
-  });
-
-  it('draws no footer when none is given', () => {
-    render();
-    expect(el.querySelector('.foot')?.children.length).toBe(0);
-  });
-});
-
-@Component({
-  imports: [NavMenuComponent],
-  template: `
-    <app-nav-menu heading="Jump to" [items]="items">
-      <div navMenuFooter class="given">Open studio</div>
-    </app-nav-menu>
-  `,
-})
-class Host {
-  readonly items = items;
-}
-
-describe('NavMenuComponent footer slot', () => {
-  it('shows what is projected under the grid', () => {
-    TestBed.configureTestingModule({ providers: [provideRouter([])] });
-    const host = TestBed.createComponent(Host);
-    host.detectChanges();
-    const foot = host.nativeElement.querySelector('.foot') as HTMLElement;
-    expect(foot.querySelector('.given')?.textContent).toBe('Open studio');
   });
 });

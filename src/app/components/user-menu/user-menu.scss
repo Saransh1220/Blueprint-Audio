@@ -1,10 +1,7 @@
-// The account menu: the same raised-card language as the navbar's other popups.
-:host {
-  --um-bg: #131312;
-  --um-line: rgba(255, 255, 255, 0.08);
-  --um-wash: rgba(255, 255, 255, 0.05);
-  --um-ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+@use '../../styles/variables' as *;
+@use '../../styles/navbar-popover' as popover;
 
+:host {
   display: inline-block;
 }
 
@@ -13,232 +10,189 @@
 }
 
 .trigger {
-  display: inline-flex;
+  display: flex;
   align-items: center;
-  justify-content: center;
-  width: 38px;
+  gap: 5px;
   height: 38px;
-  padding: 0;
-  border: 0;
-  border-radius: 50%;
+  padding: 0 7px 0 4px;
+  border: 1px solid color-mix(in srgb, var(--ink) 16%, transparent);
+  border-radius: 12px;
   background: transparent;
+  color: var(--ink);
   cursor: pointer;
-  transition: box-shadow 0.2s ease;
 
   &:hover,
   &.active {
-    box-shadow:
-      0 0 0 2px var(--cream),
-      0 0 0 3.5px var(--ink-mute);
+    background: color-mix(in srgb, var(--ink) 8%, transparent);
   }
 
   &.active {
-    box-shadow:
-      0 0 0 2px var(--cream),
-      0 0 0 3.5px var(--hot);
+    border-color: var(--hot);
   }
 
   &:focus-visible {
     outline: 2px solid var(--hot);
-    outline-offset: 3px;
+    outline-offset: 2px;
+  }
+}
+
+.caret {
+  font-size: 8px;
+  transition: transform 160ms ease;
+
+  .active & {
+    transform: rotate(180deg);
   }
 }
 
 .avatar {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 34px;
-  height: 34px;
-  border-radius: 50%;
-  background-color: var(--cream-3);
-  background-position: center;
-  background-size: cover;
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 27px;
+  height: 27px;
+  border-radius: 8px;
+  background: var(--cream-3) center / cover;
   color: var(--ink);
-  font-family: 'Bricolage Grotesque', sans-serif;
-  font-size: 14px;
-  font-weight: 700;
+  font-family: $font-head;
+  font-size: 13px;
+  font-weight: 800;
   text-transform: uppercase;
 
   &.large {
-    flex: none;
-    width: 38px;
-    height: 38px;
-    border-radius: 50%;
-    background-color: var(--hot);
-    color: #fff;
-    font-size: 18px;
+    width: 44px;
+    height: 44px;
+    border-radius: 13px;
+    background-color: #f7d5dc;
+    color: #42131e;
+    font-size: 21px;
   }
 }
 
 .panel {
+  @include popover.surface;
+  @include popover.entrance;
+
   position: absolute;
-  top: calc(100% + 12px);
+  top: calc(100% + 3px);
   right: 0;
   z-index: 1004;
-  width: min(264px, calc(100vw - 24px));
-  padding: 6px;
-  border: 1px solid var(--um-line);
-  border-radius: 14px;
-  background: var(--um-bg);
-  box-shadow: 0 24px 48px -16px rgba(0, 0, 0, 0.8);
-  color: var(--ink);
-  transform-origin: top right;
-  animation: panel-in 0.2s var(--um-ease);
-}
-
-@keyframes panel-in {
-  from {
-    opacity: 0;
-    transform: translateY(-6px) scale(0.98);
-  }
+  width: min(304px, calc(100vw - 72px));
+  max-height: calc(100dvh - 80px);
+  overflow: auto;
 }
 
 .who {
-  display: flex;
+  @include popover.ticket;
+
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
   align-items: center;
   gap: 12px;
-  padding: 12px 12px 14px;
-  border-bottom: 1px solid var(--um-line);
+  min-height: 92px;
+  padding: 14px;
+  border-radius: calc(var(--menu-radius) - 1px) calc(var(--menu-radius) - 1px) 14px 14px;
 }
 
 .who-text {
-  display: flex;
-  min-width: 0;
-  flex: 1;
-  flex-direction: column;
+  display: grid;
   gap: 2px;
 }
 
-.name {
+.name,
+.handle {
   overflow: hidden;
-  font-family: 'Bricolage Grotesque', sans-serif;
-  font-size: 15px;
-  font-weight: 700;
-  letter-spacing: -0.02em;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.name {
+  font-family: $font-head;
+  font-size: 19px;
+  font-weight: 800;
+  letter-spacing: -0.035em;
+  line-height: 1.15;
 }
 
 .handle {
-  overflow: hidden;
-  color: var(--ink-mute);
-  font-size: 13px;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  color: #ffdee4;
+  font-size: 12px;
 }
 
-// A quiet label, not a badge: the role reads as metadata.
 .role {
-  flex: none;
-  align-self: flex-start;
-  color: var(--ink-mute);
-  font-family: 'DM Mono', monospace;
-  font-size: 9.5px;
-  letter-spacing: 0.14em;
+  margin-top: 3px;
+  color: #ffe9df;
+  font-family: $font-tech;
+  font-size: 10px;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
-
-  &.producer {
-    color: var(--hot);
-  }
 }
 
 .links {
-  display: flex;
-  flex-direction: column;
-  gap: 1px;
-  padding: 6px 0;
-}
-
-.row {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 9px 10px;
-  border-radius: 8px;
-  color: var(--ink-2);
-  font-family: 'Bricolage Grotesque', sans-serif;
-  font-size: 14px;
-  font-weight: 600;
-  text-decoration: none;
-  transition: background 0.15s ease;
-
-  &:hover,
-  &:focus-visible {
-    background: var(--um-wash);
-    color: var(--ink);
-    outline: none;
-
-    .ico {
-      color: var(--ink);
-    }
-  }
-
-  &:focus-visible {
-    box-shadow: inset 0 0 0 2px var(--hot);
-  }
-}
-
-// Plain glyph, no tile.
-.ico {
   display: grid;
-  flex: none;
-  width: 18px;
-  place-items: center;
-  color: var(--ink-mute);
-  font-size: 14px;
-  transition: color 0.15s ease;
+  padding: 5px 6px;
 }
 
-// (the old hover arrow is gone: the menu is quiet)
-.go {
-  display: none;
-}
-
-.foot {
-  padding: 6px 0 0;
-  border-top: 1px solid var(--um-line);
-}
-
+.row,
 .logout {
   display: flex;
   align-items: center;
-  gap: 12px;
-  width: 100%;
-  padding: 9px 10px;
-  border: 0;
-  border-radius: 8px;
-  background: transparent;
-  color: var(--ink-mute);
-  font-family: 'Bricolage Grotesque', sans-serif;
+  gap: 10px;
+  min-height: 40px;
+  padding: 5px 12px;
+  border-radius: var(--menu-row-radius);
+  color: inherit;
+  font-family: $font-head;
   font-size: 14px;
-  font-weight: 600;
-  text-align: left;
-  cursor: pointer;
-  transition:
-    background 0.15s ease,
-    color 0.15s ease;
-
-  i {
-    width: 18px;
-    font-size: 14px;
-    text-align: center;
-  }
+  font-weight: 700;
+  text-decoration: none;
+  transition: background-color 150ms ease;
 
   &:hover,
   &:focus-visible {
-    background: var(--um-wash);
-    color: #ff6b6b;
-    outline: none;
+    background: var(--menu-hover);
+  }
+}
+
+.ico {
+  display: grid;
+  flex: none;
+  width: 20px;
+  place-items: center;
+  color: var(--ink-mute);
+  font-size: 12px;
+}
+
+.go {
+  margin-left: auto;
+  color: var(--ink-mute);
+  font-size: 10px;
+}
+
+.foot {
+  padding: 4px 6px 6px;
+  border-top: 1px solid var(--menu-line);
+}
+
+.logout {
+  width: 100%;
+  border: 0;
+  background: transparent;
+  color: var(--menu-accent);
+  text-align: left;
+  cursor: pointer;
+
+  i {
+    width: 20px;
+    font-size: 13px;
+    text-align: center;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .panel {
-    animation: none;
-  }
-
-  .ico {
+  .caret,
+  .row,
+  .logout {
     transition: none;
   }
 }

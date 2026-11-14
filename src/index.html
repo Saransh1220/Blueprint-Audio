@@ -26,7 +26,15 @@
   <body class="dark-theme">
     <app-root></app-root>
 
-    <!-- Razorpay Checkout SDK -->
-    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+    <!-- Razorpay Checkout SDK: injected after load so its hidden iframe can't hold the page's
+         loading state (tab spinner) open if api.razorpay.com is slow or blocked. -->
+    <script>
+      window.addEventListener('load', function () {
+        var s = document.createElement('script');
+        s.src = 'https://checkout.razorpay.com/v1/checkout.js';
+        s.async = true;
+        document.body.appendChild(s);
+      });
+    </script>
   </body>
 </html>

@@ -102,28 +102,34 @@
   }
 </style>
 
-@if (!isAuthRoute()) {
-  <app-header></app-header>
+@if (hasSidebar()) {
+  <app-sidebar></app-sidebar>
 }
-<div
-  class="app-shell"
-  [class.player-docked]="shouldReservePlayerSpace()"
-  [class.player-expanded]="shouldReserveExpandedPlayerSpace()"
->
-  <div class="app-route-layer">
-    <router-outlet></router-outlet>
-  </div>
-  @if (
-    !isStudioRoute() &&
-    !isAuthRoute() &&
-    !isUploadRoute() &&
-    !isExploreRoute() &&
-    !isBeatRoute() &&
-    !isPaymentReturnRoute() &&
-    !isCatalogRoute()
-  ) {
-    <app-footer></app-footer>
+<div class="main-col" [class.with-sidebar]="hasSidebar()">
+  @if (!isAuthRoute()) {
+    <app-header [sidebarLayout]="hasSidebar()"></app-header>
   }
+  <div
+    class="app-shell"
+    [class.player-docked]="shouldReservePlayerSpace()"
+    [class.player-expanded]="shouldReserveExpandedPlayerSpace()"
+  >
+    <div class="app-route-layer">
+      <router-outlet></router-outlet>
+    </div>
+    @if (
+      !isStudioRoute() &&
+      !isAuthRoute() &&
+      !isUploadRoute() &&
+      !isExploreRoute() &&
+      !isBeatRoute() &&
+      !isPaymentReturnRoute() &&
+      !isCatalogRoute() &&
+      !hasSidebar()
+    ) {
+      <app-footer></app-footer>
+    }
+  </div>
 </div>
 <app-player></app-player>
 @if (!isAuthRoute() && !isUploadRoute()) {

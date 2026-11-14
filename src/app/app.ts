@@ -15,6 +15,8 @@ import { BuyerCurrencyService } from './services/buyer-currency.service';
 import { PlayerService } from './services/player.service';
 import { SpecUploadMonitorService } from './services/spec-upload-monitor.service';
 import { ThemeService } from './services/theme.service';
+import { usesSidebarLayout } from './utils/sidebar-routes';
+import { SidebarComponent } from './components/sidebar/sidebar';
 
 @Component({
   selector: 'app-root',
@@ -32,6 +34,7 @@ import { ThemeService } from './services/theme.service';
     ToastComponent,
     LoadingBarComponent,
     PurchaseWarpComponent,
+    SidebarComponent,
   ],
   templateUrl: './app.html',
   styleUrls: ['./app.scss'],
@@ -54,6 +57,10 @@ export class AppComponent {
         window.scrollTo({ top: 0, behavior: 'auto' });
       }, 0);
     });
+  }
+
+  hasSidebar(): boolean {
+    return usesSidebarLayout(this.router.url);
   }
 
   isStudioRoute(): boolean {

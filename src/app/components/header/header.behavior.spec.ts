@@ -64,10 +64,12 @@ describe('HeaderComponent behavior', () => {
     component.setUserMenuOpen(false);
     expect(component.isUserMenuOpen).toBe(false);
 
-    component.closeStudioMenu();
-    expect(component.isStudioMenuDismissed).toBe(true);
-    component.resetStudioMenuDismissal();
-    expect(component.isStudioMenuDismissed).toBe(false);
+    component.toggleNavPanel('studio');
+    expect(component.activeNavPanel).toBe('studio');
+    component.toggleNavPanel('browse');
+    expect(component.activeNavPanel).toBe('browse');
+    component.toggleNavPanel('browse');
+    expect(component.activeNavPanel).toBeNull();
 
     const stopPropagation = vi.fn();
     component.markAsRead('n1', { stopPropagation } as any);

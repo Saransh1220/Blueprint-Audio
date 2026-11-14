@@ -35,6 +35,11 @@ export const routes: Routes = [
   { path: 'cart', component: CartComponent },
   { path: 'explore', component: SearchPageComponent },
   {
+    path: 'discover',
+    loadComponent: () =>
+      import('./pages/discover/discover.component').then((m) => m.DiscoverComponent),
+  },
+  {
     matcher: profileUrlMatcher,
     loadComponent: () =>
       import('./pages/producer-profile/producer-profile.component').then(

@@ -5,21 +5,26 @@ import {
   computed,
   ElementRef,
   inject,
-  signal,
+  model,
+  viewChild,
 } from '@angular/core';
+import { catchError, EMPTY } from 'rxjs';
+import { HoverPopupDirective, isKeyboardOrTouchActivation } from '../header/hover-popup.directive';
 import type { CurrencyDefinition } from '../../models/money';
 import { BuyerCurrencyService } from '../../services/buyer-currency.service';
 import { CurrencyConfigurationService } from '../../services/currency-configuration.service';
 
 @Component({
   selector: 'app-currency-switcher',
-  imports: [CommonModule],
+  imports: [CommonModule, HoverPopupDirective],
   templateUrl: './currency-switcher.component.html',
   styleUrl: './currency-switcher.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
     '(document:click)': 'onDocumentClick($event)',
-    '(keydown.escape)': 'close()',
+    '(document:pointerdown)': 'onDocumentClick($event)',
+    '(document:focusin)': 'onDocumentClick($event)',
+    '(document:keydown.escape)': 'dismiss($event)',
   },
 })
 export class CurrencySwitcherComponent {
@@ -27,7 +32,8 @@ export class CurrencySwitcherComponent {
   private readonly configService = inject(CurrencyConfigurationService);
   private readonly elementRef = inject(ElementRef);
 
-  readonly isOpen = signal(false);
+  private readonly trigger = viewChild<ElementRef<HTMLButtonElement>>('trigger');
+  readonly isOpen = model(false);
   readonly effectiveCurrency = this.buyerCurrency.effective;
   readonly isAutomatic = this.buyerCurrency.isAutomatic;
   readonly preference = this.buyerCurrency.preference;
@@ -41,7 +47,8 @@ export class CurrencySwitcherComponent {
     return list.filter((c) => c.gateway !== null);
   });
 
-  toggle() {
+  toggle(event?: MouseEvent) {
+    if (!isKeyboardOrTouchActivation(event)) return;
     this.isOpen.update((v) => !v);
   }
 
@@ -49,15 +56,24 @@ export class CurrencySwitcherComponent {
     this.isOpen.set(false);
   }
 
-  select(currency: string | null) {
-    this.buyerCurrency.set(currency).subscribe({
-      next: () => this.close(),
-      error: () => this.close(),
-    });
+  dismiss(event: Event) {
+    if (!this.isOpen() || event.defaultPrevented) return;
+    event.preventDefault();
+    this.close();
+    this.trigger()?.nativeElement.focus();
   }
 
-  onDocumentClick(event: MouseEvent) {
-    if (!this.elementRef.nativeElement.contains(event.target)) {
+  select(currency: string | null) {
+    this.close();
+    this.trigger()?.nativeElement.focus();
+    this.buyerCurrency
+      .set(currency)
+      .pipe(catchError(() => EMPTY))
+      .subscribe();
+  }
+
+  onDocumentClick(event: Event) {
+    if (this.isOpen() && !this.elementRef.nativeElement.contains(event.target)) {
       this.close();
     }
   }

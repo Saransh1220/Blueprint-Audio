@@ -74,6 +74,7 @@ describe('AppComponent', () => {
     fixture.detectChanges();
     expect((fixture.nativeElement as HTMLElement).querySelector('app-footer')).toBeTruthy();
     expect((fixture.nativeElement as HTMLElement).querySelector('app-header')).toBeTruthy();
+    expect(fixture.nativeElement.querySelector('app-sidebar')).toBeNull();
 
     await router.navigateByUrl('/login');
     fixture.detectChanges();
@@ -92,6 +93,7 @@ describe('AppComponent', () => {
     fixture.detectChanges();
     expect((fixture.nativeElement as HTMLElement).querySelector('app-footer')).toBeNull();
     expect((fixture.nativeElement as HTMLElement).querySelector('app-header')).toBeTruthy();
+    expect(fixture.nativeElement.querySelector('app-sidebar')).toBeTruthy();
   });
 
   it('omits the global footer on the payment return page', async () => {
