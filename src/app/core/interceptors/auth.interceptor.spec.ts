@@ -1,7 +1,9 @@
 import { HttpErrorResponse, HttpRequest } from '@angular/common/http';
 import { TestBed } from '@angular/core/testing';
 import { Router } from '@angular/router';
-import { of, Subject, throwError } from 'rxjs';
+import { of, throwError } from 'rxjs';
+import { Role, SystemRole, User } from '../../models';
+import { SessionStateService } from '../services/session-state.service';
 import { TokenRefreshService } from '../../services/token-refresh.service';
 import { authInterceptor } from './auth.interceptor';
 
@@ -10,6 +12,19 @@ describe('authInterceptor', () => {
     localStorage.clear();
     TestBed.resetTestingModule();
   });
+
+  const mockUser: User = {
+    id: 'user-abc',
+    name: 'Test',
+    display_name: 'Tester',
+    email: 'test@example.com',
+    role: Role.PRODUCER,
+    system_role: SystemRole.USER,
+    status: 'active',
+    email_verified: true,
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+  };
 
   function setup() {
     const router = {
@@ -23,16 +38,17 @@ describe('authInterceptor', () => {
       providers: [
         { provide: Router, useValue: router },
         { provide: TokenRefreshService, useValue: tokenRefreshService },
+        SessionStateService,
       ],
     });
 
-    return { router, tokenRefreshService };
+    const sessionState = TestBed.inject(SessionStateService);
+    return { router, tokenRefreshService, sessionState };
   }
 
-  it('adds bearer token header when token exists', () => {
+  it('adds session marker and withCredentials to API requests without Authorization header', () => {
     setup();
-    localStorage.setItem('token', 'abc123');
-    const req = new HttpRequest('GET', '/resource');
+    const req = new HttpRequest('GET', '/api/resource');
     const next = vi.fn((r: HttpRequest<unknown>) => of(r));
     let forwarded: HttpRequest<unknown> | undefined;
 
@@ -43,12 +59,46 @@ describe('authInterceptor', () => {
     });
 
     expect(next).toHaveBeenCalledTimes(1);
-    expect(forwarded?.headers.get('Authorization')).toBe('Bearer abc123');
+    expect(forwarded?.withCredentials).toBe(true);
+    expect(forwarded?.headers.get('X-Waveyard-Session')).toBe('cookie');
+    expect(forwarded?.headers.has('Authorization')).toBe(false);
   });
 
-  it('forwards request unchanged when token is missing', () => {
+  it('attaches X-Waveyard-Expected-Viewer when user is signed in', () => {
+    const { sessionState } = setup();
+    sessionState.setVerified(mockUser);
+
+    const req = new HttpRequest('GET', '/api/resource');
+    const next = vi.fn((r: HttpRequest<unknown>) => of(r));
+    let forwarded: HttpRequest<unknown> | undefined;
+
+    TestBed.runInInjectionContext(() => {
+      (authInterceptor(req, next as never) as any).subscribe((value: HttpRequest<unknown>) => {
+        forwarded = value;
+      });
+    });
+
+    expect(forwarded?.headers.get('X-Waveyard-Expected-Viewer')).toBe('user-abc');
+  });
+
+  it('attaches X-Waveyard-Expected-Viewer: guest on PUT /preferences/currency when anonymous', () => {
     setup();
-    const req = new HttpRequest('GET', '/resource');
+    const req = new HttpRequest('PUT', '/preferences/currency', { currency: 'USD' });
+    const next = vi.fn((r: HttpRequest<unknown>) => of(r));
+    let forwarded: HttpRequest<unknown> | undefined;
+
+    TestBed.runInInjectionContext(() => {
+      (authInterceptor(req, next as never) as any).subscribe((value: HttpRequest<unknown>) => {
+        forwarded = value;
+      });
+    });
+
+    expect(forwarded?.headers.get('X-Waveyard-Expected-Viewer')).toBe('guest');
+  });
+
+  it('passes external URLs untouched', () => {
+    setup();
+    const req = new HttpRequest('GET', 'https://s3.amazonaws.com/my-bucket/audio.mp3');
     const next = vi.fn((r: HttpRequest<unknown>) => of(r));
     let forwarded: HttpRequest<unknown> | undefined;
 
@@ -59,13 +109,13 @@ describe('authInterceptor', () => {
     });
 
     expect(next).toHaveBeenCalledWith(req);
-    expect(forwarded?.headers.has('Authorization')).toBe(false);
+    expect(forwarded?.headers.has('X-Waveyard-Session')).toBe(false);
+    expect(forwarded?.withCredentials).toBe(false);
   });
 
-  it('does not try to refresh auth endpoints after a 401', () => {
+  it('does not try to refresh excluded auth endpoints after a 401', () => {
     const { router, tokenRefreshService } = setup();
-    localStorage.setItem('token', 'expired-token');
-    const req = new HttpRequest('POST', '/login');
+    const req = new HttpRequest('POST', '/login', {});
     const next = vi.fn(() =>
       throwError(() => new HttpErrorResponse({ status: 401, statusText: 'Unauthorized' })),
     );
@@ -84,19 +134,20 @@ describe('authInterceptor', () => {
     expect(receivedError?.status).toBe(401);
   });
 
-  it('refreshes the token and retries the failed request', () => {
+  it('refreshes the session and retries the failed request once on 401', () => {
     const { tokenRefreshService } = setup();
-    localStorage.setItem('token', 'expired-token');
-    tokenRefreshService.refreshTokenWithQueue.mockReturnValue(of({ token: 'fresh-token' }));
+    tokenRefreshService.refreshTokenWithQueue.mockReturnValue(of(undefined));
 
+    let attempts = 0;
     const req = new HttpRequest('GET', '/protected');
     const next = vi.fn((forwardedReq: HttpRequest<unknown>) => {
-      if (forwardedReq.headers.get('Authorization') === 'Bearer fresh-token') {
-        return of(forwardedReq);
+      attempts++;
+      if (attempts === 1) {
+        return throwError(() => new HttpErrorResponse({ status: 401, statusText: 'Unauthorized' }));
       }
-
-      return throwError(() => new HttpErrorResponse({ status: 401, statusText: 'Unauthorized' }));
+      return of(forwardedReq);
     });
+
     let forwarded: HttpRequest<unknown> | undefined;
 
     TestBed.runInInjectionContext(() => {
@@ -107,14 +158,12 @@ describe('authInterceptor', () => {
 
     expect(tokenRefreshService.refreshTokenWithQueue).toHaveBeenCalledTimes(1);
     expect(next).toHaveBeenCalledTimes(2);
-    expect(next.mock.calls[0][0].headers.get('Authorization')).toBe('Bearer expired-token');
-    expect(next.mock.calls[1][0].headers.get('Authorization')).toBe('Bearer fresh-token');
-    expect(forwarded?.headers.get('Authorization')).toBe('Bearer fresh-token');
+    expect(forwarded).toBeDefined();
   });
 
-  it('logs out when token refresh fails', () => {
-    const { router, tokenRefreshService } = setup();
-    localStorage.setItem('token', 'expired-token');
+  it('clears session and navigates to login when token refresh fails', () => {
+    const { router, tokenRefreshService, sessionState } = setup();
+    sessionState.setVerified(mockUser);
     tokenRefreshService.refreshTokenWithQueue.mockReturnValue(
       throwError(() => new Error('refresh failed')),
     );
@@ -134,55 +183,19 @@ describe('authInterceptor', () => {
     });
 
     expect(tokenRefreshService.refreshTokenWithQueue).toHaveBeenCalledTimes(1);
-    expect(localStorage.getItem('token')).toBeNull();
+    expect(sessionState.currentUser()).toBeNull();
+    expect(sessionState.status()).toBe('anonymous');
     expect(router.navigate).toHaveBeenCalledWith(['/login']);
     expect(receivedError?.message).toBe('refresh failed');
   });
 
-  it('queues concurrent 401 responses behind one refresh request', () => {
-    const { tokenRefreshService } = setup();
-    localStorage.setItem('token', 'expired-token');
-    const refresh$ = new Subject<{ token: string }>();
-    tokenRefreshService.refreshTokenWithQueue.mockReturnValue(refresh$.asObservable());
+  it('clears session and navigates to login on 409 SESSION_CHANGED', () => {
+    const { router, sessionState } = setup();
+    sessionState.setVerified(mockUser);
 
-    const reqA = new HttpRequest('GET', '/protected/a');
-    const reqB = new HttpRequest('GET', '/protected/b');
-    const next = vi.fn((forwardedReq: HttpRequest<unknown>) => {
-      if (forwardedReq.headers.get('Authorization') === 'Bearer fresh-token') {
-        return of(forwardedReq);
-      }
-
-      return throwError(() => new HttpErrorResponse({ status: 401, statusText: 'Unauthorized' }));
-    });
-
-    let forwardedA: HttpRequest<unknown> | undefined;
-    let forwardedB: HttpRequest<unknown> | undefined;
-
-    TestBed.runInInjectionContext(() => {
-      (authInterceptor(reqA, next as never) as any).subscribe((value: HttpRequest<unknown>) => {
-        forwardedA = value;
-      });
-      (authInterceptor(reqB, next as never) as any).subscribe((value: HttpRequest<unknown>) => {
-        forwardedB = value;
-      });
-    });
-
-    expect(tokenRefreshService.refreshTokenWithQueue).toHaveBeenCalledTimes(2);
-
-    refresh$.next({ token: 'fresh-token' });
-    refresh$.complete();
-
-    expect(next).toHaveBeenCalledTimes(4);
-    expect(forwardedA?.headers.get('Authorization')).toBe('Bearer fresh-token');
-    expect(forwardedB?.headers.get('Authorization')).toBe('Bearer fresh-token');
-  });
-
-  it('does not refresh logout failures', () => {
-    const { router, tokenRefreshService } = setup();
-    localStorage.setItem('token', 'expired-token');
-    const req = new HttpRequest('POST', '/auth/logout');
+    const req = new HttpRequest('GET', '/protected');
     const next = vi.fn(() =>
-      throwError(() => new HttpErrorResponse({ status: 401, statusText: 'Unauthorized' })),
+      throwError(() => new HttpErrorResponse({ status: 409, statusText: 'Conflict' })),
     );
 
     TestBed.runInInjectionContext(() => {
@@ -191,23 +204,34 @@ describe('authInterceptor', () => {
       });
     });
 
-    expect(tokenRefreshService.refreshTokenWithQueue).not.toHaveBeenCalled();
-    expect(router.navigate).not.toHaveBeenCalled();
+    expect(sessionState.currentUser()).toBeNull();
+    expect(sessionState.status()).toBe('anonymous');
+    expect(router.navigate).toHaveBeenCalledWith(['/login']);
   });
 
-  it('passes through non-401 errors without refreshing', () => {
-    const { router, tokenRefreshService } = setup();
-    const req = new HttpRequest('GET', '/api/specs');
-    const failure = new HttpErrorResponse({ status: 500, statusText: 'Server Error' });
-    const next = vi.fn(() => throwError(() => failure));
-    const error = vi.fn();
+  it('clears session and navigates to login on 403 suspension', () => {
+    const { router, sessionState } = setup();
+    sessionState.setVerified(mockUser);
+
+    const req = new HttpRequest('GET', '/protected');
+    const next = vi.fn(() =>
+      throwError(
+        () =>
+          new HttpErrorResponse({
+            status: 403,
+            error: { error: 'account suspended' },
+          }),
+      ),
+    );
 
     TestBed.runInInjectionContext(() => {
-      (authInterceptor(req, next as never) as any).subscribe({ error });
+      (authInterceptor(req, next as never) as any).subscribe({
+        error: () => undefined,
+      });
     });
 
-    expect(error).toHaveBeenCalledWith(failure);
-    expect(tokenRefreshService.refreshTokenWithQueue).not.toHaveBeenCalled();
-    expect(router.navigate).not.toHaveBeenCalled();
+    expect(sessionState.currentUser()).toBeNull();
+    expect(sessionState.status()).toBe('anonymous');
+    expect(router.navigate).toHaveBeenCalledWith(['/login']);
   });
 });

@@ -15,3 +15,4 @@ export * from './player.service';
 export * from './spec-action.service';
 export * from './theme.service';
 export * from './toast.service';
+export * from './token-refresh.service';

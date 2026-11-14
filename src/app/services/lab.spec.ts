@@ -3,7 +3,8 @@ import { of } from 'rxjs';
 import { SpecAdapter } from '../adapters/spec.adapter';
 import { GetSpecRequest, GetSpecsRequest } from '../core/api/spec.requests';
 import { ApiService } from '../core/services/api.service';
-import { Spec } from '../models';
+import { SessionStateService } from '../core/services/session-state.service';
+import { Role, SystemRole, Spec } from '../models';
 import { BuyerCurrencyService } from './buyer-currency.service';
 import { LabService } from './lab';
 
@@ -38,6 +39,34 @@ describe('LabService', () => {
     service.getSpecs({ search: 'beat' }).subscribe();
 
     expect(execute).toHaveBeenCalledTimes(3);
+  });
+
+  it('invalidates cached search results when session viewer or generation changes', () => {
+    const execute = vi.fn().mockReturnValue(of([]));
+    const { service } = setup(execute);
+    const sessionState = TestBed.inject(SessionStateService);
+
+    service.getSpecs({ search: 'beat' }).subscribe();
+    expect(execute).toHaveBeenCalledTimes(1);
+
+    service.getSpecs({ search: 'beat' }).subscribe();
+    expect(execute).toHaveBeenCalledTimes(1);
+
+    sessionState.setVerified({
+      id: 'user-new',
+      name: 'New',
+      display_name: 'New',
+      email: 'new@example.com',
+      role: Role.PRODUCER,
+      system_role: SystemRole.USER,
+      status: 'active',
+      email_verified: true,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    });
+
+    service.getSpecs({ search: 'beat' }).subscribe();
+    expect(execute).toHaveBeenCalledTimes(2);
   });
 
   it('getSpecs maps data and stores pagination metadata', () => {

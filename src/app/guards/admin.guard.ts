@@ -1,26 +1,20 @@
 import { inject } from '@angular/core';
 import { CanActivateFn, Router } from '@angular/router';
-import { catchError, map, of } from 'rxjs';
 import { SystemRole } from '../models';
 import { AuthService } from '../services/auth.service';
 import { AuthzService } from '../services/authz.service';
+import { SessionStateService } from '../core/services/session-state.service';
 
-export const adminGuard: CanActivateFn = () => {
+export const adminGuard: CanActivateFn = async () => {
   const router = inject(Router);
   const auth = inject(AuthService);
   const authz = inject(AuthzService);
+  const sessionState = inject(SessionStateService);
 
-  if (authz.isSuperAdmin()) {
+  await auth.sessionReady;
+
+  if (authz.isSuperAdmin() || sessionState.currentUser()?.system_role === SystemRole.SUPER_ADMIN) {
     return true;
-  }
-
-  if (localStorage.getItem('token')) {
-    return auth.getMe().pipe(
-      map((user) =>
-        user?.system_role === SystemRole.SUPER_ADMIN ? true : router.createUrlTree(['/']),
-      ),
-      catchError(() => of(router.createUrlTree(['/']))),
-    );
   }
 
   return router.createUrlTree(['/']);

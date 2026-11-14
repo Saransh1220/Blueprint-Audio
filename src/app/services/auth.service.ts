@@ -1,5 +1,5 @@
 import { SocialAuthService } from '@abacritt/angularx-social-login';
-import { Injectable, inject, signal } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { catchError, firstValueFrom, map, of, switchMap, tap } from 'rxjs';
 import { AuthRequirementComponent } from '../components/modals/auth-requirement/auth-requirement.component';
@@ -9,7 +9,6 @@ import {
   GoogleLoginRequest,
   LoginRequest,
   LogoutApiRequest,
-  RefreshRequest,
   RegisterRequest,
   ResendVerificationApiRequest,
   ResetPasswordApiRequest,
@@ -22,6 +21,7 @@ import {
   UploadBannerRequest,
 } from '../core/api/user.requests';
 import { ApiService } from '../core/services/api.service';
+import { SessionStateService } from '../core/services/session-state.service';
 import { Role, SystemRole, User, UserAdapter } from '../models';
 import type { AppCurrency } from '../models/money';
 import { resolveMediaUrl } from '../utils/media-url';
@@ -38,10 +38,30 @@ export class AuthService {
   private readonly modalService = inject(ModalService);
   private readonly socialAuthService = inject(SocialAuthService);
   private readonly tokenRefreshService = inject(TokenRefreshService);
-
+  private readonly sessionState = inject(SessionStateService);
   private readonly favorites = inject(FavoriteStateService);
 
-  currentUser = signal<User | null>(null);
+  private broadcastChannel: BroadcastChannel | null = null;
+
+  readonly currentUser = this.sessionState.currentUser;
+
+  constructor() {
+    if (typeof BroadcastChannel !== 'undefined') {
+      try {
+        this.broadcastChannel = new BroadcastChannel('waveyard_session');
+        this.broadcastChannel.onmessage = (event) => {
+          if (event.data?.type === 'logout') {
+            this.clearLocalSession();
+            this.router.navigate(['/login']);
+          } else if (event.data?.type === 'login') {
+            this.checkSession();
+          }
+        };
+      } catch {
+        /* Ignore environments without BroadcastChannel */
+      }
+    }
+  }
 
   requireAuth(callback: () => void) {
     if (this.currentUser()) {
@@ -58,22 +78,36 @@ export class AuthService {
 
   /**
    * On app startup:
-   * 1. If we have an access token → call /me to restore user state.
-   * 2. If no access token → try to silently refresh using the HttpOnly cookie.
-   *    If refresh succeeds → call /me; if it fails → leave unauthenticated.
+   * 1. Call /me using HttpOnly access cookie.
+   * 2. On 401, attempt silent refresh using HttpOnly refresh cookie.
+   *    If refresh succeeds -> call /me; if it fails -> leave as anonymous.
    */
-  checkSession() {
-    const token = localStorage.getItem('token');
-    if (token) {
-      // We have a stored access token, verify it by fetching the user profile
-      return firstValueFrom(this.getMe(), { defaultValue: null });
-    }
-
-    // No access token; attempt a silent refresh using the HttpOnly refresh cookie.
+  checkSession(): Promise<User | null> {
     return firstValueFrom(
-      this.tokenRefreshService.refreshTokenWithQueue().pipe(
-        switchMap(() => this.getMe()),
-        catchError(() => of(null)),
+      this.api.execute(new GetMeRequest()).pipe(
+        map((apiResponse) => UserAdapter.toUser(apiResponse)),
+        tap((user) => {
+          this.favorites.setViewer(user.id);
+          this.sessionState.setVerified(user);
+        }),
+        catchError((err) => {
+          if (err?.status === 401) {
+            // Attempt silent refresh via HttpOnly refresh cookie
+            return this.tokenRefreshService.refreshTokenWithQueue().pipe(
+              switchMap(() => this.getMe()),
+              catchError(() => {
+                this.sessionState.setAnonymous();
+                return of(null);
+              }),
+            );
+          }
+          if (err?.status >= 500) {
+            this.sessionState.setUnavailable();
+          } else {
+            this.sessionState.setAnonymous();
+          }
+          return of(null);
+        }),
       ),
       { defaultValue: null },
     );
@@ -81,19 +115,19 @@ export class AuthService {
 
   login(credentials: { email: string; password: string }) {
     return this.api.execute(new LoginRequest(credentials)).pipe(
-      tap((res) => {
-        localStorage.setItem('token', res.token);
-      }),
       switchMap(() => this.getMe()),
+      tap(() => {
+        this.broadcastChannel?.postMessage({ type: 'login' });
+      }),
     );
   }
 
   googleLogin(idToken: string) {
     return this.api.execute(new GoogleLoginRequest({ token: idToken })).pipe(
-      tap((res) => {
-        localStorage.setItem('token', res.token);
-      }),
       switchMap(() => this.getMe()),
+      tap(() => {
+        this.broadcastChannel?.postMessage({ type: 'login' });
+      }),
     );
   }
 
@@ -134,7 +168,7 @@ export class AuthService {
   }) {
     return this.api.execute(new UpdateProfileRequest(data)).pipe(
       tap((updatedUser) => {
-        this.currentUser.set(this.mapToUser(updatedUser));
+        this.sessionState.currentUser.set(this.mapToUser(updatedUser));
       }),
     );
   }
@@ -142,7 +176,7 @@ export class AuthService {
   uploadAvatar(file: File) {
     return this.api.execute(new UploadAvatarRequest(file)).pipe(
       tap((updatedUser) => {
-        this.currentUser.set(this.mapToUser(updatedUser));
+        this.sessionState.currentUser.set(this.mapToUser(updatedUser));
       }),
     );
   }
@@ -150,7 +184,7 @@ export class AuthService {
   uploadBanner(file: File) {
     return this.api
       .execute(new UploadBannerRequest(file))
-      .pipe(tap((updatedUser) => this.currentUser.set(this.mapToUser(updatedUser))));
+      .pipe(tap((updatedUser) => this.sessionState.currentUser.set(this.mapToUser(updatedUser))));
   }
 
   private mapToUser(response: PublicUserResponse): User {
@@ -158,7 +192,7 @@ export class AuthService {
       id: response.id,
       name: response.name,
       display_name: response.display_name || null,
-      email: '', // Not included in public response
+      email: '',
       role: response.role as Role,
       system_role: SystemRole.USER,
       status: 'active',
@@ -181,11 +215,9 @@ export class AuthService {
       map((apiResponse) => UserAdapter.toUser(apiResponse)),
       tap((user) => {
         this.favorites.setViewer(user.id);
-        this.currentUser.set(user);
+        this.sessionState.setVerified(user);
       }),
       catchError((err) => {
-        console.error('Error fetching user', err);
-        // Only clear state if it's not a 401 that the interceptor will handle
         if (err?.status !== 401) {
           this.clearLocalSession();
         }
@@ -194,36 +226,41 @@ export class AuthService {
     );
   }
 
-  /**
-   * Called by the auth interceptor when a 401 is received.
-   * Uses the HttpOnly refresh token cookie automatically via withCredentials.
-   */
   refreshToken() {
-    return this.api.execute(new RefreshRequest()).pipe(
-      tap((res) => {
-        if (res?.token) {
-          localStorage.setItem('token', res.token);
-        }
-      }),
-    );
+    return this.tokenRefreshService.refreshTokenWithQueue();
   }
 
   /** Clears local session without calling the API (used internally). */
   private clearLocalSession() {
     this.favorites.setViewer(undefined);
-    localStorage.removeItem('token');
-    this.currentUser.set(null);
+    try {
+      localStorage.removeItem('token');
+    } catch {
+      /* ignore */
+    }
+    this.sessionState.setAnonymous();
   }
 
   logout() {
-    // Call backend to revoke the session (clears the HttpOnly cookie server-side)
     this.api.execute(new LogoutApiRequest()).subscribe({
-      error: (err) => console.warn('Logout API failed, continuing local logout', err),
+      next: () => {
+        this.finalizeLogout();
+      },
+      error: (err) => {
+        console.warn('Logout API failed, continuing local cleanup', err);
+        this.finalizeLogout();
+      },
     });
+  }
 
+  private finalizeLogout() {
     this.clearLocalSession();
+    try {
+      this.broadcastChannel?.postMessage({ type: 'logout' });
+    } catch {
+      /* ignore */
+    }
 
-    // Sign out of Google to prevent auto-login loops
     if (this.socialAuthService) {
       this.socialAuthService.signOut().catch((err) => {
         console.log('Google signout not required or failed', err);

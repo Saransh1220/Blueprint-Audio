@@ -1,77 +1,79 @@
 import { TestBed } from '@angular/core/testing';
 import { provideRouter, Router, UrlTree } from '@angular/router';
-import { firstValueFrom, of, throwError } from 'rxjs';
-import { SystemRole } from '../models';
+import { Role, SystemRole, User } from '../models';
 import { AuthService } from '../services/auth.service';
 import { AuthzService } from '../services/authz.service';
+import { SessionStateService } from '../core/services/session-state.service';
 import { adminGuard } from './admin.guard';
 
 describe('adminGuard', () => {
-  const auth = {
-    getMe: vi.fn(),
-  };
   const authz = {
     isSuperAdmin: vi.fn(),
   };
 
+  let sessionState: SessionStateService;
+
   beforeEach(() => {
-    auth.getMe.mockReset();
     authz.isSuperAdmin.mockReset();
-    localStorage.clear();
 
     TestBed.configureTestingModule({
       providers: [
         provideRouter([]),
-        { provide: AuthService, useValue: auth },
+        { provide: AuthService, useValue: { sessionReady: Promise.resolve(null) } },
         { provide: AuthzService, useValue: authz },
+        SessionStateService,
       ],
     });
+    sessionState = TestBed.inject(SessionStateService);
   });
 
-  it('allows activation when authz already knows the user is super admin', () => {
+  it('allows activation when authz already knows the user is super admin', async () => {
     authz.isSuperAdmin.mockReturnValue(true);
 
-    const result = TestBed.runInInjectionContext(() => adminGuard({} as never, {} as never));
+    const result = await TestBed.runInInjectionContext(() => adminGuard({} as never, {} as never));
 
     expect(result).toBe(true);
-    expect(auth.getMe).not.toHaveBeenCalled();
   });
 
-  it('loads current user when token exists and allows super admin role', async () => {
+  it('allows activation when current user has super admin role', async () => {
     authz.isSuperAdmin.mockReturnValue(false);
-    localStorage.setItem('token', 'abc');
-    auth.getMe.mockReturnValue(of({ system_role: SystemRole.SUPER_ADMIN }));
+    sessionState.setVerified({
+      id: 'admin-1',
+      name: 'Admin',
+      display_name: 'Super',
+      email: 'admin@example.com',
+      role: Role.PRODUCER,
+      system_role: SystemRole.SUPER_ADMIN,
+      status: 'active',
+      email_verified: true,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    });
 
-    const result = TestBed.runInInjectionContext(() => adminGuard({} as never, {} as never));
+    const result = await TestBed.runInInjectionContext(() => adminGuard({} as never, {} as never));
 
-    await expect(firstValueFrom(result as any)).resolves.toBe(true);
+    expect(result).toBe(true);
   });
 
-  it('redirects when token exists but user is not super admin', async () => {
+  it('redirects when user is not super admin', async () => {
     authz.isSuperAdmin.mockReturnValue(false);
-    localStorage.setItem('token', 'abc');
-    auth.getMe.mockReturnValue(of({ system_role: SystemRole.USER }));
+    sessionState.setVerified({
+      id: 'user-1',
+      name: 'User',
+      display_name: 'Regular',
+      email: 'user@example.com',
+      role: Role.PRODUCER,
+      system_role: SystemRole.USER,
+      status: 'active',
+      email_verified: true,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    });
     const router = TestBed.inject(Router);
 
-    const result = TestBed.runInInjectionContext(() => adminGuard({} as never, {} as never));
-    const tree = await firstValueFrom(result as any);
+    const result = await TestBed.runInInjectionContext(() => adminGuard({} as never, {} as never));
 
-    expect(tree instanceof UrlTree).toBe(true);
-    expect(router.serializeUrl(tree)).toBe('/');
-  });
-
-  it('redirects without token or when getMe fails', async () => {
-    authz.isSuperAdmin.mockReturnValue(false);
-    const router = TestBed.inject(Router);
-
-    const noToken = TestBed.runInInjectionContext(() => adminGuard({} as never, {} as never));
-    expect(router.serializeUrl(noToken as UrlTree)).toBe('/');
-
-    localStorage.setItem('token', 'abc');
-    auth.getMe.mockReturnValue(throwError(() => new Error('nope')));
-    const failed = TestBed.runInInjectionContext(() => adminGuard({} as never, {} as never));
-    const tree = await firstValueFrom(failed as any);
-
-    expect(router.serializeUrl(tree)).toBe('/');
+    expect(result instanceof UrlTree).toBe(true);
+    expect(router.serializeUrl(result as UrlTree)).toBe('/');
   });
 });
