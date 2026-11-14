@@ -1,7 +1,7 @@
 import { SocialAuthService } from '@abacritt/angularx-social-login';
 import { TestBed } from '@angular/core/testing';
 import { Router } from '@angular/router';
-import { of, throwError } from 'rxjs';
+import { Subject, of, throwError } from 'rxjs';
 import { AuthRequirementComponent } from '../components/modals/auth-requirement/auth-requirement.component';
 import { ApiService } from '../core/services/api.service';
 import { SessionStateService } from '../core/services/session-state.service';
@@ -46,7 +46,7 @@ describe('AuthService', () => {
   it('login executes request and triggers getMe without storing token in localStorage', () => {
     const execute = vi.fn().mockReturnValue(of(undefined));
     const { service } = setup(execute);
-    const getMeSpy = vi.spyOn(service, 'getMe').mockReturnValue(of(null));
+    const getMeSpy = vi.spyOn(service, 'getMe').mockReturnValue(of({ id: 'u1' } as any));
 
     service.login({ email: 'u@test.com', password: 'pw' }).subscribe();
 
@@ -83,7 +83,7 @@ describe('AuthService', () => {
   it('googleLogin executes request and triggers getMe without storing token in localStorage', () => {
     const execute = vi.fn().mockReturnValue(of(undefined));
     const { service } = setup(execute);
-    const getMeSpy = vi.spyOn(service, 'getMe').mockReturnValue(of(null));
+    const getMeSpy = vi.spyOn(service, 'getMe').mockReturnValue(of({ id: 'u1' } as any));
 
     service.googleLogin('google-id-token').subscribe();
 
@@ -111,38 +111,28 @@ describe('AuthService', () => {
     expect(sessionState.status()).toBe('verified');
   });
 
-  it('checkSession attempts silent refresh when /me returns 401', async () => {
-    const execute = vi
-      .fn()
-      .mockReturnValueOnce(throwError(() => ({ status: 401 })))
-      .mockReturnValueOnce(
-        of({
-          id: 'u2',
-          email: 'u2@test.com',
-          name: 'Alex',
-          role: Role.PRODUCER,
-          created_at: '2026-01-01',
-          updated_at: '2026-01-02',
-        }),
-      );
-    const { service, sessionState, refreshTokenWithQueue } = setup(execute, true);
-
-    const user = await service.checkSession();
-    expect(refreshTokenWithQueue).toHaveBeenCalledTimes(1);
-    expect(user?.id).toBe('u2');
-    expect(sessionState.currentUser()?.name).toBe('Alex');
-    expect(sessionState.status()).toBe('verified');
+  it('settles anonymous after a terminal auth failure', async () => {
+    const { service, sessionState } = setup(
+      vi.fn().mockReturnValue(throwError(() => ({ status: 401 }))),
+    );
+    expect(await service.checkSession()).toBeNull();
+    expect(sessionState.status()).toBe('anonymous');
   });
 
-  it('checkSession sets anonymous when both /me and silent refresh fail', async () => {
-    const execute = vi.fn().mockReturnValue(throwError(() => ({ status: 401 })));
-    const { service, sessionState, refreshTokenWithQueue } = setup(execute, true);
-    refreshTokenWithQueue.mockReturnValue(throwError(() => new Error('refresh failed')));
+  it('settles unavailable on a temporary inability to verify the session', async () => {
+    const { service, sessionState } = setup(
+      vi.fn().mockReturnValue(throwError(() => ({ status: 503 }))),
+    );
+    expect(await service.checkSession()).toBeNull();
+    expect(sessionState.status()).toBe('unavailable');
+  });
 
-    const user = await service.checkSession();
-    expect(user).toBeNull();
-    expect(sessionState.currentUser()).toBeNull();
-    expect(sessionState.status()).toBe('anonymous');
+  it('removes only the legacy token on startup', () => {
+    localStorage.setItem('token', 'legacy');
+    localStorage.setItem('cart', 'keep');
+    setup(vi.fn().mockReturnValue(of({})));
+    expect(localStorage.getItem('token')).toBeNull();
+    expect(localStorage.getItem('cart')).toBe('keep');
   });
 
   it('updateProfile and uploadAvatar update current user', () => {
@@ -168,7 +158,8 @@ describe('AuthService', () => {
           created_at: '2026-01-01',
         }),
       );
-    const { service } = setup(execute);
+    const { service, sessionState } = setup(execute);
+    sessionState.setVerified({ id: 'u1', email: 'u@test.com' } as any);
 
     service.updateProfile({ bio: 'hello' }).subscribe();
     expect(service.currentUser()?.bio).toBe('hello');
@@ -259,10 +250,9 @@ describe('AuthService', () => {
     expect(navigate).toHaveBeenCalledWith(['/login']);
   });
 
-  it('logout continues local cleanup even when the logout API call fails', () => {
+  it('keeps failed logout retryable and navigates only after confirmation', () => {
     const execute = vi.fn().mockReturnValue(throwError(() => new Error('logout api failed')));
     const { service, sessionState, navigate } = setup(execute);
-    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
     sessionState.setVerified({
       id: 'u1',
       email: 'u@test.com',
@@ -277,10 +267,33 @@ describe('AuthService', () => {
 
     service.logout();
 
-    expect(warnSpy).toHaveBeenCalled();
     expect(sessionState.currentUser()).toBeNull();
     expect(sessionState.status()).toBe('anonymous');
+    expect(navigate).not.toHaveBeenCalled();
+    expect(service.logoutStatus()).toBe('failed');
+    execute.mockReturnValue(of(undefined));
+    service.logout();
+    expect(service.logoutStatus()).toBeNull();
     expect(navigate).toHaveBeenCalledWith(['/login']);
-    warnSpy.mockRestore();
+  });
+
+  it('does not restore a user from a /me response that arrives during logout', async () => {
+    const me = new Subject<any>();
+    const logout = new Subject<void>();
+    const execute = vi.fn().mockReturnValueOnce(me).mockReturnValueOnce(logout);
+    const { service, sessionState, navigate } = setup(execute);
+    const checking = service.checkSession();
+    service.logout();
+    service.logout();
+    me.next({ id: 'obsolete' });
+    me.complete();
+    expect(await checking).toBeNull();
+    expect(sessionState.currentUser()).toBeNull();
+    expect(service.logoutStatus()).toBe('pending');
+    expect(execute).toHaveBeenCalledTimes(2);
+    expect(navigate).not.toHaveBeenCalled();
+    logout.next();
+    logout.complete();
+    expect(navigate).toHaveBeenCalledTimes(1);
   });
 });

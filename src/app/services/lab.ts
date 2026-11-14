@@ -1,5 +1,5 @@
 import { Injectable, inject, signal } from '@angular/core';
-import { map, type Observable, Subject, shareReplay, tap } from 'rxjs';
+import { filter, map, type Observable, Subject, shareReplay, tap } from 'rxjs';
 import { SpecAdapter } from '../adapters/spec.adapter';
 import {
   GetCatalogHomeRequest,
@@ -96,6 +96,7 @@ export class LabService {
       this.specsCacheCurrency !== currency
     ) {
       this.specsCache.clear();
+      this.specsPagination.set(null);
       this.specsCacheViewer = viewer;
       this.specsCacheGeneration = generation;
       this.specsCacheCurrency = currency;
@@ -115,6 +116,11 @@ export class LabService {
         };
       }),
       shareReplay({ bufferSize: 1, refCount: false }),
+      filter(
+        () =>
+          generation === this.sessionState.generation() &&
+          currency === this.buyerCurrency.effective(),
+      ),
       tap(({ metadata }) => {
         // Pagination belongs to the cached query just replayed. Keep this tap
         // after shareReplay so returning consumers restore the matching

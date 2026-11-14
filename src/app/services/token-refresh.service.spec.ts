@@ -17,14 +17,14 @@ describe('TokenRefreshService', () => {
     return TestBed.inject(TokenRefreshService);
   }
 
-  it('increments refreshSequence on successful refresh without writing to localStorage', () => {
+  it('increments sequence on successful refresh without writing to localStorage', () => {
     const execute = vi.fn().mockReturnValue(of(undefined));
     const service = setup(execute);
 
     service.refreshTokenWithQueue().subscribe();
 
     expect(execute).toHaveBeenCalledTimes(1);
-    expect(service.refreshSequence).toBe(1);
+    expect(service.sequence).toBe(1);
     expect(localStorage.getItem('token')).toBeNull();
   });
 
@@ -49,7 +49,7 @@ describe('TokenRefreshService', () => {
 
     expect(firstCompleted).toBe(true);
     expect(secondCompleted).toBe(true);
-    expect(service.refreshSequence).toBe(1);
+    expect(service.sequence).toBe(1);
     expect(localStorage.getItem('token')).toBeNull();
   });
 
@@ -73,6 +73,24 @@ describe('TokenRefreshService', () => {
     // Next attempt retries cleanly
     service.refreshTokenWithQueue().subscribe();
     expect(execute).toHaveBeenCalledTimes(2);
-    expect(service.refreshSequence).toBe(1);
+    expect(service.sequence).toBe(1);
+  });
+
+  it('delivers one in-flight failure to every waiter and starts a fresh request on retry', () => {
+    const response = new Subject<void>();
+    const execute = vi.fn().mockReturnValueOnce(response).mockReturnValueOnce(of(undefined));
+    const service = setup(execute);
+    const first = vi.fn();
+    const second = vi.fn();
+    service.refreshTokenWithQueue().subscribe({ error: first });
+    service.refreshTokenWithQueue().subscribe({ error: second });
+    const failure = new Error('temporary failure');
+    response.error(failure);
+    expect(first).toHaveBeenCalledWith(failure);
+    expect(second).toHaveBeenCalledWith(failure);
+    expect(execute).toHaveBeenCalledTimes(1);
+    service.refreshTokenWithQueue().subscribe();
+    expect(service.sequence).toBe(1);
+    expect(execute).toHaveBeenCalledTimes(2);
   });
 });

@@ -1,110 +1,121 @@
-import { HttpErrorResponse, HttpInterceptorFn } from '@angular/common/http';
+import { HttpErrorResponse, HttpInterceptorFn, HttpResponse } from '@angular/common/http';
 import { inject } from '@angular/core';
 import { Router } from '@angular/router';
-import { catchError, switchMap, throwError } from 'rxjs';
+import { catchError, map, of, switchMap, throwError, timeout } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { SessionStateService } from '../services/session-state.service';
 import { TokenRefreshService } from '../../services/token-refresh.service';
+import { SessionStateService } from '../services/session-state.service';
 
-function isApiUrl(url: string, apiUrl: string): boolean {
-  if (url.startsWith('/')) {
-    return true;
+const sessionEndpoints = new Set(['/login', '/auth/google', '/auth/refresh', '/auth/logout']);
+const noRefresh = new Set([
+  ...sessionEndpoints,
+  '/register',
+  '/auth/verify-email',
+  '/auth/resend-verification',
+  '/auth/forgot-password',
+  '/auth/reset-password',
+  '/config/currencies',
+]);
+
+function apiPath(url: string, apiUrl: string): string | null {
+  try {
+    const base = new URL(apiUrl, location.origin);
+    const target = new URL(url, location.origin);
+    const prefix = base.pathname.replace(/\/$/, '');
+    if (target.origin !== base.origin || !target.pathname.startsWith(prefix + '/')) return null;
+    return target.pathname.slice(prefix.length);
+  } catch {
+    return null;
   }
-  if (!apiUrl) {
-    return false;
-  }
-  return url.startsWith(apiUrl);
 }
 
-function isExcludedPath(url: string): boolean {
-  return (
-    url.includes('/auth/refresh') ||
-    url.includes('/login') ||
-    url.includes('/auth/google') ||
-    url.includes('/register') ||
-    url.includes('/auth/verify-email') ||
-    url.includes('/auth/resend-verification') ||
-    url.includes('/auth/forgot-password') ||
-    url.includes('/auth/reset-password') ||
-    url.includes('/auth/logout')
-  );
+function errorCode(error: HttpErrorResponse): string | undefined {
+  if (typeof error.error !== 'string') return error.error?.code;
+  try {
+    return JSON.parse(error.error)?.code;
+  } catch {
+    return undefined;
+  }
 }
 
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
-  const router = inject(Router);
-  const tokenRefreshService = inject(TokenRefreshService);
-  const sessionState = inject(SessionStateService);
+  const path = apiPath(req.url, environment.apiUrl);
+  if (!path) return next(req);
 
-  if (!isApiUrl(req.url, environment.apiUrl)) {
-    return next(req);
+  const router = inject(Router);
+  const refresh = inject(TokenRefreshService);
+  const session = inject(SessionStateService);
+  if (session.logoutStatus() !== null && path !== '/auth/logout') {
+    return throwError(
+      () => new HttpErrorResponse({ status: 409, error: { code: 'LOGOUT_PENDING' } }),
+    );
   }
 
-  const headers: Record<string, string> = {
-    'X-Waveyard-Session': 'cookie',
-  };
-
-  const userId = sessionState.currentUserId();
-  if (userId) {
+  const cookieWrite = sessionEndpoints.has(path);
+  const headers: Record<string, string> = { 'X-Waveyard-Session': 'cookie' };
+  const userId = session.currentUserId();
+  if (userId && !cookieWrite && path !== '/me') {
     headers['X-Waveyard-Expected-Viewer'] = userId;
-  } else if (req.url.includes('/preferences/currency') && req.method === 'PUT') {
+  } else if (path === '/preferences/currency' && req.method === 'PUT') {
     headers['X-Waveyard-Expected-Viewer'] = 'guest';
   }
 
-  const modifiedReq = req.clone({
-    withCredentials: true,
-    setHeaders: headers,
-  });
+  const request = req.clone({ withCredentials: true, setHeaders: headers });
+  if (cookieWrite) {
+    return next(request).pipe(
+      timeout({ first: 15000, each: 15000 }),
+      map((event) => {
+        if (event instanceof HttpResponse && event.status !== 204) {
+          throw new HttpErrorResponse({
+            status: 502,
+            error: { code: 'COOKIE_SESSION_UNAVAILABLE' },
+            url: request.url,
+          });
+        }
+        return event;
+      }),
+    );
+  }
+  if (noRefresh.has(path)) return next(request);
 
-  const requestGeneration = sessionState.generation();
+  const generation = session.generation();
+  const sequence = refresh.sequence;
+  const stillCurrent = () => generation === session.generation() && session.logoutStatus() === null;
+  const handleSessionError = (error: HttpErrorResponse, terminal401: boolean) => {
+    if (!stillCurrent() || !session.isVerified()) return;
+    const code = errorCode(error);
+    if (
+      (terminal401 && error.status === 401) ||
+      (error.status === 403 && code === 'ACCOUNT_SUSPENDED') ||
+      (error.status === 409 && code === 'SESSION_CHANGED')
+    ) {
+      session.setAnonymous();
+      void router.navigate(['/login']);
+    }
+  };
 
-  return next(modifiedReq).pipe(
+  return next(request).pipe(
     catchError((error: HttpErrorResponse) => {
-      if (isExcludedPath(req.url)) {
+      if (!stillCurrent() || error.status !== 401) {
+        handleSessionError(error, false);
         return throwError(() => error);
       }
-
-      if (error.status === 409) {
-        sessionState.setAnonymous();
-        router.navigate(['/login']);
-        return throwError(() => error);
-      }
-
-      if (
-        error.status === 403 &&
-        (typeof error.error === 'string'
-          ? error.error.includes('suspended')
-          : error.error?.error?.includes?.('suspended'))
-      ) {
-        sessionState.setAnonymous();
-        router.navigate(['/login']);
-        return throwError(() => error);
-      }
-
-      if (error.status === 401) {
-        if (sessionState.generation() > requestGeneration) {
-          return next(modifiedReq).pipe(
-            catchError((retryErr) => {
-              sessionState.setAnonymous();
-              router.navigate(['/login']);
-              return throwError(() => retryErr);
+      const ready = refresh.sequence > sequence ? of(undefined) : refresh.refreshTokenWithQueue();
+      return ready.pipe(
+        catchError((refreshError: HttpErrorResponse) => {
+          handleSessionError(refreshError, true);
+          return throwError(() => refreshError);
+        }),
+        switchMap(() => {
+          if (!stillCurrent()) return throwError(() => error);
+          return next(request).pipe(
+            catchError((retryError: HttpErrorResponse) => {
+              handleSessionError(retryError, true);
+              return throwError(() => retryError);
             }),
           );
-        }
-
-        return tokenRefreshService.refreshTokenWithQueue().pipe(
-          switchMap(() => {
-            sessionState.generation.update((g) => g + 1);
-            return next(modifiedReq);
-          }),
-          catchError((err) => {
-            sessionState.setAnonymous();
-            router.navigate(['/login']);
-            return throwError(() => err);
-          }),
-        );
-      }
-
-      return throwError(() => error);
+        }),
+      );
     }),
   );
 };

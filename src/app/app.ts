@@ -1,3 +1,4 @@
+import { AuthService } from './services/auth.service';
 import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { Title } from '@angular/platform-browser';
@@ -40,6 +41,7 @@ import { SidebarComponent } from './components/sidebar/sidebar';
   styleUrls: ['./app.scss'],
 })
 export class AppComponent {
+  readonly auth = inject(AuthService);
   readonly brand = BRAND;
   private router = inject(Router);
   // Dark-only: creating the service keeps the dark class on the page.

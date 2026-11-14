@@ -1,3 +1,12 @@
+@if (auth.logoutStatus() === 'pending') {
+  <p role="status">Signing out�</p>
+} @else if (auth.logoutStatus() === 'failed') {
+  <div role="alert">
+    Sign-out could not be confirmed.
+    <button type="button" (click)="auth.logout()">Retry sign-out</button>
+  </div>
+}
+
 <!-- LOADING BAR -->
 <app-loading-bar></app-loading-bar>
 

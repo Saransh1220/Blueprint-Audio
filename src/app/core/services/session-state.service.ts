@@ -10,22 +10,26 @@ export class SessionStateService {
   readonly currentUser = signal<User | null>(null);
   readonly status = signal<SessionStatus>('loading');
   readonly generation = signal<number>(0);
+  readonly logoutStatus = signal<'pending' | 'failed' | null>(null);
 
   readonly currentUserId = computed(() => this.currentUser()?.id ?? null);
-  readonly isVerified = computed(
-    () => this.status() === 'verified' && this.currentUser() !== null,
-  );
+  readonly isVerified = computed(() => this.status() === 'verified' && this.currentUser() !== null);
 
   setVerified(user: User): void {
+    const changed = this.currentUserId() !== user.id;
     this.currentUser.set(user);
     this.status.set('verified');
-    this.generation.update((g) => g + 1);
+    if (changed) this.invalidate();
   }
 
   setAnonymous(): void {
     this.currentUser.set(null);
     this.status.set('anonymous');
-    this.generation.update((g) => g + 1);
+    this.invalidate();
+  }
+
+  invalidate(): void {
+    this.generation.update((generation) => generation + 1);
   }
 
   setUnavailable(): void {

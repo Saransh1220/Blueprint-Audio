@@ -1,7 +1,19 @@
 import { SocialAuthService } from '@abacritt/angularx-social-login';
-import { Injectable, inject } from '@angular/core';
+import { DestroyRef, Injectable, effect, inject } from '@angular/core';
 import { Router } from '@angular/router';
-import { catchError, firstValueFrom, map, of, switchMap, tap } from 'rxjs';
+import {
+  EMPTY,
+  catchError,
+  defer,
+  filter,
+  firstValueFrom,
+  map,
+  of,
+  switchMap,
+  tap,
+  throwError,
+  timeout,
+} from 'rxjs';
 import { AuthRequirementComponent } from '../components/modals/auth-requirement/auth-requirement.component';
 import {
   ForgotPasswordApiRequest,
@@ -27,7 +39,7 @@ import type { AppCurrency } from '../models/money';
 import { resolveMediaUrl } from '../utils/media-url';
 import { FavoriteStateService } from './favorite-state.service';
 import { ModalService } from './modal.service';
-import { TokenRefreshService } from './token-refresh.service';
+import { serializeSessionWrite } from './token-refresh.service';
 
 @Injectable({
   providedIn: 'root',
@@ -37,29 +49,52 @@ export class AuthService {
   private readonly router = inject(Router);
   private readonly modalService = inject(ModalService);
   private readonly socialAuthService = inject(SocialAuthService);
-  private readonly tokenRefreshService = inject(TokenRefreshService);
+
   private readonly sessionState = inject(SessionStateService);
   private readonly favorites = inject(FavoriteStateService);
 
   private broadcastChannel: BroadcastChannel | null = null;
 
   readonly currentUser = this.sessionState.currentUser;
+  readonly logoutStatus = this.sessionState.logoutStatus.asReadonly();
+  readonly sessionReady: Promise<User | null>;
 
   constructor() {
+    this.removeLegacyToken();
+    effect(() => this.favorites.setViewer(this.sessionState.currentUserId() ?? undefined));
     if (typeof BroadcastChannel !== 'undefined') {
       try {
         this.broadcastChannel = new BroadcastChannel('waveyard_session');
-        this.broadcastChannel.onmessage = (event) => {
-          if (event.data?.type === 'logout') {
-            this.clearLocalSession();
-            this.router.navigate(['/login']);
-          } else if (event.data?.type === 'login') {
-            this.checkSession();
+        this.broadcastChannel.onmessage = ({ data }) => {
+          if (data?.type === 'logout' || data?.type === 'login') {
+            if (this.logoutStatus() !== null) return;
+            this.sessionState.setAnonymous();
+            void this.checkSession();
           }
         };
       } catch {
-        /* Ignore environments without BroadcastChannel */
+        // Visibility revalidation still works without BroadcastChannel.
       }
+    }
+
+    const onVisible = () => {
+      if (document.visibilityState === 'visible' && this.logoutStatus() === null) {
+        void this.checkSession();
+      }
+    };
+    document.addEventListener('visibilitychange', onVisible);
+    inject(DestroyRef).onDestroy(() => {
+      this.broadcastChannel?.close();
+      document.removeEventListener('visibilitychange', onVisible);
+    });
+    this.sessionReady = this.checkSession();
+  }
+
+  private removeLegacyToken() {
+    try {
+      localStorage.removeItem('token');
+    } catch {
+      // Storage can be disabled by browser policy.
     }
   }
 
@@ -74,37 +109,15 @@ export class AuthService {
     }
   }
 
-  readonly sessionReady = this.checkSession();
-
-  /**
-   * On app startup:
-   * 1. Call /me using HttpOnly access cookie.
-   * 2. On 401, attempt silent refresh using HttpOnly refresh cookie.
-   *    If refresh succeeds -> call /me; if it fails -> leave as anonymous.
-   */
   checkSession(): Promise<User | null> {
+    if (this.logoutStatus() !== null) return Promise.resolve(null);
+    const generation = this.sessionState.generation();
     return firstValueFrom(
-      this.api.execute(new GetMeRequest()).pipe(
-        map((apiResponse) => UserAdapter.toUser(apiResponse)),
-        tap((user) => {
-          this.favorites.setViewer(user.id);
-          this.sessionState.setVerified(user);
-        }),
-        catchError((err) => {
-          if (err?.status === 401) {
-            // Attempt silent refresh via HttpOnly refresh cookie
-            return this.tokenRefreshService.refreshTokenWithQueue().pipe(
-              switchMap(() => this.getMe()),
-              catchError(() => {
-                this.sessionState.setAnonymous();
-                return of(null);
-              }),
-            );
-          }
-          if (err?.status >= 500) {
-            this.sessionState.setUnavailable();
-          } else {
-            this.sessionState.setAnonymous();
+      this.getMe().pipe(
+        catchError((error) => {
+          if (generation === this.sessionState.generation()) {
+            if (error.status === 401 || error.status === 403) this.sessionState.setAnonymous();
+            else this.sessionState.setUnavailable();
           }
           return of(null);
         }),
@@ -114,21 +127,35 @@ export class AuthService {
   }
 
   login(credentials: { email: string; password: string }) {
-    return this.api.execute(new LoginRequest(credentials)).pipe(
-      switchMap(() => this.getMe()),
-      tap(() => {
-        this.broadcastChannel?.postMessage({ type: 'login' });
-      }),
-    );
+    return this.signIn(new LoginRequest(credentials));
   }
 
   googleLogin(idToken: string) {
-    return this.api.execute(new GoogleLoginRequest({ token: idToken })).pipe(
-      switchMap(() => this.getMe()),
-      tap(() => {
-        this.broadcastChannel?.postMessage({ type: 'login' });
-      }),
-    );
+    return this.signIn(new GoogleLoginRequest({ token: idToken }));
+  }
+
+  private signIn(request: LoginRequest | GoogleLoginRequest) {
+    return defer(() => {
+      if (this.logoutStatus() !== null) {
+        return throwError(() => new Error('Complete sign-out before signing in.'));
+      }
+      this.sessionState.invalidate();
+      const generation = this.sessionState.generation();
+      const current = () =>
+        generation === this.sessionState.generation() && this.logoutStatus() === null;
+      return serializeSessionWrite(() => (current() ? this.api.execute(request) : EMPTY)).pipe(
+        filter(current),
+        switchMap((body) => {
+          if (body != null)
+            return throwError(() => new Error('The server did not return a cookie session.'));
+          return this.getMe();
+        }),
+        tap((user) => {
+          if (!user) throw new Error('Could not verify the signed-in session.');
+          this.broadcastChannel?.postMessage({ type: 'login' });
+        }),
+      );
+    });
   }
 
   register(data: {
@@ -166,25 +193,35 @@ export class AuthService {
     spotify_url?: string;
     store_currency?: AppCurrency;
   }) {
-    return this.api.execute(new UpdateProfileRequest(data)).pipe(
-      tap((updatedUser) => {
-        this.sessionState.currentUser.set(this.mapToUser(updatedUser));
-      }),
-    );
+    return this.updateViewer(new UpdateProfileRequest(data));
   }
 
   uploadAvatar(file: File) {
-    return this.api.execute(new UploadAvatarRequest(file)).pipe(
-      tap((updatedUser) => {
-        this.sessionState.currentUser.set(this.mapToUser(updatedUser));
-      }),
-    );
+    return this.updateViewer(new UploadAvatarRequest(file));
   }
 
   uploadBanner(file: File) {
-    return this.api
-      .execute(new UploadBannerRequest(file))
-      .pipe(tap((updatedUser) => this.sessionState.currentUser.set(this.mapToUser(updatedUser))));
+    return this.updateViewer(new UploadBannerRequest(file));
+  }
+
+  private updateViewer(request: UpdateProfileRequest | UploadAvatarRequest | UploadBannerRequest) {
+    return defer(() => {
+      const generation = this.sessionState.generation();
+      return this.api.execute(request).pipe(
+        filter(() => generation === this.sessionState.generation()),
+        tap((response) => {
+          const user = this.currentUser();
+          if (!user || user.id !== response.id) return;
+          const { email, system_role, status } = user;
+          this.sessionState.currentUser.set({
+            ...this.mapToUser(response),
+            email,
+            system_role,
+            status,
+          });
+        }),
+      );
+    });
   }
 
   private mapToUser(response: PublicUserResponse): User {
@@ -211,62 +248,34 @@ export class AuthService {
   }
 
   getMe() {
-    return this.api.execute(new GetMeRequest()).pipe(
-      map((apiResponse) => UserAdapter.toUser(apiResponse)),
-      tap((user) => {
-        this.favorites.setViewer(user.id);
-        this.sessionState.setVerified(user);
-      }),
-      catchError((err) => {
-        if (err?.status !== 401) {
-          this.clearLocalSession();
-        }
-        return of(null);
-      }),
-    );
-  }
-
-  refreshToken() {
-    return this.tokenRefreshService.refreshTokenWithQueue();
-  }
-
-  /** Clears local session without calling the API (used internally). */
-  private clearLocalSession() {
-    this.favorites.setViewer(undefined);
-    try {
-      localStorage.removeItem('token');
-    } catch {
-      /* ignore */
-    }
-    this.sessionState.setAnonymous();
-  }
-
-  logout() {
-    this.api.execute(new LogoutApiRequest()).subscribe({
-      next: () => {
-        this.finalizeLogout();
-      },
-      error: (err) => {
-        console.warn('Logout API failed, continuing local cleanup', err);
-        this.finalizeLogout();
-      },
+    return defer(() => {
+      const generation = this.sessionState.generation();
+      return this.api.execute(new GetMeRequest()).pipe(
+        timeout(18000),
+        filter(() => generation === this.sessionState.generation() && this.logoutStatus() === null),
+        map((apiResponse) => UserAdapter.toUser(apiResponse)),
+        tap((user) => this.sessionState.setVerified(user)),
+      );
     });
   }
 
-  private finalizeLogout() {
-    this.clearLocalSession();
-    try {
-      this.broadcastChannel?.postMessage({ type: 'logout' });
-    } catch {
-      /* ignore */
-    }
-
-    if (this.socialAuthService) {
-      this.socialAuthService.signOut().catch((err) => {
-        console.log('Google signout not required or failed', err);
-      });
-    }
-
-    this.router.navigate(['/login']);
+  logout() {
+    if (this.logoutStatus() === 'pending') return;
+    this.sessionState.logoutStatus.set('pending');
+    this.sessionState.setAnonymous();
+    serializeSessionWrite(() => this.api.execute(new LogoutApiRequest())).subscribe({
+      next: (body) => {
+        if (body != null) {
+          this.sessionState.logoutStatus.set('failed');
+          return;
+        }
+        this.sessionState.logoutStatus.set(null);
+        this.removeLegacyToken();
+        this.broadcastChannel?.postMessage({ type: 'logout' });
+        this.socialAuthService?.signOut().catch(() => undefined);
+        void this.router.navigate(['/login']);
+      },
+      error: () => this.sessionState.logoutStatus.set('failed'),
+    });
   }
 }

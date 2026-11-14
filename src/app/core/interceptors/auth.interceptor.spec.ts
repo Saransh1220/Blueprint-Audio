@@ -1,7 +1,8 @@
-import { HttpErrorResponse, HttpRequest } from '@angular/common/http';
+import { HttpErrorResponse, HttpRequest, HttpResponse } from '@angular/common/http';
 import { TestBed } from '@angular/core/testing';
 import { Router } from '@angular/router';
-import { of, throwError } from 'rxjs';
+import { Subject, of, throwError } from 'rxjs';
+import { environment } from '../../../environments/environment';
 import { Role, SystemRole, User } from '../../models';
 import { SessionStateService } from '../services/session-state.service';
 import { TokenRefreshService } from '../../services/token-refresh.service';
@@ -31,6 +32,7 @@ describe('authInterceptor', () => {
       navigate: vi.fn(),
     };
     const tokenRefreshService = {
+      sequence: 0,
       refreshTokenWithQueue: vi.fn(),
     };
 
@@ -48,7 +50,7 @@ describe('authInterceptor', () => {
 
   it('adds session marker and withCredentials to API requests without Authorization header', () => {
     setup();
-    const req = new HttpRequest('GET', '/api/resource');
+    const req = new HttpRequest('GET', `${environment.apiUrl}/api/resource`);
     const next = vi.fn((r: HttpRequest<unknown>) => of(r));
     let forwarded: HttpRequest<unknown> | undefined;
 
@@ -68,7 +70,7 @@ describe('authInterceptor', () => {
     const { sessionState } = setup();
     sessionState.setVerified(mockUser);
 
-    const req = new HttpRequest('GET', '/api/resource');
+    const req = new HttpRequest('GET', `${environment.apiUrl}/api/resource`);
     const next = vi.fn((r: HttpRequest<unknown>) => of(r));
     let forwarded: HttpRequest<unknown> | undefined;
 
@@ -83,7 +85,9 @@ describe('authInterceptor', () => {
 
   it('attaches X-Waveyard-Expected-Viewer: guest on PUT /preferences/currency when anonymous', () => {
     setup();
-    const req = new HttpRequest('PUT', '/preferences/currency', { currency: 'USD' });
+    const req = new HttpRequest('PUT', `${environment.apiUrl}/preferences/currency`, {
+      currency: 'USD',
+    });
     const next = vi.fn((r: HttpRequest<unknown>) => of(r));
     let forwarded: HttpRequest<unknown> | undefined;
 
@@ -115,7 +119,7 @@ describe('authInterceptor', () => {
 
   it('does not try to refresh excluded auth endpoints after a 401', () => {
     const { router, tokenRefreshService } = setup();
-    const req = new HttpRequest('POST', '/login', {});
+    const req = new HttpRequest('POST', `${environment.apiUrl}/login`, {});
     const next = vi.fn(() =>
       throwError(() => new HttpErrorResponse({ status: 401, statusText: 'Unauthorized' })),
     );
@@ -139,7 +143,7 @@ describe('authInterceptor', () => {
     tokenRefreshService.refreshTokenWithQueue.mockReturnValue(of(undefined));
 
     let attempts = 0;
-    const req = new HttpRequest('GET', '/protected');
+    const req = new HttpRequest('GET', `${environment.apiUrl}/protected`);
     const next = vi.fn((forwardedReq: HttpRequest<unknown>) => {
       attempts++;
       if (attempts === 1) {
@@ -165,10 +169,10 @@ describe('authInterceptor', () => {
     const { router, tokenRefreshService, sessionState } = setup();
     sessionState.setVerified(mockUser);
     tokenRefreshService.refreshTokenWithQueue.mockReturnValue(
-      throwError(() => new Error('refresh failed')),
+      throwError(() => new HttpErrorResponse({ status: 401, statusText: 'refresh failed' })),
     );
 
-    const req = new HttpRequest('GET', '/protected');
+    const req = new HttpRequest('GET', `${environment.apiUrl}/protected`);
     const next = vi.fn(() =>
       throwError(() => new HttpErrorResponse({ status: 401, statusText: 'Unauthorized' })),
     );
@@ -186,16 +190,16 @@ describe('authInterceptor', () => {
     expect(sessionState.currentUser()).toBeNull();
     expect(sessionState.status()).toBe('anonymous');
     expect(router.navigate).toHaveBeenCalledWith(['/login']);
-    expect(receivedError?.message).toBe('refresh failed');
+    expect(receivedError).toBeInstanceOf(HttpErrorResponse);
   });
 
   it('clears session and navigates to login on 409 SESSION_CHANGED', () => {
     const { router, sessionState } = setup();
     sessionState.setVerified(mockUser);
 
-    const req = new HttpRequest('GET', '/protected');
+    const req = new HttpRequest('GET', `${environment.apiUrl}/protected`);
     const next = vi.fn(() =>
-      throwError(() => new HttpErrorResponse({ status: 409, statusText: 'Conflict' })),
+      throwError(() => new HttpErrorResponse({ status: 409, error: { code: 'SESSION_CHANGED' } })),
     );
 
     TestBed.runInInjectionContext(() => {
@@ -213,13 +217,13 @@ describe('authInterceptor', () => {
     const { router, sessionState } = setup();
     sessionState.setVerified(mockUser);
 
-    const req = new HttpRequest('GET', '/protected');
+    const req = new HttpRequest('GET', `${environment.apiUrl}/protected`);
     const next = vi.fn(() =>
       throwError(
         () =>
           new HttpErrorResponse({
             status: 403,
-            error: { error: 'account suspended' },
+            error: { code: 'ACCOUNT_SUSPENDED' },
           }),
       ),
     );
@@ -233,5 +237,89 @@ describe('authInterceptor', () => {
     expect(sessionState.currentUser()).toBeNull();
     expect(sessionState.status()).toBe('anonymous');
     expect(router.navigate).toHaveBeenCalledWith(['/login']);
+  });
+
+  it.each([409, 429, 503])('keeps the user signed in when a replay fails with %s', (status) => {
+    const { router, tokenRefreshService, sessionState } = setup();
+    sessionState.setVerified(mockUser);
+    tokenRefreshService.refreshTokenWithQueue.mockReturnValue(of(undefined));
+    const next = vi
+      .fn()
+      .mockReturnValueOnce(throwError(() => new HttpErrorResponse({ status: 401 })))
+      .mockReturnValueOnce(
+        throwError(
+          () => new HttpErrorResponse({ status, error: { code: 'IDEMPOTENCY_CONFLICT' } }),
+        ),
+      );
+    const req = new HttpRequest('POST', `${environment.apiUrl}/orders`, {});
+    TestBed.runInInjectionContext(() =>
+      authInterceptor(req, next).subscribe({ error: () => undefined }),
+    );
+    expect(next).toHaveBeenCalledTimes(2);
+    expect(sessionState.currentUser()).toEqual(mockUser);
+    expect(router.navigate).not.toHaveBeenCalled();
+  });
+
+  it('propagates a checkout conflict from the original request', () => {
+    const { router, sessionState } = setup();
+    sessionState.setVerified(mockUser);
+    const error = new HttpErrorResponse({ status: 409, error: { code: 'PRICE_CHANGED' } });
+    const req = new HttpRequest('POST', `${environment.apiUrl}/orders`, {});
+    const onError = vi.fn();
+    TestBed.runInInjectionContext(() =>
+      authInterceptor(req, () => throwError(() => error)).subscribe({ error: onError }),
+    );
+    expect(onError).toHaveBeenCalledWith(error);
+    expect(sessionState.currentUser()).toEqual(mockUser);
+    expect(router.navigate).not.toHaveBeenCalled();
+  });
+
+  it.each(['before 401', 'during refresh'])(
+    'discards an obsolete request after switching accounts %s',
+    (when) => {
+      const { router, tokenRefreshService, sessionState } = setup();
+      sessionState.setVerified(mockUser);
+      const response = new Subject<never>();
+      const refreshed = new Subject<void>();
+      tokenRefreshService.refreshTokenWithQueue.mockReturnValue(refreshed);
+      const next = vi.fn(() => response);
+      const other = { ...mockUser, id: 'other-account' };
+      const req = new HttpRequest('POST', `${environment.apiUrl}/orders`, {});
+      const onError = vi.fn();
+      TestBed.runInInjectionContext(() => authInterceptor(req, next).subscribe({ error: onError }));
+      if (when === 'before 401') sessionState.setVerified(other);
+      response.error(new HttpErrorResponse({ status: 401 }));
+      if (when === 'during refresh') sessionState.setVerified(other);
+      refreshed.next();
+      refreshed.complete();
+      expect(next).toHaveBeenCalledTimes(1);
+      expect(onError).toHaveBeenCalledTimes(1);
+      expect(sessionState.currentUser()).toEqual(other);
+      expect(router.navigate).not.toHaveBeenCalled();
+    },
+  );
+
+  it.each([`${environment.apiUrl}.evil.example/path`, '//evil.example/api'])(
+    'never adds session headers to lookalike destinations %s',
+    (url) => {
+      setup();
+      const req = new HttpRequest('GET', url);
+      const next = vi.fn(() => of(new HttpResponse()));
+      TestBed.runInInjectionContext(() => authInterceptor(req, next).subscribe());
+      expect(next).toHaveBeenCalledWith(req);
+    },
+  );
+
+  it('fails closed when a legacy server returns an access token for cookie login', () => {
+    setup();
+    const req = new HttpRequest('POST', `${environment.apiUrl}/login`, {});
+    const error = vi.fn();
+    TestBed.runInInjectionContext(() =>
+      authInterceptor(req, () =>
+        of(new HttpResponse({ status: 200, body: { token: 'legacy' } })),
+      ).subscribe({ error }),
+    );
+    expect(error).toHaveBeenCalledWith(expect.objectContaining({ status: 502 }));
+    expect(localStorage.getItem('token')).toBeNull();
   });
 });
