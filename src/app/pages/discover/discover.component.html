@@ -1,25 +1,32 @@
 <div class="discover">
   <header class="head">
-    <h1>Explore</h1>
-    <p>Trending beats, new drops and the charts, all in one place.</p>
+    <h1>{{ newReleasesOnly() ? 'New releases' : 'Explore' }}</h1>
+    @if (!newReleasesOnly()) {
+      <p>Trending beats, new drops and the charts, all in one place.</p>
+    }
   </header>
 
   @if (loading()) {
     <div class="state"><app-loading-spinner /></div>
   } @else if (failed() || !hasAny()) {
     <div class="state">
-      <p>Couldn't load the sections right now.</p>
-      <a class="all" routerLink="/explore">Browse all beats <i class="fas fa-arrow-right"></i></a>
+      <p>{{ failed() ? "Couldn't load the catalog right now." : 'No beats to show here yet.' }}</p>
+      <a
+        class="all"
+        routerLink="/explore"
+        [queryParams]="newReleasesOnly() ? { sort: 'newest' } : null"
+        >Browse all beats <i class="fas fa-arrow-right"></i
+      ></a>
     </div>
   } @else {
-    @for (s of sections; track s.key) {
+    @for (s of visibleSections(); track s.key) {
       @if (specs(s.key).length) {
         <section class="sec" [attr.aria-labelledby]="'sec-' + s.key">
           <div class="sec-head">
             <div class="sec-title">
               <i class="fas {{ s.icon }}" aria-hidden="true"></i>
               <div>
-                <h2 [id]="'sec-' + s.key">{{ s.title }}</h2>
+                <h2 [id]="'sec-' + s.key">{{ newReleasesOnly() ? 'Latest beats' : s.title }}</h2>
                 <p>{{ s.blurb }}</p>
               </div>
             </div>

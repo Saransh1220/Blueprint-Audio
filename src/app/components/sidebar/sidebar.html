@@ -41,6 +41,7 @@
                 <a
                   class="sub-item"
                   [class.active]="isGenreActive(g)"
+                  [attr.aria-current]="isGenreActive(g) ? 'page' : null"
                   routerLink="/explore"
                   [queryParams]="{ genres: g }"
                   >{{ g }}</a
@@ -55,7 +56,12 @@
 
   <footer class="foot">
     @for (link of footerLinks; track link.label) {
-      <a class="item" [routerLink]="link.route">
+      <a
+        class="item"
+        [routerLink]="link.route"
+        [class.active]="isActive(link)"
+        [attr.aria-current]="isActive(link) ? 'page' : null"
+      >
         <i class="fas {{ link.icon }}" aria-hidden="true"></i>
         <span class="label">{{ link.label }}</span>
       </a>

@@ -55,8 +55,8 @@ export class SidebarComponent {
           {
             label: 'New releases',
             icon: 'fa-bolt',
-            route: '/explore',
-            query: { sort: 'newest' },
+            route: '/discover',
+            query: { section: 'new_releases' },
           },
         ],
       },
@@ -77,7 +77,7 @@ export class SidebarComponent {
         title: 'Sell beats',
         links: [
           { label: 'Upload', icon: 'fa-cloud-arrow-up', route: '/upload' },
-          { label: 'Studio', icon: 'fa-sliders', route: '/studio' },
+          { label: 'Studio', icon: 'fa-sliders', route: '/studio/overview' },
         ],
       });
     }
@@ -90,18 +90,29 @@ export class SidebarComponent {
   ];
 
   isActive(link: SidebarLink): boolean {
-    const [path, qs = ''] = this.url().split('?');
-    if (path.replace(/\/$/, '') !== link.route) return false;
-    const params = new URLSearchParams(qs);
-    if (link.query) return Object.entries(link.query).every(([k, v]) => params.get(k) === v);
-    // "All beats" is active on /explore unless a more specific entry (sort / genre) claims it.
-    if (link.route === '/explore') return !params.get('sort') && !params.get('genres');
-    return true;
+    const { queryParamMap } = this.router.parseUrl(this.url());
+    if (!this.matchesRoute(link.route)) return false;
+    if (link.query) return Object.entries(link.query).every(([k, v]) => queryParamMap.get(k) === v);
+    // Genre links take precedence over the full catalog link.
+    if (link.route === '/explore') return !queryParamMap.has('genres');
+    return link.route !== '/discover' || queryParamMap.get('section') !== 'new_releases';
   }
 
   isGenreActive(genre: string): boolean {
-    const [path, qs = ''] = this.url().split('?');
-    return path === '/explore' && new URLSearchParams(qs).get('genres') === genre;
+    const { queryParamMap } = this.router.parseUrl(this.url());
+    return (
+      this.matchesRoute('/explore') &&
+      (queryParamMap.get('genres') ?? '').split(',').includes(genre)
+    );
+  }
+
+  private matchesRoute(route: string): boolean {
+    return this.router.isActive(route, {
+      paths: 'exact',
+      queryParams: 'ignored',
+      fragment: 'ignored',
+      matrixParams: 'ignored',
+    });
   }
 
   toggleGenres(): void {

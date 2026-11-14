@@ -46,7 +46,7 @@ describe('SidebarComponent', () => {
     currentUser.set({ role: Role.PRODUCER });
     fixture.detectChanges();
     expect(root.querySelector('a[href="/upload"]')?.textContent).toContain('Upload');
-    expect(root.querySelector('a[href="/studio"]')?.textContent).toContain('Studio');
+    expect(root.querySelector('a[href="/studio/overview"]')?.textContent).toContain('Studio');
   });
 
   it('updates active links across catalog routes and query parameters', async () => {
@@ -60,7 +60,8 @@ describe('SidebarComponent', () => {
     fixture.detectChanges();
     expect(active()).toBe('All beats');
 
-    await router.navigateByUrl('/explore?sort=newest&search=trap');
+    root.querySelector<HTMLAnchorElement>('a[href="/discover?section=new_releases"]')!.click();
+    await fixture.whenStable();
     fixture.detectChanges();
     expect(active()).toBe('New releases');
 
@@ -70,7 +71,6 @@ describe('SidebarComponent', () => {
     const genre = Object.values(Genre)[0];
     await router.navigate(['/explore'], { queryParams: { genres: genre } });
     fixture.detectChanges();
-    expect(active()).toBeUndefined();
     expect(toggle.getAttribute('aria-expanded')).toBe('true');
     expect(root.querySelector('#sidebar-genres .active')?.textContent?.trim()).toBe(genre);
 

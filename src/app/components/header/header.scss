@@ -254,6 +254,16 @@ nav.fixed-navbar {
   }
 }
 
+// Keep the trigger and panel connected through the navbar's bottom padding.
+.nav-link-wrap:has(app-nav-menu)::after {
+  content: '';
+  position: absolute;
+  top: calc(100% - 14px);
+  right: 0;
+  left: 0;
+  height: 14px;
+}
+
 .nav-link-wrap app-nav-menu {
   position: absolute;
   inset: 100% 0 auto;

@@ -5,7 +5,6 @@ const SIDEBAR_PREFIXES = [
   '/cart',
   '/beats',
   '/settings',
-  '/dashboard',
   '/terms',
   '/privacy',
   '/licensing',

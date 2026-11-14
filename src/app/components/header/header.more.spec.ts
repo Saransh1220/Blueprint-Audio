@@ -1,11 +1,14 @@
 import '../../../test-setup';
-import { signal } from '@angular/core';
+import { Component, signal } from '@angular/core';
 import { type ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
 import { Role } from '../../models';
 import { StudioShellService } from '../../pages/studio/studio-shell.service';
 import { AuthService, AuthzService, CartService, NotificationService } from '../../services';
 import { HeaderComponent } from './header';
+
+@Component({ template: '' })
+class StubRoute {}
 
 describe('HeaderComponent (more)', () => {
   let fixture: ComponentFixture<HeaderComponent>;
@@ -366,6 +369,23 @@ describe('HeaderComponent (more)', () => {
     expect(escape.defaultPrevented).toBe(true);
     expect(trigger.getAttribute('aria-expanded')).toBe('false');
     expect(document.activeElement).toBe(trigger);
+  });
+
+  it('navigates from the hovered Studio menu and closes it', async () => {
+    currentUser.set({ id: 'u', name: 'bob', role: Role.PRODUCER });
+    router.resetConfig([{ path: 'studio/analytics', component: StubRoute }]);
+    render();
+    el()
+      .querySelector('.studio-nav-wrap')!
+      .dispatchEvent(new PointerEvent('pointerenter', { pointerType: 'mouse' }));
+    render();
+    el()
+      .querySelector<HTMLAnchorElement>('#header-studio-panel a[href="/studio/analytics"]')!
+      .click();
+    await fixture.whenStable();
+    render();
+    expect(router.routerState.snapshot.root.firstChild?.routeConfig?.path).toBe('studio/analytics');
+    expect(el().querySelector('#header-studio-panel')).toBeNull();
   });
 
   it('closes a popup when Angular starts navigating', async () => {

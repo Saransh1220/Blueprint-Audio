@@ -103,7 +103,7 @@
 </style>
 
 @if (hasSidebar()) {
-  <app-sidebar></app-sidebar>
+  <app-sidebar />
 }
 <div class="main-col" [class.with-sidebar]="hasSidebar()">
   @if (!isAuthRoute()) {
@@ -131,7 +131,7 @@
     }
   </div>
 </div>
-<app-player></app-player>
+<app-player [class.with-sidebar]="hasSidebar()" />
 @if (!isAuthRoute() && !isUploadRoute()) {
   <nav class="mobile-bottom-nav" aria-label="Mobile navigation">
     <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">

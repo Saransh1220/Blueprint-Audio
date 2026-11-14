@@ -70,11 +70,10 @@ describe('NavMenuComponent', () => {
     expect(links[1].classList.contains('active')).toBe(true);
   });
 
-  it('says which destination was chosen', () => {
-    const chosen: NavMenuItem[] = [];
-    fixture.componentInstance.selected.subscribe((item) => chosen.push(item));
+  it('navigates when a destination is clicked', async () => {
     render();
     (el.querySelectorAll('a.item')[1] as HTMLAnchorElement).click();
-    expect(chosen).toEqual([items[1]]);
+    await fixture.whenStable();
+    expect(TestBed.inject(Router).url).toBe('/loops');
   });
 });

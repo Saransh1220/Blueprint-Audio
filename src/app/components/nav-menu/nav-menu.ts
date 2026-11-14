@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 
 import type { NavMenuItem } from './nav-menu.items';
@@ -14,5 +14,4 @@ export class NavMenuComponent {
   readonly label = input.required<string>();
   readonly items = input.required<readonly NavMenuItem[]>();
   readonly featuredRoute = input('');
-  readonly selected = output<NavMenuItem>();
 }

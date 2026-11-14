@@ -94,6 +94,12 @@ describe('AppComponent', () => {
     expect((fixture.nativeElement as HTMLElement).querySelector('app-footer')).toBeNull();
     expect((fixture.nativeElement as HTMLElement).querySelector('app-header')).toBeTruthy();
     expect(fixture.nativeElement.querySelector('app-sidebar')).toBeTruthy();
+    expect(fixture.nativeElement.querySelector('app-player.with-sidebar')).toBeTruthy();
+
+    await router.navigateByUrl('/dashboard');
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('app-sidebar')).toBeNull();
+    expect(fixture.nativeElement.querySelector('app-player.with-sidebar')).toBeNull();
   });
 
   it('omits the global footer on the payment return page', async () => {

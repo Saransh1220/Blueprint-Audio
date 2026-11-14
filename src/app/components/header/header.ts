@@ -160,6 +160,7 @@ export class HeaderComponent {
     const path = this.router.url.split(/[?#]/, 1)[0];
     return (
       path === '/explore' ||
+      path === '/discover' ||
       path === '/creator-tools' ||
       path === '/loops' ||
       path === '/battles' ||
@@ -219,7 +220,10 @@ export class HeaderComponent {
   }
 
   toggleNavPanel(panel: NavPanel, event?: MouseEvent) {
-    if (!isKeyboardOrTouchActivation(event)) return;
+    if (!isKeyboardOrTouchActivation(event)) {
+      this.setNavPanelOpen(panel, true);
+      return;
+    }
     this.setNavPanelOpen(panel, this.activeNavPanel !== panel);
   }
 

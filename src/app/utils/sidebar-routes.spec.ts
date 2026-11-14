@@ -14,10 +14,16 @@ describe('usesSidebarLayout', () => {
     expect(usesSidebarLayout(url)).toBe(true);
   });
 
-  it.each(['/', '/login', '/studio/overview', '/upload', '/payment/return', '/exploreXYZ'])(
-    'does not use the sidebar on %s',
-    (url) => {
-      expect(usesSidebarLayout(url)).toBe(false);
-    },
-  );
+  it.each([
+    '/',
+    '/login',
+    '/studio/overview',
+    '/upload',
+    '/payment/return',
+    '/exploreXYZ',
+    '/dashboard',
+    '/dashboard?tab=library',
+  ])('does not use the sidebar on %s', (url) => {
+    expect(usesSidebarLayout(url)).toBe(false);
+  });
 });

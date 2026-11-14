@@ -1,7 +1,7 @@
 import { Component, input } from '@angular/core';
 import { type ComponentFixture, TestBed } from '@angular/core/testing';
-import { provideRouter } from '@angular/router';
-import { of, Subject, throwError } from 'rxjs';
+import { ActivatedRoute, convertToParamMap, provideRouter } from '@angular/router';
+import { BehaviorSubject, of, Subject, throwError } from 'rxjs';
 import { SpecCardComponent } from '../../components/spec-card/spec-card';
 import type { Spec } from '../../models';
 import { type HomepageData, LabService } from '../../services/lab';
@@ -36,15 +36,18 @@ describe('DiscoverComponent', () => {
   let fixture: ComponentFixture<DiscoverComponent>;
   let root: HTMLElement;
   const getHome = vi.fn<LabService['getHome']>();
+  const queryParamMap = new BehaviorSubject(convertToParamMap({}));
 
   beforeEach(() => {
     getHome.mockReset();
+    queryParamMap.next(convertToParamMap({}));
     TestBed.configureTestingModule({
       providers: [provideRouter([]), { provide: LabService, useValue: { getHome } }],
     }).overrideComponent(DiscoverComponent, {
       remove: { imports: [SpecCardComponent] },
       add: { imports: [SpecCardStub] },
     });
+    vi.spyOn(TestBed.inject(ActivatedRoute), 'queryParamMap', 'get').mockReturnValue(queryParamMap);
     fixture = TestBed.createComponent(DiscoverComponent);
     root = fixture.nativeElement;
   });
@@ -69,6 +72,24 @@ describe('DiscoverComponent', () => {
       'beat-2',
     ]);
     expect(root.querySelector('section a')?.getAttribute('href')).toBe('/explore?sort=newest');
+  });
+
+  it('shows only new releases when the sidebar changes the query', () => {
+    getHome.mockReturnValue(
+      of({
+        ...homepage,
+        sections: { ...homepage.sections, trending: homepage.sections['new_releases'] },
+      }),
+    );
+    fixture.detectChanges();
+    expect(root.querySelector('#sec-trending')).toBeTruthy();
+
+    queryParamMap.next(convertToParamMap({ section: 'new_releases' }));
+    fixture.detectChanges();
+    expect(root.querySelector('h1')?.textContent).toBe('New releases');
+    expect(root.querySelector('#sec-trending')).toBeNull();
+    expect(root.querySelectorAll('app-spec-card')).toHaveLength(2);
+    expect(getHome).toHaveBeenCalledTimes(1);
   });
 
   it('links to the catalog for an empty response', () => {

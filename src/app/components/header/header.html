@@ -78,7 +78,6 @@
             label="Browse"
             featuredRoute="/explore"
             [items]="browseItems()"
-            (selected)="closeNavPanel()"
           />
         }
       </div>
@@ -106,12 +105,7 @@
             <i class="fas fa-chevron-down caret" aria-hidden="true"></i>
           </button>
           @if (activeNavPanel === 'studio') {
-            <app-nav-menu
-              id="header-studio-panel"
-              label="Studio"
-              [items]="studioItems()"
-              (selected)="closeNavPanel()"
-            />
+            <app-nav-menu id="header-studio-panel" label="Studio" [items]="studioItems()" />
           }
         </div>
       }

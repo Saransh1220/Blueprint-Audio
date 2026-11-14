@@ -1,6 +1,14 @@
-import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core';
-import { RouterLink } from '@angular/router';
-import { catchError, finalize, of } from 'rxjs';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  inject,
+  OnInit,
+  signal,
+} from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { ActivatedRoute, RouterLink } from '@angular/router';
+import { catchError, finalize, map, of } from 'rxjs';
 import { SpecCardComponent } from '../../components/spec-card/spec-card';
 import { LoadingSpinnerComponent } from '../../components/ui/loading-spinner/loading-spinner.component';
 import type { Spec } from '../../models';
@@ -25,6 +33,12 @@ interface DiscoverSection {
 })
 export class DiscoverComponent implements OnInit {
   private readonly lab = inject(LabService);
+
+  private readonly route = inject(ActivatedRoute);
+  readonly newReleasesOnly = toSignal(
+    this.route.queryParamMap.pipe(map((params) => params.get('section') === 'new_releases')),
+    { initialValue: false },
+  );
 
   readonly loading = signal(true);
   readonly failed = signal(false);
@@ -58,6 +72,12 @@ export class DiscoverComponent implements OnInit {
     },
   ];
 
+  readonly visibleSections = computed(() =>
+    this.newReleasesOnly()
+      ? this.sections.filter((section) => section.key === 'new_releases')
+      : this.sections,
+  );
+
   ngOnInit(): void {
     this.lab
       .getHome({ limit: 8, period: '30d' })
@@ -76,6 +96,6 @@ export class DiscoverComponent implements OnInit {
   }
 
   hasAny(): boolean {
-    return this.sections.some((s) => this.specs(s.key).length);
+    return this.visibleSections().some((s) => this.specs(s.key).length);
   }
 }

@@ -964,6 +964,19 @@
   }
 }
 
+@media (min-width: 1181px) {
+  :host(.with-sidebar) .mini-player {
+    left: var(--sidebar-w, 232px);
+  }
+}
+
+@media (min-width: 1181px) and (max-width: 1312px) {
+  :host(.with-sidebar) .mp-row {
+    grid-template-columns: minmax(180px, 1fr) minmax(260px, 1.2fr) minmax(290px, auto);
+    gap: 14px;
+  }
+}
+
 @media (max-width: 1080px) {
   .mp-row {
     grid-template-columns: minmax(180px, 1fr) minmax(200px, 1.2fr) minmax(150px, auto);
